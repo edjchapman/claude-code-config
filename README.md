@@ -13,7 +13,7 @@ A collection of reusable agents, commands, and permission templates for [Claude 
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/claude-code-config.git
+git clone https://github.com/edjchapman/claude-code-config.git
 cd claude-code-config
 
 # Set up global config (creates symlinks in ~/.claude/)
