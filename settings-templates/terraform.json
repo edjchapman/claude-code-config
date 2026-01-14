@@ -1,0 +1,13 @@
+{
+  "_version": 1,
+  "permissions": {
+    "allow": [
+      "Bash(terraform fmt:*)",
+      "Bash(terraform validate:*)",
+      "Bash(terraform plan:*)",
+      "Bash(terraform init:*)",
+      "WebFetch(domain:registry.terraform.io)",
+      "WebFetch(domain:developer.hashicorp.com)"
+    ]
+  }
+}

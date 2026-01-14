@@ -1,0 +1,36 @@
+{
+  "_version": 1,
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npm install:*)",
+      "Bash(npm ci:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm audit:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx playwright:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npm run check:unused:*)",
+      "Bash(yarn:*)",
+      "Bash(yarn run:*)",
+      "Bash(yarn test:*)",
+      "Bash(yarn install:*)",
+      "Bash(pnpm:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm install:*)",
+      "WebFetch(domain:react.dev)",
+      "WebFetch(domain:tanstack.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:www.typescriptlang.org)",
+      "WebFetch(domain:nextjs.org)",
+      "WebFetch(domain:vitejs.dev)",
+      "WebFetch(domain:vitest.dev)",
+      "WebFetch(domain:playwright.dev)",
+      "WebFetch(domain:eslint.org)"
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "_version": 1,
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(pip install:*)",
+      "Bash(pip list:*)",
+      "Bash(pip show:*)",
+      "Bash(pip freeze:*)",
+      "Bash(uv run:*)",
+      "Bash(uv pip:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv add:*)",
+      "Bash(uv remove:*)",
+      "Bash(uv lock:*)",
+      "Bash(poetry run:*)",
+      "Bash(poetry install:*)",
+      "Bash(poetry add:*)",
+      "Bash(poetry remove:*)",
+      "Bash(pytest:*)",
+      "Bash(mypy:*)",
+      "Bash(ruff:*)",
+      "Bash(black:*)",
+      "Bash(isort:*)",
+      "Bash(flake8:*)",
+      "Bash(pylint:*)",
+      "Bash(bandit:*)",
+      "Bash(pre-commit:*)",
+      "WebFetch(domain:docs.python.org)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:peps.python.org)",
+      "WebFetch(domain:mypy.readthedocs.io)",
+      "WebFetch(domain:docs.pytest.org)",
+      "WebFetch(domain:docs.astral.sh)",
+      "WebFetch(domain:python-poetry.org)"
+    ]
+  }
+}

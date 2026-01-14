@@ -1,0 +1,38 @@
+{
+  "_version": 1,
+  "_note": "Includes both python3 manage.py (direct) and uv run manage.py (uv-based) patterns for flexibility",
+  "permissions": {
+    "allow": [
+      "Bash(python3 manage.py test:*)",
+      "Bash(python3 manage.py makemigrations:*)",
+      "Bash(python3 manage.py migrate:*)",
+      "Bash(python3 manage.py shell:*)",
+      "Bash(python3 manage.py dbshell:*)",
+      "Bash(python3 manage.py createsuperuser:*)",
+      "Bash(python3 manage.py collectstatic:*)",
+      "Bash(python3 manage.py check:*)",
+      "Bash(python3 manage.py showmigrations:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker compose run:*)",
+      "Bash(docker compose exec:*)",
+      "Bash(docker compose logs:*)",
+      "Bash(make build:*)",
+      "Bash(make check:*)",
+      "Bash(make test:*)",
+      "Bash(make lint:*)",
+      "Bash(uv run flake8:*)",
+      "Bash(uv run python:*)",
+      "Bash(uv run basedpyright:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(uv run manage.py:*)",
+      "WebFetch(domain:docs.djangoproject.com)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:www.django-rest-framework.org)",
+      "WebFetch(domain:django-debug-toolbar.readthedocs.io)",
+      "WebFetch(domain:mozilla-django-oidc.readthedocs.io)",
+      "WebFetch(domain:django-import-export.readthedocs.io)",
+      "WebFetch(domain:django-filter.readthedocs.io)",
+      "WebFetch(domain:django-extensions.readthedocs.io)"
+    ]
+  }
+}
