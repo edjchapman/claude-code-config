@@ -1,218 +1,247 @@
 # Claude Code Config
 
-A collection of reusable agents, commands, and permission templates for [Claude Code](https://claude.ai/code).
+Reusable agents, commands, and permission templates for [Claude Code](https://claude.ai/code).
 
-## Features
+## Why This Exists
 
-- **9 specialized agents** for debugging, code review, testing, refactoring, and more
-- **7 slash commands** for common workflows (commit, PR, review, standup)
-- **7 composable permission templates** for Python, Django, React, Node.js, Go, and Terraform
-- **Setup scripts** for easy configuration on new machines and projects
+Claude Code stores configuration in `~/.claude/` (global) and `.claude/` (per-project). Managing this across multiple projects and machines becomes tedious:
 
-## Installation
+- **Agents** need to be copied to each project
+- **Commands** are duplicated everywhere
+- **Permission templates** drift between projects
+- **New machines** require manual setup
 
-```bash
-# Clone the repository
-git clone https://github.com/edjchapman/claude-code-config.git
-cd claude-code-config
+This repo solves that by providing:
+- A **single source of truth** for your Claude Code configuration
+- **Symlinks** so updates propagate everywhere automatically
+- **Composable templates** for different project types
+- **Setup scripts** that work on any machine
 
-# Set up global config (creates symlinks in ~/.claude/)
-./scripts/setup-global.sh
-```
-
-## Per-Project Setup
-
-In any project directory:
+## Quick Start
 
 ```bash
-# Python project
-/path/to/claude-code-config/scripts/setup-project.sh python
+# 1. Clone (or fork if you want to customize)
+git clone https://github.com/edjchapman/claude-code-config.git ~/claude-code-config
 
-# Django project
-/path/to/claude-code-config/scripts/setup-project.sh django
+# 2. Set up global config
+~/claude-code-config/scripts/setup-global.sh
 
-# React frontend
-/path/to/claude-code-config/scripts/setup-project.sh react
+# 3. Set up a project (from your project directory)
+cd ~/my-django-project
+~/claude-code-config/scripts/setup-project.sh django
 
-# Full-stack (Django + React)
-/path/to/claude-code-config/scripts/setup-project.sh django react
-
-# See all options
-/path/to/claude-code-config/scripts/setup-project.sh --help
+# 4. Start using Claude Code - agents and commands are now available
+claude
 ```
 
-This creates in your project:
+**Tip:** Add an alias for easier use:
+```bash
+# Add to ~/.bashrc or ~/.zshrc
+alias claude-setup='~/claude-code-config/scripts/setup-project.sh'
+
+# Then use it like:
+claude-setup django react
 ```
-.claude/
-├── agents   -> (symlink to repo agents)
-├── commands -> (symlink to repo commands)
-└── settings.local.json (merged from base + your templates)
+
+## What Gets Created
+
+**Global setup** (`setup-global.sh`) creates symlinks in `~/.claude/`:
 ```
+~/.claude/
+├── agents   -> ~/claude-code-config/agents
+└── commands -> ~/claude-code-config/commands
+```
+
+**Project setup** (`setup-project.sh`) creates in your project:
+```
+your-project/.claude/
+├── agents              -> ~/claude-code-config/agents
+├── commands            -> ~/claude-code-config/commands
+└── settings.local.json    (generated from templates)
+```
+
+## Fork or Clone?
+
+| Approach | When to Use |
+|----------|-------------|
+| **Clone** | You want to use as-is, or contribute improvements back |
+| **Fork** | You want to customize agents/commands for your own workflow |
+
+If you fork, you can still pull updates from upstream:
+```bash
+git remote add upstream https://github.com/edjchapman/claude-code-config.git
+git fetch upstream
+git merge upstream/main
+```
+
+## Available Templates
+
+Use one or combine multiple:
+
+```bash
+~/claude-code-config/scripts/setup-project.sh python          # Python project
+~/claude-code-config/scripts/setup-project.sh django          # Django
+~/claude-code-config/scripts/setup-project.sh django react    # Full-stack
+~/claude-code-config/scripts/setup-project.sh go              # Go project
+~/claude-code-config/scripts/setup-project.sh node            # Node.js
+~/claude-code-config/scripts/setup-project.sh terraform       # Infrastructure
+```
+
+| Template | What It Allows |
+|----------|----------------|
+| `base` | Git, GitHub CLI, file operations, WebSearch *(always included)* |
+| `python` | pytest, mypy, ruff, black, pip, uv, poetry |
+| `django` | Django management, docker compose, make |
+| `react` | npm, vitest, playwright, TypeScript |
+| `node` | npm, yarn, pnpm, jest, eslint, prettier |
+| `go` | go build/test/run, golangci-lint |
+| `terraform` | terraform fmt/validate/plan/init |
+
+## Available Agents
+
+Invoke with `@agent-name` in Claude Code:
+
+| Agent | What It Does | Model |
+|-------|--------------|-------|
+| `@bug-resolver` | Systematic debugging, root cause analysis | opus |
+| `@code-reviewer` | General code review for any language | opus |
+| `@django-code-reviewer` | Django security/performance review, N+1 detection | opus |
+| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | opus |
+| `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet |
+| `@pr-review-bundler` | Bundle PR reviews into markdown | opus |
+| `@refactoring-engineer` | Systematic, safe refactoring | opus |
+| `@spec-writer` | Technical specs and planning docs | opus |
+| `@test-engineer` | Create unit and integration tests | sonnet |
+
+**Model notes:**
+- **Opus** = complex reasoning, security reviews, planning (higher cost)
+- **Sonnet** = pattern-based tasks, faster, lower cost
+
+## Available Commands
+
+Invoke with `/command` in Claude Code:
+
+| Command | What It Does |
+|---------|--------------|
+| `/commit` | Analyze staged changes, generate commit message |
+| `/pr` | Create PR with auto-generated description |
+| `/review` | Review changes before committing |
+| `/standup` | Summarize last 24h of git activity |
+| `/explain` | Explain code at a specific location |
+| `/lint` | Run all project linters |
+| `/format-release-notes` | Format GitHub release notes |
 
 ## Directory Structure
 
 ```
 claude-code-config/
-├── agents/               # Custom agent definitions
-├── commands/             # Custom slash commands
-├── settings-templates/   # Permission templates by project type
-│   ├── base.json         # Git, GitHub CLI, file operations
-│   ├── python.json       # pytest, mypy, ruff, pip, uv, poetry
-│   ├── django.json       # Django management, docker compose
-│   ├── react.json        # npm, vitest, playwright
-│   ├── node.json         # npm, yarn, pnpm, eslint
-│   ├── go.json           # go build/test, golangci-lint
-│   └── terraform.json    # terraform commands
+├── agents/                  # Agent definitions (markdown)
+├── commands/                # Slash commands (markdown)
+├── settings-templates/      # Permission templates (JSON)
 ├── scripts/
-│   ├── setup-global.sh   # Configure ~/.claude/
-│   ├── setup-project.sh  # Configure project .claude/
-│   └── merge-settings.py # Merge templates
-└── web_shortcuts/        # Web workflow shortcuts
+│   ├── setup-global.sh      # One-time machine setup
+│   ├── setup-project.sh     # Per-project setup
+│   └── merge-settings.py    # Template merger
+└── web_shortcuts/           # Web workflow helpers
 ```
-
-## Available Agents
-
-| Agent | Purpose | Model |
-|-------|---------|-------|
-| `bug-resolver` | Systematic debugging and root cause analysis | opus |
-| `code-reviewer` | General code review for any language | opus |
-| `django-code-reviewer` | Django-specific security/performance review | opus |
-| `e2e-playwright-engineer` | Playwright E2E test creation | opus |
-| `git-helper` | Complex git operations and recovery | sonnet |
-| `pr-review-bundler` | Bundle PR reviews into markdown | opus |
-| `refactoring-engineer` | Systematic code refactoring | opus |
-| `spec-writer` | Technical specifications and planning | opus |
-| `test-engineer` | Backend and frontend test creation | sonnet |
-
-### Model Selection
-
-- **Opus**: Complex analysis, security reviews, architectural decisions, planning
-- **Sonnet**: Pattern-based tasks, test generation, git operations (faster, lower cost)
-
-## Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `/standup` | Summarize last 24h of activity for standup |
-| `/commit` | Analyze staged changes, generate commit message |
-| `/pr` | Create PR with auto-generated description |
-| `/review` | Review current changes before committing |
-| `/explain` | Explain code at a specific location |
-| `/lint` | Run all project linters |
-| `/format-release-notes` | Format GitHub release notes |
-
-## Available Templates
-
-| Template | Permissions |
-|----------|-------------|
-| `base` | Git, GitHub CLI, find, mkdir, rm, WebSearch (always included) |
-| `python` | pytest, mypy, ruff, black, pip, uv, poetry |
-| `django` | Django management, docker compose, make |
-| `react` | npm, npx, vitest, playwright, TypeScript |
-| `node` | npm, yarn, pnpm, vitest, jest, eslint, prettier |
-| `go` | go build/test/run, golangci-lint, staticcheck |
-| `terraform` | terraform fmt/validate/plan/init |
 
 ## Customization
 
-### Adding a New Agent
+### Adding an Agent
 
 Create `agents/my-agent.md`:
 
 ```yaml
 ---
 name: my-agent
-description: When to use this agent
-model: opus  # or sonnet
+description: Brief description for when Claude should use this agent
+model: opus
 ---
 
-Your agent instructions here...
+## Instructions
+
+Your detailed agent instructions here...
 ```
 
-### Adding a New Command
+### Adding a Command
 
-Create `commands/my-command.md`. The filename becomes the command name (`/my-command`).
+Create `commands/my-command.md`. The filename becomes `/my-command`.
 
-### Adding a New Template
+### Adding a Template
 
-Create `settings-templates/my-template.json`:
+Create `settings-templates/my-stack.json`:
 
 ```json
 {
-  "_source": "my-template",
+  "_source": "my-stack",
   "_version": 1,
   "permissions": {
     "allow": [
-      "Bash(my-command:*)",
-      "WebFetch(domain:docs.example.com)"
+      "Bash(my-cli-tool:*)",
+      "WebFetch(domain:docs.my-tool.com)"
     ]
   }
 }
 ```
 
-Then use it: `setup-project.sh my-template`
+Then use: `setup-project.sh my-stack`
 
-## Troubleshooting
+## Keeping Settings in Sync
 
-### Python not found
-
-Setup scripts require Python 3.8+:
+Check if your project settings match the templates:
 
 ```bash
-python3 --version
-# macOS: brew install python@3.11
+cd ~/my-project
+~/claude-code-config/scripts/setup-project.sh --check django
 ```
 
-### Symlinks broken after moving repo
-
-Re-run setup:
+Regenerate if drifted:
 
 ```bash
-./scripts/setup-global.sh
-# Then in each project:
-/path/to/repo/scripts/setup-project.sh <types>
+~/claude-code-config/scripts/setup-project.sh django
 ```
 
-### Settings drift
+## Git Setup for Projects
 
-Check and regenerate:
-
-```bash
-./scripts/setup-project.sh --check django
-./scripts/setup-project.sh django  # regenerate
-```
-
-## What Stays Local
-
-These are machine-specific and not symlinked:
-
-- `~/.claude/settings.json` (MCP servers, API tokens)
-- `~/.claude/settings.local.json` (machine-specific permissions)
-- `~/.claude/history.jsonl`
-- `~/.claude/projects/`
-
-## Git Recommendations
-
-For projects using this setup, add to `.gitignore`:
+Add to your project's `.gitignore`:
 
 ```gitignore
-# Claude Code symlinks (point to personal config)
+# Claude Code symlinks (personal config)
 .claude/agents
 .claude/commands
 ```
 
-Keep `settings.local.json` tracked to share project permissions with your team.
+**Do commit** `settings.local.json` if you want to share permissions with your team.
+
+## Troubleshooting
+
+**Python not found**
+```bash
+python3 --version  # Need 3.8+
+# macOS: brew install python@3.11
+# Ubuntu: sudo apt install python3
+```
+
+**Symlinks broken after moving repo**
+```bash
+# Re-run both setups
+~/claude-code-config/scripts/setup-global.sh
+cd ~/my-project && ~/claude-code-config/scripts/setup-project.sh django
+```
+
+**"Circular symlink" error**
+You're running setup-project.sh from inside the config repo. Run it from your actual project directory instead.
 
 ## Requirements
 
-- Python 3.8+
 - Bash shell
+- Python 3.8+
 - [Claude Code CLI](https://claude.ai/code)
 
 ## License
 
-MIT License - see [LICENSE](LICENSE)
+MIT - see [LICENSE](LICENSE)
 
 ## Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
