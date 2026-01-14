@@ -3,6 +3,7 @@
 #
 # Usage:
 #   ./setup-project.sh <type> [type2] ...   # Set up project with templates
+#   ./setup-project.sh all                  # Set up with ALL templates
 #   ./setup-project.sh --list               # Show available templates
 #   ./setup-project.sh --check <types>      # Check for settings drift and symlinks
 #   ./setup-project.sh --status             # Show current configuration state
@@ -12,6 +13,7 @@
 # Examples:
 #   ./setup-project.sh python               # Python project
 #   ./setup-project.sh django react         # Full-stack Django + React
+#   ./setup-project.sh all                  # All templates (full permissions)
 #   ./setup-project.sh --check django       # Verify settings match templates
 #   ./setup-project.sh --dry-run django     # Preview what would be created
 #
@@ -50,6 +52,7 @@ show_help() {
     echo ""
     echo "Usage:"
     echo "  $0 <type> [type2] ...      Set up project with specified templates"
+    echo "  $0 all                     Set up with ALL templates"
     echo "  $0 --list, -l              Show available templates"
     echo "  $0 --check, -c <types>     Check settings drift and symlink integrity"
     echo "  $0 --status, -s            Show current configuration state"
@@ -57,6 +60,7 @@ show_help() {
     echo "  $0 --help, -h              Show this help"
     echo ""
     echo "Available templates:"
+    echo "  all       All templates below (full permissions)"
     echo "  base      Git, GitHub CLI, basic file operations (always included)"
     echo "  python    Python: pytest, mypy, ruff, pip, uv, poetry"
     echo "  django    Django: pytest, docker compose, uv, make"
@@ -70,10 +74,11 @@ show_help() {
     echo "  $0 django               # Django project"
     echo "  $0 react                # React frontend"
     echo "  $0 django react         # Full-stack Django + React"
+    echo "  $0 all                  # Everything (full permissions)"
     echo "  $0 go                   # Go project"
     echo "  $0 --check django       # Verify settings match templates"
     echo "  $0 --status             # Show what's currently configured"
-    echo "  $0 --dry-run django     # Preview what would be created"
+    echo "  $0 --dry-run all        # Preview all templates"
     echo ""
     echo "This creates in your project:"
     echo "  .claude/"
@@ -92,6 +97,7 @@ fi
 if [ "$1" = "--list" ] || [ "$1" = "-l" ]; then
     echo "Available templates:"
     echo ""
+    echo "  all       (all templates below)"
     for template in "$TEMPLATES_PATH"/*.json; do
         name=$(basename "$template" .json)
         echo "  $name"
@@ -247,6 +253,19 @@ fi
 
 # Collect all requested types
 TYPES=("$@")
+
+# Expand "all" to all available templates (excluding base, which is always included)
+if [ "${TYPES[0]}" = "all" ]; then
+    TYPES=()
+    for template in "$TEMPLATES_PATH"/*.json; do
+        name=$(basename "$template" .json)
+        if [ "$name" != "base" ]; then
+            TYPES+=("$name")
+        fi
+    done
+    echo "Using all templates: ${TYPES[*]}"
+    echo ""
+fi
 
 # Validate all types exist
 for type in "${TYPES[@]}"; do

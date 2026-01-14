@@ -85,10 +85,12 @@ Use one or combine multiple:
 ~/claude-code-config/scripts/setup-project.sh go              # Go project
 ~/claude-code-config/scripts/setup-project.sh node            # Node.js
 ~/claude-code-config/scripts/setup-project.sh terraform       # Infrastructure
+~/claude-code-config/scripts/setup-project.sh all             # ALL templates
 ```
 
 | Template | What It Allows |
 |----------|----------------|
+| `all` | All templates below combined |
 | `base` | Git, GitHub CLI, file operations, WebSearch *(always included)* |
 | `python` | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry |
 | `django` | Django manage.py commands, docker compose, make, uv run (pytest, flake8, basedpyright) |
