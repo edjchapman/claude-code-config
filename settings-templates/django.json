@@ -1,4 +1,5 @@
 {
+  "_source": "django",
   "_version": 1,
   "_note": "Includes both python3 manage.py (direct) and uv run manage.py (uv-based) patterns for flexibility",
   "permissions": {

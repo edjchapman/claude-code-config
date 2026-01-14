@@ -90,11 +90,11 @@ Use one or combine multiple:
 | Template | What It Allows |
 |----------|----------------|
 | `base` | Git, GitHub CLI, file operations, WebSearch *(always included)* |
-| `python` | pytest, mypy, ruff, black, pip, uv, poetry |
-| `django` | Django management, docker compose, make |
-| `react` | npm, vitest, playwright, TypeScript |
-| `node` | npm, yarn, pnpm, jest, eslint, prettier |
-| `go` | go build/test/run, golangci-lint |
+| `python` | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry |
+| `django` | Django manage.py commands, docker compose, make, uv run (pytest, flake8, basedpyright) |
+| `react` | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier |
+| `node` | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun |
+| `go` | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire |
 | `terraform` | terraform fmt/validate/plan/init |
 
 ## Available Agents
@@ -142,8 +142,12 @@ claude-code-config/
 │   ├── setup-global.sh      # One-time machine setup
 │   ├── setup-project.sh     # Per-project setup
 │   └── merge-settings.py    # Template merger
-└── web_shortcuts/           # Web workflow helpers
+└── web_shortcuts/           # Web workflow prompts (for claude.ai web interface)
 ```
+
+### Web Shortcuts
+
+The `web_shortcuts/` directory contains prompts designed for use with the Claude web interface (claude.ai) rather than Claude Code CLI. These integrate with external services like Jira, Notion, and Slack via MCP. Copy the prompt content and use it in a web conversation with the appropriate MCP integrations enabled.
 
 ## Customization
 
@@ -213,6 +217,27 @@ Add to your project's `.gitignore`:
 
 **Do commit** `settings.local.json` if you want to share permissions with your team.
 
+## Uninstalling / Cleanup
+
+**Remove global symlinks:**
+```bash
+rm ~/.claude/agents ~/.claude/commands
+```
+
+**Remove from a project:**
+```bash
+rm -rf .claude/agents .claude/commands
+# Optionally remove settings too:
+rm .claude/settings.local.json
+```
+
+**Moving the repo to a new location:**
+```bash
+# After moving, re-run setup scripts to update symlinks
+~/new-location/claude-code-config/scripts/setup-global.sh
+cd ~/my-project && ~/new-location/claude-code-config/scripts/setup-project.sh django
+```
+
 ## Troubleshooting
 
 **Python not found**
@@ -234,9 +259,17 @@ You're running setup-project.sh from inside the config repo. Run it from your ac
 
 ## Requirements
 
-- Bash shell
+- Bash shell (macOS, Linux, or WSL on Windows)
 - Python 3.8+
 - [Claude Code CLI](https://claude.ai/code)
+
+### Windows Users
+
+These scripts require a Unix-like environment. Options:
+- **WSL (recommended)**: Install [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install), then run scripts from within WSL
+- **Git Bash**: May work but is not tested
+
+Note: Symlinks created in WSL are not visible from native Windows applications.
 
 ## License
 

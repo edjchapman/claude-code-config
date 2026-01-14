@@ -30,6 +30,13 @@ if [ ! -d "$REPO_ROOT/commands" ]; then
     exit 1
 fi
 
+# Warn if Claude Code CLI is not installed (non-blocking)
+if ! command -v claude &> /dev/null; then
+    echo "Note: Claude Code CLI not found in PATH"
+    echo "Install from: https://claude.ai/code"
+    echo ""
+fi
+
 echo "Setting up global Claude Code config..."
 echo "Repository: $REPO_ROOT"
 echo ""

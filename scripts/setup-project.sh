@@ -4,13 +4,16 @@
 # Usage:
 #   ./setup-project.sh <type> [type2] ...   # Set up project with templates
 #   ./setup-project.sh --list               # Show available templates
-#   ./setup-project.sh --check <types>      # Check for settings drift
+#   ./setup-project.sh --check <types>      # Check for settings drift and symlinks
+#   ./setup-project.sh --status             # Show current configuration state
+#   ./setup-project.sh --dry-run <types>    # Preview changes without applying
 #   ./setup-project.sh --help               # Show this help
 #
 # Examples:
 #   ./setup-project.sh python               # Python project
 #   ./setup-project.sh django react         # Full-stack Django + React
 #   ./setup-project.sh --check django       # Verify settings match templates
+#   ./setup-project.sh --dry-run django     # Preview what would be created
 #
 # This script creates a .claude/ directory in your current project with:
 #   - Symlinks to shared agents and commands
@@ -21,6 +24,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 TEMPLATES_PATH="$REPO_ROOT/settings-templates"
+DRY_RUN=false
 
 # Check Python 3.8+ is available
 check_python() {
@@ -45,10 +49,12 @@ show_help() {
     echo "Setup project-level Claude Code configuration"
     echo ""
     echo "Usage:"
-    echo "  $0 <type> [type2] ...   Set up project with specified templates"
-    echo "  $0 --list, -l           Show available templates"
-    echo "  $0 --check, -c <types>  Check if settings have drifted from templates"
-    echo "  $0 --help, -h           Show this help"
+    echo "  $0 <type> [type2] ...      Set up project with specified templates"
+    echo "  $0 --list, -l              Show available templates"
+    echo "  $0 --check, -c <types>     Check settings drift and symlink integrity"
+    echo "  $0 --status, -s            Show current configuration state"
+    echo "  $0 --dry-run, -n <types>   Preview changes without applying"
+    echo "  $0 --help, -h              Show this help"
     echo ""
     echo "Available templates:"
     echo "  base      Git, GitHub CLI, basic file operations (always included)"
@@ -66,6 +72,8 @@ show_help() {
     echo "  $0 django react         # Full-stack Django + React"
     echo "  $0 go                   # Go project"
     echo "  $0 --check django       # Verify settings match templates"
+    echo "  $0 --status             # Show what's currently configured"
+    echo "  $0 --dry-run django     # Preview what would be created"
     echo ""
     echo "This creates in your project:"
     echo "  .claude/"
@@ -94,6 +102,77 @@ if [ "$1" = "--list" ] || [ "$1" = "-l" ]; then
     exit 0
 fi
 
+# Handle --status flag
+if [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
+    echo "Claude Code Configuration Status"
+    echo "================================="
+    echo ""
+    echo "Current directory: $(pwd)"
+    echo ""
+
+    if [ ! -d .claude ]; then
+        echo "Status: Not configured (no .claude/ directory)"
+        exit 0
+    fi
+
+    echo ".claude/ directory exists"
+    echo ""
+
+    # Check agents symlink
+    if [ -L .claude/agents ]; then
+        target=$(readlink .claude/agents)
+        if [ -d .claude/agents ]; then
+            echo "✓ agents -> $target"
+        else
+            echo "✗ agents -> $target (broken symlink)"
+        fi
+    elif [ -d .claude/agents ]; then
+        echo "? agents (regular directory, not symlink)"
+    else
+        echo "✗ agents (missing)"
+    fi
+
+    # Check commands symlink
+    if [ -L .claude/commands ]; then
+        target=$(readlink .claude/commands)
+        if [ -d .claude/commands ]; then
+            echo "✓ commands -> $target"
+        else
+            echo "✗ commands -> $target (broken symlink)"
+        fi
+    elif [ -d .claude/commands ]; then
+        echo "? commands (regular directory, not symlink)"
+    else
+        echo "✗ commands (missing)"
+    fi
+
+    # Check settings file
+    echo ""
+    if [ -f .claude/settings.local.json ]; then
+        echo "✓ settings.local.json exists"
+        # Try to extract _generated_from
+        if command -v python3 &> /dev/null; then
+            generated_from=$(python3 -c "import json; d=json.load(open('.claude/settings.local.json')); print(' + '.join(d.get('_generated_from', ['unknown'])))" 2>/dev/null || echo "unknown")
+            echo "  Generated from: $generated_from"
+        fi
+    else
+        echo "✗ settings.local.json (missing)"
+    fi
+
+    exit 0
+fi
+
+# Handle --dry-run flag
+if [ "$1" = "--dry-run" ] || [ "$1" = "-n" ]; then
+    shift
+    DRY_RUN=true
+    if [ $# -eq 0 ]; then
+        echo "Usage: $0 --dry-run <project-type> [additional-types...]"
+        echo "Preview what would be created without making changes."
+        exit 1
+    fi
+fi
+
 # Handle --check flag
 if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
     shift
@@ -103,9 +182,37 @@ if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
         exit 1
     fi
 
+    HAS_ISSUES=false
+
+    echo "Checking Claude Code configuration..."
+    echo ""
+
+    # Check symlinks
+    for item in agents commands; do
+        if [ -L .claude/$item ]; then
+            target=$(readlink .claude/$item)
+            if [ -d .claude/$item ]; then
+                echo "✓ $item symlink OK -> $target"
+            else
+                echo "✗ $item symlink BROKEN -> $target"
+                HAS_ISSUES=true
+            fi
+        elif [ -d .claude/$item ]; then
+            echo "? $item is a regular directory (expected symlink)"
+            HAS_ISSUES=true
+        elif [ ! -e .claude/$item ]; then
+            echo "✗ $item missing"
+            HAS_ISSUES=true
+        fi
+    done
+
+    echo ""
+
+    # Check settings
     if [ ! -f .claude/settings.local.json ]; then
-        echo "Error: No .claude/settings.local.json found in current directory"
-        echo "Run '$0 $*' to create it first."
+        echo "✗ No .claude/settings.local.json found"
+        echo ""
+        echo "Run '$0 $*' to create configuration."
         exit 1
     fi
 
@@ -115,14 +222,20 @@ if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
     CURRENT=$(cat .claude/settings.local.json)
 
     if [ "$EXPECTED" = "$CURRENT" ]; then
-        echo "✓ Settings are in sync with templates (base $*)"
-        exit 0
+        echo "✓ Settings match templates (base $*)"
     else
-        echo "⚠ Settings have drifted from templates"
-        echo ""
-        echo "To regenerate from templates, run:"
+        echo "✗ Settings have drifted from templates"
+        HAS_ISSUES=true
+    fi
+
+    echo ""
+    if [ "$HAS_ISSUES" = true ]; then
+        echo "Issues found. To fix, run:"
         echo "  $0 $*"
         exit 1
+    else
+        echo "All checks passed!"
+        exit 0
     fi
 fi
 
@@ -160,14 +273,49 @@ done
 
 # Prevent running from within the repo itself (would create circular symlinks)
 CURRENT_DIR="$(cd "$(pwd)" && pwd)"
-if [ "$CURRENT_DIR" = "$REPO_ROOT" ] || [ "$CURRENT_DIR/.claude" = "$REPO_ROOT" ]; then
-    echo "Error: Cannot run setup-project.sh from within the config repository"
-    echo "This would create circular symlinks."
+# Check if current dir is the repo root or a subdirectory of the repo
+case "$CURRENT_DIR" in
+    "$REPO_ROOT"|"$REPO_ROOT"/*)
+        echo "Error: Cannot run setup-project.sh from within the config repository"
+        echo "This would create circular symlinks."
+        echo ""
+        echo "Run this from your actual project directory:"
+        echo "  cd ~/your-project"
+        echo "  $0 ${TYPES[*]}"
+        exit 1
+        ;;
+esac
+
+# Check Python early for dry-run preview
+check_python
+
+# Handle dry-run preview
+if [ "$DRY_RUN" = true ]; then
+    echo "Dry-run: Preview of changes (nothing will be modified)"
+    echo "========================================================="
     echo ""
-    echo "Run this from your actual project directory:"
-    echo "  cd ~/your-project"
+    echo "Directory: $(pwd)"
+    echo ""
+    echo "Would create:"
+    echo "  .claude/"
+    echo "  ├── agents   -> $REPO_ROOT/agents"
+    echo "  ├── commands -> $REPO_ROOT/commands"
+    echo "  └── settings.local.json"
+    echo ""
+    echo "Generated settings.local.json content:"
+    echo "---------------------------------------"
+    python3 "$SCRIPT_DIR/merge-settings.py" "$TEMPLATES_PATH" base "${TYPES[@]}"
+    echo ""
+    echo "To apply these changes, run without --dry-run:"
     echo "  $0 ${TYPES[*]}"
-    exit 1
+    exit 0
+fi
+
+# Warn if Claude Code CLI is not installed (non-blocking)
+if ! command -v claude &> /dev/null; then
+    echo "Note: Claude Code CLI not found in PATH"
+    echo "Install from: https://claude.ai/code"
+    echo ""
 fi
 
 # Create .claude directory in current project
@@ -185,9 +333,6 @@ done
 # Create symlinks to shared resources
 ln -s "$REPO_ROOT/agents" .claude/agents
 ln -s "$REPO_ROOT/commands" .claude/commands
-
-# Check Python and generate settings
-check_python
 
 echo "Generating settings.local.json (base + ${TYPES[*]})..."
 python3 "$SCRIPT_DIR/merge-settings.py" "$TEMPLATES_PATH" base "${TYPES[@]}" > .claude/settings.local.json

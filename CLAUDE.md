@@ -14,8 +14,10 @@ This is a configuration repository for Claude Code. It provides reusable agents,
 
 # Project setup (run from target project directory)
 ~/claude-code-config/scripts/setup-project.sh <template> [template2...]
-~/claude-code-config/scripts/setup-project.sh --list      # Show templates
-~/claude-code-config/scripts/setup-project.sh --check django  # Check drift
+~/claude-code-config/scripts/setup-project.sh --list       # Show templates
+~/claude-code-config/scripts/setup-project.sh --check django   # Check drift + symlinks
+~/claude-code-config/scripts/setup-project.sh --status     # Show current config state
+~/claude-code-config/scripts/setup-project.sh --dry-run django # Preview changes
 
 # Merge templates (used internally by setup-project.sh)
 python3 scripts/merge-settings.py <templates-dir> base <type1> [type2...]

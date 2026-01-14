@@ -1,4 +1,5 @@
 {
+  "_source": "terraform",
   "_version": 1,
   "permissions": {
     "allow": [

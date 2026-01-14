@@ -17,12 +17,22 @@ Thanks for your interest in contributing to Claude Code Config!
 3. Write clear, actionable instructions
 4. Test the agent with Claude Code before submitting
 
+#### Frontmatter Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Agent identifier (used as `@agent-name`) |
+| `description` | Yes | When Claude should use this agent (include examples) |
+| `model` | Yes | `opus` for complex reasoning, `sonnet` for simpler tasks |
+| `color` | No | UI accent color: `blue`, `orange`, `green`, `purple`, etc. |
+
 Example structure:
 ```yaml
 ---
 name: my-agent
 description: Brief description of when to use this agent
 model: opus  # or sonnet for simpler tasks
+color: blue  # optional UI color
 ---
 
 ## Overview
@@ -43,6 +53,31 @@ What this agent does...
 2. The filename (without `.md`) becomes the command name
 3. Keep commands focused on a single task
 4. Document any required arguments
+
+#### Available Variables
+
+Commands can use these special variables that Claude Code substitutes:
+
+| Variable | Description |
+|----------|-------------|
+| `$ARGUMENTS` | Arguments passed after the command (e.g., `/commit fix typo` → `fix typo`) |
+
+Example command structure:
+```markdown
+Analyze the staged changes and help write a commit message.
+
+## Arguments
+
+`$ARGUMENTS`
+
+- If provided, use as a hint for the commit message
+- If empty, analyze changes to determine the message
+
+## Steps
+
+1. Check staged changes with `git diff --cached`
+2. Generate appropriate commit message
+```
 
 ### Adding Templates
 

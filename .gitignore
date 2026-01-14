@@ -1,0 +1,12 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Root settings file (for local development/testing only)
+/settings.local.json

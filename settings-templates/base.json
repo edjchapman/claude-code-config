@@ -1,4 +1,5 @@
 {
+  "_source": "base",
   "_version": 1,
   "permissions": {
     "allow": [
