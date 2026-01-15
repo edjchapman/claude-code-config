@@ -176,7 +176,8 @@
       "WebFetch(domain:registry.terraform.io)",
       "WebFetch(domain:developer.hashicorp.com)",
       "Bash(git check-ignore:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(~/Development/claude-code-config/scripts/setup-global.sh)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
