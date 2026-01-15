@@ -10,3 +10,7 @@ Thumbs.db
 
 # Root settings file (for local development/testing only)
 /settings.local.json
+
+# Claude Code local config (symlinks are machine-specific)
+.claude/*
+!.claude/settings.local.json

@@ -290,21 +290,6 @@ for item in agents commands; do
     fi
 done
 
-# Prevent running from within the repo itself (would create circular symlinks)
-CURRENT_DIR="$(cd "$(pwd)" && pwd)"
-# Check if current dir is the repo root or a subdirectory of the repo
-case "$CURRENT_DIR" in
-    "$REPO_ROOT"|"$REPO_ROOT"/*)
-        echo "Error: Cannot run setup-project.sh from within the config repository"
-        echo "This would create circular symlinks."
-        echo ""
-        echo "Run this from your actual project directory:"
-        echo "  cd ~/your-project"
-        echo "  $0 ${TYPES[*]}"
-        exit 1
-        ;;
-esac
-
 # Check Python early for dry-run preview
 check_python
 
@@ -338,7 +323,20 @@ if ! command -v claude &> /dev/null; then
 fi
 
 # Create .claude directory in current project
-mkdir -p .claude
+# Handle existing .claude (file, broken symlink, or symlink to non-directory)
+if [ -L .claude ]; then
+    # Remove any existing symlink (broken or otherwise)
+    rm .claude
+elif [ -e .claude ] && [ ! -d .claude ]; then
+    echo "Error: .claude exists but is not a directory"
+    echo "Please remove it first: rm .claude"
+    exit 1
+fi
+# Use /bin/mkdir to avoid shell aliases that may not support -p
+/bin/mkdir -p .claude || {
+    echo "Error: Failed to create .claude directory"
+    exit 1
+}
 
 # Remove existing symlinks if they exist
 for item in agents commands; do
