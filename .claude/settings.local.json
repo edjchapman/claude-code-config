@@ -177,7 +177,8 @@
       "WebFetch(domain:developer.hashicorp.com)",
       "Bash(git check-ignore:*)",
       "Bash(git add:*)",
-      "Bash(~/Development/claude-code-config/scripts/setup-global.sh)"
+      "Bash(~/Development/claude-code-config/scripts/setup-global.sh)",
+      "Bash(git commit:*)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
