@@ -9,7 +9,7 @@ This is a configuration repository for Claude Code. It provides reusable agents,
 ## Key Scripts
 
 ```bash
-# Global setup (creates ~/.claude/agents and ~/.claude/commands symlinks)
+# Global setup (creates ~/.claude/agents, commands, and settings.json symlinks)
 ./scripts/setup-global.sh
 
 # Project setup (run from target project directory)
@@ -24,6 +24,21 @@ python3 scripts/merge-settings.py <templates-dir> base <type1> [type2...]
 ```
 
 ## Architecture
+
+### Settings Files: Two Purposes
+
+This repo manages two distinct settings files:
+
+| File | Purpose | Distribution | Source |
+|------|---------|--------------|--------|
+| `settings.json` | Plugin enablement (GitHub, Notion, LSPs, etc.) | **Symlinked** from repo root | Canonical copy in repo |
+| `settings.local.json` | Bash permissions (what commands Claude can run) | **Generated** per-project | Merged from `settings-templates/` |
+
+**Why separate?**
+- **Plugins** (`settings.json`): Personal preference, same across all projects, updated by adding plugins to repo
+- **Permissions** (`settings.local.json`): Project-specific, varies by tech stack (Django vs React vs Go)
+
+Both files coexist in `.claude/` directories and serve different purposes.
 
 ### Settings Template System
 

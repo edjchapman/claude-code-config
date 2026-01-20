@@ -82,9 +82,10 @@ show_help() {
     echo ""
     echo "This creates in your project:"
     echo "  .claude/"
-    echo "  ├── agents   -> (symlink to repo agents)"
-    echo "  ├── commands -> (symlink to repo commands)"
-    echo "  └── settings.local.json (merged from base + your templates)"
+    echo "  ├── agents              -> (symlink to repo agents)"
+    echo "  ├── commands            -> (symlink to repo commands)"
+    echo "  ├── settings.json       -> (symlink to repo settings.json - plugins)"
+    echo "  └── settings.local.json (merged from base + your templates - permissions)"
 }
 
 # Handle --help flag
@@ -152,6 +153,20 @@ if [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
         echo "✗ commands (missing)"
     fi
 
+    # Check settings.json symlink
+    if [ -L .claude/settings.json ]; then
+        target=$(readlink .claude/settings.json)
+        if [ -f .claude/settings.json ]; then
+            echo "✓ settings.json -> $target"
+        else
+            echo "✗ settings.json -> $target (broken symlink)"
+        fi
+    elif [ -f .claude/settings.json ]; then
+        echo "? settings.json (regular file, not symlink)"
+    else
+        echo "✗ settings.json (missing)"
+    fi
+
     # Check settings file
     echo ""
     if [ -f .claude/settings.local.json ]; then
@@ -211,6 +226,23 @@ if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
             HAS_ISSUES=true
         fi
     done
+
+    # Check settings.json symlink
+    if [ -L .claude/settings.json ]; then
+        target=$(readlink .claude/settings.json)
+        if [ -f .claude/settings.json ]; then
+            echo "✓ settings.json symlink OK -> $target"
+        else
+            echo "✗ settings.json symlink BROKEN -> $target"
+            HAS_ISSUES=true
+        fi
+    elif [ -f .claude/settings.json ]; then
+        echo "? settings.json is a regular file (expected symlink)"
+        HAS_ISSUES=true
+    elif [ ! -e .claude/settings.json ]; then
+        echo "✗ settings.json missing"
+        HAS_ISSUES=true
+    fi
 
     echo ""
 
@@ -302,8 +334,9 @@ if [ "$DRY_RUN" = true ]; then
     echo ""
     echo "Would create:"
     echo "  .claude/"
-    echo "  ├── agents   -> $REPO_ROOT/agents"
-    echo "  ├── commands -> $REPO_ROOT/commands"
+    echo "  ├── agents              -> $REPO_ROOT/agents"
+    echo "  ├── commands            -> $REPO_ROOT/commands"
+    echo "  ├── settings.json       -> $REPO_ROOT/settings.json"
     echo "  └── settings.local.json"
     echo ""
     echo "Generated settings.local.json content:"
@@ -351,14 +384,26 @@ done
 ln -s "$REPO_ROOT/agents" .claude/agents
 ln -s "$REPO_ROOT/commands" .claude/commands
 
+# Handle settings.json symlink (plugin configuration)
+if [ -L .claude/settings.json ]; then
+    rm .claude/settings.json
+elif [ -e .claude/settings.json ]; then
+    backup_file=.claude/settings.json.backup.$(date +%s)
+    echo "Backing up existing file: .claude/settings.json -> $backup_file"
+    mv .claude/settings.json "$backup_file"
+fi
+
+ln -s "$REPO_ROOT/settings.json" .claude/settings.json
+
 echo "Generating settings.local.json (base + ${TYPES[*]})..."
 python3 "$SCRIPT_DIR/merge-settings.py" "$TEMPLATES_PATH" base "${TYPES[@]}" > .claude/settings.local.json
 
 echo ""
 echo "Project Claude Code config created!"
 echo ""
-echo "  .claude/agents            -> $REPO_ROOT/agents"
-echo "  .claude/commands          -> $REPO_ROOT/commands"
+echo "  .claude/agents              -> $REPO_ROOT/agents"
+echo "  .claude/commands            -> $REPO_ROOT/commands"
+echo "  .claude/settings.json       -> $REPO_ROOT/settings.json"
 echo "  .claude/settings.local.json (base + ${TYPES[*]})"
 echo ""
 echo "Verify: ls -la .claude/"

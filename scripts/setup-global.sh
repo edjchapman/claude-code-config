@@ -59,13 +59,27 @@ done
 ln -s "$REPO_ROOT/agents" ~/.claude/agents
 ln -s "$REPO_ROOT/commands" ~/.claude/commands
 
+# Handle settings.json symlink (plugin configuration)
+if [ -L ~/.claude/settings.json ]; then
+    echo "Removing existing symlink: ~/.claude/settings.json"
+    rm ~/.claude/settings.json
+elif [ -e ~/.claude/settings.json ]; then
+    backup_file=~/.claude/settings.json.backup.$(date +%s)
+    echo "Backing up existing file: ~/.claude/settings.json -> $backup_file"
+    mv ~/.claude/settings.json "$backup_file"
+fi
+
+ln -s "$REPO_ROOT/settings.json" ~/.claude/settings.json
+
 echo ""
 echo "Global Claude Code config set up successfully!"
 echo ""
-echo "  ~/.claude/agents   -> $REPO_ROOT/agents"
-echo "  ~/.claude/commands -> $REPO_ROOT/commands"
+echo "  ~/.claude/agents       -> $REPO_ROOT/agents"
+echo "  ~/.claude/commands     -> $REPO_ROOT/commands"
+echo "  ~/.claude/settings.json -> $REPO_ROOT/settings.json"
 echo ""
 echo "Notes:"
+echo "  - settings.json is now symlinked (global plugin configuration)"
 echo "  - settings.local.json remains local (machine-specific permissions)"
 echo "  - Run setup-project.sh in project directories to set up per-project config"
 echo ""

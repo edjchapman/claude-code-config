@@ -48,8 +48,9 @@ claude-setup django react
 **Global setup** (`setup-global.sh`) creates symlinks in `~/.claude/`:
 ```
 ~/.claude/
-├── agents   -> ~/claude-code-config/agents
-└── commands -> ~/claude-code-config/commands
+├── agents       -> ~/claude-code-config/agents
+├── commands     -> ~/claude-code-config/commands
+└── settings.json -> ~/claude-code-config/settings.json
 ```
 
 **Project setup** (`setup-project.sh`) creates in your project:
@@ -57,8 +58,14 @@ claude-setup django react
 your-project/.claude/
 ├── agents              -> ~/claude-code-config/agents
 ├── commands            -> ~/claude-code-config/commands
-└── settings.local.json    (generated from templates)
+├── settings.json       -> ~/claude-code-config/settings.json
+└── settings.local.json (generated from templates)
 ```
+
+### Understanding Settings Files
+
+- **`settings.json`** (symlinked): Plugin enablement - which Claude Code plugins are active (GitHub, Notion, LSPs, etc.)
+- **`settings.local.json`** (generated): Permissions - what bash commands and tools Claude can use in your project
 
 ## Fork or Clone?
 
@@ -140,6 +147,7 @@ claude-code-config/
 ├── agents/                  # Agent definitions (markdown)
 ├── commands/                # Slash commands (markdown)
 ├── settings-templates/      # Permission templates (JSON)
+├── settings.json            # Canonical plugin configuration (symlinked globally)
 ├── scripts/
 │   ├── setup-global.sh      # One-time machine setup
 │   ├── setup-project.sh     # Per-project setup
@@ -215,21 +223,22 @@ Add to your project's `.gitignore`:
 # Claude Code symlinks (personal config)
 .claude/agents
 .claude/commands
+.claude/settings.json
 ```
 
-**Do commit** `settings.local.json` if you want to share permissions with your team.
+**Do commit** `settings.local.json` if you want to share permissions with your team. The `settings.json` symlink is personal (plugin preferences), while `settings.local.json` contains project-specific permissions worth sharing.
 
 ## Uninstalling / Cleanup
 
 **Remove global symlinks:**
 ```bash
-rm ~/.claude/agents ~/.claude/commands
+rm ~/.claude/agents ~/.claude/commands ~/.claude/settings.json
 ```
 
 **Remove from a project:**
 ```bash
-rm -rf .claude/agents .claude/commands
-# Optionally remove settings too:
+rm -rf .claude/agents .claude/commands .claude/settings.json
+# Optionally remove generated permissions too:
 rm .claude/settings.local.json
 ```
 
