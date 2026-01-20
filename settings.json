@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "enabledPlugins": {
     "github@claude-plugins-official": true,
     "atlassian@claude-plugins-official": true,

@@ -38,7 +38,8 @@
       "Bash(~/claude-code-config/scripts/setup-project.sh:*)",
       "Bash(/Users/edwardchapman/Development/claude-code-config/scripts/setup-project.sh:*)",
       "Bash(shellcheck:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(python3:*)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
