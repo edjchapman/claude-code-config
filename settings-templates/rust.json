@@ -1,0 +1,35 @@
+{
+  "_source": "rust",
+  "_version": 1,
+  "_note": "Rust and Cargo commands for Rust development",
+  "permissions": {
+    "allow": [
+      "Bash(cargo build:*)",
+      "Bash(cargo run:*)",
+      "Bash(cargo test:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo clippy:*)",
+      "Bash(cargo fmt:*)",
+      "Bash(cargo doc:*)",
+      "Bash(cargo clean:*)",
+      "Bash(cargo update:*)",
+      "Bash(cargo add:*)",
+      "Bash(cargo remove:*)",
+      "Bash(cargo tree:*)",
+      "Bash(cargo audit:*)",
+      "Bash(cargo bench:*)",
+      "Bash(cargo publish:*)",
+      "Bash(cargo install:*)",
+      "Bash(cargo search:*)",
+      "Bash(cargo fix:*)",
+      "Bash(cargo metadata:*)",
+      "Bash(rustc:*)",
+      "Bash(rustup:*)",
+      "Bash(rustfmt:*)",
+      "WebFetch(domain:doc.rust-lang.org)",
+      "WebFetch(domain:docs.rs)",
+      "WebFetch(domain:crates.io)",
+      "WebFetch(domain:rust-lang.github.io)"
+    ]
+  }
+}

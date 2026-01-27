@@ -5,7 +5,13 @@ Analyze my staged changes and help me write a good commit message.
 `$ARGUMENTS`
 
 - If provided, use as a hint for the commit message or scope
-- Examples: `/commit auth changes`, `/commit fix typo`
+- `--no-ticket`: Skip Jira ticket extraction and linking
+- Examples: `/commit auth changes`, `/commit fix typo`, `/commit --no-ticket`
+
+## Jira Configuration
+
+- **Base URL**: `https://builtai.atlassian.net/browse/` (customize per-project in CLAUDE.md)
+- **Ticket Patterns**: `BIL-XXXX`, `ABC-123`
 
 ## Steps
 
@@ -25,10 +31,24 @@ Analyze my staged changes and help me write a good commit message.
    git log --oneline -10
    ```
 
-4. **Check for ticket reference**:
-   - Look at branch name for ticket pattern (e.g., `feature/ABC-123-description`)
-   - Common patterns: `ABC-123`, `#123`, `GH-123`
-   - If found, include in commit message
+4. **Extract Jira ticket from branch name** (skip if `--no-ticket`):
+   ```bash
+   git branch --show-current
+   ```
+
+   Extract ticket ID from branch name patterns:
+   - `feature/BIL-123-description` → `BIL-123`
+   - `fix/BIL-456-bug-fix` → `BIL-456`
+   - `BIL-789/some-feature` → `BIL-789`
+   - Common patterns: `[A-Z]+-[0-9]+` (e.g., `ABC-123`, `PROJ-456`)
+
+   **If Jira MCP is available (`mcp__plugin_atlassian_atlassian__getJiraIssue`):**
+   - Fetch ticket summary to validate and provide context
+   - Use ticket title to inform commit message scope
+
+   **If Jira MCP is NOT available but ticket ID found:**
+   - Include ticket reference in commit message
+   - Note: "Jira details not available - using ticket ID only"
 
 5. **Generate commit message** following conventional commits format:
    ```
@@ -37,7 +57,7 @@ Analyze my staged changes and help me write a good commit message.
    - bullet point explaining a change
    - another bullet point if needed
 
-   Refs: ABC-123
+   Refs: BIL-123
    ```
 
    Types: feat, fix, docs, style, refactor, test, chore, ci, perf
@@ -50,7 +70,9 @@ Analyze my staged changes and help me write a good commit message.
    - Keep first line under 72 characters
    - Blank line after the first line
    - Bullet points describe specific changes made
-   - Ticket reference on separate line if found (Refs: ABC-123)
+   - **Ticket reference**: If ticket found and not `--no-ticket`, add on separate line:
+     - Format: `Refs: BIL-123` or `Fixes: BIL-123` (for bug fixes)
+     - Include Jira link if helpful: `Refs: BIL-123 (https://builtai.atlassian.net/browse/BIL-123)`
 
 6. **Present options**:
    - Provide 2-3 commit message options if the changes are ambiguous

@@ -111,6 +111,24 @@ When starting on a new project, first explore to understand:
 3. Existing specs in the `specs/` directory for patterns to follow
 4. The tech stack and frameworks in use
 
+## Tool Integration
+
+### GitHub MCP (Optional)
+If `mcp__plugin_github_github__*` tools are available:
+- Use `mcp__plugin_github_github__search_code` to find existing patterns and implementations
+- Check issues for feature requests and requirements context
+- Look for existing documentation and ADRs
+
+**If unavailable:** Use local search to explore the codebase.
+
+### Jira MCP (Optional)
+If `mcp__plugin_atlassian_atlassian__*` tools are available:
+- Use `mcp__plugin_atlassian_atlassian__getJiraIssue` to get ticket details and acceptance criteria
+- Extract linked issues for broader context
+- Reference epic information for feature scope
+
+**If unavailable:** Ask the user for ticket details and requirements.
+
 ## Your Process
 
 1. **Understand the request**: Clarify the ticket ID, feature scope, and any constraints

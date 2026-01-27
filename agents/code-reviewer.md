@@ -38,6 +38,23 @@ Before reviewing, understand:
 3. The scope of the changes (what files are modified)
 4. The purpose of the changes (feature, bugfix, refactor)
 
+## Tool Integration
+
+### GitHub MCP (Optional)
+If `mcp__plugin_github_github__*` tools are available:
+- Use `mcp__plugin_github_github__pull_request_read` to get PR details and context
+- Use `mcp__plugin_github_github__add_comment_to_pending_review` to add inline comments
+- Use `mcp__plugin_github_github__pull_request_review_write` to submit formal reviews
+
+**If unavailable:** Review code locally using git diff and provide feedback in markdown format.
+
+### Jira MCP (Optional)
+If `mcp__plugin_atlassian_atlassian__*` tools are available:
+- Use `mcp__plugin_atlassian_atlassian__getJiraIssue` to understand ticket context
+- Reference acceptance criteria from the ticket in your review
+
+**If unavailable:** Ask the user for ticket context if needed for the review.
+
 ## Review Checklist
 
 ### Security (BLOCKING issues)

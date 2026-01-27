@@ -1,0 +1,41 @@
+{
+  "_source": "java",
+  "_version": 1,
+  "_note": "Java, Gradle, and Maven commands for JVM development",
+  "permissions": {
+    "allow": [
+      "Bash(java:*)",
+      "Bash(javac:*)",
+      "Bash(jar:*)",
+      "Bash(gradle:*)",
+      "Bash(gradle build:*)",
+      "Bash(gradle test:*)",
+      "Bash(gradle run:*)",
+      "Bash(gradle clean:*)",
+      "Bash(gradle check:*)",
+      "Bash(gradle assemble:*)",
+      "Bash(gradle dependencies:*)",
+      "Bash(gradle tasks:*)",
+      "Bash(gradle bootRun:*)",
+      "Bash(gradle bootJar:*)",
+      "Bash(./gradlew:*)",
+      "Bash(mvn:*)",
+      "Bash(mvn clean:*)",
+      "Bash(mvn compile:*)",
+      "Bash(mvn test:*)",
+      "Bash(mvn package:*)",
+      "Bash(mvn install:*)",
+      "Bash(mvn verify:*)",
+      "Bash(mvn dependency:*)",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(./mvnw:*)",
+      "Bash(mvnd:*)",
+      "WebFetch(domain:docs.oracle.com)",
+      "WebFetch(domain:gradle.org)",
+      "WebFetch(domain:maven.apache.org)",
+      "WebFetch(domain:mvnrepository.com)",
+      "WebFetch(domain:spring.io)",
+      "WebFetch(domain:baeldung.com)"
+    ]
+  }
+}

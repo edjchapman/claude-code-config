@@ -6,6 +6,9 @@ Review my current changes before I commit them.
 
 - If a file path is provided, focus the review on that file
 - If empty, review all staged and unstaged changes
+- `--fix-suggestions`: Include exact code snippets for suggested fixes
+- `--strict`: Flag more issues (style, naming, minor optimizations)
+- Examples: `/review`, `/review src/auth.py`, `/review --fix-suggestions`
 
 ## Steps
 
@@ -54,13 +57,40 @@ Review my current changes before I commit them.
 ### Critical Issues
 [List any blocking issues]
 
+For each issue, provide:
+- **Location**: `file:line`
+- **Problem**: Brief description
+- **Impact**: Why this matters
+- **Fix** (if `--fix-suggestions` or obvious fix exists):
+```python
+# Before
+problematic_code()
+
+# After
+fixed_code()
+```
+
 ### Should Fix
-[List important issues]
+[List important issues with same format as Critical]
 
 ### Suggestions
 [List nice-to-haves]
 
+If `--fix-suggestions` is provided, include code snippets for suggestions too.
+
 ### Files Reviewed
-[List of files with brief status]
+| File | Status | Issues |
+|------|--------|--------|
+| `path/to/file.py` | PASS / NEEDS WORK | 0 critical, 2 suggestions |
+
+### Quick Fixes Available
+If any issues have obvious automated fixes, list them:
+- `file:line` - [description] - Can be auto-fixed with `command`
 
 Keep feedback actionable and specific with file:line references.
+
+## Integration with GitHub
+
+**If GitHub MCP is available (`mcp__plugin_github_github__*`) and changes are for a PR:**
+- Suggest creating a draft PR for early feedback
+- Reference related issues if ticket ID found in branch name
