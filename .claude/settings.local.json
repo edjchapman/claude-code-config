@@ -39,7 +39,10 @@
       "Bash(/Users/edwardchapman/Development/claude-code-config/scripts/setup-project.sh:*)",
       "Bash(shellcheck:*)",
       "Bash(bash:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "mcp__jetbrains__list_directory_tree",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
