@@ -8,13 +8,19 @@ Prepare technical analysis for backlog refinement meetings.
 - JQL query: `/refinement --jql "status='Ready to Refine'"`
 - Output directory: `/refinement BIL-3606 --output ./refinement-2026-01-17/`
 - Exploration depth: `/refinement BIL-3606 --explore thorough` (quick|medium|thorough)
+- Save to Notion: `/refinement BIL-3606 --notion`
 
 ## Step 1: Fetch Tickets
 
-**If Jira MCP is available (mcp__atlassian__*):**
+**If Jira MCP is available (`mcp__plugin_atlassian_atlassian__*` tools):**
+
+Use the following tools:
+- `mcp__plugin_atlassian_atlassian__getJiraIssue` - Get issue details
+- `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` - Search with JQL
+
 ```
 For each ticket ID:
-  - mcp__atlassian__jira_get_issue(key="BIL-XXXX")
+  - mcp__plugin_atlassian_atlassian__getJiraIssue(issueIdOrKey="BIL-XXXX")
   - Extract: summary, description, priority, status, comments, story_points
 ```
 
@@ -162,6 +168,30 @@ Ask:
 > 1. Add meeting notes after your refinement session?
 > 2. Update story points in Jira? (requires Jira MCP)
 > 3. Create any additional analysis?"
+
+## Step 6: Save to Notion (if `--notion` flag)
+
+**If Notion MCP is available (`mcp__plugin_Notion_notion__notion-create-pages`):**
+- Create a new page for the refinement session:
+  - **Title**: "Refinement - {date}"
+  - **Content structure**:
+    - Summary table (all tickets with estimates, complexity, risk)
+    - Dependencies diagram
+    - Individual ticket sections (collapsible if possible)
+    - Action items checklist
+  - **Properties**: Date, Sprint (if known), Total story points
+- Return the Notion page URL
+
+**If Notion MCP is NOT available:**
+- Skip Notion save
+- Inform user: "Notion MCP not available - files saved locally but not to Notion"
+
+**Output with `--notion`:**
+> "Refinement analysis complete:
+> - Local files: `{output_dir}/`
+> - Notion: {url}
+>
+> Total: {n} tickets, {total_points} story points estimated"
 
 ## Guidelines
 

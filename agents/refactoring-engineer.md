@@ -38,6 +38,23 @@ Before any refactoring:
 3. **Map dependencies** - Understand what depends on this code
 4. **Define success** - What does "better" look like for this code?
 
+## Tool Integration
+
+### GitHub MCP (Optional)
+If `mcp__plugin_github_github__*` tools are available:
+- Use `mcp__plugin_github_github__search_code` to find all usages of code being refactored
+- Use `mcp__plugin_github_github__list_commits` to understand code history
+- Create a PR with refactoring changes for review
+
+**If unavailable:** Use local grep/search to find dependencies and usages.
+
+### Jira MCP (Optional)
+If `mcp__plugin_atlassian_atlassian__*` tools are available:
+- Use `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` to find tech debt tickets
+- Link refactoring work to existing improvement tickets
+
+**If unavailable:** Document refactoring scope and rationale in commit messages.
+
 ## Refactoring Catalog
 
 ### Extract Function/Method

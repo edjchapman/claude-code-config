@@ -40,7 +40,12 @@ gh pr list --author=@me --state=all --limit=10
 
 ## Step 3: Jira Activity
 
-**If Jira MCP is available (`atlassian` tools):**
+**If Jira MCP is available (`mcp__plugin_atlassian_atlassian__*` tools):**
+
+Use the following tools:
+- `mcp__plugin_atlassian_atlassian__atlassianUserInfo` - Get current user identity
+- `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` - Search for issues
+- `mcp__plugin_atlassian_atlassian__getJiraIssue` - Get issue details
 
 1. Get user's account ID from Step 1
 2. Search for issues assigned to me updated in the period:
@@ -63,9 +68,14 @@ Ask the user:
 
 ## Step 4: Notion Activity
 
-**If Notion MCP is available (`notion-*` tools):**
+**If Notion MCP is available (`mcp__plugin_Notion_notion__*` tools):**
 
-1. Use `notion-search` to find pages edited by current user
+Use the following tools:
+- `mcp__plugin_Notion_notion__notion-search` - Search for pages
+- `mcp__plugin_Notion_notion__notion-get-users` - Get user information
+- `mcp__plugin_Notion_notion__notion-create-pages` - Create new pages
+
+1. Use `mcp__plugin_Notion_notion__notion-search` to find pages edited by current user
 2. Filter results by `last_edited_time` within the specified period
 3. Categorize by type:
    - Meeting notes
@@ -80,7 +90,7 @@ Ask the user:
 ## Step 5: Slack & Google Calendar via Notion AI Search
 
 **Try Notion AI Search first:**
-Use `notion-search` with `content_search_mode="ai_search"` to search connected Slack and Google Drive sources:
+Use `mcp__plugin_Notion_notion__notion-search` with `content_search_mode="ai_search"` to search connected Slack and Google Drive sources:
 - Query: "meetings discussions updates" for the specified period
 - This may surface Slack threads and calendar events indexed by Notion
 
@@ -178,7 +188,7 @@ Create the standup document with all gathered information:
 After saving locally, ask the user:
 > "Would you like me to also save this standup to Notion?"
 
-If yes, use `notion-create-pages` to create a new page in their workspace.
+If yes, use `mcp__plugin_Notion_notion__notion-create-pages` to create a new page in their workspace.
 
 ## Guidelines
 

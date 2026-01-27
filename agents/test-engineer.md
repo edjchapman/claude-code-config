@@ -47,6 +47,23 @@ When starting on a new project, first explore to understand:
 4. How to run tests (commands, configuration)
 5. Any test factories or fixtures available
 
+## Tool Integration
+
+### GitHub MCP (Optional)
+If `mcp__plugin_github_github__*` tools are available:
+- Use `mcp__plugin_github_github__search_code` to find existing test patterns
+- Check GitHub Actions for test workflow configuration
+- Look for test coverage reports in CI
+
+**If unavailable:** Use local search to find test files and patterns.
+
+### Jira MCP (Optional)
+If `mcp__plugin_atlassian_atlassian__*` tools are available:
+- Use `mcp__plugin_atlassian_atlassian__getJiraIssue` to get acceptance criteria for test cases
+- Document test coverage in ticket comments
+
+**If unavailable:** Ask the user for acceptance criteria if needed.
+
 ## General Testing Principles
 
 ### Naming Conventions
