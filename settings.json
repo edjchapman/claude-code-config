@@ -20,5 +20,55 @@
     "document-skills@anthropic-agent-skills": true,
     "example-skills@anthropic-agent-skills": true
   },
-  "model": "opus"
+  "model": "opus",
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/session-context.sh\""
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/format-python.sh\"",
+        "matcher": "Write|Edit",
+        "timeout": 10000
+      },
+      {
+        "type": "command",
+        "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/format-js.sh\"",
+        "matcher": "Write|Edit",
+        "timeout": 10000
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/dangerous-cmd-check.sh\"",
+        "matcher": "Bash",
+        "timeout": 5000
+      }
+    ],
+    "Stop": [
+      {
+        "type": "prompt",
+        "prompt": "Review the session: Were tests run if code was changed? Were linters run? Are there any TODO/FIXME comments left unresolved? If any of these were missed, suggest the user resume and complete them."
+      }
+    ],
+    "PreCompact": [
+      {
+        "type": "command",
+        "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/pre-compact-state.sh\""
+      }
+    ],
+    "Notification": [
+      {
+        "type": "command",
+        "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/notify-permission.sh\"",
+        "matcher": "permission_prompt",
+        "timeout": 5000
+      }
+    ]
+  }
 }

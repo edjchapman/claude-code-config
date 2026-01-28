@@ -9,7 +9,7 @@ This is a configuration repository for Claude Code. It provides reusable agents,
 ## Key Scripts
 
 ```bash
-# Global setup (creates ~/.claude/agents, commands, and settings.json symlinks)
+# Global setup (creates ~/.claude/agents, commands, skills, and settings.json symlinks)
 ./scripts/setup-global.sh
 
 # Project setup (run from target project directory)
@@ -24,6 +24,29 @@ python3 scripts/merge-settings.py <templates-dir> base <type1> [type2...]
 ```
 
 ## Architecture
+
+### Hooks
+
+Hooks are configured in `settings.json` under the `"hooks"` key. Since `settings.json` is symlinked globally, hooks are available in all projects. Hook scripts live in `scripts/hooks/` and are referenced via `readlink` to resolve the repo path from the symlink.
+
+Available hooks:
+- **SessionStart**: Auto-loads git context (branch, recent commits, dirty files)
+- **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
+- **PreToolUse (Bash)**: Blocks dangerous command patterns (defense-in-depth)
+- **Stop**: LLM-evaluated completeness check (tests run? linters run? TODOs left?)
+- **PreCompact**: Preserves working state before context compaction
+- **Notification (permission_prompt)**: macOS desktop notification when Claude needs permission
+
+### Skills
+
+Skills are domain knowledge documents in `skills/` that auto-activate based on file glob patterns. Unlike agents (explicitly invoked), skills provide passive context when relevant files are touched.
+
+Available skills:
+- `coding-standards.md`: Naming, function length, error handling (`**/*.py`, `**/*.ts`, `**/*.tsx`)
+- `git-workflow.md`: Conventional commits, branch naming, PR size (`.git/**`)
+- `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*.test.ts`)
+- `security-review.md`: Input validation, JWT, CSRF, auth (`**/auth/**`, `**/middleware/**`)
+- `api-design.md`: REST conventions, status codes, pagination (`**/views/**`, `**/api/**`)
 
 ### Settings Files: Two Purposes
 

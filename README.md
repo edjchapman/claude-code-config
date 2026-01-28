@@ -15,6 +15,8 @@ This repo solves that by providing:
 - A **single source of truth** for your Claude Code configuration
 - **Symlinks** so updates propagate everywhere automatically
 - **Composable templates** for different project types
+- **Hooks** for auto-formatting, safety checks, and notifications
+- **Skills** for passive domain knowledge activation
 - **Setup scripts** that work on any machine
 
 ## Quick Start
@@ -28,7 +30,7 @@ git clone https://github.com/edjchapman/claude-code-config.git ~/claude-code-con
 
 # 3. Set up a project (from your project directory)
 cd ~/my-django-project
-~/claude-code-config/scripts/setup-project.sh django
+~/Development/claude-code-config/scripts/setup-project.sh django
 
 # 4. Start using Claude Code - agents and commands are now available
 claude
@@ -37,7 +39,7 @@ claude
 **Tip:** Add an alias for easier use:
 ```bash
 # Add to ~/.bashrc or ~/.zshrc
-alias claude-setup='~/claude-code-config/scripts/setup-project.sh'
+alias claude-setup='~/Development/claude-code-config/scripts/setup-project.sh'
 
 # Then use it like:
 claude-setup django react
@@ -50,6 +52,7 @@ claude-setup django react
 ~/.claude/
 ├── agents       -> ~/claude-code-config/agents
 ├── commands     -> ~/claude-code-config/commands
+├── skills       -> ~/claude-code-config/skills
 └── settings.json -> ~/claude-code-config/settings.json
 ```
 
@@ -58,13 +61,14 @@ claude-setup django react
 your-project/.claude/
 ├── agents              -> ~/claude-code-config/agents
 ├── commands            -> ~/claude-code-config/commands
+├── skills              -> ~/claude-code-config/skills
 ├── settings.json       -> ~/claude-code-config/settings.json
 └── settings.local.json (generated from templates)
 ```
 
 ### Understanding Settings Files
 
-- **`settings.json`** (symlinked): Plugin enablement - which Claude Code plugins are active (GitHub, Notion, LSPs, etc.)
+- **`settings.json`** (symlinked): Plugin enablement, hooks configuration, and model selection
 - **`settings.local.json`** (generated): Permissions - what bash commands and tools Claude can use in your project
 
 ## Fork or Clone?
@@ -86,13 +90,13 @@ git merge upstream/main
 Use one or combine multiple:
 
 ```bash
-~/claude-code-config/scripts/setup-project.sh python          # Python project
-~/claude-code-config/scripts/setup-project.sh django          # Django
-~/claude-code-config/scripts/setup-project.sh django react    # Full-stack
-~/claude-code-config/scripts/setup-project.sh go              # Go project
-~/claude-code-config/scripts/setup-project.sh node            # Node.js
-~/claude-code-config/scripts/setup-project.sh terraform       # Infrastructure
-~/claude-code-config/scripts/setup-project.sh all             # ALL templates
+~/Development/claude-code-config/scripts/setup-project.sh python          # Python project
+~/Development/claude-code-config/scripts/setup-project.sh django          # Django
+~/Development/claude-code-config/scripts/setup-project.sh django react    # Full-stack
+~/Development/claude-code-config/scripts/setup-project.sh go              # Go project
+~/Development/claude-code-config/scripts/setup-project.sh node            # Node.js
+~/Development/claude-code-config/scripts/setup-project.sh terraform       # Infrastructure
+~/Development/claude-code-config/scripts/setup-project.sh all             # ALL templates
 ```
 
 | Template | What It Allows |
@@ -103,6 +107,8 @@ Use one or combine multiple:
 | `django` | Django manage.py commands, docker compose, make, uv run (pytest, flake8, basedpyright) |
 | `react` | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier |
 | `node` | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun |
+| `nextjs` | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright |
+| `fastapi` | uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose |
 | `go` | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire |
 | `terraform` | terraform fmt/validate/plan/init |
 
@@ -113,12 +119,20 @@ Invoke with `@agent-name` in Claude Code:
 | Agent | What It Does | Model |
 |-------|--------------|-------|
 | `@bug-resolver` | Systematic debugging, root cause analysis | opus |
+| `@ci-debugger` | CI/CD failure investigation, flaky tests | opus |
 | `@code-reviewer` | General code review for any language | opus |
+| `@database-architect` | Schema design, migration planning, query optimization | opus |
+| `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet |
+| `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus |
 | `@django-code-reviewer` | Django security/performance review, N+1 detection | opus |
+| `@documentation-writer` | README, API docs, ADRs, onboarding guides | sonnet |
 | `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | opus |
 | `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet |
+| `@migration-engineer` | Database migrations, framework upgrades, zero-downtime | opus |
+| `@performance-engineer` | Profiling, bottleneck analysis, optimization | opus |
 | `@pr-review-bundler` | Bundle PR reviews into markdown | opus |
 | `@refactoring-engineer` | Systematic, safe refactoring | opus |
+| `@security-auditor` | Security audit, OWASP, dependency vulnerabilities | opus |
 | `@spec-writer` | Technical specs and planning docs | opus |
 | `@test-engineer` | Create unit and integration tests | sonnet |
 
@@ -138,7 +152,16 @@ Invoke with `/command` in Claude Code:
 | `/standup` | Summarize last 24h of git activity |
 | `/explain` | Explain code at a specific location |
 | `/lint` | Run all project linters |
+| `/tdd` | TDD workflow: write failing test, implement, refactor |
+| `/hotfix` | Guided hotfix: branch from main, minimal fix, targeted tests, PR |
+| `/deps` | Dependency audit: vulnerabilities, outdated packages, update plan |
+| `/adr` | Create Architecture Decision Record (Nygard format) |
+| `/context` | Refresh context: branch, commits, open PRs, project status |
 | `/format-release-notes` | Format GitHub release notes |
+| `/coverage-report` | Analyze test coverage and identify gaps |
+| `/generate-changelog` | Generate changelog from commits since last tag |
+| `/refinement` | Prepare technical analysis for backlog refinement |
+| `/security-scan` | Run security audit on the codebase |
 
 ## Directory Structure
 
@@ -146,14 +169,49 @@ Invoke with `/command` in Claude Code:
 claude-code-config/
 ├── agents/                  # Agent definitions (markdown)
 ├── commands/                # Slash commands (markdown)
+├── skills/                  # Auto-activating domain knowledge (markdown)
 ├── settings-templates/      # Permission templates (JSON)
-├── settings.json            # Canonical plugin configuration (symlinked globally)
+├── settings.json            # Plugin config + hooks (symlinked globally)
 ├── scripts/
 │   ├── setup-global.sh      # One-time machine setup
 │   ├── setup-project.sh     # Per-project setup
-│   └── merge-settings.py    # Template merger
+│   ├── merge-settings.py    # Template merger
+│   └── hooks/               # Hook scripts referenced by settings.json
+│       ├── session-context.sh
+│       ├── format-python.sh
+│       ├── format-js.sh
+│       ├── dangerous-cmd-check.sh
+│       ├── pre-compact-state.sh
+│       └── notify-permission.sh
 └── web_shortcuts/           # Web workflow prompts (for claude.ai web interface)
 ```
+
+## Hooks
+
+Hooks are configured in `settings.json` and run automatically at key points in the Claude Code lifecycle. Since `settings.json` is symlinked globally, hooks work in all projects.
+
+| Hook | Trigger | What It Does |
+|------|---------|--------------|
+| SessionStart | New session | Outputs git branch, recent commits, and dirty files |
+| PostToolUse (Write/Edit) | After file edits | Auto-formats Python (ruff) and JS/TS (prettier) |
+| PreToolUse (Bash) | Before commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.) |
+| Stop | Session end | LLM checks: tests run? linters run? TODOs left? |
+| PreCompact | Before compaction | Saves working state (branch, staged files, recent commits) |
+| Notification | Permission needed | Sends macOS desktop notification |
+
+Hook scripts live in `scripts/hooks/` and only run when the required tools are available (e.g., `ruff`, `prettier`).
+
+## Skills
+
+Skills are domain knowledge documents that auto-activate when you touch matching files. They provide passive guidance without explicit invocation.
+
+| Skill | Activates On | What It Covers |
+|-------|-------------|----------------|
+| `coding-standards` | `*.py`, `*.ts`, `*.tsx` | Naming, function length, error handling |
+| `git-workflow` | `.git/**` | Conventional commits, branch naming, PR size |
+| `testing-patterns` | `test_*.py`, `*.test.ts` | AAA pattern, factories, coverage |
+| `security-review` | `auth/**`, `middleware/**` | Input validation, JWT, CSRF, secrets |
+| `api-design` | `views/**`, `api/**`, `serializers/**` | REST conventions, status codes, pagination |
 
 ### Web Shortcuts
 
@@ -206,13 +264,13 @@ Check if your project settings match the templates:
 
 ```bash
 cd ~/my-project
-~/claude-code-config/scripts/setup-project.sh --check django
+~/Development/claude-code-config/scripts/setup-project.sh --check django
 ```
 
 Regenerate if drifted:
 
 ```bash
-~/claude-code-config/scripts/setup-project.sh django
+~/Development/claude-code-config/scripts/setup-project.sh django
 ```
 
 ## Git Setup for Projects
@@ -223,6 +281,7 @@ Add to your project's `.gitignore`:
 # Claude Code symlinks (personal config)
 .claude/agents
 .claude/commands
+.claude/skills
 .claude/settings.json
 ```
 
@@ -232,12 +291,12 @@ Add to your project's `.gitignore`:
 
 **Remove global symlinks:**
 ```bash
-rm ~/.claude/agents ~/.claude/commands ~/.claude/settings.json
+rm ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/settings.json
 ```
 
 **Remove from a project:**
 ```bash
-rm -rf .claude/agents .claude/commands .claude/settings.json
+rm -rf .claude/agents .claude/commands .claude/skills .claude/settings.json
 # Optionally remove generated permissions too:
 rm .claude/settings.local.json
 ```
@@ -262,7 +321,7 @@ python3 --version  # Need 3.8+
 ```bash
 # Re-run both setups
 ~/claude-code-config/scripts/setup-global.sh
-cd ~/my-project && ~/claude-code-config/scripts/setup-project.sh django
+cd ~/my-project && ~/Development/claude-code-config/scripts/setup-project.sh django
 ```
 
 **"Circular symlink" error**

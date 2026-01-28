@@ -96,6 +96,54 @@ Analyze the staged changes and help write a commit message.
 3. Only include permissions specific to your use case
 4. Use specific patterns over broad wildcards when possible
 
+### Adding Skills
+
+Skills are domain knowledge documents that auto-activate based on file glob patterns.
+
+1. Create a new file in `skills/` with `.md` extension
+2. Include frontmatter with `name`, `description`, and `globs`
+3. Write clear, actionable guidelines (not tutorials)
+4. Focus on rules and patterns, not explanations
+
+#### Frontmatter Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Skill identifier |
+| `description` | Yes | Brief description of what the skill covers |
+| `globs` | Yes | Array of file glob patterns that activate this skill |
+
+Example structure:
+```yaml
+---
+name: my-skill
+description: Brief description of the domain knowledge
+globs:
+  - "**/*.py"
+  - "**/tests/**"
+---
+
+# My Skill
+
+## Guidelines
+- Guideline one
+- Guideline two
+```
+
+### Adding Hooks
+
+Hooks are shell scripts in `scripts/hooks/` referenced by `settings.json`.
+
+1. Create a new script in `scripts/hooks/` with `.sh` extension
+2. Make it executable: `chmod +x scripts/hooks/my-hook.sh`
+3. Add the hook reference to `settings.json` under the appropriate event
+4. Follow these conventions:
+   - Exit 0 for success / allow
+   - Exit 2 for block (PreToolUse hooks)
+   - Check for required tools before using them (graceful degradation)
+   - Only run on relevant file types
+   - Keep execution fast (under 5 seconds)
+
 ### Code Style
 
 - Shell scripts: Use `shellcheck` for linting

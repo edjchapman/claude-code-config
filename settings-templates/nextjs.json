@@ -1,0 +1,39 @@
+{
+  "_source": "nextjs",
+  "_version": 1,
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npm install:*)",
+      "Bash(npm ci:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm audit:*)",
+      "Bash(npx next:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx playwright:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(yarn:*)",
+      "Bash(yarn run:*)",
+      "Bash(yarn test:*)",
+      "Bash(yarn install:*)",
+      "Bash(pnpm:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm install:*)",
+      "Bash(vercel:*)",
+      "WebFetch(domain:nextjs.org)",
+      "WebFetch(domain:react.dev)",
+      "WebFetch(domain:vercel.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:www.typescriptlang.org)",
+      "WebFetch(domain:tailwindcss.com)",
+      "WebFetch(domain:vitest.dev)",
+      "WebFetch(domain:playwright.dev)",
+      "WebFetch(domain:eslint.org)",
+      "WebFetch(domain:prettier.io)"
+    ]
+  }
+}

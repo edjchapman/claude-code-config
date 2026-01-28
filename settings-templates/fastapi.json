@@ -1,0 +1,34 @@
+{
+  "_source": "fastapi",
+  "_version": 1,
+  "permissions": {
+    "allow": [
+      "Bash(uvicorn:*)",
+      "Bash(python3 -m uvicorn:*)",
+      "Bash(alembic:*)",
+      "Bash(pytest:*)",
+      "Bash(python3 -m pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(ruff check:*)",
+      "Bash(ruff format:*)",
+      "Bash(mypy:*)",
+      "Bash(pip install:*)",
+      "Bash(pip list:*)",
+      "Bash(pip freeze:*)",
+      "Bash(uv run:*)",
+      "Bash(uv pip:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv add:*)",
+      "Bash(uv remove:*)",
+      "Bash(poetry:*)",
+      "Bash(docker compose:*)",
+      "WebFetch(domain:fastapi.tiangolo.com)",
+      "WebFetch(domain:docs.pydantic.dev)",
+      "WebFetch(domain:www.starlette.io)",
+      "WebFetch(domain:www.uvicorn.org)",
+      "WebFetch(domain:alembic.sqlalchemy.org)",
+      "WebFetch(domain:docs.sqlalchemy.org)",
+      "WebFetch(domain:pypi.org)"
+    ]
+  }
+}

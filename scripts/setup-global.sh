@@ -21,12 +21,18 @@ if [ ! -d "$REPO_ROOT/agents" ]; then
     echo "  $REPO_ROOT/"
     echo "  ├── agents/"
     echo "  ├── commands/"
+    echo "  ├── skills/"
     echo "  └── scripts/setup-global.sh (this script)"
     exit 1
 fi
 
 if [ ! -d "$REPO_ROOT/commands" ]; then
     echo "Error: commands/ directory not found at: $REPO_ROOT"
+    exit 1
+fi
+
+if [ ! -d "$REPO_ROOT/skills" ]; then
+    echo "Error: skills/ directory not found at: $REPO_ROOT"
     exit 1
 fi
 
@@ -45,7 +51,7 @@ echo ""
 mkdir -p ~/.claude
 
 # Remove existing symlinks/directories if they exist
-for item in agents commands; do
+for item in agents commands skills; do
     if [ -L ~/.claude/$item ]; then
         echo "Removing existing symlink: ~/.claude/$item"
         rm ~/.claude/$item
@@ -58,6 +64,7 @@ done
 # Create symlinks
 ln -s "$REPO_ROOT/agents" ~/.claude/agents
 ln -s "$REPO_ROOT/commands" ~/.claude/commands
+ln -s "$REPO_ROOT/skills" ~/.claude/skills
 
 # Handle settings.json symlink (plugin configuration)
 if [ -L ~/.claude/settings.json ]; then
@@ -76,10 +83,11 @@ echo "Global Claude Code config set up successfully!"
 echo ""
 echo "  ~/.claude/agents       -> $REPO_ROOT/agents"
 echo "  ~/.claude/commands     -> $REPO_ROOT/commands"
+echo "  ~/.claude/skills       -> $REPO_ROOT/skills"
 echo "  ~/.claude/settings.json -> $REPO_ROOT/settings.json"
 echo ""
 echo "Notes:"
-echo "  - settings.json is now symlinked (global plugin configuration)"
+echo "  - settings.json is now symlinked (global plugin + hooks configuration)"
 echo "  - settings.local.json remains local (machine-specific permissions)"
 echo "  - Run setup-project.sh in project directories to set up per-project config"
 echo ""

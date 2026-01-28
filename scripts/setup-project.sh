@@ -84,7 +84,8 @@ show_help() {
     echo "  .claude/"
     echo "  ├── agents              -> (symlink to repo agents)"
     echo "  ├── commands            -> (symlink to repo commands)"
-    echo "  ├── settings.json       -> (symlink to repo settings.json - plugins)"
+    echo "  ├── skills              -> (symlink to repo skills)"
+    echo "  ├── settings.json       -> (symlink to repo settings.json - plugins + hooks)"
     echo "  └── settings.local.json (merged from base + your templates - permissions)"
 }
 
@@ -125,33 +126,21 @@ if [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
     echo ".claude/ directory exists"
     echo ""
 
-    # Check agents symlink
-    if [ -L .claude/agents ]; then
-        target=$(readlink .claude/agents)
-        if [ -d .claude/agents ]; then
-            echo "✓ agents -> $target"
+    # Check directory symlinks
+    for item in agents commands skills; do
+        if [ -L .claude/$item ]; then
+            target=$(readlink .claude/$item)
+            if [ -d .claude/$item ]; then
+                echo "✓ $item -> $target"
+            else
+                echo "✗ $item -> $target (broken symlink)"
+            fi
+        elif [ -d .claude/$item ]; then
+            echo "? $item (regular directory, not symlink)"
         else
-            echo "✗ agents -> $target (broken symlink)"
+            echo "✗ $item (missing)"
         fi
-    elif [ -d .claude/agents ]; then
-        echo "? agents (regular directory, not symlink)"
-    else
-        echo "✗ agents (missing)"
-    fi
-
-    # Check commands symlink
-    if [ -L .claude/commands ]; then
-        target=$(readlink .claude/commands)
-        if [ -d .claude/commands ]; then
-            echo "✓ commands -> $target"
-        else
-            echo "✗ commands -> $target (broken symlink)"
-        fi
-    elif [ -d .claude/commands ]; then
-        echo "? commands (regular directory, not symlink)"
-    else
-        echo "✗ commands (missing)"
-    fi
+    done
 
     # Check settings.json symlink
     if [ -L .claude/settings.json ]; then
@@ -209,7 +198,7 @@ if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
     echo ""
 
     # Check symlinks
-    for item in agents commands; do
+    for item in agents commands skills; do
         if [ -L .claude/$item ]; then
             target=$(readlink .claude/$item)
             if [ -d .claude/$item ]; then
@@ -309,7 +298,7 @@ for type in "${TYPES[@]}"; do
 done
 
 # Validate repo structure
-for item in agents commands; do
+for item in agents commands skills; do
     if [ ! -d "$REPO_ROOT/$item" ]; then
         echo "Error: $REPO_ROOT/$item does not exist"
         echo "The repository structure appears incomplete."
@@ -336,6 +325,7 @@ if [ "$DRY_RUN" = true ]; then
     echo "  .claude/"
     echo "  ├── agents              -> $REPO_ROOT/agents"
     echo "  ├── commands            -> $REPO_ROOT/commands"
+    echo "  ├── skills              -> $REPO_ROOT/skills"
     echo "  ├── settings.json       -> $REPO_ROOT/settings.json"
     echo "  └── settings.local.json"
     echo ""
@@ -372,7 +362,7 @@ fi
 }
 
 # Remove existing symlinks if they exist
-for item in agents commands; do
+for item in agents commands skills; do
     if [ -L .claude/$item ]; then
         rm .claude/$item
     elif [ -e .claude/$item ]; then
@@ -383,6 +373,7 @@ done
 # Create symlinks to shared resources
 ln -s "$REPO_ROOT/agents" .claude/agents
 ln -s "$REPO_ROOT/commands" .claude/commands
+ln -s "$REPO_ROOT/skills" .claude/skills
 
 # Handle settings.json symlink (plugin configuration)
 if [ -L .claude/settings.json ]; then
@@ -403,6 +394,7 @@ echo "Project Claude Code config created!"
 echo ""
 echo "  .claude/agents              -> $REPO_ROOT/agents"
 echo "  .claude/commands            -> $REPO_ROOT/commands"
+echo "  .claude/skills              -> $REPO_ROOT/skills"
 echo "  .claude/settings.json       -> $REPO_ROOT/settings.json"
 echo "  .claude/settings.local.json (base + ${TYPES[*]})"
 echo ""

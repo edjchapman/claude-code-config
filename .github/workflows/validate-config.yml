@@ -1,0 +1,71 @@
+name: Validate Config
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-json:
+    name: Validate JSON files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate settings.json
+        run: python -m json.tool settings.json > /dev/null
+
+      - name: Validate all settings templates
+        run: |
+          for f in settings-templates/*.json; do
+            echo "Validating $f..."
+            python -m json.tool "$f" > /dev/null
+          done
+
+      - name: Validate merge output for each template
+        run: |
+          for f in settings-templates/*.json; do
+            name=$(basename "$f" .json)
+            if [ "$name" != "base" ]; then
+              echo "Testing merge: base + $name"
+              python scripts/merge-settings.py settings-templates base "$name" > /dev/null
+            fi
+          done
+
+  validate-markdown:
+    name: Validate Markdown frontmatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate agent frontmatter
+        run: python3 scripts/validate-frontmatter.py agents name description model
+
+      - name: Validate skill frontmatter
+        run: python3 scripts/validate-frontmatter.py skills name description globs
+
+  shellcheck:
+    name: Lint shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run shellcheck on setup scripts
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: scripts
+          severity: warning
