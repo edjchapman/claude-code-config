@@ -12,6 +12,7 @@ Audit project dependencies: detect the package manager, check for vulnerabilitie
 ### 1. Detect Package Manager
 
 Check for these files in order:
+
 - `pyproject.toml` / `requirements.txt` / `Pipfile` → Python (pip/uv/poetry)
 - `package.json` → Node.js (npm/yarn/pnpm)
 - `go.mod` → Go
@@ -31,6 +32,7 @@ Run the appropriate security audit command:
 | go | `govulncheck ./...` (if available) |
 
 Report:
+
 - Critical/high vulnerabilities with affected packages
 - Whether fixes are available
 - Recommended remediation steps
@@ -52,14 +54,17 @@ Run the appropriate command:
 Categorize updates into:
 
 **Safe updates** (patch versions, no breaking changes):
+
 - List packages that can be updated immediately
 - Provide the command to update them
 
 **Minor updates** (new features, unlikely breaking):
+
 - List packages with minor version bumps
 - Note any with known migration steps
 
 **Major updates** (breaking changes, require migration):
+
 - List packages with major version bumps
 - Link to changelogs/migration guides where possible
 - Suggest tackling these in separate PRs

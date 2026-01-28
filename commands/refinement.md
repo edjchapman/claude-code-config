@@ -15,6 +15,7 @@ Prepare technical analysis for backlog refinement meetings.
 **If Jira MCP is available (`mcp__plugin_atlassian_atlassian__*` tools):**
 
 Use the following tools:
+
 - `mcp__plugin_atlassian_atlassian__getJiraIssue` - Get issue details
 - `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` - Search with JQL
 
@@ -26,6 +27,7 @@ For each ticket ID:
 
 **If Jira MCP is NOT available:**
 > "I don't have direct Jira access. Please provide ticket details in one of these formats:
+>
 > 1. Jira REST API JSON (paste from `https://builtai.atlassian.net/rest/api/2/issue/BIL-XXXX`)
 > 2. Copy/paste the ticket description from Jira
 > 3. Tell me the ticket IDs and I'll ask for details on each"
@@ -71,6 +73,7 @@ For each ticket, determine:
 | Dependencies | None | 1-2 tickets | Blocked or complex chain |
 
 **Generate for each ticket:**
+
 1. Implementation steps (bullet points)
 2. Key files to modify
 3. Clarifying questions
@@ -79,6 +82,7 @@ For each ticket, determine:
 ## Step 4: Generate Output
 
 Create output directory structure:
+
 ```
 {output_dir}/
 ├── README.md                     # Index with summary table
@@ -87,6 +91,7 @@ Create output directory structure:
 ```
 
 **Individual Ticket File Template:**
+
 ```markdown
 # {ticket.key}: {ticket.summary}
 
@@ -132,6 +137,7 @@ Create output directory structure:
 ```
 
 **Index File (README.md) Template:**
+
 ```markdown
 # Backlog Refinement - {date}
 
@@ -165,6 +171,7 @@ After generating files, present:
 
 Ask:
 > "I've created refinement documents in `{output_dir}/`. Would you like me to:
+>
 > 1. Add meeting notes after your refinement session?
 > 2. Update story points in Jira? (requires Jira MCP)
 > 3. Create any additional analysis?"
@@ -172,6 +179,7 @@ Ask:
 ## Step 6: Save to Notion (if `--notion` flag)
 
 **If Notion MCP is available (`mcp__plugin_Notion_notion__notion-create-pages`):**
+
 - Create a new page for the refinement session:
   - **Title**: "Refinement - {date}"
   - **Content structure**:
@@ -183,11 +191,13 @@ Ask:
 - Return the Notion page URL
 
 **If Notion MCP is NOT available:**
+
 - Skip Notion save
 - Inform user: "Notion MCP not available - files saved locally but not to Notion"
 
 **Output with `--notion`:**
 > "Refinement analysis complete:
+>
 > - Local files: `{output_dir}/`
 > - Notion: {url}
 >

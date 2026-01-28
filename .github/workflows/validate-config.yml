@@ -7,8 +7,40 @@ on:
     branches: [main]
 
 jobs:
+  pre-commit:
+    name: Run pre-commit hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pre-commit pyyaml
+          # Install shfmt for shell formatting
+          wget -qO- "https://github.com/mvdan/sh/releases/download/v3.8.0/shfmt_v3.8.0_linux_amd64" > /usr/local/bin/shfmt
+          chmod +x /usr/local/bin/shfmt
+          # Install markdownlint-cli
+          npm install -g markdownlint-cli@0.39.0
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-
+
+      - name: Run pre-commit on all files
+        run: pre-commit run --all-files --show-diff-on-failure
+
+  # Keep original jobs as fallback validation
   validate-json:
-    name: Validate JSON files
+    name: Validate JSON files (fallback)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +71,7 @@ jobs:
           done
 
   validate-markdown:
-    name: Validate Markdown frontmatter
+    name: Validate Markdown frontmatter (fallback)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +91,7 @@ jobs:
         run: python3 scripts/validate-frontmatter.py skills name description globs
 
   shellcheck:
-    name: Lint shell scripts
+    name: Lint shell scripts (fallback)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

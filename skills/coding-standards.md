@@ -21,6 +21,7 @@ Apply these standards when writing or reviewing code in this project.
 ## Python Standards
 
 ### Naming
+
 - Functions and variables: `snake_case`
 - Classes: `PascalCase`
 - Constants: `UPPER_SNAKE_CASE`
@@ -28,17 +29,20 @@ Apply these standards when writing or reviewing code in this project.
 - Module-level dunder: `__all__`, `__version__`
 
 ### Error Handling
+
 - Catch specific exceptions, never bare `except:`
 - Use custom exception classes for domain errors
 - Log exceptions with context before re-raising
 - Use `raise ... from` for exception chaining
 
 ### Imports
+
 - Standard library first, then third-party, then local
 - Absolute imports preferred over relative
 - No wildcard imports (`from module import *`)
 
 ### Type Hints
+
 - All public function signatures must have type hints
 - Use `from __future__ import annotations` for forward references
 - Use `Optional[X]` explicitly instead of `X | None` for Python < 3.10
@@ -46,6 +50,7 @@ Apply these standards when writing or reviewing code in this project.
 ## TypeScript Standards
 
 ### Naming
+
 - Variables and functions: `camelCase`
 - Classes and interfaces: `PascalCase`
 - Constants: `UPPER_SNAKE_CASE`
@@ -53,12 +58,14 @@ Apply these standards when writing or reviewing code in this project.
 - Files: `kebab-case.ts` for utilities, `PascalCase.tsx` for React components
 
 ### Error Handling
+
 - Never swallow errors silently in catch blocks
 - Use discriminated unions for expected failure cases
 - Reserve try/catch for truly exceptional situations
 - Always type error responses in API handlers
 
 ### Types
+
 - Prefer `interface` over `type` for object shapes
 - Use `unknown` instead of `any` -- narrow with type guards
 - Export types alongside their implementations

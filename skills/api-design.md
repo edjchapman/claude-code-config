@@ -38,11 +38,13 @@ Apply these conventions when building or reviewing REST APIs.
 Use the correct status code for the situation:
 
 ### Success
+
 - `200 OK` -- successful GET, PUT, PATCH
 - `201 Created` -- successful POST that creates a resource
 - `204 No Content` -- successful DELETE
 
 ### Client Errors
+
 - `400 Bad Request` -- validation failure, malformed input
 - `401 Unauthorized` -- missing or invalid authentication
 - `403 Forbidden` -- authenticated but lacking permission
@@ -52,6 +54,7 @@ Use the correct status code for the situation:
 - `429 Too Many Requests` -- rate limit exceeded
 
 ### Server Errors
+
 - `500 Internal Server Error` -- unexpected server failure
 - `503 Service Unavailable` -- temporary overload or maintenance
 

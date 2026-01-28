@@ -1,20 +1,4 @@
 {
-  "_version": 1,
-  "_generated_from": [
-    "base",
-    "django",
-    "docker",
-    "fastapi",
-    "go",
-    "java",
-    "kubernetes",
-    "nextjs",
-    "node",
-    "python",
-    "react",
-    "rust",
-    "terraform"
-  ],
   "permissions": {
     "allow": [
       "WebSearch",
@@ -338,7 +322,13 @@
       "Bash(terraform plan:*)",
       "Bash(terraform init:*)",
       "WebFetch(domain:registry.terraform.io)",
-      "WebFetch(domain:developer.hashicorp.com)"
+      "WebFetch(domain:developer.hashicorp.com)",
+      "Bash(wc:*)",
+      "Bash(du:*)",
+      "Bash(test:*)",
+      "Bash(bash scripts/hooks/check-duplicates.sh:*)",
+      "Bash(echo:*)",
+      "Bash(git add:*)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
@@ -359,5 +349,21 @@
       "Bash(sudo mv:*)",
       "Bash(sudo rm:*)"
     ]
-  }
+  },
+  "_version": 1,
+  "_generated_from": [
+    "base",
+    "django",
+    "docker",
+    "fastapi",
+    "go",
+    "java",
+    "kubernetes",
+    "nextjs",
+    "node",
+    "python",
+    "react",
+    "rust",
+    "terraform"
+  ]
 }

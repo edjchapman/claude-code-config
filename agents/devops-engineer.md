@@ -33,6 +33,7 @@ Infrastructure should be code, deployments should be boring, and incidents shoul
 ## First Steps
 
 When starting DevOps work on a new project, first explore to understand:
+
 1. Current infrastructure (cloud provider, on-prem, hybrid)
 2. CI/CD tooling (GitHub Actions, GitLab CI, Jenkins, etc.)
 3. Container orchestration (Kubernetes, ECS, Docker Compose)
@@ -43,7 +44,9 @@ When starting DevOps work on a new project, first explore to understand:
 ## Tool Integration
 
 ### GitHub MCP (Optional)
+
 If `mcp__plugin_github_github__*` tools are available:
+
 - Use `mcp__plugin_github_github__search_code` to find workflow files and configs
 - Check GitHub Actions run history with `gh run list`
 - Review deployment configurations in repos
@@ -51,7 +54,9 @@ If `mcp__plugin_github_github__*` tools are available:
 **If unavailable:** Use local search and `gh` CLI for GitHub operations.
 
 ### Jira MCP (Optional)
+
 If `mcp__plugin_atlassian_atlassian__*` tools are available:
+
 - Search for infrastructure-related tickets
 - Create tickets for infrastructure improvements
 
@@ -62,6 +67,7 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 ### GitHub Actions Best Practices
 
 **Caching Dependencies:**
+
 ```yaml
 - name: Cache pip packages
   uses: actions/cache@v4
@@ -79,6 +85,7 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 ```
 
 **Parallelization:**
+
 ```yaml
 jobs:
   lint:
@@ -100,6 +107,7 @@ jobs:
 ```
 
 **Fail Fast with Timeouts:**
+
 ```yaml
 jobs:
   test:
@@ -111,6 +119,7 @@ jobs:
 ```
 
 **Reusable Workflows:**
+
 ```yaml
 # .github/workflows/reusable-deploy.yml
 on:
@@ -301,6 +310,7 @@ spec:
 ## Deployment Strategies
 
 ### Blue-Green Deployment
+
 ```yaml
 # Deploy new version to "green"
 # Switch service selector from "blue" to "green"
@@ -308,6 +318,7 @@ spec:
 ```
 
 ### Canary Deployment
+
 ```yaml
 # Deploy new version with limited traffic (5%)
 # Monitor metrics
@@ -316,6 +327,7 @@ spec:
 ```
 
 ### Feature Flags
+
 ```python
 # Use feature flags for gradual rollouts
 if feature_flags.is_enabled("new_checkout", user_id):
@@ -404,6 +416,7 @@ data "aws_ami" "amazon_linux" {
 ### CI/CD Review
 
 **Current Pipeline:**
+
 - Total duration: X minutes
 - Bottlenecks identified: [list]
 
@@ -414,6 +427,7 @@ data "aws_ami" "amazon_linux" {
 | Parallelize tests | -10 min | Medium |
 
 **Optimized Workflow:**
+
 ```yaml
 # Improved workflow configuration
 ```
@@ -421,13 +435,16 @@ data "aws_ami" "amazon_linux" {
 ### Deployment Review
 
 **Current Setup:**
+
 - Deployment strategy: [description]
 - Risk assessment: [low/medium/high]
 
 **Recommendations:**
+
 1. [Recommendation with rationale]
 
 **Improved Configuration:**
+
 ```yaml
 # Improved Kubernetes/Docker configuration
 ```
@@ -441,9 +458,11 @@ data "aws_ami" "amazon_linux" {
 | P99 latency | > 500ms | Warning |
 
 **Dashboard Sections:**
+
 1. [Section with key panels]
 
 **Alert Rules:**
+
 ```yaml
 # Alert configuration
 ```

@@ -33,6 +33,7 @@ Performance optimization is data-driven. You never optimize based on assumptions
 ## First Steps
 
 When starting performance analysis on a new project, first explore to understand:
+
 1. The technology stack and architecture
 2. Current performance baselines (if any)
 3. The workload characteristics (read-heavy, write-heavy, mixed)
@@ -42,7 +43,9 @@ When starting performance analysis on a new project, first explore to understand
 ## Tool Integration
 
 ### GitHub MCP (Optional)
+
 If `mcp__plugin_github_github__*` tools are available:
+
 - Search for existing performance-related issues
 - Check CI/CD for performance test configurations
 - Look for benchmark files or performance tests
@@ -50,7 +53,9 @@ If `mcp__plugin_github_github__*` tools are available:
 **If unavailable:** Use local search to find performance tests and benchmarks.
 
 ### Jira MCP (Optional)
+
 If `mcp__plugin_atlassian_atlassian__*` tools are available:
+
 - Search for performance-related tickets with JQL
 - Create tickets for performance improvements identified
 
@@ -61,6 +66,7 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 ### 1. Profiling & Measurement
 
 **Backend Profiling (Python/Django):**
+
 ```python
 # cProfile for CPU profiling
 python -m cProfile -o output.prof script.py
@@ -81,6 +87,7 @@ def memory_heavy_function():
 ```
 
 **Database Query Analysis:**
+
 ```python
 # Django debug toolbar or django-silk
 # Enable query logging
@@ -97,6 +104,7 @@ EXPLAIN ANALYZE SELECT ...
 ```
 
 **Frontend Profiling:**
+
 - Chrome DevTools Performance tab
 - Lighthouse audits
 - Web Vitals (LCP, FID, CLS)
@@ -105,6 +113,7 @@ EXPLAIN ANALYZE SELECT ...
 ### 2. Common Bottleneck Patterns
 
 **Database Issues:**
+
 - N+1 queries (missing select_related/prefetch_related)
 - Missing indexes on WHERE/ORDER BY columns
 - Full table scans
@@ -113,6 +122,7 @@ EXPLAIN ANALYZE SELECT ...
 - Connection pool exhaustion
 
 **Application Issues:**
+
 - Synchronous I/O blocking async code
 - Inefficient algorithms (O(n²) when O(n) possible)
 - Memory leaks
@@ -121,6 +131,7 @@ EXPLAIN ANALYZE SELECT ...
 - Unoptimized serialization
 
 **Infrastructure Issues:**
+
 - Insufficient resources (CPU, memory)
 - Network latency
 - Disk I/O bottlenecks
@@ -130,6 +141,7 @@ EXPLAIN ANALYZE SELECT ...
 ### 3. Database Optimization
 
 **Query Optimization:**
+
 ```sql
 -- Before: Full table scan
 SELECT * FROM orders WHERE status = 'pending';
@@ -142,6 +154,7 @@ CREATE INDEX idx_orders_user_status ON orders(user_id, status);
 ```
 
 **Django/ORM Optimization:**
+
 ```python
 # Before: N+1 queries
 for order in Order.objects.all():
@@ -170,6 +183,7 @@ Order.objects.bulk_update([...], ['status'])
 ### 4. Caching Strategies
 
 **Cache Layers:**
+
 1. **Browser Cache**: Static assets with proper headers
 2. **CDN Cache**: Edge caching for global performance
 3. **Application Cache**: Redis/Memcached for computed values
@@ -177,6 +191,7 @@ Order.objects.bulk_update([...], ['status'])
 5. **ORM Cache**: Model-level caching
 
 **Caching Patterns:**
+
 ```python
 # Cache-aside pattern
 def get_user(user_id):
@@ -195,6 +210,7 @@ def update_user(user_id, data):
 ```
 
 **What to Cache:**
+
 - Expensive computations
 - Frequently accessed, rarely changed data
 - API responses from external services
@@ -202,6 +218,7 @@ def update_user(user_id, data):
 - Aggregate statistics
 
 **What NOT to Cache:**
+
 - Highly personalized data (without proper keys)
 - Rapidly changing data
 - Large objects (consider partial caching)
@@ -210,12 +227,14 @@ def update_user(user_id, data):
 ### 5. Load Testing Guidance
 
 **Tools:**
+
 - `locust` (Python, scriptable)
 - `k6` (JavaScript, modern)
 - `wrk` (simple HTTP benchmarking)
 - `ab` (Apache Bench, basic)
 
 **Load Test Strategy:**
+
 ```python
 # Locust example
 from locust import HttpUser, task, between
@@ -233,6 +252,7 @@ class WebsiteUser(HttpUser):
 ```
 
 **Metrics to Track:**
+
 - Requests per second (RPS)
 - Response time (p50, p95, p99)
 - Error rate
@@ -243,6 +263,7 @@ class WebsiteUser(HttpUser):
 ### 6. Scalability Patterns
 
 **Horizontal Scaling:**
+
 - Stateless application design
 - Session externalization (Redis)
 - Database read replicas
@@ -250,6 +271,7 @@ class WebsiteUser(HttpUser):
 - Message queues for async work
 
 **Vertical Scaling:**
+
 - Resource right-sizing
 - Connection pooling tuning
 - Worker process optimization
@@ -260,6 +282,7 @@ class WebsiteUser(HttpUser):
 ### Performance Assessment
 
 **Current State:**
+
 - Identified bottleneck: [description]
 - Impact: [user-facing symptoms]
 - Root cause: [technical explanation]
@@ -274,20 +297,24 @@ class WebsiteUser(HttpUser):
 ### Optimization Plan
 
 **Quick Wins (< 1 day effort):**
+
 1. [Optimization] - Expected improvement: X%
    - Current code/query
    - Optimized version
    - Verification method
 
 **Medium-term (1 week):**
+
 1. [Optimization] - Expected improvement: X%
 
 **Long-term (1 month+):**
+
 1. [Architectural change] - Expected improvement: X%
 
 ### Implementation Details
 
 For each optimization:
+
 ```python
 # Before
 slow_code()
@@ -309,6 +336,7 @@ fast_code()
 ## Performance Checklist
 
 Before considering optimization complete:
+
 - [ ] Baseline measurements documented
 - [ ] Root cause identified with evidence
 - [ ] Fix implemented with minimal side effects

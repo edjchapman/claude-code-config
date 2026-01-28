@@ -37,6 +37,7 @@ You execute these phases in order. The user can say `skip <phase>` to skip a pha
 ### Phase 1: Analyze
 
 Launch the `refactoring-engineer` agent via the Task tool. Pass:
+
 - The code or area to refactor
 - The user's goals (reduce duplication, separate concerns, simplify, etc.)
 - Instruction: "Analyze only — do NOT make changes. Produce: code smell analysis, dependency map, and a step-by-step refactoring plan. Each step should be independently testable."
@@ -46,6 +47,7 @@ Launch the `refactoring-engineer` agent via the Task tool. Pass:
 ### Phase 2: Safety Net
 
 Launch the `test-engineer` agent via the Task tool. Pass:
+
 - Files identified in the analysis (Phase 1)
 - The refactoring plan
 - Instruction: "Write tests for any uncovered behavior in the code being refactored. Tests must pass against the CURRENT code. Focus on behavior, not implementation details."
@@ -57,6 +59,7 @@ Launch the `test-engineer` agent via the Task tool. Pass:
 ### Phase 3: Refactor
 
 Execute the refactoring plan step by step yourself. After each step:
+
 1. Run the full test suite (or at minimum, the tests covering the refactored code)
 2. If tests pass, proceed to the next step
 3. If tests fail, **stop immediately** — revert the step and investigate
@@ -66,6 +69,7 @@ For large refactors, create user checkpoints between logical groups of steps.
 ### Phase 4: Review
 
 Launch the `code-reviewer` agent via the Task tool. Pass:
+
 - The full diff of all changes
 - The original analysis and refactoring plan from Phase 1
 - Test results (all passing)
@@ -74,6 +78,7 @@ Launch the `code-reviewer` agent via the Task tool. Pass:
 ### Phase 5: Summary
 
 Present a structured summary:
+
 - **Before:** Description of the original structure and its problems
 - **After:** Description of the new structure and how it addresses the problems
 - **Changes:** Files modified, added, removed
@@ -85,12 +90,14 @@ Present a structured summary:
 ## Phase Skipping
 
 Warn for safety-critical skips:
+
 - Skipping **Phase 2 (Safety Net)**: "Skipping pre-refactoring tests is risky. Without a safety net, behavior changes may go undetected."
 - Skipping **Phase 4 (Review)**: "Skipping post-refactoring review. Structural regressions may go unnoticed."
 
 ## Context Forwarding
 
 After each phase, extract key artifacts and pass them forward:
+
 - Phase 1 analysis feeds into Phase 2 (what to test) and Phase 3 (what to change)
 - Phase 2 test results confirm the safety net is in place
 - Phase 3 changes feed into Phase 4 (what to review)
@@ -98,6 +105,7 @@ After each phase, extract key artifacts and pass them forward:
 ## Task Tool Pattern
 
 When launching a sub-agent, use the Task tool with:
+
 - `subagent_type` matching the specialist (e.g., `"refactoring-engineer"`, `"test-engineer"`, `"code-reviewer"`)
 - A detailed prompt containing structured context from previous phases
 - Clear instructions scoped to what this phase should accomplish

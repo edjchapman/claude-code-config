@@ -9,29 +9,29 @@ CMD="${CLAUDE_TOOL_INPUT:-$(cat)}"
 
 # Patterns that should never execute
 DANGEROUS_PATTERNS=(
-    "rm -rf /"
-    "rm -rf /*"
-    "rm -rf ~"
-    "rm -rf ~/"
-    'rm -rf $HOME'
-    'rm -rf ${HOME}'
-    "dd if=/dev/"
-    "mkfs."
-    "chmod -R 777 /"
-    "> /dev/sda"
-    ":(){ :|:& };:"
-    "mv / "
-    "wget.*| *sh"
-    "curl.*| *sh"
-    "curl.*| *bash"
-    "wget.*| *bash"
+  "rm -rf /"
+  "rm -rf /*"
+  "rm -rf ~"
+  "rm -rf ~/"
+  'rm -rf $HOME'
+  'rm -rf ${HOME}'
+  "dd if=/dev/"
+  "mkfs."
+  "chmod -R 777 /"
+  "> /dev/sda"
+  ":(){ :|:& };:"
+  "mv / "
+  "wget.*| *sh"
+  "curl.*| *sh"
+  "curl.*| *bash"
+  "wget.*| *bash"
 )
 
 for pattern in "${DANGEROUS_PATTERNS[@]}"; do
-    if echo "$CMD" | grep -qF "$pattern"; then
-        echo "BLOCKED: Dangerous command pattern detected: $pattern"
-        exit 2
-    fi
+  if echo "$CMD" | grep -qF "$pattern"; then
+    echo "BLOCKED: Dangerous command pattern detected: $pattern"
+    exit 2
+  fi
 done
 
 exit 0

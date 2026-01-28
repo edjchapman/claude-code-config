@@ -54,6 +54,7 @@ Follow this strict Red-Green-Refactor cycle:
 ## Output
 
 After each cycle, show:
+
 - Test count: total / passing / failing
 - Files modified in this cycle
 - Suggested next test cases

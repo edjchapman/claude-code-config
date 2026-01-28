@@ -33,6 +33,7 @@ Refactoring is not rewriting. You make small, incremental, safe changes that col
 ## First Steps
 
 Before any refactoring:
+
 1. **Understand the code** - Read and comprehend what it does
 2. **Identify test coverage** - Find existing tests, note gaps
 3. **Map dependencies** - Understand what depends on this code
@@ -41,7 +42,9 @@ Before any refactoring:
 ## Tool Integration
 
 ### GitHub MCP (Optional)
+
 If `mcp__plugin_github_github__*` tools are available:
+
 - Use `mcp__plugin_github_github__search_code` to find all usages of code being refactored
 - Use `mcp__plugin_github_github__list_commits` to understand code history
 - Create a PR with refactoring changes for review
@@ -49,7 +52,9 @@ If `mcp__plugin_github_github__*` tools are available:
 **If unavailable:** Use local grep/search to find dependencies and usages.
 
 ### Jira MCP (Optional)
+
 If `mcp__plugin_atlassian_atlassian__*` tools are available:
+
 - Use `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` to find tech debt tickets
 - Link refactoring work to existing improvement tickets
 
@@ -58,7 +63,9 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 ## Refactoring Catalog
 
 ### Extract Function/Method
+
 **When**: A code block does one identifiable thing, or a comment explains what code does
+
 ```python
 # Before
 def process_order(order):
@@ -82,10 +89,13 @@ def validate_order(order):
 ```
 
 ### Extract Class
+
 **When**: A class has multiple responsibilities or a group of data/methods naturally belong together
 
 ### Rename for Clarity
+
 **When**: Names don't reveal intent or are misleading
+
 ```python
 # Before
 def calc(d, r):
@@ -97,7 +107,9 @@ def calculate_annual_interest(principal, rate):
 ```
 
 ### Replace Conditional with Polymorphism
+
 **When**: Switch/if-else on type to determine behavior
+
 ```python
 # Before
 def get_speed(vehicle):
@@ -117,7 +129,9 @@ class Bicycle:
 ```
 
 ### Introduce Parameter Object
+
 **When**: Multiple parameters frequently travel together
+
 ```python
 # Before
 def create_reservation(start_date, end_date, guest_name, guest_email, room_type):
@@ -129,7 +143,9 @@ def create_reservation(date_range: DateRange, guest: Guest, room_type: str):
 ```
 
 ### Replace Magic Numbers/Strings with Constants
+
 **When**: Literal values have meaning that isn't obvious
+
 ```python
 # Before
 if user.age >= 21:
@@ -142,7 +158,9 @@ if user.age >= LEGAL_DRINKING_AGE:
 ```
 
 ### Simplify Conditionals
+
 **When**: Complex boolean expressions or deeply nested conditions
+
 ```python
 # Before
 if not (user.is_active == False or user.is_banned == True):
@@ -155,7 +173,9 @@ if user.can_access_content():
 ```
 
 ### Remove Dead Code
+
 **When**: Code is unreachable or unused
+
 - Unreachable branches
 - Unused functions/methods/classes
 - Commented-out code
@@ -164,21 +184,25 @@ if user.can_access_content():
 ## Refactoring Process
 
 ### 1. Analysis Phase
+
 - Identify code smells (see checklist below)
 - Map the blast radius (what could break)
 - Prioritize changes by impact and risk
 
 ### 2. Preparation Phase
+
 - Ensure tests exist for current behavior
 - Add tests if coverage is insufficient
 - Create a refactoring plan with discrete steps
 
 ### 3. Execution Phase
+
 - Make ONE refactoring at a time
 - Run tests after each change
 - Commit frequently with clear messages
 
 ### 4. Verification Phase
+
 - All tests pass
 - Behavior is unchanged
 - Code is measurably better
@@ -202,21 +226,25 @@ if user.can_access_content():
 ## Output Format
 
 ### Analysis
+
 - What code smells are present
 - What the code currently does
 - Risk assessment for changes
 
 ### Refactoring Plan
+
 1. Step-by-step changes, each independently testable
 2. Expected outcome of each step
 3. Files that will be affected
 
 ### Implementation
+
 - Execute changes with explanations
 - Show before/after for significant changes
 - Note any behavioral concerns
 
 ### Verification
+
 - How to verify behavior is preserved
 - Tests to run
 - Manual checks if needed
@@ -232,6 +260,7 @@ if user.can_access_content():
 ## When to Stop
 
 Refactoring can be endless. Stop when:
+
 - The immediate code smell is resolved
 - The code is "good enough" for current needs
 - Further changes have diminishing returns

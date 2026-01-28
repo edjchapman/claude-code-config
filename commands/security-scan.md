@@ -37,6 +37,7 @@ Provide findings in structured format with severity, location, and remediation s
 Run appropriate dependency scanners based on project type:
 
 **Python:**
+
 ```bash
 # If pip-audit is available
 pip-audit
@@ -45,6 +46,7 @@ safety check -r requirements.txt
 ```
 
 **JavaScript/Node:**
+
 ```bash
 npm audit
 # or
@@ -52,6 +54,7 @@ yarn audit
 ```
 
 **General:**
+
 ```bash
 # Check for known CVEs in dependencies
 ```
@@ -61,6 +64,7 @@ yarn audit
 Scan for exposed secrets:
 
 **Patterns to check:**
+
 - API keys and tokens
 - Database credentials
 - Private keys
@@ -74,11 +78,13 @@ Scan for exposed secrets:
 ## Step 4: Create Issues (if `--create-issues`)
 
 **If GitHub MCP is available (`mcp__plugin_github_github__issue_write`):**
+
 - Create issues for CRITICAL and HIGH severity findings
 - Label issues as `security`, `priority:high`
 - Assign to appropriate team if configured
 
 **If GitHub MCP is NOT available:**
+
 ```bash
 gh issue create --title "Security: [finding title]" --body "[details]" --label "security"
 ```
@@ -88,6 +94,7 @@ gh issue create --title "Security: [finding title]" --body "[details]" --label "
 ### Security Scan Report
 
 **Scan Summary:**
+
 - Scope: [scanned area]
 - Total findings: X (Y critical, Z high, W medium, V low)
 - Scan date: [timestamp]
@@ -95,6 +102,7 @@ gh issue create --title "Security: [finding title]" --body "[details]" --label "
 ### Critical Findings (Action Required)
 
 For each finding:
+
 - **[Type]** Finding Title
   - **Severity**: CRITICAL
   - **Location**: `file:line`
@@ -104,12 +112,15 @@ For each finding:
   - **Issue**: [link if created]
 
 ### High Severity Findings
+
 [Same format]
 
 ### Medium Severity Findings
+
 [Same format, can be more concise]
 
 ### Low Severity / Informational
+
 [Brief list]
 
 ### Dependency Vulnerabilities

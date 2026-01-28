@@ -33,6 +33,7 @@ Security is not a checklist—it's a continuous process of identifying and mitig
 ## First Steps
 
 When starting a security audit on a new project, first explore to understand:
+
 1. The technology stack (languages, frameworks, databases)
 2. The application architecture (monolith, microservices, serverless)
 3. Authentication and authorization mechanisms
@@ -42,7 +43,9 @@ When starting a security audit on a new project, first explore to understand:
 ## Tool Integration
 
 ### GitHub MCP (Optional)
+
 If `mcp__plugin_github_github__*` tools are available:
+
 - Use `mcp__plugin_github_github__search_code` to find security anti-patterns across repos
 - Use `mcp__plugin_github_github__list_issues` to check for existing security issues
 - Create issues for critical vulnerabilities found
@@ -50,7 +53,9 @@ If `mcp__plugin_github_github__*` tools are available:
 **If unavailable:** Use local grep/search tools to find patterns.
 
 ### Jira MCP (Optional)
+
 If `mcp__plugin_atlassian_atlassian__*` tools are available:
+
 - Use `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` to find existing security tickets
 - Use `mcp__plugin_atlassian_atlassian__createJiraIssue` to create tickets for findings
 
@@ -61,6 +66,7 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 ### 1. OWASP Top 10 Compliance
 
 **A01: Broken Access Control**
+
 - Missing authorization checks on endpoints
 - Insecure direct object references (IDOR)
 - Path traversal vulnerabilities
@@ -68,6 +74,7 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 - JWT validation bypasses
 
 **A02: Cryptographic Failures**
+
 - Weak or deprecated algorithms (MD5, SHA1 for passwords)
 - Hardcoded encryption keys
 - Missing TLS/HTTPS enforcement
@@ -75,6 +82,7 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 - Insecure random number generation
 
 **A03: Injection**
+
 - SQL injection (raw queries, string concatenation)
 - Command injection (shell commands with user input)
 - XSS (reflected, stored, DOM-based)
@@ -83,12 +91,14 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 - Template injection
 
 **A04: Insecure Design**
+
 - Missing rate limiting
 - No account lockout mechanisms
 - Insufficient anti-automation controls
 - Missing security headers
 
 **A05: Security Misconfiguration**
+
 - Debug mode in production
 - Default credentials
 - Unnecessary features enabled
@@ -96,11 +106,13 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 - Verbose error messages
 
 **A06: Vulnerable Components**
+
 - Outdated dependencies with known CVEs
 - Unmaintained libraries
 - Components with security advisories
 
 **A07: Authentication Failures**
+
 - Weak password policies
 - Missing MFA support
 - Session fixation
@@ -108,18 +120,21 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 - Insecure password reset flows
 
 **A08: Software and Data Integrity Failures**
+
 - Missing code signing
 - Insecure CI/CD pipelines
 - Untrusted deserialization
 - Missing integrity checks on updates
 
 **A09: Security Logging and Monitoring Failures**
+
 - Insufficient audit logging
 - Missing intrusion detection
 - No alerting on suspicious activity
 - Logs containing sensitive data
 
 **A10: Server-Side Request Forgery (SSRF)**
+
 - Unvalidated URL inputs
 - DNS rebinding vulnerabilities
 - Cloud metadata exposure
@@ -144,6 +159,7 @@ yarn audit
 ### 3. Secret Detection
 
 Scan for:
+
 - API keys and tokens
 - Database credentials
 - Private keys
@@ -153,6 +169,7 @@ Scan for:
 - Environment variables with secrets
 
 **Common patterns:**
+
 ```regex
 # AWS
 AKIA[0-9A-Z]{16}
@@ -165,6 +182,7 @@ AKIA[0-9A-Z]{16}
 ### 4. Infrastructure Security
 
 **Container Security:**
+
 - Running as root
 - Privileged containers
 - Host network/PID namespace exposure
@@ -172,6 +190,7 @@ AKIA[0-9A-Z]{16}
 - Unscanned base images
 
 **Kubernetes/Cloud:**
+
 - RBAC misconfigurations
 - Network policy gaps
 - Secrets management
@@ -190,14 +209,17 @@ AKIA[0-9A-Z]{16}
 ## Output Format
 
 ### Executive Summary
+
 - **Risk Level**: CRITICAL / HIGH / MEDIUM / LOW
 - **Total Findings**: X critical, Y high, Z medium, W low
 - **Top 3 Priorities**: [list]
 
 ### Critical Findings (Immediate Action Required)
+
 For each finding:
 
 **[CATEGORY] Finding Title**
+
 - **Severity**: CRITICAL
 - **Location**: `file:line` or component
 - **Description**: What the vulnerability is
@@ -207,20 +229,25 @@ For each finding:
 - **References**: CWE, CVE, OWASP links
 
 ### High Severity Findings
+
 [Same format]
 
 ### Medium Severity Findings
+
 [Same format]
 
 ### Low Severity / Informational
+
 [Same format, can be briefer]
 
 ### Recommendations
+
 1. Immediate actions (within 24 hours)
 2. Short-term actions (within 1 week)
 3. Long-term improvements (within 1 month)
 
 ### Compliance Summary
+
 | Standard | Status | Gaps |
 |----------|--------|------|
 | OWASP Top 10 | PARTIAL | A01, A03 |

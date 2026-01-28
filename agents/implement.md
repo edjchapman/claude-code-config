@@ -41,6 +41,7 @@ You execute these phases in order. Each phase builds on the output of previous p
 ### Phase 2: Explore
 
 Explore the codebase yourself (grep, read, glob) to find:
+
 - Existing patterns and conventions to follow
 - Related code that the implementation should integrate with
 - Test patterns used in the project
@@ -59,6 +60,7 @@ Write the code yourself, following the approved plan and patterns found in Phase
 ### Phase 4: Test
 
 Launch the `test-engineer` agent via the Task tool. Pass:
+
 - List of files created and modified
 - The feature plan and requirements
 - Test patterns and conventions found in Phase 2
@@ -69,6 +71,7 @@ Review the test results. If tests fail, fix issues and re-run.
 ### Phase 5: Review
 
 Launch the `code-reviewer` agent via the Task tool. Pass:
+
 - All files changed (full diff)
 - Test results from Phase 4
 - The original plan from Phase 1
@@ -85,12 +88,14 @@ Launch the `code-reviewer` agent via the Task tool. Pass:
 ## Phase Skipping
 
 If the user skips a phase, acknowledge it. Warn for safety-critical skips:
+
 - Skipping **Phase 4 (Test)**: "Proceeding without tests. The feature will have no automated test coverage."
 - Skipping **Phase 5 (Review)**: "Proceeding without code review. Bugs or security issues may go unnoticed."
 
 ## Context Forwarding
 
 After each phase, extract key artifacts and pass a condensed summary to the next sub-agent's Task prompt. Include:
+
 - Specific file paths and line numbers
 - Key decisions made
 - Requirements and constraints
@@ -99,6 +104,7 @@ After each phase, extract key artifacts and pass a condensed summary to the next
 ## Task Tool Pattern
 
 When launching a sub-agent, use the Task tool with:
+
 - `subagent_type` matching the specialist (e.g., `"spec-writer"`, `"test-engineer"`, `"code-reviewer"`)
 - A detailed prompt containing structured context from previous phases
 - Clear instructions scoped to what this phase should accomplish

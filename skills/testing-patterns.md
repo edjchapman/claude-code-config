@@ -50,6 +50,7 @@ it("creates a user with valid data", () => {
 ## Naming Convention
 
 Test names should describe the scenario and expected outcome:
+
 - Python: `test_<unit>_<scenario>_<expected_result>`
 - TypeScript: `"<unit> <scenario> <expected result>"`
 
@@ -59,12 +60,14 @@ Bad: `test_login`, `test_case_1`
 ## Test Data
 
 ### Use Factories (not fixtures for mutable data)
+
 - Python: `factory_boy` or custom factory functions
 - TypeScript: builder pattern or factory functions
 - Never hardcode IDs or timestamps -- use factories to generate them
 - Share setup via factory defaults, override per-test as needed
 
 ### Isolation
+
 - Each test must be independent -- no shared mutable state
 - Use fresh database transactions per test (Django: `TestCase` or `@pytest.mark.django_db`)
 - Mock external services at the boundary (HTTP, email, queues)
@@ -72,12 +75,14 @@ Bad: `test_login`, `test_case_1`
 ## What to Test
 
 ### Must Test
+
 - Happy path for every public function/endpoint
 - Error/edge cases: null inputs, empty collections, boundary values
 - Authorization: ensure protected routes reject unauthorized access
 - Validation: verify invalid input is rejected with correct errors
 
 ### Don't Test
+
 - Private/internal methods directly (test through public interface)
 - Framework code (Django ORM, React rendering engine)
 - Trivial getters/setters with no logic

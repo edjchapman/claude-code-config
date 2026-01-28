@@ -13,6 +13,7 @@ Run all linters for the current project and summarize results.
 ## Steps
 
 1. **Detect project type** by checking for config files:
+
    ```bash
    ls -la pyproject.toml setup.py setup.cfg requirements.txt package.json tsconfig.json .eslintrc* .prettierrc* ruff.toml 2>/dev/null
    ```
@@ -61,6 +62,7 @@ Run all linters for the current project and summarize results.
 **Project Type**: [Python/JavaScript/TypeScript/Mixed]
 
 **Commands Run**:
+
 - `command 1` - [PASS/FAIL]
 - `command 2` - [PASS/FAIL]
 
@@ -69,12 +71,15 @@ Run all linters for the current project and summarize results.
 [Group by severity if possible]
 
 #### Errors (must fix)
+
 - file:line - description
 
 #### Warnings (should fix)
+
 - file:line - description
 
 ### Summary
+
 - Total files checked: N
 - Errors: N
 - Warnings: N

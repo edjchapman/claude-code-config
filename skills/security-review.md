@@ -79,6 +79,7 @@ User.objects.filter(email=email)
 ## HTTP Security Headers
 
 Ensure these headers are set in production:
+
 - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
 - `Content-Security-Policy: default-src 'self'`
 - `X-Content-Type-Options: nosniff`

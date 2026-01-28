@@ -16,6 +16,7 @@ Analyze my staged changes and help me write a good commit message.
 ## Steps
 
 1. **Check staged changes**:
+
    ```bash
    git diff --cached --stat
    git diff --cached
@@ -27,11 +28,13 @@ Analyze my staged changes and help me write a good commit message.
    - What is the scope/impact?
 
 3. **Review recent commit style**:
+
    ```bash
    git log --oneline -10
    ```
 
 4. **Extract Jira ticket from branch name** (skip if `--no-ticket`):
+
    ```bash
    git branch --show-current
    ```
@@ -51,6 +54,7 @@ Analyze my staged changes and help me write a good commit message.
    - Note: "Jira details not available - using ticket ID only"
 
 5. **Generate commit message** following conventional commits format:
+
    ```
    <type>(<scope>): <description>
 
@@ -79,7 +83,9 @@ Analyze my staged changes and help me write a good commit message.
    - Ask if they want to proceed with the commit
 
 ## Output
+
 Present the suggested commit message(s) and ask if the user wants to:
+
 - Use one of the suggestions
 - Modify a suggestion
 - Provide their own message

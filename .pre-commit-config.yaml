@@ -1,0 +1,99 @@
+# Pre-commit hooks for Claude Code configuration repository
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # ===== Phase 1: File Hygiene =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+        name: Fix missing newline at EOF
+      - id: mixed-line-ending
+        name: Normalize line endings to LF
+        args: [--fix=lf]
+      - id: check-merge-conflict
+        name: Check for merge conflict markers
+      - id: check-shebang-scripts-are-executable
+        name: Verify shebang scripts are executable
+      - id: check-executables-have-shebangs
+        name: Verify executables have shebangs
+
+  # ===== Phase 2: YAML/JSON Validation =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+        name: Validate YAML syntax
+        args: [--unsafe]  # Allow custom YAML tags if needed
+      - id: check-json
+        name: Validate JSON syntax
+        files: \.(json)$
+
+  # ===== Phase 3: Shell Scripts =====
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.9.0
+    hooks:
+      - id: shellcheck
+        name: Lint shell scripts (shellcheck)
+        args: [--severity=warning]
+
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.8.0-1
+    hooks:
+      - id: shfmt
+        name: Format shell scripts (shfmt)
+        args: [-i, '2', -ci, -sr, -w]  # 2-space indent, indent switch cases, space redirects, write
+
+  # ===== Phase 4: Python =====
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.15
+    hooks:
+      - id: ruff-format
+        name: Format Python files (ruff)
+      - id: ruff
+        name: Lint Python files (ruff)
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # ===== Phase 5: Markdown =====
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        name: Lint Markdown files (markdownlint)
+        args: [--fix]
+
+  # ===== Phase 6: Custom Validation =====
+  - repo: local
+    hooks:
+      - id: check-duplicates
+        name: Check for duplicate names in agents/commands/skills
+        entry: scripts/hooks/check-duplicates.sh
+        language: script
+        pass_filenames: false
+        files: ^(agents|commands|skills)/.*\.md$
+
+      - id: validate-frontmatter
+        name: Validate Markdown frontmatter (YAML)
+        entry: >
+          bash -c 'python3 scripts/validate-frontmatter.py agents name description model
+          && python3 scripts/validate-frontmatter.py skills name description globs'
+        language: system
+        pass_filenames: false
+        files: ^(agents|skills)/.*\.md$
+
+      - id: validate-settings-merge
+        name: Validate settings template merging
+        entry: >
+          bash -c 'for f in settings-templates/*.json; do
+          name=$(basename "$f" .json);
+          if [ "$name" != "base" ]; then
+          echo "Testing merge: base + $name";
+          python3 scripts/merge-settings.py settings-templates base "$name" > /dev/null || exit 1;
+          fi; done'
+        language: system
+        pass_filenames: false
+        files: ^settings-templates/.*\.json$

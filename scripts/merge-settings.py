@@ -71,7 +71,10 @@ def validate_template(template: dict, template_name: str) -> None:
 
         for key in ["allow", "deny", "ask"]:
             if key in perms and not isinstance(perms[key], list):
-                print(f"Error: 'permissions.{key}' in '{template_name}' must be an array", file=sys.stderr)
+                print(
+                    f"Error: 'permissions.{key}' in '{template_name}' must be an array",
+                    file=sys.stderr,
+                )
                 sys.exit(1)
 
 

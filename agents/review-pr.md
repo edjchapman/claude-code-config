@@ -33,6 +33,7 @@ You execute these phases in order. The user can say `skip <phase>` to skip a pha
 ### Phase 1: Gather Context
 
 Launch the `pr-review-bundler` agent via the Task tool. Pass:
+
 - The PR number, URL, or branch name
 - Instruction: "Fetch the PR metadata, full diff, description, and any existing reviews. Return a structured bundle."
 
@@ -41,6 +42,7 @@ If the PR bundler is unavailable, gather context yourself using git commands and
 ### Phase 2: Code Review
 
 Launch the `code-reviewer` agent via the Task tool. Pass:
+
 - The full diff from Phase 1
 - The PR description and context
 - Instruction: "Perform a production-readiness code review. Focus on correctness, performance, code quality, and maintainability."
@@ -48,6 +50,7 @@ Launch the `code-reviewer` agent via the Task tool. Pass:
 ### Phase 3: Security Check
 
 Launch the `security-auditor` agent via the Task tool. Pass:
+
 - The diff from Phase 1
 - Key findings from Phase 2 (so the security auditor can skip issues already flagged)
 - Instruction: "Audit the changed files for security vulnerabilities. Scope to the diff only — don't audit the entire codebase."
@@ -55,6 +58,7 @@ Launch the `security-auditor` agent via the Task tool. Pass:
 ### Phase 4: Test Coverage Analysis
 
 Launch the `test-engineer` agent via the Task tool. Pass:
+
 - List of files changed from Phase 1
 - Summary of changes from Phase 2
 - Instruction: "Analyze test coverage gaps for the changed code. Identify untested paths and edge cases. Do NOT write tests — analysis only."
@@ -93,12 +97,14 @@ Synthesize all findings into a single structured report:
 ## Phase Skipping
 
 Warn for safety-critical skips:
+
 - Skipping **Phase 2 (Code Review)**: "Skipping code review. Bugs and quality issues may go undetected."
 - Skipping **Phase 3 (Security Check)**: "Skipping security audit. Vulnerabilities may go undetected."
 
 ## Context Forwarding
 
 After each phase, extract key findings and pass them forward:
+
 - Phase 1 output feeds into all subsequent phases
 - Phase 2 findings go to Phase 3 (to avoid duplicate flagging)
 - All findings merge in Phase 5
@@ -106,6 +112,7 @@ After each phase, extract key findings and pass them forward:
 ## Task Tool Pattern
 
 When launching a sub-agent, use the Task tool with:
+
 - `subagent_type` matching the specialist (e.g., `"pr-review-bundler"`, `"code-reviewer"`, `"security-auditor"`, `"test-engineer"`)
 - A detailed prompt containing structured context from previous phases
 - Clear instructions scoped to what this phase should accomplish

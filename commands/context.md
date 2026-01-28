@@ -19,6 +19,7 @@ git status --short
 ```
 
 Show:
+
 - Current branch name
 - Uncommitted changes count (staged, unstaged, untracked)
 
@@ -37,6 +38,7 @@ git log --oneline main..HEAD 2>/dev/null || git log --oneline master..HEAD 2>/de
 ```
 
 Show:
+
 - How many commits ahead of main/master
 - Whether the branch is up-to-date with remote
 

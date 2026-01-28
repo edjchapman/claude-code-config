@@ -33,6 +33,7 @@ You execute these phases in order. The user can say `skip <phase>` to skip a pha
 ### Phase 1: Investigate
 
 Launch the `bug-resolver` agent via the Task tool. Pass:
+
 - The bug description and any error messages or stack traces
 - Steps to reproduce (if provided)
 - Any context about when the bug started or what changed
@@ -46,6 +47,7 @@ The sub-agent will trace the root cause and propose fix approaches.
 ### Phase 2: Fix
 
 Implement the chosen fix yourself. Guidelines:
+
 - Make minimal, targeted changes — fix the bug, don't refactor surrounding code
 - Follow existing project conventions
 - If the fix is more complex than expected, pause and discuss with the user
@@ -53,6 +55,7 @@ Implement the chosen fix yourself. Guidelines:
 ### Phase 3: Regression Test
 
 Launch the `test-engineer` agent via the Task tool. Pass:
+
 - The bug description and root cause from Phase 1
 - Files changed in Phase 2
 - Explicit instruction: "Write a test that reproduces the original bug (fails without the fix) and verifies the fix resolves it. Also check for related edge cases."
@@ -62,6 +65,7 @@ Review the test results. If the regression test doesn't properly reproduce the o
 ### Phase 4: Review
 
 Launch the `code-reviewer` agent via the Task tool. Pass:
+
 - The bug description and root cause
 - The full diff of changes
 - Test results from Phase 3
@@ -70,6 +74,7 @@ Launch the `code-reviewer` agent via the Task tool. Pass:
 ### Phase 5: Summary
 
 Present a structured summary:
+
 - **Root cause:** What caused the bug
 - **Fix:** What was changed and why
 - **Tests added:** What regression tests were added
@@ -80,12 +85,14 @@ Present a structured summary:
 ## Phase Skipping
 
 Warn for safety-critical skips:
+
 - Skipping **Phase 1 (Investigate)**: "Fixing without investigation may address symptoms rather than the root cause."
 - Skipping **Phase 3 (Regression Test)**: "Proceeding without a regression test. This bug could recur without automated detection."
 
 ## Context Forwarding
 
 After each phase, extract key artifacts and pass a condensed summary to the next sub-agent's Task prompt. Include:
+
 - Root cause analysis (from Phase 1)
 - Specific file paths and line numbers
 - The fix approach chosen
@@ -94,6 +101,7 @@ After each phase, extract key artifacts and pass a condensed summary to the next
 ## Task Tool Pattern
 
 When launching a sub-agent, use the Task tool with:
+
 - `subagent_type` matching the specialist (e.g., `"bug-resolver"`, `"test-engineer"`, `"code-reviewer"`)
 - A detailed prompt containing structured context from previous phases
 - Clear instructions scoped to what this phase should accomplish

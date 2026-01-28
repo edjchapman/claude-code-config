@@ -13,11 +13,13 @@ Create an Architecture Decision Record (ADR) documenting a technical decision.
 ### 1. Determine ADR Number
 
 Check for existing ADRs:
+
 ```bash
 ls docs/adr/ 2>/dev/null || echo "No ADR directory yet"
 ```
 
 If the directory doesn't exist, create it:
+
 ```bash
 mkdir -p docs/adr
 ```
@@ -27,6 +29,7 @@ Determine the next number by counting existing ADRs, starting from `0001`.
 ### 2. Gather Context
 
 Ask the user (if not clear from arguments):
+
 - What is the decision being made?
 - What alternatives were considered?
 - What are the constraints or requirements driving this decision?

@@ -19,16 +19,19 @@ ls -la pytest.ini pyproject.toml setup.cfg jest.config.* vitest.config.* 2>/dev/
 ```
 
 **Python (pytest):**
+
 ```bash
 pytest --cov=. --cov-report=term-missing --cov-report=json
 ```
 
 **JavaScript (Jest):**
+
 ```bash
 npm test -- --coverage --coverageReporters=text --coverageReporters=json
 ```
 
 **JavaScript (Vitest):**
+
 ```bash
 npx vitest run --coverage
 ```
@@ -58,6 +61,7 @@ Focus on meaningful coverage, not just line count.
 ## Step 3: Parse Coverage Data
 
 Extract key metrics:
+
 - Overall coverage percentage
 - Files below threshold
 - Uncovered lines by file
@@ -66,6 +70,7 @@ Extract key metrics:
 ## Step 4: Analyze Critical Gaps
 
 Prioritize coverage gaps by:
+
 1. **Security-critical code**: Authentication, authorization, input validation
 2. **Business-critical code**: Core business logic, payment processing
 3. **Error handling**: Catch blocks, error paths
@@ -94,6 +99,7 @@ Prioritize coverage gaps by:
 ### Uncovered Critical Paths
 
 **High Priority (Security/Business Critical):**
+
 1. `src/auth/login.py:45-67` - Password validation logic
    - **Risk**: Security-critical, no edge case testing
    - **Suggested tests**:
@@ -111,6 +117,7 @@ Prioritize coverage gaps by:
 ### Coverage Trends
 
 If historical data available:
+
 ```
 Last 5 runs:
   v1.0.0: 72% → v1.1.0: 74% → v1.2.0: 73% → v1.3.0: 75% → Current: 75%
@@ -119,9 +126,11 @@ Last 5 runs:
 ### Recommendations
 
 **Quick Wins (High impact, low effort):**
+
 1. Add tests for `function_name` in `file.py` (+5% coverage)
 
 **Priority Tests to Add:**
+
 1. [Test description] - covers [functionality] - estimated effort: [S/M/L]
 
 ### Next Steps

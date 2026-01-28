@@ -6,9 +6,9 @@
 
 # Only run on macOS
 if [ "$(uname)" != "Darwin" ]; then
-    exit 0
+  exit 0
 fi
 
-osascript -e 'display notification "Claude Code needs your permission to continue" with title "Claude Code" sound name "Ping"' 2>/dev/null
+osascript -e 'display notification "Claude Code needs your permission to continue" with title "Claude Code" sound name "Ping"' 2> /dev/null
 
 exit 0

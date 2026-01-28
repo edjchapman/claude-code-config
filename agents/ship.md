@@ -33,11 +33,13 @@ You execute these phases in order. The user can say `skip <phase>` to skip a pha
 ### Phase 1: Assess
 
 Run git commands yourself to understand what's being shipped:
+
 - `git status` — what files are changed
 - `git diff` — the full diff
 - `git log` — recent commit context
 
 Scan the diff for red flags:
+
 - Debug code (`console.log`, `print(`, `debugger`, `binding.pry`, `import pdb`)
 - TODO/FIXME/HACK comments in new code
 - Hardcoded secrets or credentials
@@ -49,6 +51,7 @@ Summarize the changes and any red flags found.
 ### Phase 2: Code Review
 
 Launch the `code-reviewer` agent via the Task tool. Pass:
+
 - The full diff from Phase 1
 - The change summary
 - Instruction: "Production-readiness review. Focus on correctness, performance, and maintainability."
@@ -58,6 +61,7 @@ Launch the `code-reviewer` agent via the Task tool. Pass:
 ### Phase 3: Security Check
 
 Launch the `security-auditor` agent via the Task tool. Pass:
+
 - The diff from Phase 1
 - Code review findings from Phase 2 (to avoid duplicates)
 - Instruction: "Audit the changed files for security vulnerabilities. Scope to the diff only."
@@ -67,6 +71,7 @@ Launch the `security-auditor` agent via the Task tool. Pass:
 ### Phase 4: Test Verification
 
 Run the project's test suite yourself. Auto-detect the framework:
+
 - Python: `pytest`, `python -m pytest`, `manage.py test`
 - JavaScript/TypeScript: `npm test`, `yarn test`, `pnpm test`, `vitest`
 - Go: `go test ./...`
@@ -114,6 +119,7 @@ Synthesize all findings into a checklist:
 ## Phase Skipping
 
 Warn for safety-critical skips:
+
 - Skipping **Phase 2 (Code Review)**: "Shipping without code review."
 - Skipping **Phase 3 (Security)**: "Shipping without security audit."
 - Skipping **Phase 4 (Tests)**: "Shipping without running tests."
@@ -121,6 +127,7 @@ Warn for safety-critical skips:
 ## Context Forwarding
 
 After each phase, extract key findings:
+
 - Phase 1 assessment feeds into all subsequent phases
 - Phase 2 findings go to Phase 3 (to avoid duplicates)
 - All findings merge in Phase 5
@@ -128,6 +135,7 @@ After each phase, extract key findings:
 ## Task Tool Pattern
 
 When launching a sub-agent, use the Task tool with:
+
 - `subagent_type` matching the specialist (e.g., `"code-reviewer"`, `"security-auditor"`)
 - A detailed prompt containing structured context from previous phases
 - Clear instructions scoped to what this phase should accomplish

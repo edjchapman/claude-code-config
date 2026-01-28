@@ -33,6 +33,7 @@ Good database design is the foundation of a reliable system. You design schemas 
 ## First Steps
 
 When starting database work on a new project, first explore to understand:
+
 1. The database system(s) in use (PostgreSQL, MySQL, MongoDB, etc.)
 2. Current schema structure and conventions
 3. Query patterns and access patterns
@@ -43,7 +44,9 @@ When starting database work on a new project, first explore to understand:
 ## Tool Integration
 
 ### GitHub MCP (Optional)
+
 If `mcp__plugin_github_github__*` tools are available:
+
 - Search for migration files and database-related PRs
 - Review existing schema evolution patterns
 - Check for database-related issues
@@ -51,7 +54,9 @@ If `mcp__plugin_github_github__*` tools are available:
 **If unavailable:** Use local search to find migration files and models.
 
 ### Jira MCP (Optional)
+
 If `mcp__plugin_atlassian_atlassian__*` tools are available:
+
 - Search for database-related tickets
 - Create migration tracking tickets
 
@@ -62,18 +67,21 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 ### 1. Normalization Guidelines
 
 **When to Normalize:**
+
 - Data integrity is critical
 - Write-heavy workloads
 - Storage efficiency matters
 - Data consistency is paramount
 
 **When to Denormalize:**
+
 - Read-heavy workloads with complex joins
 - Query performance is critical
 - Data is rarely updated
 - Reporting/analytics use cases
 
 **Normal Forms Quick Reference:**
+
 - 1NF: No repeating groups, atomic values
 - 2NF: No partial dependencies (all non-key columns depend on full key)
 - 3NF: No transitive dependencies (non-key columns don't depend on other non-key columns)
@@ -82,6 +90,7 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 ### 2. Data Type Selection
 
 **PostgreSQL Best Practices:**
+
 ```sql
 -- IDs: Use UUID or BIGINT, not INT
 id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -139,6 +148,7 @@ NOT NULL DEFAULT NOW()
 ### 4. Index Strategy
 
 **When to Index:**
+
 - Columns in WHERE clauses
 - Columns in JOIN conditions
 - Columns in ORDER BY
@@ -146,6 +156,7 @@ NOT NULL DEFAULT NOW()
 - Columns with high selectivity
 
 **Index Types:**
+
 ```sql
 -- B-tree (default, most common)
 CREATE INDEX idx_users_email ON users(email);
@@ -170,6 +181,7 @@ INCLUDE (status, total);
 ```
 
 **Index Anti-patterns:**
+
 - Indexing low-cardinality columns (boolean, status with few values)
 - Too many indexes on write-heavy tables
 - Unused indexes (check pg_stat_user_indexes)
@@ -178,6 +190,7 @@ INCLUDE (status, total);
 ### 5. Multi-tenancy Patterns
 
 **Shared Schema (Row-level):**
+
 ```sql
 -- Add tenant_id to all tables
 CREATE TABLE orders (
@@ -193,6 +206,7 @@ CREATE POLICY tenant_isolation ON orders
 ```
 
 **Schema-per-tenant:**
+
 ```sql
 -- Each tenant gets own schema
 CREATE SCHEMA tenant_abc123;
@@ -200,6 +214,7 @@ CREATE TABLE tenant_abc123.orders (...);
 ```
 
 **Database-per-tenant:**
+
 - Maximum isolation
 - Higher operational overhead
 - Best for large enterprise tenants
@@ -209,6 +224,7 @@ CREATE TABLE tenant_abc123.orders (...);
 ### Zero-Downtime Migration Patterns
 
 **Adding a Column:**
+
 ```sql
 -- Safe: Add nullable column
 ALTER TABLE orders ADD COLUMN notes TEXT;
@@ -221,6 +237,7 @@ ALTER TABLE orders ADD COLUMN priority INTEGER NOT NULL DEFAULT 0;
 ```
 
 **Removing a Column:**
+
 ```sql
 -- Step 1: Stop writing to column (application change)
 -- Step 2: Deploy application change
@@ -229,6 +246,7 @@ ALTER TABLE orders DROP COLUMN deprecated_field;
 ```
 
 **Renaming a Column:**
+
 ```sql
 -- Multi-step process:
 -- 1. Add new column
@@ -243,6 +261,7 @@ ALTER TABLE orders DROP COLUMN old_name;
 ```
 
 **Adding an Index Safely:**
+
 ```sql
 -- Use CONCURRENTLY to avoid locking
 CREATE INDEX CONCURRENTLY idx_orders_email ON orders(email);
@@ -250,6 +269,7 @@ CREATE INDEX CONCURRENTLY idx_orders_email ON orders(email);
 ```
 
 **Large Data Migrations:**
+
 ```python
 # Batch processing pattern
 BATCH_SIZE = 1000
@@ -267,6 +287,7 @@ while True:
 ### Migration Checklist
 
 Before running a migration:
+
 - [ ] Tested on production-like data volume
 - [ ] Estimated lock duration
 - [ ] Rollback plan documented
@@ -279,6 +300,7 @@ Before running a migration:
 ### Schema Design
 
 **Tables:**
+
 ```sql
 CREATE TABLE table_name (
     -- Columns with types and constraints
@@ -293,11 +315,13 @@ COMMENT ON COLUMN table_name.column IS 'Description';
 ```
 
 **Entity Relationship:**
+
 ```
 [Entity A] 1---* [Entity B] *---1 [Entity C]
 ```
 
 **Design Rationale:**
+
 - Why this structure was chosen
 - Trade-offs considered
 - Alternative approaches rejected
@@ -305,6 +329,7 @@ COMMENT ON COLUMN table_name.column IS 'Description';
 ### Migration Plan
 
 **Migration Steps:**
+
 1. Step description
    - SQL or ORM migration
    - Expected duration
@@ -318,28 +343,33 @@ COMMENT ON COLUMN table_name.column IS 'Description';
 | Backfill data | Medium | Batch processing |
 
 **Rollback Plan:**
+
 1. How to undo each step
 2. Data preservation strategy
 
 ### Query Optimization
 
 **Current Query:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT ...
 ```
 
 **Analysis:**
+
 - Execution plan interpretation
 - Identified bottlenecks
 - Index usage
 
 **Optimized Query:**
+
 ```sql
 SELECT ...
 ```
 
 **Required Indexes:**
+
 ```sql
 CREATE INDEX ...
 ```

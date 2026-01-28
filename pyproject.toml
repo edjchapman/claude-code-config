@@ -1,0 +1,39 @@
+# Python tooling configuration for Claude Code configuration repository
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+# Select rules:
+# E/W = pycodestyle errors/warnings
+# F = pyflakes
+# I = isort (import sorting)
+# B = bugbear (common bugs)
+# C4 = comprehensions
+# UP = pyupgrade (modernize syntax)
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+
+# Ignore rules:
+# E501 = line too long (handled by formatter)
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint.isort]
+known-first-party = []
+force-single-line = false
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Relaxed for scripts
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true

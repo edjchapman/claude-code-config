@@ -5,6 +5,7 @@ Explain the code at the specified location.
 `$ARGUMENTS`
 
 ## Usage
+
 - `/explain` - Explain the current file or selection
 - `/explain path/to/file.py` - Explain a specific file
 - `/explain path/to/file.py:functionName` - Explain a specific function
@@ -33,21 +34,27 @@ Explain the code at the specified location.
 ## Output Format
 
 ### Overview
+
 [1-2 sentence summary of what this code does]
 
 ### Purpose
+
 [Why this code exists, what problem it solves]
 
 ### How It Works
+
 [Step-by-step explanation of the logic]
 
 ### Key Details
+
 [Important things to know: edge cases, assumptions, gotchas]
 
 ### Dependencies
+
 [What this code uses, what uses this code]
 
 ### Example Usage (if applicable)
+
 [How to use this code]
 
 Keep explanations clear and concise. Focus on the "why" not just the "what".

@@ -22,6 +22,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 ```
 
 ### Types
+
 - `feat`: New feature or functionality
 - `fix`: Bug fix
 - `docs`: Documentation only
@@ -33,6 +34,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 - `perf`: Performance improvements
 
 ### Rules
+
 - First line under 72 characters
 - Imperative mood: "add feature" not "added feature"
 - No period at end of subject line
@@ -46,6 +48,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 ```
 
 Examples:
+
 - `feature/BIL-123-user-authentication`
 - `fix/BIL-456-login-redirect-loop`
 - `chore/BIL-789-upgrade-dependencies`
@@ -53,17 +56,20 @@ Examples:
 ## Pull Request Guidelines
 
 ### Size
+
 - Aim for under 400 lines changed
 - If larger, split into stacked PRs or feature flags
 - One logical change per PR
 
 ### Description
+
 - Summary of what and why (not how)
 - Link to ticket/issue
 - Test plan: how to verify the change
 - Screenshots for UI changes
 
 ### Review Checklist
+
 - Tests pass
 - No linting errors
 - No TODO/FIXME without linked tickets

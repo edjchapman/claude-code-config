@@ -43,15 +43,18 @@ gh pr list --author=@me --state=all --limit=10
 **If Jira MCP is available (`mcp__plugin_atlassian_atlassian__*` tools):**
 
 Use the following tools:
+
 - `mcp__plugin_atlassian_atlassian__atlassianUserInfo` - Get current user identity
 - `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` - Search for issues
 - `mcp__plugin_atlassian_atlassian__getJiraIssue` - Get issue details
 
 1. Get user's account ID from Step 1
 2. Search for issues assigned to me updated in the period:
+
    ```
    JQL: assignee = '<accountId>' AND updated >= '-24h' ORDER BY updated DESC
    ```
+
 3. For the project board context, reference: `https://builtai.atlassian.net/jira/software/projects/BIL/boards/42`
 4. Extract from each ticket:
    - Status transitions (e.g., In Progress → Review)
@@ -62,6 +65,7 @@ Use the following tools:
 **If Jira MCP is NOT available:**
 Ask the user:
 > "I don't have direct Jira access. Please paste your Jira activity summary, or tell me:
+>
 > 1. Which tickets did you work on? (e.g., BIL-123, BIL-456)
 > 2. What's the status of each?
 > 3. Any blockers?"
@@ -71,6 +75,7 @@ Ask the user:
 **If Notion MCP is available (`mcp__plugin_Notion_notion__*` tools):**
 
 Use the following tools:
+
 - `mcp__plugin_Notion_notion__notion-search` - Search for pages
 - `mcp__plugin_Notion_notion__notion-get-users` - Get user information
 - `mcp__plugin_Notion_notion__notion-create-pages` - Create new pages
@@ -91,12 +96,14 @@ Ask the user:
 
 **Try Notion AI Search first:**
 Use `mcp__plugin_Notion_notion__notion-search` with `content_search_mode="ai_search"` to search connected Slack and Google Drive sources:
+
 - Query: "meetings discussions updates" for the specified period
 - This may surface Slack threads and calendar events indexed by Notion
 
 **Fallback prompt if no results or unavailable:**
 Ask the user:
 > "I couldn't find Slack/Calendar data through Notion. Please share:
+>
 > 1. Any important Slack discussions or decisions from the period?
 > 2. Any meetings you attended? Key outcomes or action items?"
 
@@ -105,9 +112,11 @@ Ask the user:
 **If `--team` flag is provided AND Jira MCP is available:**
 
 1. Query for team activity (excluding current user):
+
    ```
    JQL: project = BIL AND updated >= '-24h' AND assignee != '<accountId>' ORDER BY assignee, updated DESC
    ```
+
 2. Group results by assignee
 3. Summarize each team member's activity:
    - Tickets moved/updated
@@ -177,9 +186,11 @@ Create the standup document with all gathered information:
 
 1. Parse `--output <path>` if provided, otherwise use default
 2. Create the `./standups/` directory if it doesn't exist:
+
    ```bash
    mkdir -p ./standups
    ```
+
 3. Generate filename: `YYYY-MM-DD-standup.md` (e.g., `2025-01-15-standup.md`)
 4. Write the standup document to the file using the Write tool
 5. Confirm to user: "Standup saved to `./standups/YYYY-MM-DD-standup.md`"

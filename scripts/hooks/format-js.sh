@@ -9,8 +9,8 @@ FILE_PATH="${CLAUDE_FILE_PATH:-$1}"
 
 # Only process supported file types
 case "$FILE_PATH" in
-    *.js|*.jsx|*.ts|*.tsx|*.css|*.scss|*.json|*.md) ;;
-    *) exit 0 ;;
+  *.js | *.jsx | *.ts | *.tsx | *.css | *.scss | *.json | *.md) ;;
+  *) exit 0 ;;
 esac
 
 # Only run if file exists
@@ -18,14 +18,14 @@ esac
 
 # Check for local prettier (prefer project-local)
 if [ -f "node_modules/.bin/prettier" ]; then
-    PRETTIER="node_modules/.bin/prettier"
-elif command -v prettier &>/dev/null; then
-    PRETTIER="prettier"
+  PRETTIER="node_modules/.bin/prettier"
+elif command -v prettier &> /dev/null; then
+  PRETTIER="prettier"
 else
-    exit 0
+  exit 0
 fi
 
 # Format the file
-$PRETTIER --write --log-level silent "$FILE_PATH" 2>/dev/null
+$PRETTIER --write --log-level silent "$FILE_PATH" 2> /dev/null
 
 exit 0

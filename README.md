@@ -1,5 +1,7 @@
 # Claude Code Config
 
+[![Validate Config](https://github.com/edjchapman/claude-code-config/actions/workflows/validate-config.yml/badge.svg)](https://github.com/edjchapman/claude-code-config/actions/workflows/validate-config.yml)
+
 Reusable agents, commands, and permission templates for [Claude Code](https://claude.ai/code).
 
 ## Why This Exists
@@ -12,12 +14,27 @@ Claude Code stores configuration in `~/.claude/` (global) and `.claude/` (per-pr
 - **New machines** require manual setup
 
 This repo solves that by providing:
+
 - A **single source of truth** for your Claude Code configuration
 - **Symlinks** so updates propagate everywhere automatically
 - **Composable templates** for different project types
 - **Hooks** for auto-formatting, safety checks, and notifications
 - **Skills** for passive domain knowledge activation
 - **Setup scripts** that work on any machine
+
+## Quality Standards
+
+This repository maintains high code quality through automated checks:
+
+- ✅ **Pre-commit hooks**: Auto-format code, lint, validate syntax (< 5s per commit)
+- ✅ **CI validation**: GitHub Actions runs all checks on every PR
+- ✅ **Shell scripts**: Linted with `shellcheck`, formatted with `shfmt`
+- ✅ **Python**: Formatted and linted with `ruff`
+- ✅ **Markdown**: Style checked with `markdownlint`
+- ✅ **JSON/YAML**: Syntax validation
+- ✅ **Custom checks**: Duplicate name detection, frontmatter validation, settings merge tests
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions.
 
 ## Quick Start
 
@@ -37,6 +54,7 @@ claude
 ```
 
 **Tip:** Add an alias for easier use:
+
 ```bash
 # Add to ~/.bashrc or ~/.zshrc
 alias claude-setup='~/Development/claude-code-config/scripts/setup-project.sh'
@@ -48,6 +66,7 @@ claude-setup django react
 ## What Gets Created
 
 **Global setup** (`setup-global.sh`) creates symlinks in `~/.claude/`:
+
 ```
 ~/.claude/
 ├── agents       -> ~/claude-code-config/agents
@@ -57,6 +76,7 @@ claude-setup django react
 ```
 
 **Project setup** (`setup-project.sh`) creates in your project:
+
 ```
 your-project/.claude/
 ├── agents              -> ~/claude-code-config/agents
@@ -79,6 +99,7 @@ your-project/.claude/
 | **Fork** | You want to customize agents/commands for your own workflow |
 
 If you fork, you can still pull updates from upstream:
+
 ```bash
 git remote add upstream https://github.com/edjchapman/claude-code-config.git
 git fetch upstream
@@ -151,6 +172,7 @@ Invoke with `@agent-name` in Claude Code:
 | `@test-engineer` | Create unit and integration tests | sonnet |
 
 **Model notes:**
+
 - **Opus** = complex reasoning, security reviews, planning (higher cost)
 - **Sonnet** = pattern-based tasks, faster, lower cost
 
@@ -304,11 +326,13 @@ Add to your project's `.gitignore`:
 ## Uninstalling / Cleanup
 
 **Remove global symlinks:**
+
 ```bash
 rm ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/settings.json
 ```
 
 **Remove from a project:**
+
 ```bash
 rm -rf .claude/agents .claude/commands .claude/skills .claude/settings.json
 # Optionally remove generated permissions too:
@@ -316,6 +340,7 @@ rm .claude/settings.local.json
 ```
 
 **Moving the repo to a new location:**
+
 ```bash
 # After moving, re-run setup scripts to update symlinks
 ~/new-location/claude-code-config/scripts/setup-global.sh
@@ -325,6 +350,7 @@ cd ~/my-project && ~/new-location/claude-code-config/scripts/setup-project.sh dj
 ## Troubleshooting
 
 **Python not found**
+
 ```bash
 python3 --version  # Need 3.8+
 # macOS: brew install python@3.11
@@ -332,6 +358,7 @@ python3 --version  # Need 3.8+
 ```
 
 **Symlinks broken after moving repo**
+
 ```bash
 # Re-run both setups
 ~/claude-code-config/scripts/setup-global.sh
@@ -350,6 +377,7 @@ You're running setup-project.sh from inside the config repo. Run it from your ac
 ### Windows Users
 
 These scripts require a Unix-like environment. Options:
+
 - **WSL (recommended)**: Install [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install), then run scripts from within WSL
 - **Git Bash**: May work but is not tested
 

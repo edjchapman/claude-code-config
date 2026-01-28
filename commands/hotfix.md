@@ -34,6 +34,7 @@ Ask the user to confirm the branch name before creating it.
 ### 4. Verify
 
 Run only the tests directly related to the fix:
+
 - Python: `pytest <specific_test_file> -x -v`
 - TypeScript: `npx vitest run <specific_test_file>`
 - Also run the full test suite if fast enough
@@ -41,6 +42,7 @@ Run only the tests directly related to the fix:
 ### 5. Prepare PR
 
 Use `gh pr create` with:
+
 - Title: `hotfix: <description>`
 - Label: `hotfix` (if available)
 - Body should include:
@@ -53,6 +55,7 @@ Use `gh pr create` with:
 ### 6. Post-Fix Checklist
 
 Present to the user:
+
 - [ ] Fix is minimal and targeted
 - [ ] Test reproduces the original bug
 - [ ] Test passes with the fix
@@ -62,6 +65,7 @@ Present to the user:
 ## Output
 
 Present the PR URL when complete and remind the user to:
+
 - Request expedited review
 - Monitor deployment after merge
 - Consider if a follow-up ticket is needed for deeper investigation

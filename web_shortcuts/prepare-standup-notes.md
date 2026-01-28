@@ -25,12 +25,15 @@ STANDUP_GITHUB_URL=https://github.com/your-org/your-repo
 Summarize my activity in this format:
 
 **Yesterday:**
+
 - [Completed tasks, PRs merged, bugs fixed]
 
 **Today:**
+
 - [Planned work based on in-progress tickets]
 
 **Blockers:**
+
 - [Any identified blockers or dependencies]
 
 If Notion is configured, create a page in my private section for standups and meetings (if it doesn't exist) and save these notes there.

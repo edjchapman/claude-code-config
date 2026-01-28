@@ -9,15 +9,18 @@ Format GitHub release notes for Jira and stakeholder communication.
 ```
 
 **Options:**
+
 - `--fetch <tag>`: Fetch release notes for a specific tag (e.g., `--fetch v103`)
 - `--no-fetch`: Disable auto-fetch; prompt for pasted input instead
 - `--notion`: Save formatted notes to Notion after generating
 
 **Positional:**
+
 - `format`: `both` (default), `md`, or `csv`
 - `version`: Override auto-detected version (e.g., `v103`)
 
 **Examples:**
+
 - `/format-release-notes` - Fetch latest release, output md and csv
 - `/format-release-notes --fetch v103` - Fetch specific tag, output md and csv
 - `/format-release-notes --no-fetch md` - Paste notes manually, md only
@@ -28,6 +31,7 @@ Format GitHub release notes for Jira and stakeholder communication.
 ### Step 0: Determine Input Source
 
 **Default (no flags):** Fetch the latest release automatically:
+
 ```bash
 # Get latest release tag
 gh release list --limit 1 --json tagName -q '.[0].tagName'
@@ -36,6 +40,7 @@ gh release view <tag> --json body,tagName,name -q '{body: .body, tag: .tagName, 
 ```
 
 **If `--fetch <tag>` provided:** Fetch the specified release:
+
 ```bash
 gh release view <tag> --json body,tagName,name -q '{body: .body, tag: .tagName, name: .name}'
 ```
@@ -44,15 +49,19 @@ gh release view <tag> --json body,tagName,name -q '{body: .body, tag: .tagName, 
 Prompt the user to paste their raw release notes.
 
 ### Step 1: Parse Release Notes
+
 Parse the release notes (from GitHub fetch or user-provided input)
 
 ### Step 2: Extract Version
+
 Extract the version from the release title or tag
 
 ### Step 3: Categorize PRs
+
 Categorize each PR into sections
 
 ### Step 4: Format and Save
+
 Format output and save to current working directory
 
 ### Jira Configuration
@@ -156,6 +165,7 @@ v104,Maintenance,Dependency Updates,,,Bump package-name X.X to Y.Y,@dependabot,1
 ```
 
 **CSV notes:**
+
 - One row per PR (same ticket can appear on multiple rows if it has multiple PRs)
 - Leave cells empty for optional fields (Subcategory, Ticket, Ticket Link) when not applicable
 - Dependency updates use `@dependabot` as contributor
@@ -163,6 +173,7 @@ v104,Maintenance,Dependency Updates,,,Bump package-name X.X to Y.Y,@dependabot,1
 ### Step 5: Save to Notion (if `--notion` flag)
 
 **If Notion MCP is available (`mcp__plugin_Notion_notion__notion-create-pages`):**
+
 - Create a new page with formatted release notes:
   - **Title**: "Release Notes - {version}"
   - **Content**: Full formatted markdown output
@@ -170,6 +181,7 @@ v104,Maintenance,Dependency Updates,,,Bump package-name X.X to Y.Y,@dependabot,1
 - Return the Notion page URL
 
 **If Notion MCP is NOT available:**
+
 - Skip Notion save
 - Inform user: "Notion MCP not available - files saved locally but not to Notion"
 
@@ -181,6 +193,7 @@ v104,Maintenance,Dependency Updates,,,Bump package-name X.X to Y.Y,@dependabot,1
 
 Present summary:
 > "Release notes for {version} formatted:
+>
 > - Local: `./releases/release-notes-{version}.md` and `.csv`
 > - Notion: {url} (if --notion used)
 >

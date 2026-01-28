@@ -30,6 +30,7 @@ python3 scripts/merge-settings.py <templates-dir> base <type1> [type2...]
 Hooks are configured in `settings.json` under the `"hooks"` key. Since `settings.json` is symlinked globally, hooks are available in all projects. Hook scripts live in `scripts/hooks/` and are referenced via `readlink` to resolve the repo path from the symlink.
 
 Available hooks:
+
 - **SessionStart**: Auto-loads git context (branch, recent commits, dirty files)
 - **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
 - **PreToolUse (Bash)**: Blocks dangerous command patterns (defense-in-depth)
@@ -42,6 +43,7 @@ Available hooks:
 Skills are domain knowledge documents in `skills/` that auto-activate based on file glob patterns. Unlike agents (explicitly invoked), skills provide passive context when relevant files are touched.
 
 Available skills:
+
 - `coding-standards.md`: Naming, function length, error handling (`**/*.py`, `**/*.ts`, `**/*.tsx`)
 - `git-workflow.md`: Conventional commits, branch naming, PR size (`.git/**`)
 - `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*.test.ts`)
@@ -58,6 +60,7 @@ This repo manages two distinct settings files:
 | `settings.local.json` | Bash permissions (what commands Claude can run) | **Generated** per-project | Merged from `settings-templates/` |
 
 **Why separate?**
+
 - **Plugins** (`settings.json`): Personal preference, same across all projects, updated by adding plugins to repo
 - **Permissions** (`settings.local.json`): Project-specific, varies by tech stack (Django vs React vs Go)
 
@@ -73,6 +76,7 @@ Templates in `settings-templates/` are JSON files defining Claude Code permissio
 4. Outputs combined `settings.local.json`
 
 Template structure:
+
 ```json
 {
   "_source": "template-name",
@@ -87,6 +91,7 @@ Template structure:
 ### Agent Definitions
 
 Agents in `agents/` are Markdown files with YAML frontmatter:
+
 - `name`: Agent identifier (used as `@agent-name`)
 - `description`: When Claude should invoke this agent (include examples)
 - `model`: `opus` for complex reasoning, `sonnet` for pattern-based tasks
@@ -104,6 +109,7 @@ Commands in `commands/` are Markdown files where the filename becomes the slash 
 ## Commit Messages
 
 Follow conventional commits:
+
 ```
 feat(agents): add kubernetes-helper agent
 fix(scripts): handle spaces in paths

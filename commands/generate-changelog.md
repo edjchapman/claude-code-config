@@ -22,6 +22,7 @@ git log $(git describe --tags --abbrev=0)..HEAD --oneline
 ```
 
 **If `--from` provided:**
+
 ```bash
 git log {from}..{to} --oneline
 ```
@@ -55,15 +56,18 @@ Parse commits using conventional commit prefixes:
 | `deps:` or `build(deps):` | Dependencies |
 
 **Fallback for non-conventional commits:**
+
 - Analyze commit message content to categorize
 - Group unlabeled commits under "Other Changes"
 
 ## Step 4: Extract Jira Tickets
 
 **Pattern matching:**
+
 - `BIL-XXXX`, `ABC-123`, etc. from commit messages and branch names
 
 **If Jira MCP is available (`mcp__plugin_atlassian_atlassian__getJiraIssue`):**
+
 - Fetch ticket summaries for context
 - Link to Jira issues in changelog
 
@@ -75,6 +79,7 @@ git log {from}..{to} --format="%an" | sort -u
 ```
 
 **If GitHub MCP is available (`mcp__plugin_github_github__*`):**
+
 - Fetch PR authors and reviewers
 - Link to GitHub profiles
 
@@ -174,6 +179,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Step 7: Save Output
 
 Save to appropriate file:
+
 - `CHANGELOG.md` (append/update)
 - `releases/CHANGELOG-{version}.md`
 - `changelog.json`
@@ -182,6 +188,7 @@ Save to appropriate file:
 
 Present summary:
 > "Generated changelog for {version}:
+>
 > - {n} features, {m} bug fixes, {p} other changes
 > - {c} contributors
 > - Saved to: {output_file}"
