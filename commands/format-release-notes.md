@@ -9,30 +9,25 @@ Format GitHub release notes for Jira and stakeholder communication.
 ```
 
 **Options:**
-- `--fetch <tag>`: Auto-fetch release notes from GitHub (e.g., `--fetch v103`)
-- `--latest`: Fetch the most recent release automatically
+- `--fetch <tag>`: Fetch release notes for a specific tag (e.g., `--fetch v103`)
+- `--no-fetch`: Disable auto-fetch; prompt for pasted input instead
 - `--notion`: Save formatted notes to Notion after generating
 
 **Positional:**
-- `format`: `md` (default), `csv`, or `both`
+- `format`: `both` (default), `md`, or `csv`
 - `version`: Override auto-detected version (e.g., `v103`)
 
 **Examples:**
-- `/format-release-notes --latest` - Fetch and format most recent release
-- `/format-release-notes --fetch v103 both` - Fetch v103, output md and csv
-- `/format-release-notes --latest --notion` - Fetch latest, save to Notion
-- `/format-release-notes md v104` - Format pasted notes as v104
+- `/format-release-notes` - Fetch latest release, output md and csv
+- `/format-release-notes --fetch v103` - Fetch specific tag, output md and csv
+- `/format-release-notes --no-fetch md` - Paste notes manually, md only
+- `/format-release-notes --notion` - Fetch latest, save to Notion
 
 ## Instructions
 
 ### Step 0: Determine Input Source
 
-**If `--fetch <tag>` provided:**
-```bash
-gh release view <tag> --json body,tagName,name -q '{body: .body, tag: .tagName, name: .name}'
-```
-
-**If `--latest` provided:**
+**Default (no flags):** Fetch the latest release automatically:
 ```bash
 # Get latest release tag
 gh release list --limit 1 --json tagName -q '.[0].tagName'
@@ -40,12 +35,13 @@ gh release list --limit 1 --json tagName -q '.[0].tagName'
 gh release view <tag> --json body,tagName,name -q '{body: .body, tag: .tagName, name: .name}'
 ```
 
-**If no input provided and no flags:**
-Present interactive menu:
-> "No release notes provided. Would you like me to:
-> 1. **Fetch from a specific release tag** - I'll ask for the tag name
-> 2. **Fetch the latest release** - I'll grab the most recent one
-> 3. **Paste your own release notes** - Provide raw notes to format"
+**If `--fetch <tag>` provided:** Fetch the specified release:
+```bash
+gh release view <tag> --json body,tagName,name -q '{body: .body, tag: .tagName, name: .name}'
+```
+
+**If `--no-fetch` provided:**
+Prompt the user to paste their raw release notes.
 
 ### Step 1: Parse Release Notes
 Parse the release notes (from GitHub fetch or user-provided input)
@@ -83,58 +79,86 @@ Omit empty sections from output.
 ### Formatting Rules
 
 - Link tickets: `[BIL-1234](https://builtai.atlassian.net/browse/BIL-1234)`
-- Link PRs: `[#123](https://github.com/BuiltAI/clarion_app/pull/123)`
-- Group related PRs (backend + frontend) on one line
+- Link PRs: `[#123](https://github.com/Built-AI/clarion_app/pull/123)`
+- **One PR per line** — never group multiple PRs on the same line
+- Same ticket can appear on multiple lines if it has multiple PRs
 - Include contributors: `@username`
 - Strip conventional commit prefixes (`feat:`, `fix:`, `chore:`)
-- PRs without ticket IDs: List under "Other" within their category
-- Dependabot PRs: Group under Maintenance as "Dependency Updates"
+- PRs without ticket IDs: List under their category without a ticket link
+- Dependabot PRs: List individually under Maintenance > Dependency Updates with bump description
 - Revert PRs: Note as "(reverted)" on the original PR line if both present
+- Separate sections with `---` horizontal rules
+- End with `**Full Changelog**: <GitHub compare URL>`
 
 ### Output
 
 **Markdown** (`release-notes-{version}.md`):
 
 ```markdown
-# Release {version}
+# Release Candidate {version}
 
 ## Summary
 
-- X new features
-- X bug fixes
-- X maintenance items
+- **X new features** across Portfolio, Tenant/Lease, Unit Editor, etc.
+- **X bug fixes**
+- **X improvements**
+- **X maintenance items** (including X dependency updates)
+
+---
 
 ## Breaking Changes
 
-- [BIL-1234](https://builtai.atlassian.net/browse/BIL-1234) Remove deprecated `/api/v1/tenants` endpoint [#456](url) @dev
+- [BIL-1234](https://builtai.atlassian.net/browse/BIL-1234) Remove deprecated `/api/v1/tenants` endpoint [#456](https://github.com/Built-AI/clarion_app/pull/456) @dev
+
+---
 
 ## New Features
 
 ### Portfolio
 
-- [BIL-1111](url) Add custom ordering for tenants [#123](url) [#124](url) @dev1 @dev2
+- [BIL-1111](https://builtai.atlassian.net/browse/BIL-1111) Description [#123](https://github.com/Built-AI/clarion_app/pull/123) @contributor
 
-### Export/Import
+### Domain Area 2
 
-- [BIL-2222](url) Admin export for projects and assets [#125](url) @dev3
+- [BIL-2222](https://builtai.atlassian.net/browse/BIL-2222) Description [#125](https://github.com/Built-AI/clarion_app/pull/125) @dev1
+
+---
 
 ## Bug Fixes
 
-- [BIL-3333](url) Fix timezone handling in lease dates [#126](url) @dev4
+- [BIL-3333](https://builtai.atlassian.net/browse/BIL-3333) Description [#126](https://github.com/Built-AI/clarion_app/pull/126) @contributor
+
+---
 
 ## Maintenance
 
-- Dependency Updates: [#130](url) [#131](url) [#132](url)
-- [BIL-4444](url) Refactor tenant service [#127](url) @dev5
+### Code Quality
+
+- [BIL-4444](https://builtai.atlassian.net/browse/BIL-4444) Description [#127](https://github.com/Built-AI/clarion_app/pull/127) @contributor
+
+### Dependency Updates
+
+- [#130](https://github.com/Built-AI/clarion_app/pull/130) Bump package-name X.X to Y.Y
+- [#131](https://github.com/Built-AI/clarion_app/pull/131) Bump package-name X.X to Y.Y
+
+---
+
+**Full Changelog**: https://github.com/Built-AI/clarion_app/compare/prev-tag...current-tag
 ```
 
 **CSV** (`release-notes-{version}.csv`):
 
 ```
-Category,Ticket,Description,Contributors,PR Links
-New Features,BIL-1111,Add custom ordering for tenants,@dev1 @dev2,#123 #124
-Bug Fixes,BIL-3333,Fix timezone handling in lease dates,@dev4,#126
+Release,Category,Subcategory,Ticket,Ticket Link,Description,Contributors,PR Number,PR Link
+v104,New Features,Portfolio,BIL-1111,https://builtai.atlassian.net/browse/BIL-1111,Description,@contributor,123,https://github.com/Built-AI/clarion_app/pull/123
+v104,Bug Fixes,,BIL-3333,https://builtai.atlassian.net/browse/BIL-3333,Description,@contributor,126,https://github.com/Built-AI/clarion_app/pull/126
+v104,Maintenance,Dependency Updates,,,Bump package-name X.X to Y.Y,@dependabot,130,https://github.com/Built-AI/clarion_app/pull/130
 ```
+
+**CSV notes:**
+- One row per PR (same ticket can appear on multiple rows if it has multiple PRs)
+- Leave cells empty for optional fields (Subcategory, Ticket, Ticket Link) when not applicable
+- Dependency updates use `@dependabot` as contributor
 
 ### Step 5: Save to Notion (if `--notion` flag)
 
@@ -151,13 +175,13 @@ Bug Fixes,BIL-3333,Fix timezone handling in lease dates,@dev4,#126
 
 ## Output
 
-**Default:** Save to `./releases/release-notes-{version}.md` (and `.csv` if requested)
+**Default:** Save to `./releases/release-notes-{version}.md` and `./releases/release-notes-{version}.csv`
 
 **With `--notion`:** Also create Notion page and return URL
 
 Present summary:
 > "Release notes for {version} formatted:
-> - Local: `./releases/release-notes-{version}.md`
+> - Local: `./releases/release-notes-{version}.md` and `.csv`
 > - Notion: {url} (if --notion used)
 >
 > Summary: X features, Y bug fixes, Z maintenance items"
