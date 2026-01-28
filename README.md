@@ -114,6 +114,20 @@ Use one or combine multiple:
 
 ## Available Agents
 
+### Orchestrator Agents
+
+These coordinate multiple specialist agents to complete multi-phase workflows end-to-end:
+
+| Agent | What It Does | Phases | Model |
+|-------|--------------|--------|-------|
+| `@implement` | Feature implementation: plan → code → test → review | spec-writer, test-engineer, code-reviewer | sonnet |
+| `@fix` | Bug fix: investigate → fix → regression test → review | bug-resolver, test-engineer, code-reviewer | sonnet |
+| `@review-pr` | PR review: context → code review → security → coverage | pr-review-bundler, code-reviewer, security-auditor, test-engineer | sonnet |
+| `@refactor` | Safe refactoring: analyze → safety-net tests → refactor → review | refactoring-engineer, test-engineer, code-reviewer | sonnet |
+| `@ship` | Pre-merge gate: assess → review → security → test → commit → PR | code-reviewer, security-auditor | sonnet |
+
+### Specialist Agents
+
 Invoke with `@agent-name` in Claude Code:
 
 | Agent | What It Does | Model |
