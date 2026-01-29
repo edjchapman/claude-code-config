@@ -71,7 +71,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Review the session: Were tests run if code was changed? Were linters run? Are there any TODO/FIXME comments left unresolved? If any of these were missed, reject and explain what was missed."
+            "prompt": "Review the session: Were tests run if code was changed? Were linters run? Are there any TODO/FIXME comments left unresolved? Approve if the session is complete. Block with a reason if something was missed."
           }
         ]
       }
