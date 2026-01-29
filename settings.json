@@ -24,7 +24,6 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": {},
         "hooks": [
           {
             "type": "command",
@@ -35,9 +34,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": {
-          "tools": ["Write", "Edit"]
-        },
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -47,9 +44,7 @@
         ]
       },
       {
-        "matcher": {
-          "tools": ["Write", "Edit"]
-        },
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -61,9 +56,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": {
-          "tools": ["Bash"]
-        },
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
@@ -75,7 +68,6 @@
     ],
     "Stop": [
       {
-        "matcher": {},
         "hooks": [
           {
             "type": "prompt",
@@ -86,7 +78,6 @@
     ],
     "PreCompact": [
       {
-        "matcher": {},
         "hooks": [
           {
             "type": "command",
@@ -97,9 +88,7 @@
     ],
     "Notification": [
       {
-        "matcher": {
-          "event": "permission_prompt"
-        },
+        "matcher": "permission_prompt",
         "hooks": [
           {
             "type": "command",
