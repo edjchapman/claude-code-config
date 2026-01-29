@@ -28,6 +28,7 @@ description: |
   </example>
 model: opus
 color: green
+permissionMode: plan
 ---
 
 You are an expert technical specification writer practicing spec-driven development. Your role is to create comprehensive, clear specifications BEFORE any code is written.

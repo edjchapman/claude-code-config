@@ -20,6 +20,7 @@ This repo solves that by providing:
 - **Composable templates** for different project types
 - **Hooks** for auto-formatting, safety checks, and notifications
 - **Skills** for passive domain knowledge activation
+- **Rules** for path-scoped code style enforcement
 - **Setup scripts** that work on any machine
 
 ## Quality Standards
@@ -72,6 +73,7 @@ claude-setup django react
 ├── agents       -> ~/claude-code-config/agents
 ├── commands     -> ~/claude-code-config/commands
 ├── skills       -> ~/claude-code-config/skills
+├── rules        -> ~/claude-code-config/rules
 └── settings.json -> ~/claude-code-config/settings.json
 ```
 
@@ -82,6 +84,7 @@ your-project/.claude/
 ├── agents              -> ~/claude-code-config/agents
 ├── commands            -> ~/claude-code-config/commands
 ├── skills              -> ~/claude-code-config/skills
+├── rules               -> ~/claude-code-config/rules
 ├── settings.json       -> ~/claude-code-config/settings.json
 └── settings.local.json (generated from templates)
 ```
@@ -206,6 +209,7 @@ claude-code-config/
 ├── agents/                  # Agent definitions (markdown)
 ├── commands/                # Slash commands (markdown)
 ├── skills/                  # Auto-activating domain knowledge (markdown)
+├── rules/                   # Path-scoped code style rules (markdown)
 ├── settings-templates/      # Permission templates (JSON)
 ├── settings.json            # Plugin config + hooks (symlinked globally)
 ├── scripts/
@@ -218,7 +222,8 @@ claude-code-config/
 │       ├── format-js.sh
 │       ├── dangerous-cmd-check.sh
 │       ├── pre-compact-state.sh
-│       └── notify-permission.sh
+│       ├── notify-permission.sh
+│       └── log-tool-failure.sh
 └── web_shortcuts/           # Web workflow prompts (for claude.ai web interface)
 ```
 
@@ -229,9 +234,12 @@ Hooks are configured in `settings.json` and run automatically at key points in t
 | Hook | Trigger | What It Does |
 |------|---------|--------------|
 | SessionStart | New session | Outputs git branch, recent commits, and dirty files |
+| UserPromptSubmit | Before prompt sent | LLM checks if prompt is specific enough to act on |
 | PostToolUse (Write/Edit) | After file edits | Auto-formats Python (ruff) and JS/TS (prettier) |
+| PostToolUseFailure | After tool failure | Logs failure details to `~/.claude/debug/tool-failures.log` |
 | PreToolUse (Bash) | Before commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.) |
 | Stop | Session end | LLM checks: tests run? linters run? TODOs left? |
+| SubagentStop | Before subagent returns | LLM checks if subagent completed its task fully |
 | PreCompact | Before compaction | Saves working state (branch, staged files, recent commits) |
 | Notification | Permission needed | Sends macOS desktop notification |
 
@@ -243,11 +251,25 @@ Skills are domain knowledge documents that auto-activate when you touch matching
 
 | Skill | Activates On | What It Covers |
 |-------|-------------|----------------|
-| `coding-standards` | `*.py`, `*.ts`, `*.tsx` | Naming, function length, error handling |
 | `git-workflow` | `.git/**` | Conventional commits, branch naming, PR size |
 | `testing-patterns` | `test_*.py`, `*.test.ts` | AAA pattern, factories, coverage |
 | `security-review` | `auth/**`, `middleware/**` | Input validation, JWT, CSRF, secrets |
 | `api-design` | `views/**`, `api/**`, `serializers/**` | REST conventions, status codes, pagination |
+| `django-patterns` | `models.py`, `views.py`, `serializers.py`, `admin.py` | Fat models, managers, query optimization, signals |
+| `docker-patterns` | `Dockerfile`, `docker-compose*.yml` | Multi-stage builds, layer caching, security |
+| `infrastructure` | `*.tf`, `k8s/**/*.yaml`, `helm/**` | Terraform modules, K8s resources, Helm charts |
+
+## Rules
+
+Rules are path-scoped code style enforcement files in `rules/`. They use `paths` frontmatter for granular file matching and are enforced when touching matching files.
+
+| Rule | Applies To | What It Enforces |
+|------|-----------|-----------------|
+| `python-style` | `**/*.py` | Naming, error handling, imports, type hints |
+| `typescript-style` | `**/*.ts`, `**/*.tsx` | Naming, error handling, type usage |
+| `react-style` | `**/*.tsx` | Component structure, props, hooks, state |
+
+Rules were extracted from the former `coding-standards` skill. Skills provide domain knowledge (patterns and best practices), while rules enforce style requirements.
 
 ### Web Shortcuts
 
@@ -318,6 +340,7 @@ Add to your project's `.gitignore`:
 .claude/agents
 .claude/commands
 .claude/skills
+.claude/rules
 .claude/settings.json
 ```
 
@@ -328,13 +351,13 @@ Add to your project's `.gitignore`:
 **Remove global symlinks:**
 
 ```bash
-rm ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/settings.json
+rm ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/rules ~/.claude/settings.json
 ```
 
 **Remove from a project:**
 
 ```bash
-rm -rf .claude/agents .claude/commands .claude/skills .claude/settings.json
+rm -rf .claude/agents .claude/commands .claude/skills .claude/rules .claude/settings.json
 # Optionally remove generated permissions too:
 rm .claude/settings.local.json
 ```

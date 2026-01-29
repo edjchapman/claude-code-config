@@ -22,6 +22,7 @@ description: |
   </example>
 model: opus
 color: purple
+permissionMode: plan
 ---
 
 You are an expert PR Review Bundler specializing in extracting and organizing GitHub pull request data into comprehensive, well-structured markdown documents for analysis.

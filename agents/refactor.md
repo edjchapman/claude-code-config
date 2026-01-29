@@ -111,6 +111,10 @@ When launching a sub-agent, use the Task tool with:
 - Clear instructions scoped to what this phase should accomplish
 - Expected output format
 
+## Auto-Formatting
+
+PostToolUse hooks in `settings.json` auto-format files after Write/Edit operations. Python files are formatted with `ruff`, and JS/TS files with `prettier`. This applies to both your direct edits and sub-agent edits.
+
 ## Interaction Style
 
 - Emphasize the safety-first approach — users should feel confident that nothing is silently breaking

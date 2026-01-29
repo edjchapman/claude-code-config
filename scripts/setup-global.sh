@@ -22,6 +22,7 @@ if [ ! -d "$REPO_ROOT/agents" ]; then
   echo "  ├── agents/"
   echo "  ├── commands/"
   echo "  ├── skills/"
+  echo "  ├── rules/"
   echo "  └── scripts/setup-global.sh (this script)"
   exit 1
 fi
@@ -33,6 +34,11 @@ fi
 
 if [ ! -d "$REPO_ROOT/skills" ]; then
   echo "Error: skills/ directory not found at: $REPO_ROOT"
+  exit 1
+fi
+
+if [ ! -d "$REPO_ROOT/rules" ]; then
+  echo "Error: rules/ directory not found at: $REPO_ROOT"
   exit 1
 fi
 
@@ -51,7 +57,7 @@ echo ""
 mkdir -p ~/.claude
 
 # Remove existing symlinks/directories if they exist
-for item in agents commands skills; do
+for item in agents commands skills rules; do
   if [ -L ~/.claude/$item ]; then
     echo "Removing existing symlink: ~/.claude/$item"
     rm ~/.claude/$item
@@ -65,6 +71,7 @@ done
 ln -s "$REPO_ROOT/agents" ~/.claude/agents
 ln -s "$REPO_ROOT/commands" ~/.claude/commands
 ln -s "$REPO_ROOT/skills" ~/.claude/skills
+ln -s "$REPO_ROOT/rules" ~/.claude/rules
 
 # Handle settings.json symlink (plugin configuration)
 if [ -L ~/.claude/settings.json ]; then
@@ -84,6 +91,7 @@ echo ""
 echo "  ~/.claude/agents       -> $REPO_ROOT/agents"
 echo "  ~/.claude/commands     -> $REPO_ROOT/commands"
 echo "  ~/.claude/skills       -> $REPO_ROOT/skills"
+echo "  ~/.claude/rules        -> $REPO_ROOT/rules"
 echo "  ~/.claude/settings.json -> $REPO_ROOT/settings.json"
 echo ""
 echo "Notes:"

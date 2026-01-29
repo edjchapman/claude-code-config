@@ -328,7 +328,10 @@
       "Bash(test:*)",
       "Bash(bash scripts/hooks/check-duplicates.sh:*)",
       "Bash(echo:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git -C /Users/edwardchapman/Development/claude-code-config add settings.json)",
+      "Bash(git -C /Users/edwardchapman/Development/claude-code-config commit -m \"$\\(cat <<''EOF''\nfix\\(hooks\\): use natural language in Stop hook prompt\n\n- Remove explicit JSON format instructions that caused\n  \"JSON validation failed\" error \\(anthropics/claude-code#11947\\)\n- Claude Code''s internal prompt already handles response format\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /Users/edwardchapman/Development/claude-code-config status)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",

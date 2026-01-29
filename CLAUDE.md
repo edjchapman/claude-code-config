@@ -9,7 +9,7 @@ This is a configuration repository for Claude Code. It provides reusable agents,
 ## Key Scripts
 
 ```bash
-# Global setup (creates ~/.claude/agents, commands, skills, and settings.json symlinks)
+# Global setup (creates ~/.claude/agents, commands, skills, rules, and settings.json symlinks)
 ./scripts/setup-global.sh
 
 # Project setup (run from target project directory)
@@ -51,7 +51,7 @@ Hooks use string-based matchers (not object-based). The correct format:
 - Simple string: `"Bash"` matches only Bash tool
 - Regex: `"Write|Edit"` or `"Notebook.*"`
 - Match all: `"*"` or `""`
-- Omit matcher for events that don't use it (SessionStart, Stop, PreCompact)
+- Omit matcher for events that don't use it (SessionStart, Stop, PreCompact, UserPromptSubmit, SubagentStop)
 
 **Example:**
 
@@ -74,9 +74,12 @@ Hooks use string-based matchers (not object-based). The correct format:
 #### Available hooks
 
 - **SessionStart**: Auto-loads git context (branch, recent commits, dirty files)
+- **UserPromptSubmit**: LLM-evaluated check that user prompt is specific enough to act on
 - **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
+- **PostToolUseFailure**: Logs tool failure details to `~/.claude/debug/tool-failures.log`
 - **PreToolUse (Bash)**: Blocks dangerous command patterns (defense-in-depth)
 - **Stop**: LLM-evaluated completeness check (tests run? linters run? TODOs left?)
+- **SubagentStop**: LLM-evaluated check that subagent completed its assigned task fully
 - **PreCompact**: Preserves working state before context compaction
 - **Notification (permission_prompt)**: macOS desktop notification when Claude needs permission
 
@@ -86,11 +89,30 @@ Skills are domain knowledge documents in `skills/` that auto-activate based on f
 
 Available skills:
 
-- `coding-standards.md`: Naming, function length, error handling (`**/*.py`, `**/*.ts`, `**/*.tsx`)
 - `git-workflow.md`: Conventional commits, branch naming, PR size (`.git/**`)
 - `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*.test.ts`)
 - `security-review.md`: Input validation, JWT, CSRF, auth (`**/auth/**`, `**/middleware/**`)
 - `api-design.md`: REST conventions, status codes, pagination (`**/views/**`, `**/api/**`)
+- `django-patterns.md`: Fat models, managers, query optimization, signals (`**/models.py`, `**/views.py`, etc.)
+- `docker-patterns.md`: Multi-stage builds, layer caching, security (`**/Dockerfile`, `**/docker-compose*.yml`)
+- `infrastructure.md`: Terraform modules, K8s resources, Helm charts (`**/*.tf`, `**/k8s/**`, `**/helm/**`)
+
+### Rules
+
+Rules are path-scoped code style enforcement files in `rules/`. They use `paths` frontmatter for granular file matching.
+
+Available rules:
+
+- `python-style.md`: Naming, error handling, imports, type hints (`**/*.py`)
+- `typescript-style.md`: Naming, error handling, type usage (`**/*.ts`, `**/*.tsx`)
+- `react-style.md`: Component structure, props, hooks, state (`**/*.tsx`)
+
+### Settings Keys
+
+Beyond plugins and hooks, `settings.json` includes:
+
+- **`env`**: Environment variables for Claude Code sessions (e.g., `MAX_THINKING_TOKENS`)
+- **`attribution`**: Auto-appended commit trailer (e.g., `Co-Authored-By` line)
 
 ### Settings Files: Two Purposes
 

@@ -21,6 +21,12 @@
     "example-skills@anthropic-agent-skills": true
   },
   "model": "opus",
+  "env": {
+    "MAX_THINKING_TOKENS": "32000"
+  },
+  "attribution": {
+    "commit": "\n\nCo-Authored-By: Claude <noreply@anthropic.com>"
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -28,6 +34,17 @@
           {
             "type": "command",
             "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/session-context.sh\""
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "model": "sonnet",
+            "prompt": "Check if the user prompt is specific enough to act on. If it references code, files, errors, or a clear task, approve. If it is extremely vague with no actionable detail, block and suggest they provide more context."
           }
         ]
       }
@@ -54,6 +71,17 @@
         ]
       }
     ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/log-tool-failure.sh\"",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -72,6 +100,17 @@
           {
             "type": "prompt",
             "prompt": "Review the session: Were tests run if code was changed? Were linters run? Are there any TODO/FIXME comments left unresolved? Approve if the session is complete. Block with a reason if something was missed."
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "model": "sonnet",
+            "prompt": "Did the subagent complete its assigned task fully? Approve if the work is done. Block if the subagent gave up early, left work incomplete, or returned without a clear result."
           }
         ]
       }
