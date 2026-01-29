@@ -29,7 +29,49 @@ python3 scripts/merge-settings.py <templates-dir> base <type1> [type2...]
 
 Hooks are configured in `settings.json` under the `"hooks"` key. Since `settings.json` is symlinked globally, hooks are available in all projects. Hook scripts live in `scripts/hooks/` and are referenced via `readlink` to resolve the repo path from the symlink.
 
-Available hooks:
+#### Hook Format
+
+Hooks use string-based matchers (not object-based). The correct format:
+
+```json
+{
+  "hooks": {
+    "EventName": [
+      {
+        "matcher": "ToolPattern",
+        "hooks": [{"type": "command", "command": "your-command"}]
+      }
+    ]
+  }
+}
+```
+
+**Matcher patterns:**
+
+- Simple string: `"Bash"` matches only Bash tool
+- Regex: `"Write|Edit"` or `"Notebook.*"`
+- Match all: `"*"` or `""`
+- Omit matcher for events that don't use it (SessionStart, Stop, PreCompact)
+
+**Example:**
+
+```json
+{
+  "PostToolUse": [
+    {
+      "matcher": "Write|Edit",
+      "hooks": [{"type": "command", "command": "./format.sh"}]
+    }
+  ],
+  "SessionStart": [
+    {
+      "hooks": [{"type": "command", "command": "./load-context.sh"}]
+    }
+  ]
+}
+```
+
+#### Available hooks
 
 - **SessionStart**: Auto-loads git context (branch, recent commits, dirty files)
 - **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
