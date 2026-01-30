@@ -1,7 +1,7 @@
 #!/bin/bash
 # Optional: Claude reviews diff before push
 #
-# Install: git config core.hooksPath ~/claude-code-config/githooks
+# Install: git config core.hooksPath ~/Development/claude-code-config/githooks
 #
 # Non-blocking: always allows push (exit 0) regardless of review outcome.
 

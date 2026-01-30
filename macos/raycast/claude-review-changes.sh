@@ -14,4 +14,4 @@ if ! command -v claude &> /dev/null; then
   exit 1
 fi
 
-~/claude-code-config/scripts/cli/review-changes.sh
+~/Development/claude-code-config/scripts/cli/review-changes.sh

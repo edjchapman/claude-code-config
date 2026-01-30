@@ -44,7 +44,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions.
 git clone https://github.com/edjchapman/claude-code-config.git ~/claude-code-config
 
 # 2. Set up global config
-~/claude-code-config/scripts/setup-global.sh
+~/Development/claude-code-config/scripts/setup-global.sh
 
 # 3. Set up a project (from your project directory)
 cd ~/my-django-project
@@ -70,12 +70,12 @@ claude-setup django react
 
 ```
 ~/.claude/
-├── agents            -> ~/claude-code-config/agents
-├── commands          -> ~/claude-code-config/commands
-├── skills            -> ~/claude-code-config/skills
-├── rules             -> ~/claude-code-config/rules
-├── settings.json     -> ~/claude-code-config/settings.json
-└── keybindings.json  -> ~/claude-code-config/keybindings.json
+├── agents            -> ~/Development/claude-code-config/agents
+├── commands          -> ~/Development/claude-code-config/commands
+├── skills            -> ~/Development/claude-code-config/skills
+├── rules             -> ~/Development/claude-code-config/rules
+├── settings.json     -> ~/Development/claude-code-config/settings.json
+└── keybindings.json  -> ~/Development/claude-code-config/keybindings.json
 ```
 
 **Project setup** (`setup-project.sh`) creates in your project:
@@ -84,11 +84,11 @@ claude-setup django react
 your-project/
 ├── .mcp.json (MCP server config, if applicable)
 └── .claude/
-    ├── agents              -> ~/claude-code-config/agents
-    ├── commands            -> ~/claude-code-config/commands
-    ├── skills              -> ~/claude-code-config/skills
-    ├── rules               -> ~/claude-code-config/rules
-    ├── settings.json       -> ~/claude-code-config/settings.json
+    ├── agents              -> ~/Development/claude-code-config/agents
+    ├── commands            -> ~/Development/claude-code-config/commands
+    ├── skills              -> ~/Development/claude-code-config/skills
+    ├── rules               -> ~/Development/claude-code-config/rules
+    ├── settings.json       -> ~/Development/claude-code-config/settings.json
     └── settings.local.json (generated from templates)
 ```
 
@@ -210,10 +210,10 @@ Invoke with `/command` in Claude Code:
 Headless Claude Code scripts for automation. Add aliases to your shell profile for quick access:
 
 ```bash
-alias cr='~/claude-code-config/scripts/cli/review-changes.sh'
-alias cpr='~/claude-code-config/scripts/cli/review-pr.sh'
-alias cdr='~/claude-code-config/scripts/cli/daily-report.sh'
-alias cee='~/claude-code-config/scripts/cli/explain-error.sh'
+alias cr='~/Development/claude-code-config/scripts/cli/review-changes.sh'
+alias cpr='~/Development/claude-code-config/scripts/cli/review-pr.sh'
+alias cdr='~/Development/claude-code-config/scripts/cli/daily-report.sh'
+alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
 ```
 
 | Script | Usage | What It Does |
@@ -228,7 +228,7 @@ alias cee='~/claude-code-config/scripts/cli/explain-error.sh'
 Claude can review your diff before pushing (non-blocking):
 
 ```bash
-git config core.hooksPath ~/claude-code-config/githooks
+git config core.hooksPath ~/Development/claude-code-config/githooks
 ```
 
 ## MCP Templates
@@ -255,7 +255,7 @@ Copy these workflow files to your project's `.github/workflows/` directory:
 
 ```bash
 # Copy a workflow to your project
-cp ~/claude-code-config/github-actions/claude-pr-review.yml .github/workflows/
+cp ~/Development/claude-code-config/github-actions/claude-pr-review.yml .github/workflows/
 # Set the ANTHROPIC_API_KEY secret in your repo settings
 ```
 
@@ -266,7 +266,7 @@ cp ~/claude-code-config/github-actions/claude-pr-review.yml .github/workflows/
 Auto-generate daily reports at 9am:
 
 ```bash
-cp ~/claude-code-config/macos/launchagents/com.claude.daily-report.plist ~/Library/LaunchAgents/
+cp ~/Development/claude-code-config/macos/launchagents/com.claude.daily-report.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/com.claude.daily-report.plist
 ```
 
@@ -277,7 +277,7 @@ Reports are saved to `~/claude-reports/YYYY-MM-DD.md`.
 Copy scripts to your Raycast script commands directory:
 
 ```bash
-cp ~/claude-code-config/macos/raycast/*.sh ~/raycast-scripts/
+cp ~/Development/claude-code-config/macos/raycast/*.sh ~/raycast-scripts/
 ```
 
 ## Directory Structure
@@ -488,7 +488,7 @@ python3 --version  # Need 3.8+
 
 ```bash
 # Re-run both setups
-~/claude-code-config/scripts/setup-global.sh
+~/Development/claude-code-config/scripts/setup-global.sh
 cd ~/my-project && ~/Development/claude-code-config/scripts/setup-project.sh django
 ```
 

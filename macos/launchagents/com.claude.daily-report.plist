@@ -8,7 +8,7 @@
   <array>
     <string>/bin/bash</string>
     <string>-c</string>
-    <string>mkdir -p ~/claude-reports &amp;&amp; ~/claude-code-config/scripts/cli/daily-report.sh > ~/claude-reports/$(date +%Y-%m-%d).md 2>&amp;1</string>
+    <string>mkdir -p ~/claude-reports &amp;&amp; ~/Development/claude-code-config/scripts/cli/daily-report.sh > ~/claude-reports/$(date +%Y-%m-%d).md 2>&amp;1</string>
   </array>
   <key>StartCalendarInterval</key>
   <dict>
