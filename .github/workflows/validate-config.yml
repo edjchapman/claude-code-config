@@ -70,6 +70,30 @@ jobs:
             fi
           done
 
+      - name: Validate keybindings.json
+        run: |
+          if [ -f keybindings.json ]; then
+            echo "Validating keybindings.json..."
+            python -m json.tool keybindings.json > /dev/null
+          fi
+
+      - name: Validate all MCP templates
+        run: |
+          for f in mcp-templates/*.json; do
+            echo "Validating $f..."
+            python -m json.tool "$f" > /dev/null
+          done
+
+      - name: Validate MCP merge output for each template
+        run: |
+          for f in mcp-templates/*.json; do
+            name=$(basename "$f" .json)
+            if [ "$name" != "base" ]; then
+              echo "Testing MCP merge: base + $name"
+              python scripts/merge-mcp.py mcp-templates base "$name" > /dev/null
+            fi
+          done
+
   validate-markdown:
     name: Validate Markdown frontmatter (fallback)
     runs-on: ubuntu-latest
