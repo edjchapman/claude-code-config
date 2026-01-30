@@ -1,20 +1,4 @@
 {
-  "_version": 1,
-  "_generated_from": [
-    "base",
-    "django",
-    "docker",
-    "fastapi",
-    "go",
-    "java",
-    "kubernetes",
-    "nextjs",
-    "node",
-    "python",
-    "react",
-    "rust",
-    "terraform"
-  ],
   "permissions": {
     "allow": [
       "WebSearch",
@@ -374,5 +358,25 @@
       "Bash(sudo mv:*)",
       "Bash(sudo rm:*)"
     ]
-  }
+  },
+  "_version": 1,
+  "_generated_from": [
+    "base",
+    "django",
+    "docker",
+    "fastapi",
+    "go",
+    "java",
+    "kubernetes",
+    "nextjs",
+    "node",
+    "python",
+    "react",
+    "rust",
+    "terraform"
+  ],
+  "enabledMcpjsonServers": [
+    "postgres",
+    "playwright"
+  ]
 }
