@@ -70,23 +70,26 @@ claude-setup django react
 
 ```
 ~/.claude/
-├── agents       -> ~/claude-code-config/agents
-├── commands     -> ~/claude-code-config/commands
-├── skills       -> ~/claude-code-config/skills
-├── rules        -> ~/claude-code-config/rules
-└── settings.json -> ~/claude-code-config/settings.json
+├── agents            -> ~/claude-code-config/agents
+├── commands          -> ~/claude-code-config/commands
+├── skills            -> ~/claude-code-config/skills
+├── rules             -> ~/claude-code-config/rules
+├── settings.json     -> ~/claude-code-config/settings.json
+└── keybindings.json  -> ~/claude-code-config/keybindings.json
 ```
 
 **Project setup** (`setup-project.sh`) creates in your project:
 
 ```
-your-project/.claude/
-├── agents              -> ~/claude-code-config/agents
-├── commands            -> ~/claude-code-config/commands
-├── skills              -> ~/claude-code-config/skills
-├── rules               -> ~/claude-code-config/rules
-├── settings.json       -> ~/claude-code-config/settings.json
-└── settings.local.json (generated from templates)
+your-project/
+├── .mcp.json (MCP server config, if applicable)
+└── .claude/
+    ├── agents              -> ~/claude-code-config/agents
+    ├── commands            -> ~/claude-code-config/commands
+    ├── skills              -> ~/claude-code-config/skills
+    ├── rules               -> ~/claude-code-config/rules
+    ├── settings.json       -> ~/claude-code-config/settings.json
+    └── settings.local.json (generated from templates)
 ```
 
 ### Understanding Settings Files
@@ -202,6 +205,81 @@ Invoke with `/command` in Claude Code:
 | `/refinement` | Prepare technical analysis for backlog refinement |
 | `/security-scan` | Run security audit on the codebase |
 
+## CLI Scripts
+
+Headless Claude Code scripts for automation. Add aliases to your shell profile for quick access:
+
+```bash
+alias cr='~/claude-code-config/scripts/cli/review-changes.sh'
+alias cpr='~/claude-code-config/scripts/cli/review-pr.sh'
+alias cdr='~/claude-code-config/scripts/cli/daily-report.sh'
+alias cee='~/claude-code-config/scripts/cli/explain-error.sh'
+```
+
+| Script | Usage | What It Does |
+|--------|-------|--------------|
+| `review-changes.sh` | `cr` | Review uncommitted changes for bugs, security, code quality |
+| `explain-error.sh` | `cmd 2>&1 \| cee` | Pipe error output to Claude for explanation |
+| `daily-report.sh` | `cdr` | Summarize last 24h of git activity |
+| `review-pr.sh` | `cpr 123` | Headless PR review |
+
+### Git Pre-Push Hook (Optional)
+
+Claude can review your diff before pushing (non-blocking):
+
+```bash
+git config core.hooksPath ~/claude-code-config/githooks
+```
+
+## MCP Templates
+
+MCP server configurations per project type, generated alongside `settings.local.json`:
+
+| Template | MCP Servers |
+|----------|-------------|
+| `base` | None (MCP is opt-in) |
+| `django` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `react` | Playwright (`@playwright/mcp`) |
+
+MCP templates are automatically merged when running `setup-project.sh` if a matching template exists.
+
+## GitHub Actions Templates
+
+Copy these workflow files to your project's `.github/workflows/` directory:
+
+| Template | Trigger | What It Does |
+|----------|---------|--------------|
+| `claude-pr-review.yml` | Pull request | Reviews PRs for bugs, security, test coverage |
+| `claude-issue-triage.yml` | Issue opened | Labels, estimates complexity, suggests files |
+| `claude-changelog.yml` | Release created | Generates grouped release notes |
+
+```bash
+# Copy a workflow to your project
+cp ~/claude-code-config/github-actions/claude-pr-review.yml .github/workflows/
+# Set the ANTHROPIC_API_KEY secret in your repo settings
+```
+
+## macOS Automation
+
+### LaunchAgent (Daily Report)
+
+Auto-generate daily reports at 9am:
+
+```bash
+cp ~/claude-code-config/macos/launchagents/com.claude.daily-report.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.claude.daily-report.plist
+```
+
+Reports are saved to `~/claude-reports/YYYY-MM-DD.md`.
+
+### Raycast Script Commands
+
+Copy scripts to your Raycast script commands directory:
+
+```bash
+cp ~/claude-code-config/macos/raycast/*.sh ~/raycast-scripts/
+```
+
 ## Directory Structure
 
 ```
@@ -211,19 +289,43 @@ claude-code-config/
 ├── skills/                  # Auto-activating domain knowledge (markdown)
 ├── rules/                   # Path-scoped code style rules (markdown)
 ├── settings-templates/      # Permission templates (JSON)
+├── mcp-templates/           # MCP server templates (JSON)
 ├── settings.json            # Plugin config + hooks (symlinked globally)
+├── keybindings.json         # Custom keybindings (symlinked globally)
+├── templates/               # Example files (CLAUDE.local.md.example)
 ├── scripts/
 │   ├── setup-global.sh      # One-time machine setup
 │   ├── setup-project.sh     # Per-project setup
-│   ├── merge-settings.py    # Template merger
-│   └── hooks/               # Hook scripts referenced by settings.json
-│       ├── session-context.sh
-│       ├── format-python.sh
-│       ├── format-js.sh
-│       ├── dangerous-cmd-check.sh
-│       ├── pre-compact-state.sh
-│       ├── notify-permission.sh
-│       └── log-tool-failure.sh
+│   ├── merge-settings.py    # Permission template merger
+│   ├── merge-mcp.py         # MCP template merger
+│   ├── hooks/               # Hook scripts referenced by settings.json
+│   │   ├── session-context.sh
+│   │   ├── statusline.sh
+│   │   ├── project-init.sh
+│   │   ├── session-end.sh
+│   │   ├── format-python.sh
+│   │   ├── format-js.sh
+│   │   ├── dangerous-cmd-check.sh
+│   │   ├── pre-compact-state.sh
+│   │   ├── notify-permission.sh
+│   │   └── log-tool-failure.sh
+│   └── cli/                 # Headless CLI automation scripts
+│       ├── review-changes.sh
+│       ├── explain-error.sh
+│       ├── daily-report.sh
+│       └── review-pr.sh
+├── githooks/                # Optional git hooks
+│   └── pre-push
+├── github-actions/          # GitHub Actions workflow templates
+│   ├── claude-pr-review.yml
+│   ├── claude-issue-triage.yml
+│   └── claude-changelog.yml
+├── macos/                   # macOS automation
+│   ├── launchagents/
+│   │   └── com.claude.daily-report.plist
+│   └── raycast/
+│       ├── claude-review-changes.sh
+│       └── claude-open-project.sh
 └── web_shortcuts/           # Web workflow prompts (for claude.ai web interface)
 ```
 
@@ -234,6 +336,7 @@ Hooks are configured in `settings.json` and run automatically at key points in t
 | Hook | Trigger | What It Does |
 |------|---------|--------------|
 | SessionStart | New session | Outputs git branch, recent commits, and dirty files |
+| Setup (init) | Project init | Detects project type, suggests configuration |
 | UserPromptSubmit | Before prompt sent | LLM checks if prompt is specific enough to act on |
 | PostToolUse (Write/Edit) | After file edits | Auto-formats Python (ruff) and JS/TS (prettier) |
 | PostToolUseFailure | After tool failure | Logs failure details to `~/.claude/debug/tool-failures.log` |
@@ -241,7 +344,8 @@ Hooks are configured in `settings.json` and run automatically at key points in t
 | Stop | Session end | LLM checks: tests run? linters run? TODOs left? |
 | SubagentStop | Before subagent returns | LLM checks if subagent completed its task fully |
 | PreCompact | Before compaction | Saves working state (branch, staged files, recent commits) |
-| Notification | Permission needed | Sends macOS desktop notification |
+| Notification | Permission needed | Sends macOS desktop notification (with tool details) |
+| SessionEnd | Session ends | Logs session info, cleans up temp files |
 
 Hook scripts live in `scripts/hooks/` and only run when the required tools are available (e.g., `ruff`, `prettier`).
 

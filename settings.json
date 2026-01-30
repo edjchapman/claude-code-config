@@ -27,6 +27,22 @@
   "attribution": {
     "commit": "\n\nCo-Authored-By: Claude <noreply@anthropic.com>"
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/statusline.sh\""
+  },
+  "fileSuggestion": {
+    "type": "command",
+    "command": "git ls-files --cached --others --exclude-standard 2>/dev/null"
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "spinnerVerbs": {
+    "mode": "append",
+    "verbs": ["Investigating", "Architecting", "Refactoring", "Analyzing"]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -34,6 +50,17 @@
           {
             "type": "command",
             "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/session-context.sh\""
+          }
+        ]
+      }
+    ],
+    "Setup": [
+      {
+        "matcher": "init",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/project-init.sh\""
           }
         ]
       }
@@ -133,6 +160,16 @@
             "type": "command",
             "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/notify-permission.sh\"",
             "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/session-end.sh\""
           }
         ]
       }

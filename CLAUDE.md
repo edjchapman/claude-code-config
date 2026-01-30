@@ -9,7 +9,7 @@ This is a configuration repository for Claude Code. It provides reusable agents,
 ## Key Scripts
 
 ```bash
-# Global setup (creates ~/.claude/agents, commands, skills, rules, and settings.json symlinks)
+# Global setup (creates ~/.claude/agents, commands, skills, rules, settings.json, and keybindings.json symlinks)
 ./scripts/setup-global.sh
 
 # Project setup (run from target project directory)
@@ -21,6 +21,7 @@ This is a configuration repository for Claude Code. It provides reusable agents,
 
 # Merge templates (used internally by setup-project.sh)
 python3 scripts/merge-settings.py <templates-dir> base <type1> [type2...]
+python3 scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]
 ```
 
 ## Architecture
@@ -51,7 +52,7 @@ Hooks use string-based matchers (not object-based). The correct format:
 - Simple string: `"Bash"` matches only Bash tool
 - Regex: `"Write|Edit"` or `"Notebook.*"`
 - Match all: `"*"` or `""`
-- Omit matcher for events that don't use it (SessionStart, Stop, PreCompact, UserPromptSubmit, SubagentStop)
+- Omit matcher for events that don't use it (SessionStart, Stop, PreCompact, UserPromptSubmit, SubagentStop, SessionEnd)
 
 **Example:**
 
@@ -74,6 +75,7 @@ Hooks use string-based matchers (not object-based). The correct format:
 #### Available hooks
 
 - **SessionStart**: Auto-loads git context (branch, recent commits, dirty files)
+- **Setup (init)**: Detects project type and suggests configuration
 - **UserPromptSubmit**: LLM-evaluated check that user prompt is specific enough to act on
 - **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
 - **PostToolUseFailure**: Logs tool failure details to `~/.claude/debug/tool-failures.log`
@@ -82,6 +84,18 @@ Hooks use string-based matchers (not object-based). The correct format:
 - **SubagentStop**: LLM-evaluated check that subagent completed its assigned task fully
 - **PreCompact**: Preserves working state before context compaction
 - **Notification (permission_prompt)**: macOS desktop notification when Claude needs permission
+- **SessionEnd**: Logs session info and cleans up temp files
+
+### Settings Keys
+
+Beyond plugins and hooks, `settings.json` includes:
+
+- **`env`**: Environment variables for Claude Code sessions (e.g., `MAX_THINKING_TOKENS`)
+- **`attribution`**: Auto-appended commit trailer (e.g., `Co-Authored-By` line)
+- **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
+- **`fileSuggestion`**: Command-based file suggestion using `git ls-files`
+- **`sandbox`**: Sandbox configuration with `autoAllowBashIfSandboxed`
+- **`spinnerVerbs`**: Custom spinner verbs appended to defaults
 
 ### Skills
 
@@ -106,13 +120,6 @@ Available rules:
 - `python-style.md`: Naming, error handling, imports, type hints (`**/*.py`)
 - `typescript-style.md`: Naming, error handling, type usage (`**/*.ts`, `**/*.tsx`)
 - `react-style.md`: Component structure, props, hooks, state (`**/*.tsx`)
-
-### Settings Keys
-
-Beyond plugins and hooks, `settings.json` includes:
-
-- **`env`**: Environment variables for Claude Code sessions (e.g., `MAX_THINKING_TOKENS`)
-- **`attribution`**: Auto-appended commit trailer (e.g., `Co-Authored-By` line)
 
 ### Settings Files: Two Purposes
 
@@ -151,6 +158,29 @@ Template structure:
   }
 }
 ```
+
+### MCP Template System
+
+MCP templates in `mcp-templates/` define MCP server configurations per project type. The merge system:
+
+1. Always includes `base.json` first (empty by default — MCP is opt-in)
+2. Adds MCP servers from matching type templates
+3. Outputs combined `.mcp.json` in the project root
+
+Available MCP templates:
+
+- `base.json`: Empty (MCP servers are opt-in)
+- `django.json`: PostgreSQL MCP server
+- `react.json`: Playwright MCP server
+
+### CLI Scripts
+
+Headless Claude Code scripts in `scripts/cli/` for automation:
+
+- `review-changes.sh`: Review uncommitted changes for bugs, security, quality
+- `explain-error.sh`: Pipe errors to Claude for explanation (`cmd 2>&1 | explain-error.sh`)
+- `daily-report.sh`: Summarize last 24h of git activity
+- `review-pr.sh <number>`: Headless PR review
 
 ### Agent Definitions
 

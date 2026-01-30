@@ -1,0 +1,36 @@
+# CLAUDE.local.md
+
+<!-- Personal preferences — NOT committed to version control -->
+<!-- Copy this to your project root as CLAUDE.local.md and customize -->
+
+## Preferred Libraries
+
+<!-- List libraries you prefer Claude to use in this project -->
+<!-- Example: -->
+<!-- - Use `httpx` instead of `requests` -->
+<!-- - Use `pydantic` for data validation -->
+<!-- - Use `pytest-asyncio` for async tests -->
+
+## Coding Style Overrides
+
+<!-- Override or supplement the shared rules -->
+<!-- Example: -->
+<!-- - Use double quotes for Python strings -->
+<!-- - Prefer composition over inheritance -->
+<!-- - Always use type hints, even for local variables -->
+
+## Personal Shortcuts
+
+<!-- Workflows or patterns you use frequently -->
+<!-- Example: -->
+<!-- - When I say "deploy", run `make deploy-staging` -->
+<!-- - Default test runner: `pytest -x --tb=short` -->
+<!-- - When creating migrations, always run `python manage.py makemigrations && python manage.py migrate` -->
+
+## Notes
+
+<!-- Any other context you want Claude to know about -->
+<!-- Example: -->
+<!-- - This project uses a monorepo structure -->
+<!-- - The API docs are at docs.example.com -->
+<!-- - CI runs on GitHub Actions, deploys via ArgoCD -->

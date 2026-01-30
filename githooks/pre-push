@@ -1,0 +1,17 @@
+#!/bin/bash
+# Optional: Claude reviews diff before push
+#
+# Install: git config core.hooksPath ~/claude-code-config/githooks
+#
+# Non-blocking: always allows push (exit 0) regardless of review outcome.
+
+if ! command -v claude &> /dev/null; then
+  exit 0
+fi
+
+echo "Running Claude pre-push review..."
+git diff origin/main...HEAD 2> /dev/null | claude -p "Quick review: any obvious bugs or security issues?" \
+  --max-turns 2 --output-format json 2> /dev/null || true
+
+# Non-blocking: always allow push
+exit 0

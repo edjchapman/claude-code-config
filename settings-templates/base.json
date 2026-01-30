@@ -2,6 +2,7 @@
   "_source": "base",
   "_version": 1,
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
       "WebSearch",
       "WebFetch(domain:github.com)",

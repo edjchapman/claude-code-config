@@ -1,0 +1,19 @@
+name: Generate Changelog
+on:
+  release:
+    types: [created]
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Generate release notes from commits since the last tag.
+            Group by: Features, Bug Fixes, Breaking Changes, Other.

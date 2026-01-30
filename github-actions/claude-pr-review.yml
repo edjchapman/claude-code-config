@@ -1,0 +1,20 @@
+name: Claude PR Review
+on: [pull_request]
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review this PR for:
+            1. Bugs and logic errors
+            2. Security vulnerabilities
+            3. Missing test coverage
+            4. Code quality issues
+            Be concise. Focus on actionable feedback.

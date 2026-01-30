@@ -26,6 +26,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 TEMPLATES_PATH="$REPO_ROOT/settings-templates"
+MCP_TEMPLATES_PATH="$REPO_ROOT/mcp-templates"
 DRY_RUN=false
 
 # Check Python 3.8+ is available
@@ -87,7 +88,8 @@ show_help() {
   echo "  ├── skills              -> (symlink to repo skills)"
   echo "  ├── rules               -> (symlink to repo rules)"
   echo "  ├── settings.json       -> (symlink to repo settings.json - plugins + hooks)"
-  echo "  └── settings.local.json (merged from base + your templates - permissions)"
+  echo "  ├── settings.local.json (merged from base + your templates - permissions)"
+  echo "  └── .mcp.json           (merged from mcp-templates - MCP server config)"
 }
 
 # Handle --help flag
@@ -168,6 +170,17 @@ if [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
     fi
   else
     echo "✗ settings.local.json (missing)"
+  fi
+
+  echo ""
+  if [ -f .mcp.json ]; then
+    echo "✓ .mcp.json exists"
+    if command -v python3 &> /dev/null; then
+      server_count=$(python3 -c "import json; d=json.load(open('.mcp.json')); print(len(d.get('mcpServers', {})))" 2> /dev/null || echo "unknown")
+      echo "  MCP servers configured: $server_count"
+    fi
+  else
+    echo "- .mcp.json (not configured)"
   fi
 
   exit 0
@@ -256,6 +269,23 @@ if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
     HAS_ISSUES=true
   fi
 
+  # Check .mcp.json if mcp-templates exist
+  if [ -d "$MCP_TEMPLATES_PATH" ]; then
+    echo ""
+    if [ -f .mcp.json ]; then
+      MCP_EXPECTED=$(python3 "$SCRIPT_DIR/merge-mcp.py" "$MCP_TEMPLATES_PATH" base "$@" 2> /dev/null)
+      MCP_CURRENT=$(cat .mcp.json)
+      if [ "$MCP_EXPECTED" = "$MCP_CURRENT" ]; then
+        echo "✓ .mcp.json matches MCP templates (base $*)"
+      else
+        echo "✗ .mcp.json has drifted from MCP templates"
+        HAS_ISSUES=true
+      fi
+    else
+      echo "- .mcp.json not found (optional)"
+    fi
+  fi
+
   echo ""
   if [ "$HAS_ISSUES" = true ]; then
     echo "Issues found. To fix, run:"
@@ -329,12 +359,19 @@ if [ "$DRY_RUN" = true ]; then
   echo "  ├── skills              -> $REPO_ROOT/skills"
   echo "  ├── rules               -> $REPO_ROOT/rules"
   echo "  ├── settings.json       -> $REPO_ROOT/settings.json"
-  echo "  └── settings.local.json"
+  echo "  ├── settings.local.json"
+  echo "  └── .mcp.json (project root)"
   echo ""
   echo "Generated settings.local.json content:"
   echo "---------------------------------------"
   python3 "$SCRIPT_DIR/merge-settings.py" "$TEMPLATES_PATH" base "${TYPES[@]}"
   echo ""
+  if [ -d "$MCP_TEMPLATES_PATH" ]; then
+    echo "Generated .mcp.json content:"
+    echo "----------------------------"
+    python3 "$SCRIPT_DIR/merge-mcp.py" "$MCP_TEMPLATES_PATH" base "${TYPES[@]}" 2> /dev/null || echo "{}"
+    echo ""
+  fi
   echo "To apply these changes, run without --dry-run:"
   echo "  $0 ${TYPES[*]}"
   exit 0
@@ -392,6 +429,31 @@ ln -s "$REPO_ROOT/settings.json" .claude/settings.json
 echo "Generating settings.local.json (base + ${TYPES[*]})..."
 python3 "$SCRIPT_DIR/merge-settings.py" "$TEMPLATES_PATH" base "${TYPES[@]}" > .claude/settings.local.json
 
+# Generate .mcp.json if mcp-templates directory exists
+if [ -d "$MCP_TEMPLATES_PATH" ]; then
+  echo "Generating .mcp.json (base + ${TYPES[*]})..."
+  # Only generate if at least one requested type has an MCP template
+  HAS_MCP=false
+  for type in "${TYPES[@]}"; do
+    if [ -f "$MCP_TEMPLATES_PATH/$type.json" ]; then
+      HAS_MCP=true
+      break
+    fi
+  done
+  if [ "$HAS_MCP" = true ]; then
+    # Build list of types that have MCP templates
+    MCP_TYPES=("base")
+    for type in "${TYPES[@]}"; do
+      if [ -f "$MCP_TEMPLATES_PATH/$type.json" ]; then
+        MCP_TYPES+=("$type")
+      fi
+    done
+    python3 "$SCRIPT_DIR/merge-mcp.py" "$MCP_TEMPLATES_PATH" "${MCP_TYPES[@]}" > .mcp.json
+  else
+    echo "  (no MCP templates found for ${TYPES[*]}, skipping .mcp.json)"
+  fi
+fi
+
 echo ""
 echo "Project Claude Code config created!"
 echo ""
@@ -401,5 +463,8 @@ echo "  .claude/skills              -> $REPO_ROOT/skills"
 echo "  .claude/rules               -> $REPO_ROOT/rules"
 echo "  .claude/settings.json       -> $REPO_ROOT/settings.json"
 echo "  .claude/settings.local.json (base + ${TYPES[*]})"
+if [ -f .mcp.json ]; then
+  echo "  .mcp.json                   (MCP server config)"
+fi
 echo ""
 echo "Verify: ls -la .claude/"

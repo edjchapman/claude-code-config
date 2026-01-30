@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-keybindings.json",
+  "customKeybindings": [
+    {
+      "key": "ctrl+shift+r",
+      "command": "review",
+      "description": "Review current changes"
+    },
+    {
+      "key": "ctrl+shift+c",
+      "command": "commit",
+      "description": "Commit staged changes"
+    },
+    {
+      "key": "ctrl+shift+p",
+      "command": "pr",
+      "description": "Create pull request"
+    },
+    {
+      "key": "ctrl+shift+l",
+      "command": "lint",
+      "description": "Run linters"
+    },
+    {
+      "key": "ctrl+shift+t",
+      "command": "tdd",
+      "description": "Start TDD workflow"
+    }
+  ]
+}
