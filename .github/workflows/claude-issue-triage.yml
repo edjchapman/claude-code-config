@@ -1,0 +1,19 @@
+name: Claude Issue Triage
+on:
+  issues:
+    types: [opened]
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Triage this issue:
+            1. Add appropriate labels (bug, feature, docs, etc.)
+            2. Estimate complexity (S/M/L)
+            3. Suggest which files might need changes

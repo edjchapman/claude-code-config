@@ -1,9 +1,26 @@
 {
+  "_version": 1,
+  "_generated_from": [
+    "base",
+    "django",
+    "docker",
+    "fastapi",
+    "go",
+    "java",
+    "kubernetes",
+    "nextjs",
+    "node",
+    "python",
+    "react",
+    "rust",
+    "terraform"
+  ],
   "permissions": {
     "allow": [
       "WebSearch",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:docs.github.com)",
+      "Bash(git add:*)",
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
       "Bash(git push:*)",
@@ -35,6 +52,20 @@
       "Bash(mv:*)",
       "Bash(cp:*)",
       "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(du:*)",
+      "Bash(sort:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(jq:*)",
+      "Bash(xargs:*)",
+      "Bash(cat:*)",
+      "Bash(date:*)",
+      "Bash(whoami:*)",
+      "Bash(uname:*)",
+      "Bash(which:*)",
+      "Bash(env:*)",
+      "Bash(printenv:*)",
       "Bash(python3 manage.py test:*)",
       "Bash(python3 manage.py makemigrations:*)",
       "Bash(python3 manage.py migrate:*)",
@@ -322,16 +353,7 @@
       "Bash(terraform plan:*)",
       "Bash(terraform init:*)",
       "WebFetch(domain:registry.terraform.io)",
-      "WebFetch(domain:developer.hashicorp.com)",
-      "Bash(wc:*)",
-      "Bash(du:*)",
-      "Bash(test:*)",
-      "Bash(bash scripts/hooks/check-duplicates.sh:*)",
-      "Bash(echo:*)",
-      "Bash(git add:*)",
-      "Bash(git -C /Users/edwardchapman/Development/claude-code-config add settings.json)",
-      "Bash(git -C /Users/edwardchapman/Development/claude-code-config commit -m \"$\\(cat <<''EOF''\nfix\\(hooks\\): use natural language in Stop hook prompt\n\n- Remove explicit JSON format instructions that caused\n  \"JSON validation failed\" error \\(anthropics/claude-code#11947\\)\n- Claude Code''s internal prompt already handles response format\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git -C /Users/edwardchapman/Development/claude-code-config status)"
+      "WebFetch(domain:developer.hashicorp.com)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
@@ -352,21 +374,5 @@
       "Bash(sudo mv:*)",
       "Bash(sudo rm:*)"
     ]
-  },
-  "_version": 1,
-  "_generated_from": [
-    "base",
-    "django",
-    "docker",
-    "fastapi",
-    "go",
-    "java",
-    "kubernetes",
-    "nextjs",
-    "node",
-    "python",
-    "react",
-    "rust",
-    "terraform"
-  ]
+  }
 }
