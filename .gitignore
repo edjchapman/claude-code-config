@@ -8,6 +8,9 @@
 .DS_Store
 Thumbs.db
 
+# Python
+__pycache__/
+
 # Root settings file (for local development/testing only)
 /settings.local.json
 
