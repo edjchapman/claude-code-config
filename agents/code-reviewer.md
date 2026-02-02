@@ -110,6 +110,21 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 - Incorrect optional/nullable handling
 - Generic type misuse
 
+### Django Best Practices
+
+For Django projects, also check:
+
+- N+1 query patterns (missing `select_related`/`prefetch_related`)
+- Business logic in views that belongs in models/managers/services
+- Signal overuse or signals for synchronous critical paths
+- Fat views instead of fat models
+- Missing model Meta options (ordering, indexes, constraints)
+- Improper form validation (logic in views instead of clean methods)
+- Raw queries when ORM suffices
+- Missing or incorrect migrations
+- Improper QuerySet usage (evaluate once, reuse; chain correctly)
+- Inefficient use of `.all()` when `.exists()` or `.count()` suffices
+
 ### Test Coverage
 
 - Untested happy paths

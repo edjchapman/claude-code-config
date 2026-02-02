@@ -137,6 +137,10 @@ Use one or combine multiple:
 | `nextjs` | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright |
 | `fastapi` | uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose |
 | `go` | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire |
+| `docker` | Docker build, compose, buildx, system commands |
+| `java` | Gradle, Maven, Java compilation (javac, jar) |
+| `kubernetes` | kubectl, helm, kustomize, kubectx, stern |
+| `rust` | cargo, rustc, rustup, rustfmt, clippy |
 | `terraform` | terraform fmt/validate/plan/init |
 
 ## Available Agents
@@ -165,7 +169,6 @@ Invoke with `@agent-name` in Claude Code:
 | `@database-architect` | Schema design, migration planning, query optimization | opus |
 | `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet |
 | `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus |
-| `@django-code-reviewer` | Django security/performance review, N+1 detection | opus |
 | `@documentation-writer` | README, API docs, ADRs, onboarding guides | sonnet |
 | `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | opus |
 | `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet |
@@ -203,6 +206,7 @@ Invoke with `/command` in Claude Code:
 | `/coverage-report` | Analyze test coverage and identify gaps |
 | `/generate-changelog` | Generate changelog from commits since last tag |
 | `/refinement` | Prepare technical analysis for backlog refinement |
+| `/eow-review` | Prepare end-of-week review notes |
 | `/security-scan` | Run security audit on the codebase |
 
 ## CLI Scripts
@@ -306,6 +310,8 @@ claude-code-config/
 │   │   ├── format-python.sh
 │   │   ├── format-js.sh
 │   │   ├── dangerous-cmd-check.sh
+│   │   ├── check-duplicates.sh
+│   │   ├── format-on-edit.sh
 │   │   ├── pre-compact-state.sh
 │   │   ├── notify-permission.sh
 │   │   └── log-tool-failure.sh
@@ -356,11 +362,11 @@ Skills are domain knowledge documents that auto-activate when you touch matching
 | Skill | Activates On | What It Covers |
 |-------|-------------|----------------|
 | `git-workflow` | `.git/**` | Conventional commits, branch naming, PR size |
-| `testing-patterns` | `test_*.py`, `*.test.ts` | AAA pattern, factories, coverage |
-| `security-review` | `auth/**`, `middleware/**` | Input validation, JWT, CSRF, secrets |
-| `api-design` | `views/**`, `api/**`, `serializers/**` | REST conventions, status codes, pagination |
-| `django-patterns` | `models.py`, `views.py`, `serializers.py`, `admin.py` | Fat models, managers, query optimization, signals |
-| `docker-patterns` | `Dockerfile`, `docker-compose*.yml` | Multi-stage builds, layer caching, security |
+| `testing-patterns` | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc. | AAA pattern, factories, coverage |
+| `security-review` | `auth/**`, `middleware/**`, `security/**`, `routes/**` | Input validation, JWT, CSRF, secrets |
+| `api-design` | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination |
+| `django-patterns` | `models.py`, `views.py`, `managers.py`, `signals.py`, etc. | Fat models, managers, query optimization, signals |
+| `docker-patterns` | `Dockerfile`, `docker-compose*.yml`, `.dockerignore` | Multi-stage builds, layer caching, security |
 | `infrastructure` | `*.tf`, `k8s/**/*.yaml`, `helm/**` | Terraform modules, K8s resources, Helm charts |
 
 ## Rules

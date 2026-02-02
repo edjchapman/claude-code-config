@@ -104,11 +104,11 @@ Skills are domain knowledge documents in `skills/` that auto-activate based on f
 Available skills:
 
 - `git-workflow.md`: Conventional commits, branch naming, PR size (`.git/**`)
-- `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*.test.ts`)
-- `security-review.md`: Input validation, JWT, CSRF, auth (`**/auth/**`, `**/middleware/**`)
-- `api-design.md`: REST conventions, status codes, pagination (`**/views/**`, `**/api/**`)
-- `django-patterns.md`: Fat models, managers, query optimization, signals (`**/models.py`, `**/views.py`, etc.)
-- `docker-patterns.md`: Multi-stage builds, layer caching, security (`**/Dockerfile`, `**/docker-compose*.yml`)
+- `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*_test.py`, `**/*.test.ts`, `**/*.test.tsx`, `**/*.spec.ts`, `**/*.spec.tsx`)
+- `security-review.md`: Input validation, JWT, CSRF, auth (`**/auth/**`, `**/middleware/**`, `**/security/**`, `**/routes/**`)
+- `api-design.md`: REST conventions, status codes, pagination (`**/views/**`, `**/api/**`, `**/routes/**`, `**/controllers/**`, `**/endpoints/**`)
+- `django-patterns.md`: Fat models, managers, query optimization, signals (`**/models.py`, `**/views.py`, `**/managers.py`, `**/signals.py`, etc.)
+- `docker-patterns.md`: Multi-stage builds, layer caching, security (`**/Dockerfile`, `**/docker-compose*.yml`, `**/.dockerignore`)
 - `infrastructure.md`: Terraform modules, K8s resources, Helm charts (`**/*.tf`, `**/k8s/**`, `**/helm/**`)
 
 ### Rules

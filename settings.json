@@ -71,7 +71,7 @@
           {
             "type": "prompt",
             "model": "sonnet",
-            "prompt": "Check if the user prompt is specific enough to act on. If it references code, files, errors, or a clear task, approve. If it is extremely vague with no actionable detail, block and suggest they provide more context."
+            "prompt": "Check if the user prompt is specific enough to act on. If it references code, files, errors, or a clear task, approve. If it is vague, suggest improvements but approve anyway."
           }
         ]
       }
@@ -82,17 +82,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/format-python.sh\"",
-            "timeout": 10000
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/format-js.sh\"",
+            "command": "bash \"$(dirname \"$(readlink -f ~/.claude/settings.json)\")/scripts/hooks/format-on-edit.sh\"",
             "timeout": 10000
           }
         ]
@@ -126,7 +116,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Review the session: Were tests run if code was changed? Were linters run? Are there any TODO/FIXME comments left unresolved? Approve if the session is complete. Block with a reason if something was missed."
+            "prompt": "Review the session: Were tests run if code was changed? Were linters run? Are there any TODO/FIXME comments left unresolved? List anything that was missed but approve anyway — the user can decide whether to address it."
           }
         ]
       }

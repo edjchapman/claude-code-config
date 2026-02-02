@@ -7,8 +7,8 @@
 
 CMD="${CLAUDE_TOOL_INPUT:-$(cat)}"
 
-# Patterns that should never execute
-DANGEROUS_PATTERNS=(
+# Literal patterns matched with grep -qF (fixed string)
+FIXED_PATTERNS=(
   "rm -rf /"
   "rm -rf /*"
   "rm -rf ~"
@@ -21,14 +21,25 @@ DANGEROUS_PATTERNS=(
   "> /dev/sda"
   ":(){ :|:& };:"
   "mv / "
-  "wget.*| *sh"
-  "curl.*| *sh"
-  "curl.*| *bash"
-  "wget.*| *bash"
 )
 
-for pattern in "${DANGEROUS_PATTERNS[@]}"; do
+# Regex patterns matched with grep -qE (extended regex)
+REGEX_PATTERNS=(
+  "wget.*\|.*sh"
+  "curl.*\|.*sh"
+  "curl.*\|.*bash"
+  "wget.*\|.*bash"
+)
+
+for pattern in "${FIXED_PATTERNS[@]}"; do
   if echo "$CMD" | grep -qF "$pattern"; then
+    echo "BLOCKED: Dangerous command pattern detected: $pattern"
+    exit 2
+  fi
+done
+
+for pattern in "${REGEX_PATTERNS[@]}"; do
+  if echo "$CMD" | grep -qE "$pattern"; then
     echo "BLOCKED: Dangerous command pattern detected: $pattern"
     exit 2
   fi

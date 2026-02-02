@@ -16,13 +16,16 @@ esac
 # Only run if file exists
 [ -f "$FILE_PATH" ] || exit 0
 
-# Only run if ruff is available (check local venv first, then global)
+# Only run if ruff is available (check global first, then project-local venv)
 if command -v ruff &> /dev/null; then
   RUFF="ruff"
-elif [ -f ".venv/bin/ruff" ]; then
-  RUFF=".venv/bin/ruff"
 else
-  exit 0
+  GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+  if [ -n "$GIT_ROOT" ] && [ -f "$GIT_ROOT/.venv/bin/ruff" ]; then
+    RUFF="$GIT_ROOT/.venv/bin/ruff"
+  else
+    exit 0
+  fi
 fi
 
 # Format the file
