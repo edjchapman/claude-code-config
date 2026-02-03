@@ -164,6 +164,7 @@ Invoke with `@agent-name` in Claude Code:
 | Agent | What It Does | Model |
 |-------|--------------|-------|
 | `@bug-resolver` | Systematic debugging, root cause analysis | opus |
+| `@career-adviser` | CV/resume review, LinkedIn optimization, interview prep | opus |
 | `@ci-debugger` | CI/CD failure investigation, flaky tests | opus |
 | `@code-reviewer` | General code review for any language | opus |
 | `@content-reviewer` | Review promotional content: LinkedIn posts, PR announcements, conference talks, blog posts | sonnet |
