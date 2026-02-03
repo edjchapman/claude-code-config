@@ -166,6 +166,7 @@ Invoke with `@agent-name` in Claude Code:
 | `@bug-resolver` | Systematic debugging, root cause analysis | opus |
 | `@ci-debugger` | CI/CD failure investigation, flaky tests | opus |
 | `@code-reviewer` | General code review for any language | opus |
+| `@content-reviewer` | Review promotional content: LinkedIn posts, PR announcements, conference talks, blog posts | sonnet |
 | `@database-architect` | Schema design, migration planning, query optimization | opus |
 | `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet |
 | `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus |
