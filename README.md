@@ -97,6 +97,71 @@ your-project/
 - **`settings.json`** (symlinked): Plugin enablement, hooks configuration, and model selection
 - **`settings.local.json`** (generated): Permissions - what bash commands and tools Claude can use in your project
 
+## How It Works
+
+Everything in this repo falls into two categories:
+
+| | Active (you invoke) | Passive (auto-activates) |
+|---|---|---|
+| **What** | Orchestrator agents, Specialist agents, Commands, CLI scripts | Skills, Rules, Hooks |
+| **How** | `@name`, `/name`, or shell command | Triggered by file patterns or lifecycle events |
+| **Example** | `@implement`, `/commit`, `review-changes.sh` | `testing-patterns` skill activates on `test_*.py` |
+
+**Active tools** — you choose when to use them:
+
+- **Orchestrator agents** (`@implement`, `@fix`, `@refactor`, `@review-pr`, `@ship`) coordinate multiple specialists through multi-phase workflows
+- **Specialist agents** (`@code-reviewer`, `@test-engineer`, etc.) provide deep expertise in a single domain
+- **Commands** (`/commit`, `/review`, `/standup`, etc.) run focused, single-purpose workflows
+- **CLI scripts** (`review-changes.sh`, `daily-report.sh`, etc.) run headless — no interactive session needed
+
+**Passive tools** — they activate automatically when relevant:
+
+- **Skills** inject domain knowledge when you touch matching files (e.g., `django-patterns` activates on `models.py`)
+- **Rules** enforce code style on matching file types (e.g., `python-style` on `*.py`)
+- **Hooks** run at lifecycle events (e.g., auto-format on file save, safety checks before commands)
+
+## Which Should I Use?
+
+### "I want to..." Lookup
+
+| I want to... | Use | Why |
+|---|---|---|
+| Build a feature end-to-end | `@implement` | Orchestrates plan → code → test → review |
+| Fix a bug systematically | `@fix` | Investigates, fixes, adds regression tests, reviews |
+| Refactor code safely | `@refactor` | Ensures test coverage first, then refactors with review |
+| Ship my work (commit + PR) | `@ship` | Full quality gate: review → security → tests → commit → PR |
+| Quick review before committing | `/review` | Fast diff review, no agent overhead |
+| Deep code review of a PR | `@review-pr` | Multi-agent: code + security + test coverage |
+| Write or fix tests | `@test-engineer` | Creates unit and integration tests |
+| Run a security audit | `/security-scan` | Delegates to `@security-auditor` |
+| Analyze test coverage gaps | `/coverage-report` | Delegates to `@test-engineer` |
+| Create a good commit message | `/commit` | Analyzes staged changes, follows conventions |
+| Create a pull request | `/pr` | Auto-generates PR description from commits |
+| Check what I've been doing | `/standup` | Summarizes last 24h across Git, Jira, Notion |
+| Weekly summary for manager | `/eow-review` | Full week review across all sources |
+| Prepare for backlog refinement | `/refinement` | Technical analysis of tickets with code context |
+| Debug CI/CD failures | `@ci-debugger` | Investigates pipeline failures, flaky tests |
+| Optimize slow queries/endpoints | `@performance-engineer` | Profiling, bottleneck analysis, optimization |
+| Plan a database migration | `@migration-engineer` | Zero-downtime migration strategies |
+| Review dependencies | `/deps` | Audit vulnerabilities, outdated packages |
+| Write documentation | `@documentation-writer` | README, API docs, ADRs, onboarding guides |
+| Headless review (no session) | `review-changes.sh` | Runs in CI or as a shell alias |
+
+### Understanding the Layers
+
+Some tools overlap intentionally at different levels of depth:
+
+```
+Code review depth:     /review  →  @code-reviewer  →  @review-pr
+                       (quick)     (thorough)          (multi-agent: code + security + coverage)
+
+Shipping approaches:   /commit + /pr  (manual, step-by-step)
+                       @ship          (orchestrated: review → security → tests → commit → PR)
+
+Reporting scopes:      daily-report.sh  →  /standup  →  /eow-review
+                       (headless)          (24h)        (full week)
+```
+
 ## Fork or Clone?
 
 | Approach | When to Use |
@@ -157,30 +222,44 @@ These coordinate multiple specialist agents to complete multi-phase workflows en
 | `@refactor` | Safe refactoring: analyze → safety-net tests → refactor → review | refactoring-engineer, test-engineer, code-reviewer | sonnet |
 | `@ship` | Pre-merge gate: assess → review → security → test → commit → PR | code-reviewer, security-auditor | sonnet |
 
+### How Orchestrators Use Specialists
+
+Each orchestrator coordinates a pipeline of specialists. Here's what runs under the hood:
+
+```
+@implement:   spec-writer → [you code] → test-engineer → code-reviewer
+@fix:         bug-resolver → [you fix] → test-engineer → code-reviewer
+@refactor:    refactoring-engineer → test-engineer → [refactor] → code-reviewer
+@review-pr:   pr-review-bundler → code-reviewer → security-auditor → test-engineer
+@ship:        [assess changes] → code-reviewer → security-auditor → [tests] → [commit + PR]
+```
+
+You don't need to remember these — just invoke the orchestrator and it handles the rest.
+
 ### Specialist Agents
 
-Invoke with `@agent-name` in Claude Code:
+Invoke with `@agent-name` in Claude Code. The "Used By" column shows which orchestrators delegate to each specialist:
 
-| Agent | What It Does | Model |
-|-------|--------------|-------|
-| `@bug-resolver` | Systematic debugging, root cause analysis | opus |
-| `@career-adviser` | CV/resume review, LinkedIn optimization, interview prep | opus |
-| `@ci-debugger` | CI/CD failure investigation, flaky tests | opus |
-| `@code-reviewer` | General code review for any language | opus |
-| `@content-reviewer` | Review promotional content: LinkedIn posts, PR announcements, conference talks, blog posts | sonnet |
-| `@database-architect` | Schema design, migration planning, query optimization | opus |
-| `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet |
-| `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus |
-| `@documentation-writer` | README, API docs, ADRs, onboarding guides | sonnet |
-| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | opus |
-| `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet |
-| `@migration-engineer` | Database migrations, framework upgrades, zero-downtime | opus |
-| `@performance-engineer` | Profiling, bottleneck analysis, optimization | opus |
-| `@pr-review-bundler` | Bundle PR reviews into markdown | opus |
-| `@refactoring-engineer` | Systematic, safe refactoring | opus |
-| `@security-auditor` | Security audit, OWASP, dependency vulnerabilities | opus |
-| `@spec-writer` | Technical specs and planning docs | opus |
-| `@test-engineer` | Create unit and integration tests | sonnet |
+| Agent | What It Does | Model | Used By |
+|-------|--------------|-------|---------|
+| `@bug-resolver` | Systematic debugging, root cause analysis | opus | `@fix` |
+| `@career-adviser` | CV/resume review, LinkedIn optimization, interview prep | opus | Direct use |
+| `@ci-debugger` | CI/CD failure investigation, flaky tests | opus | Direct use |
+| `@code-reviewer` | General code review for any language | opus | `@implement`, `@fix`, `@refactor`, `@review-pr`, `@ship` |
+| `@content-reviewer` | Review promotional content: LinkedIn posts, PR announcements, conference talks, blog posts | sonnet | Direct use |
+| `@database-architect` | Schema design, migration planning, query optimization | opus | Direct use |
+| `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet | Direct use |
+| `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus | Direct use |
+| `@documentation-writer` | README, API docs, ADRs, onboarding guides | sonnet | Direct use |
+| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | opus | Direct use |
+| `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet | Direct use |
+| `@migration-engineer` | Database migrations, framework upgrades, zero-downtime | opus | Direct use |
+| `@performance-engineer` | Profiling, bottleneck analysis, optimization | opus | Direct use |
+| `@pr-review-bundler` | Bundle PR reviews into markdown | opus | `@review-pr` |
+| `@refactoring-engineer` | Systematic, safe refactoring | opus | `@refactor` |
+| `@security-auditor` | Security audit, OWASP, dependency vulnerabilities | opus | `@review-pr`, `@ship` |
+| `@spec-writer` | Technical specs and planning docs | opus | `@implement` |
+| `@test-engineer` | Create unit and integration tests | sonnet | `@implement`, `@fix`, `@refactor`, `@review-pr` |
 
 **Model notes:**
 
@@ -191,25 +270,78 @@ Invoke with `@agent-name` in Claude Code:
 
 Invoke with `/command` in Claude Code:
 
-| Command | What It Does |
-|---------|--------------|
-| `/commit` | Analyze staged changes, generate commit message |
-| `/pr` | Create PR with auto-generated description |
-| `/review` | Review changes before committing |
-| `/standup` | Summarize last 24h of git activity |
-| `/explain` | Explain code at a specific location |
-| `/lint` | Run all project linters |
-| `/tdd` | TDD workflow: write failing test, implement, refactor |
-| `/hotfix` | Guided hotfix: branch from main, minimal fix, targeted tests, PR |
-| `/deps` | Dependency audit: vulnerabilities, outdated packages, update plan |
-| `/adr` | Create Architecture Decision Record (Nygard format) |
-| `/context` | Refresh context: branch, commits, open PRs, project status |
-| `/format-release-notes` | Format GitHub release notes |
-| `/coverage-report` | Analyze test coverage and identify gaps |
-| `/generate-changelog` | Generate changelog from commits since last tag |
-| `/refinement` | Prepare technical analysis for backlog refinement |
-| `/eow-review` | Prepare end-of-week review notes |
-| `/security-scan` | Run security audit on the codebase |
+| Command | What It Does | Delegates To |
+|---------|--------------|--------------|
+| `/commit` | Analyze staged changes, generate commit message | -- |
+| `/pr` | Create PR with auto-generated description | -- |
+| `/review` | Review changes before committing | -- |
+| `/standup` | Summarize last 24h of git activity | -- |
+| `/explain` | Explain code at a specific location | -- |
+| `/lint` | Run all project linters | -- |
+| `/tdd` | TDD workflow: write failing test, implement, refactor | -- |
+| `/hotfix` | Guided hotfix: branch from main, minimal fix, targeted tests, PR | -- |
+| `/deps` | Dependency audit: vulnerabilities, outdated packages, update plan | -- |
+| `/adr` | Create Architecture Decision Record (Nygard format) | -- |
+| `/context` | Refresh context: branch, commits, open PRs, project status | -- |
+| `/format-release-notes` | Format GitHub release notes | -- |
+| `/coverage-report` | Analyze test coverage and identify gaps | `@test-engineer` |
+| `/generate-changelog` | Generate changelog from commits since last tag | -- |
+| `/refinement` | Prepare technical analysis for backlog refinement | Explore sub-agent |
+| `/eow-review` | Prepare end-of-week review notes | -- |
+| `/security-scan` | Run security audit on the codebase | `@security-auditor` |
+| `/later` | Create a personal backlog item (learn, research, do, read) | -- |
+
+## Common Workflows
+
+Here's how the pieces compose for everyday tasks:
+
+### Implement a Feature
+
+```
+@implement                          # Plan → code → test → review (all-in-one)
+  ... or break it down manually:
+@spec-writer                        # 1. Write the spec
+  (you write the code)              # 2. Implement
+@test-engineer                      # 3. Write tests
+/review                             # 4. Quick check
+/commit → /pr                       # 5. Ship it
+```
+
+### Fix a Bug
+
+```
+@fix                                # Investigate → fix → regression test → review (all-in-one)
+  ... or for simple bugs:
+  (you fix the code)
+/review → /commit                   # Quick check and commit
+```
+
+### Daily Development Cycle
+
+```
+/context                            # Morning: see branch, PRs, CI status
+/standup                            # Generate standup notes
+  (you work)                        # Write code
+/review                             # Before committing: quick diff check
+/commit → /pr                       # Commit and open PR
+  ... or use @ship                  # Orchestrated: review + security + tests + commit + PR
+```
+
+### Review a PR
+
+```
+@review-pr 142                      # Interactive: multi-agent review (code + security + coverage)
+  ... or headless:
+review-pr.sh 142                    # CLI: runs without an interactive session
+```
+
+### End-of-Week Reporting
+
+```
+/standup                            # Daily: last 24h activity
+/eow-review                        # Weekly: full week summary across Git, GitHub, Jira, Notion
+daily-report.sh                     # Headless: auto-generate at 9am via LaunchAgent
+```
 
 ## CLI Scripts
 
