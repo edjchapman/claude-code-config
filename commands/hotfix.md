@@ -35,9 +35,9 @@ Ask the user to confirm the branch name before creating it.
 
 Run only the tests directly related to the fix:
 
-- Python: `pytest <specific_test_file> -x -v`
+- Django: `python3 manage.py test <app.tests.TestClass> --no-input`
 - TypeScript: `npx vitest run <specific_test_file>`
-- Also run the full test suite if fast enough
+- Full suite: `python3 manage.py test --no-input --parallel=8` (if fast enough)
 
 ### 5. Prepare PR
 

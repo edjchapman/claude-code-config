@@ -69,7 +69,7 @@ Bad: `test_login`, `test_case_1`
 ### Isolation
 
 - Each test must be independent -- no shared mutable state
-- Use fresh database transactions per test (Django: `TestCase` or `@pytest.mark.django_db`)
+- Use fresh database transactions per test (Django: `TestCase` with automatic rollback)
 - Mock external services at the boundary (HTTP, email, queues)
 
 ## What to Test

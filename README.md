@@ -196,7 +196,7 @@ Use one or combine multiple:
 | `all` | All templates below combined |
 | `base` | Git, GitHub CLI, file operations, WebSearch *(always included)* |
 | `python` | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry |
-| `django` | Django manage.py commands, docker compose, make, uv run (pytest, flake8, basedpyright) |
+| `django` | Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright) |
 | `react` | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier |
 | `node` | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun |
 | `nextjs` | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright |

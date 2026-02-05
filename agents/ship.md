@@ -72,10 +72,13 @@ Launch the `security-auditor` agent via the Task tool. Pass:
 
 Run the project's test suite yourself. Auto-detect the framework:
 
-- Python: `pytest`, `python -m pytest`, `manage.py test`
+- Django: `manage.py test --no-input --parallel=8`
+- Python (non-Django): `pytest`, `python -m pytest`
 - JavaScript/TypeScript: `npm test`, `yarn test`, `pnpm test`, `vitest`
 - Go: `go test ./...`
 - Other: check `package.json`, `Makefile`, `pyproject.toml` for test commands
+
+**Django-specific:** Always use `--no-input` (prevents prompts during test database creation) and `--parallel=8` (runs tests in parallel for faster execution).
 
 Report: tests passing, failing, or no test suite found.
 

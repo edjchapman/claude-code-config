@@ -16,7 +16,7 @@ Follow this strict Red-Green-Refactor cycle:
 1. **Understand the requirement** from the arguments
 2. **Write the simplest failing test** that describes the expected behavior
 3. **Run the test** to confirm it fails:
-   - Python: `pytest <test_file> -x -v`
+   - Django: `python3 manage.py test <app.tests.TestClass> --no-input`
    - TypeScript: `npx vitest run <test_file>` or `npm test -- <test_file>`
 4. **Show the failure output** to confirm the test fails for the right reason
 

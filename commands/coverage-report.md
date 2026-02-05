@@ -15,13 +15,15 @@ Analyze test coverage and identify gaps.
 Check for test configuration:
 
 ```bash
-ls -la pytest.ini pyproject.toml setup.cfg jest.config.* vitest.config.* 2>/dev/null
+ls -la manage.py pyproject.toml setup.cfg jest.config.* vitest.config.* 2>/dev/null
 ```
 
-**Python (pytest):**
+**Django:**
 
 ```bash
-pytest --cov=. --cov-report=term-missing --cov-report=json
+coverage run --source='.' manage.py test --no-input --parallel=8
+coverage report --show-missing
+coverage json  # for programmatic analysis
 ```
 
 **JavaScript (Jest):**

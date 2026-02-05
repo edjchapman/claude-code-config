@@ -42,7 +42,7 @@ You are an expert test engineer specializing in backend and frontend testing. Yo
 
 When starting on a new project, first explore to understand:
 
-1. The testing frameworks in use (pytest, Jest, Vitest, etc.)
+1. The testing frameworks in use (Django unittest, Jest, Vitest, etc.)
 2. The test directory structure and naming conventions
 3. Existing test patterns and helper utilities
 4. How to run tests (commands, configuration)
@@ -94,45 +94,60 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 - Use descriptive test names that explain the scenario
 - Mock external dependencies appropriately
 
-## Backend Testing (Python/Django/FastAPI)
+## Backend Testing (Python/Django)
 
 ### Common Frameworks
 
-- **pytest** - Preferred for most Python projects
-- **Django TestCase** - For Django-specific features
-- **APITestCase** (DRF) - For REST API tests
+- **Django TestCase** - For Django-specific features with database transactions
+- **APITestCase** (DRF) - For REST API tests with authentication helpers
+- **SimpleTestCase** - For tests that don't need database access
 
 ### Backend Test Pattern
 
 ```python
-import pytest
+from django.test import TestCase
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
 
-class TestUserAPI:
-    @pytest.fixture(autouse=True)
-    def setup(self, db):
-        self.client = APIClient()
-        self.user = UserFactory(role="ADMIN")
-        self.client.force_authenticate(user=self.user)
+class UserAPITest(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        """Set up data for the whole TestCase (runs once)."""
+        cls.admin_user = UserFactory(role="ADMIN")
+
+    def setUp(self):
+        """Set up data for each test method."""
+        self.client.force_authenticate(user=self.admin_user)
 
     def test_list_users_returns_200(self):
         response = self.client.get("/api/users/")
-        assert response.status_code == status.HTTP_200_OK
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_create_user_without_auth_returns_401(self):
         self.client.force_authenticate(user=None)
         response = self.client.post("/api/users/", {})
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 ```
 
 ### Backend Tips
 
 - Use `force_authenticate()` for authenticated requests
 - Test authentication/authorization explicitly
-- Use `setUpTestData()` or `@pytest.fixture` for class-level fixtures
+- Use `setUpTestData()` for class-level fixtures (runs once, faster)
+- Use `setUp()` for per-test setup that needs fresh state
 - Test both valid and invalid input scenarios
 - Verify response structure and data, not just status codes
+
+### Running Django Tests
+
+When running Django tests via `manage.py test`, always use these flags:
+
+```bash
+python3 manage.py test --no-input --parallel=8
+```
+
+- `--no-input`: Prevents prompts during test database creation/destruction
+- `--parallel=8`: Runs tests in parallel across 8 processes for faster execution
 
 ## Frontend Testing (React/TypeScript)
 
