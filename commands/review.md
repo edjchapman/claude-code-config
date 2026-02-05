@@ -1,5 +1,7 @@
 Review my current changes before I commit them.
 
+> **Scope**: Quick pre-commit review of uncommitted changes. For thorough pre-merge reviews, use `@code-reviewer` or `@review-pr`.
+
 ## Arguments
 
 `$ARGUMENTS`

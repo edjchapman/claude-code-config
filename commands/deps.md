@@ -1,92 +1,43 @@
-Audit project dependencies: detect the package manager, check for vulnerabilities and outdated packages, and propose an update plan.
+Audit project dependencies for vulnerabilities, outdated packages, and license issues.
+
+> **Quick entry point** for dependency management. Delegates to `@dependency-manager` agent for comprehensive analysis.
 
 ## Arguments
 
 `$ARGUMENTS`
 
-- Optional: specific package to investigate, or `--security-only` to focus on vulnerabilities
+- Optional: specific package to investigate, or flags for focused analysis
 - Example: `/deps`, `/deps django`, `/deps --security-only`
 
-## Steps
+## Behavior
 
-### 1. Detect Package Manager
+This command invokes the `@dependency-manager` agent, which handles:
 
-Check for these files in order:
+- **Package manager detection**: pip/uv/poetry, npm/yarn/pnpm, go modules, cargo, etc.
+- **Security audit**: CVE scanning, vulnerability severity, remediation steps
+- **Outdated analysis**: Safe patches, minor updates, major upgrades
+- **License checks**: Compatibility analysis when requested
+- **Upgrade planning**: Categorized by risk level with commands to execute
 
-- `pyproject.toml` / `requirements.txt` / `Pipfile` → Python (pip/uv/poetry)
-- `package.json` → Node.js (npm/yarn/pnpm)
-- `go.mod` → Go
-- `Cargo.toml` → Rust
-- `Gemfile` → Ruby
+## When to Use
 
-### 2. Security Audit
+| Scenario | Command |
+|----------|---------|
+| Quick audit before release | `/deps` |
+| Investigate specific package | `/deps requests` |
+| Security-focused check | `/deps --security-only` |
+| Pre-upgrade assessment | `/deps --major-updates` |
 
-Run the appropriate security audit command:
+## Delegation
 
-| Manager | Command |
-|---------|---------|
-| npm | `npm audit` |
-| yarn | `yarn audit` |
-| pip | `pip-audit` (if available) or `safety check` |
-| uv | `uv pip audit` (if available) |
-| go | `govulncheck ./...` (if available) |
-
-Report:
-
-- Critical/high vulnerabilities with affected packages
-- Whether fixes are available
-- Recommended remediation steps
-
-### 3. Check Outdated Packages
-
-Run the appropriate command:
-
-| Manager | Command |
-|---------|---------|
-| npm | `npm outdated` |
-| yarn | `yarn outdated` |
-| pip | `pip list --outdated` |
-| uv | `uv pip list --outdated` |
-| go | `go list -u -m all` |
-
-### 4. Propose Update Plan
-
-Categorize updates into:
-
-**Safe updates** (patch versions, no breaking changes):
-
-- List packages that can be updated immediately
-- Provide the command to update them
-
-**Minor updates** (new features, unlikely breaking):
-
-- List packages with minor version bumps
-- Note any with known migration steps
-
-**Major updates** (breaking changes, require migration):
-
-- List packages with major version bumps
-- Link to changelogs/migration guides where possible
-- Suggest tackling these in separate PRs
-
-### 5. License Check (if requested)
-
-For Node.js: `npx license-checker --summary`
-For Python: `pip-licenses --summary` (if available)
-
-## Output
-
-Present a summary table:
+Invoke `@dependency-manager` with the user's arguments:
 
 ```
-Dependencies Summary
-====================
-Total packages:    XX
-Outdated:          XX (safe: X, minor: X, major: X)
-Vulnerabilities:   XX (critical: X, high: X, medium: X, low: X)
-
-Recommended actions:
-1. [immediate] Update safe patches: <command>
-2. [this sprint] Address critical vulnerabilities
-3. [planned] Major version upgrades (separate PRs)
+@dependency-manager $ARGUMENTS
 ```
+
+The agent will:
+1. Detect the project's package manager(s)
+2. Run appropriate audit commands
+3. Analyze and categorize findings
+4. Present an actionable summary with prioritized recommendations
