@@ -20,7 +20,7 @@ description: |
   user: "We have a lot of unused packages. Can you help identify them?"
   assistant: "I'll use the dependency-manager agent to find unused and redundant dependencies."
   </example>
-model: sonnet
+model: opus
 color: green
 ---
 

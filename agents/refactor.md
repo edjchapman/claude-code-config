@@ -20,7 +20,7 @@ description: |
   user: "The data access layer is mixed into the controllers. Help me separate concerns."
   assistant: "I'll use the refactor agent to plan the separation, ensure test coverage, and refactor incrementally."
   </example>
-model: sonnet
+model: opus
 color: cyan
 ---
 

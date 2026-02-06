@@ -20,7 +20,7 @@ description: |
   user: "Review the PR from Sarah that adds the payment webhook handler"
   assistant: "I'll use the review-pr agent for a comprehensive review covering code quality, security, and test coverage."
   </example>
-model: sonnet
+model: opus
 color: yellow
 ---
 

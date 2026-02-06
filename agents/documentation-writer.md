@@ -20,7 +20,7 @@ description: |
   user: "New developers keep asking the same setup questions. We need a getting started guide."
   assistant: "I'll use the documentation-writer agent to create a developer onboarding guide."
   </example>
-model: sonnet
+model: opus
 color: blue
 ---
 

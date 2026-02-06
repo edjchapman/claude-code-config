@@ -20,7 +20,7 @@ description: |
   user: "Add a CSV export button to the users table"
   assistant: "I'll use the implement agent to plan, build, test, and review the CSV export feature."
   </example>
-model: sonnet
+model: opus
 color: green
 ---
 

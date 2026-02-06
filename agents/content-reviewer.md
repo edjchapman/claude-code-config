@@ -24,7 +24,7 @@ description: |
   assistant: "I'll use the content-reviewer agent to refine the messaging."
   </example>
 
-model: sonnet
+model: opus
 ---
 
 # Content Reviewer

@@ -26,7 +26,7 @@ description: |
   user: "Something broke between v2.0 and now. Can you help me find when?"
   assistant: "I'll use the git-helper agent to set up a git bisect to find the breaking commit."
   </example>
-model: sonnet
+model: opus
 color: orange
 ---
 

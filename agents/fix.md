@@ -20,7 +20,7 @@ description: |
   user: "The dashboard is showing stale data after users update their profile"
   assistant: "I'll use the fix agent to investigate the caching issue, fix it, and verify with tests."
   </example>
-model: sonnet
+model: opus
 color: red
 ---
 

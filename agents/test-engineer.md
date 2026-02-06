@@ -25,7 +25,7 @@ description: |
   Context: After implementing a feature, proactively suggest testing.
   assistant: "I've completed the Payment model implementation. Now let me use the test-engineer agent to create comprehensive tests for this model."
   </example>
-model: sonnet
+model: opus
 color: blue
 ---
 

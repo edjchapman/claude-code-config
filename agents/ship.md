@@ -20,7 +20,7 @@ description: |
   user: "Ship this — commit, PR, the works"
   assistant: "I'll use the ship agent to validate everything and create the commit and PR if all checks pass."
   </example>
-model: sonnet
+model: opus
 color: orange
 ---
 
