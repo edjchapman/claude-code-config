@@ -173,6 +173,10 @@ Available MCP templates:
 - `django.json`: PostgreSQL MCP server
 - `react.json`: Playwright MCP server
 
+**Environment Variables**: Variables like `${DATABASE_URL}` are expanded at Claude Code runtime.
+Ensure required variables are set in your shell or `.envrc` before launching Claude Code.
+See `docs/mcp-servers.md` for detailed configuration guidance.
+
 ### CLI Scripts
 
 Headless Claude Code scripts in `scripts/cli/` for automation:

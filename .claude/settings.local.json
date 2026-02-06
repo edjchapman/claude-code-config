@@ -337,7 +337,8 @@
       "Bash(terraform plan:*)",
       "Bash(terraform init:*)",
       "WebFetch(domain:registry.terraform.io)",
-      "WebFetch(domain:developer.hashicorp.com)"
+      "WebFetch(domain:developer.hashicorp.com)",
+      "Bash(./scripts/setup-project.sh:*)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
@@ -359,6 +360,11 @@
       "Bash(sudo rm:*)"
     ]
   },
+  "enabledMcpjsonServers": [
+    "postgres",
+    "playwright"
+  ],
+  "outputStyle": "Explanatory",
   "_version": 1,
   "_generated_from": [
     "base",
@@ -374,10 +380,5 @@
     "react",
     "rust",
     "terraform"
-  ],
-  "enabledMcpjsonServers": [
-    "postgres",
-    "playwright"
-  ],
-  "outputStyle": "Explanatory"
+  ]
 }

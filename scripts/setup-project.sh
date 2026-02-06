@@ -441,6 +441,12 @@ if [ -d "$MCP_TEMPLATES_PATH" ]; then
     fi
   done
   if [ "$HAS_MCP" = true ]; then
+    # Backup existing .mcp.json if it exists
+    if [ -f .mcp.json ]; then
+      backup_file=.mcp.json.backup.$(date +%s)
+      echo "Backing up existing file: .mcp.json -> $backup_file"
+      mv .mcp.json "$backup_file"
+    fi
     # Build list of types that have MCP templates
     MCP_TYPES=("base")
     for type in "${TYPES[@]}"; do
