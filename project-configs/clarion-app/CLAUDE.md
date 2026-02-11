@@ -9,7 +9,7 @@ To run backend Django tests, use docker compose with Django's test runner from t
 
 ```bash
 # Run all tests for a specific app
-cd /Users/edwardchapman/Development/BuiltAI/clarion_app
+cd ~/Development/BuiltAI/clarion_app
 docker compose run --rm api bash -c "cd /app/clarion-api && uv run manage.py test comparison_tools"
 
 # Run specific test module
