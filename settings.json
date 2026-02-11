@@ -5,6 +5,81 @@
     "type": "command",
     "command": "/Users/ed/.claude/statusline-command.sh"
   },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/session-context.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/format-on-edit.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/log-tool-failure.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/dangerous-cmd-check.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/pre-compact-state.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/notify-permission.sh"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/session-end.sh"
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "github@claude-plugins-official": true,
     "atlassian@claude-plugins-official": true,
