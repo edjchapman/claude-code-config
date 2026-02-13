@@ -69,6 +69,16 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/session-end.sh"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
