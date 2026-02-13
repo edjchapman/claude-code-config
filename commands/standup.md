@@ -9,6 +9,7 @@ Prepare a standup document summarizing my recent work activity.
 - **Output**: `--output <path>` - Save to custom file path
   - Default: `./standups/YYYY-MM-DD-standup.md`
 - **Team**: `--team` - Include team activity overview (opt-in)
+- **Notion sync**: `--notion` - Sync the final standup to today's Notion standup page
 - **Skip sources**: `--skip-jira`, `--skip-notion`, `--skip-slack`
 
 ## Step 1: Setup - Get User Identity
@@ -20,6 +21,22 @@ Use `atlassianUserInfo` tool to get the current user's account ID and display na
 Use `notion-get-users` tool to identify the current user.
 
 Store these identities for filtering activity in subsequent steps.
+
+## Step 1.5: Read Daily Log
+
+Check for today's daily log file at `./standups/YYYY-MM-DD-log.md` (where YYYY-MM-DD is today's date).
+
+**If the file exists**, read it and extract:
+
+1. **Status Updates** (`## Status Updates` section): These are the user's own words about their work. Treat these as high-priority context — prefer the user's phrasing when summarizing completed work and blockers.
+2. **Session Summaries** (`## Session Summaries` section): These are auto-logged git commits from session-end hooks. Use these to supplement git log data — they may overlap with Step 2's git output, so de-duplicate by commit hash.
+
+Store the extracted data to enrich later steps:
+- Status updates marked `[notion]` may indicate items already shared externally
+- Entries mentioning "blocked", "waiting", or "stuck" should surface as blockers
+- Timestamps help establish the narrative flow of the day
+
+**If the file does not exist**, proceed normally — the remaining steps will gather data from primary sources.
 
 ## Step 2: Git Activity
 
@@ -195,11 +212,18 @@ Create the standup document with all gathered information:
 4. Write the standup document to the file using the Write tool
 5. Confirm to user: "Standup saved to `./standups/YYYY-MM-DD-standup.md`"
 
-**Optional Notion save:**
-After saving locally, ask the user:
-> "Would you like me to also save this standup to Notion?"
+**Notion sync (only if `--notion` flag is provided):**
 
-If yes, use `mcp__plugin_Notion_notion__notion-create-pages` to create a new page in their workspace.
+If Notion MCP is available (`mcp__plugin_Notion_notion__*` tools):
+
+1. Use `mcp__plugin_Notion_notion__notion-search` to find today's existing standup page
+   - Search for today's date in page titles (e.g., "11 Feb 2026" or "2026-02-11")
+   - Look for pages with "standup" or "daily" in the title
+2. If a page is found, use `mcp__plugin_Notion_notion__notion-update-page` to update it with the full standup content
+3. If no page is found, use `mcp__plugin_Notion_notion__notion-create-pages` to create a new standup page
+4. Confirm: "Standup synced to Notion: [page title]"
+
+If `--notion` flag is NOT provided, skip Notion sync entirely (do not prompt).
 
 ## Guidelines
 
