@@ -92,6 +92,7 @@ Identify specific strengths with quotes from the original. Be genuine—only hig
 ### Areas for Improvement
 
 Prioritized list of issues with:
+
 - The problem (with quote showing it)
 - Why it matters
 - Suggested fix
@@ -99,6 +100,7 @@ Prioritized list of issues with:
 ### Revised Draft
 
 Provide a polished version that:
+
 - Incorporates your suggestions
 - Maintains the author's voice and intent
 - Shows tracked changes in comments or clearly marks major edits
@@ -106,6 +108,7 @@ Provide a polished version that:
 ### Quick Wins
 
 3-5 immediate tweaks the author can apply in under a minute:
+
 - Specific word swaps
 - Sentence restructures
 - Formatting changes

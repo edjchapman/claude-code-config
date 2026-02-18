@@ -30,6 +30,7 @@ Examples: `/eow-review`, `/eow-review since Monday`, `/eow-review 2 weeks`, `/eo
 > This step must complete before Steps 2-5. Steps 2-5 can run in parallel.
 
 **Git Identity:**
+
 ```bash
 git config user.email && git config user.name
 ```
@@ -94,6 +95,7 @@ Fields: summary, status, issuetype, priority, updated, created, resolution, self
 Use `$START_DATE` in `YYYY-MM-DD` format (e.g., `2026-01-23`). Do NOT hardcode `-7d`.
 
 For each ticket, extract:
+
 - Current status and any status transitions this period
 - Issue type (Story, Bug, Task)
 - Priority level
@@ -112,6 +114,7 @@ Run two searches in parallel:
 
 1. **Meeting notes and calendar events:**
    Use `mcp__plugin_Notion_notion__notion-search` with:
+
    ```
    query: "meeting notes"
    query_type: "internal"
@@ -123,6 +126,7 @@ Run two searches in parallel:
 
 2. **General work activity:**
    Use `mcp__plugin_Notion_notion__notion-search` with:
+
    ```
    query: "work updates"
    query_type: "internal"
@@ -133,6 +137,7 @@ Run two searches in parallel:
    ```
 
 From the results:
+
 - Extract this week's calendar/meetings (verify dates fall within the period)
 - Group meetings by day for a daily schedule overview
 - Note any documentation or spec pages updated
@@ -144,6 +149,7 @@ Ask the user about meetings and documentation updates.
 ## Error Handling
 
 If any source fails (MCP server unavailable, API error, empty results):
+
 - **Continue** with the remaining sources - do not abort the entire review
 - Note the unavailable source in the output (e.g., "Jira data unavailable - MCP server not connected")
 - Ask the user if they want to manually provide data for the missing source

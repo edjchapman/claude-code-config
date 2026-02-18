@@ -37,6 +37,7 @@ Invoke `@dependency-manager` with the user's arguments:
 ```
 
 The agent will:
+
 1. Detect the project's package manager(s)
 2. Run appropriate audit commands
 3. Analyze and categorize findings

@@ -341,7 +341,8 @@
       "Bash(./scripts/setup-project.sh:*)",
       "mcp__plugin_atlassian_atlassian__getAccessibleAtlassianResources",
       "mcp__plugin_atlassian_atlassian__atlassianUserInfo",
-      "Bash(claude plugins:*)"
+      "Bash(claude plugins:*)",
+      "Bash(bash scripts/hooks/check-duplicates.sh)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",

@@ -69,24 +69,28 @@ Create the `career/` directory on first use if it doesn't exist.
 When reviewing a CV, evaluate across these dimensions:
 
 **1. Impact & Achievements**
+
 - Are accomplishments quantified with metrics? (revenue, users, performance, cost savings)
 - Do bullet points show impact, not just responsibilities?
 - Is the STAR pattern evident? (Situation-Task-Action-Result)
 - Are achievements relevant to the target role level?
 
 **2. ATS Compatibility**
+
 - Are relevant keywords present? (technologies, methodologies, role-specific terms)
 - Is formatting clean? (no tables, columns, graphics that break parsing)
 - Are section headers standard? (Experience, Education, Skills)
 - Is contact information in plain text at the top?
 
 **3. Narrative Flow**
+
 - Does career progression make sense?
 - Are transitions between roles explained if needed?
 - Is there a clear technical identity? (backend, platform, full-stack, ML, etc.)
 - Does it tell a story of growth?
 
 **4. Formatting & Structure**
+
 - Is it the right length? (1 page for <10 years, 2 pages max otherwise)
 - Is whitespace used effectively?
 - Are bullet points concise? (1-2 lines each)
@@ -150,28 +154,33 @@ Strong action verbs: Architected, Built, Designed, Drove, Implemented, Led, Migr
 Formula: `[Current Role] | [Value Proposition] | [Differentiator]`
 
 Examples:
+
 - "Staff Engineer @ Stripe | Building payment infrastructure at scale | Ex-Google, Ex-Meta"
 - "Engineering Manager | Scaling teams from 5→30 | B2B SaaS specialist"
 - "Senior Backend Engineer | Distributed systems & real-time data | Open to new opportunities"
 
 **2. About/Summary**
 Structure:
+
 1. **Hook** (1 sentence): What drives you or your core expertise
 2. **Story** (2-3 sentences): Career narrative and key accomplishments
 3. **Proof** (2-3 sentences): Specific results and expertise areas
 4. **CTA** (1 sentence): What you're looking for or how to connect
 
 **3. Experience**
+
 - Mirror your CV but optimize for searchability
 - Include more keywords than CV (LinkedIn is searched)
 - Link to projects, publications, or media where relevant
 
 **4. Skills**
+
 - Prioritize top 3 skills (shown prominently)
 - Include mix of technical and soft skills
 - Get endorsements for key skills
 
 **5. Featured**
+
 - Pin important posts or articles
 - Link to portfolio, GitHub, or notable projects
 - Include recent conference talks or publications
@@ -219,12 +228,14 @@ Why: [explanation]
 
 **1. Behavioral Interviews**
 Use STAR method consistently:
+
 - **Situation**: Set the context (1-2 sentences)
 - **Task**: Your specific responsibility (1 sentence)
 - **Action**: What YOU did, not the team (2-3 sentences)
 - **Result**: Quantified outcome + learnings (1-2 sentences)
 
 Common themes to prepare:
+
 - Leadership/influence without authority
 - Conflict resolution
 - Failure and learning
@@ -234,17 +245,20 @@ Common themes to prepare:
 
 **2. System Design**
 Preparation strategy (not solving - that's for practice):
+
 - Framework: Requirements → API → High-level design → Deep dive → Bottlenecks
 - Practice systems: URL shortener, Twitter feed, Uber, YouTube, etc.
 - Resources: System Design Interview books, educative.io, YouTube channels
 
 **3. Coding Interviews**
 Strategy (not solving - that's LeetCode):
+
 - Pattern recognition: sliding window, two pointers, BFS/DFS, DP, etc.
 - Communication: Think aloud, clarify, test cases
 - Resources: LeetCode, NeetCode, Grind 75
 
 **4. Technical Deep Dives**
+
 - Know your projects cold: architecture decisions, tradeoffs, what you'd do differently
 - Prepare to go 2-3 levels deep on any resume bullet point
 - Have metrics memorized
@@ -252,6 +266,7 @@ Strategy (not solving - that's LeetCode):
 ### Company Research
 
 When researching a target company, gather:
+
 - Tech stack and infrastructure
 - Engineering blog posts
 - Recent product launches or pivots
@@ -380,6 +395,7 @@ When researching a target company, gather:
 ### IC vs Management
 
 Help evaluate based on:
+
 - What energizes them: deep technical work vs people/org problems
 - Career ceiling: IC can reach Principal/Fellow; management caps at VP/CTO differently
 - Reversibility: Going back to IC from management is possible but harder
@@ -394,6 +410,7 @@ Help evaluate based on:
 ### When to Ask Clarifying Questions
 
 Before giving career advice, understand:
+
 1. Current role, level, and years of experience
 2. Target role/company type
 3. Timeline (actively interviewing vs exploring)

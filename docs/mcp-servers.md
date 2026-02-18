@@ -7,6 +7,7 @@ This document explains how MCP (Model Context Protocol) servers are configured a
 MCP allows Claude Code to interact with external tools and services through a standardized protocol. MCP servers run as separate processes and expose capabilities (tools, resources, prompts) that Claude can invoke during a session.
 
 This repository uses a **template-based approach** to MCP configuration:
+
 - MCP servers are opt-in (the base template is empty)
 - Project-specific templates add relevant servers
 - The `setup-project.sh` script merges templates into a final `.mcp.json`
@@ -55,6 +56,7 @@ Adds PostgreSQL MCP server for database introspection and queries.
 | `POSTGRES_SSL_MODE` | SSL connection mode | `disable` |
 
 **SSL Mode Options:**
+
 - `disable` - No SSL (local development)
 - `require` - Require SSL connection
 - `verify-ca` - Require SSL and verify server certificate
@@ -120,6 +122,7 @@ ${VARIABLE:-default_value}
 ```
 
 Variables are expanded **at Claude Code runtime**, not during template generation. This means:
+
 - You must have the required environment variables set when launching Claude Code
 - Use `.envrc` (with direnv) or export variables in your shell profile
 - Different environments (dev/staging/prod) can use different values
@@ -161,16 +164,19 @@ With Playwright MCP enabled:
 ### MCP Server Not Starting
 
 1. **Check npx is available:**
+
    ```bash
    npx --version
    ```
 
 2. **Verify environment variables:**
+
    ```bash
    echo $DATABASE_URL
    ```
 
 3. **Test the MCP server manually:**
+
    ```bash
    npx -y @modelcontextprotocol/server-postgres
    ```
@@ -192,6 +198,7 @@ With Playwright MCP enabled:
 ### Playwright Browser Issues
 
 1. **Browser not found:**
+
    ```bash
    npx playwright install chromium
    ```
@@ -204,6 +211,7 @@ With Playwright MCP enabled:
 To add a new MCP template:
 
 1. Create `mcp-templates/<name>.json`:
+
    ```json
    {
      "_source": "<name>",
@@ -221,6 +229,7 @@ To add a new MCP template:
 2. Update CLAUDE.md to document the new template
 
 3. Test with `--dry-run`:
+
    ```bash
    ./scripts/setup-project.sh --dry-run <name>
    ```

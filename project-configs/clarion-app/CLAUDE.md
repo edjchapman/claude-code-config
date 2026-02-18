@@ -45,6 +45,7 @@ docker compose run --rm api bash -c "cd /app/clarion-api && uv run manage.py tes
 ## Python Version & Type Hints
 
 This project targets **Python 3.12**. Do NOT add `from __future__ import annotations` to files - it's unnecessary since Python 3.10+ natively supports:
+
 - Union syntax: `int | None` instead of `Optional[int]` or `Union[int, None]`
 - Built-in generics: `list[str]` instead of `List[str]`
 
@@ -73,31 +74,37 @@ This project targets **Python 3.12**. Do NOT add `from __future__ import annotat
 ### Key Systems
 
 #### Cashflow V2 (Hamilton)
+
 - **Location:** `backend/clarion-api/cashflow_v2/`
 - **Features:** `cashflow_v2/forecast/features/` - calculation modules
 - **Tenant Events:** `cashflow_v2/forecast/features/tenant/events/`
 - **Tests:** `cashflow_v2/tests/`
 
 #### Tenancy/Lease System
+
 - **Model:** `project/models/tenancy.py` - `TenancyBase` class
 - **Forms:** `frontend/src/pages/Projects/ProjectPages/NewTenantPages/UnitLeaseDetails/Forms/`
 - **Next Lease Fields:** `reversion_*` prefix (e.g., `reversion_lease_length`)
 
 #### OpEx System
+
 - **Model:** `project/opex/models/opex_cost.py`
 - **Frontend:** `frontend/src/pages/Projects/ProjectPages/ProjectAssumptions/Tabs/OperatingExpense/`
 
 #### Portfolios
+
 - **Model:** `portfolios/models/portfolio.py`
 - **Pages:** `frontend/src/pages/Portfolios/`
 
 #### Metrics
+
 - **Registry:** `project/metrics/enums.py` - `MetricRegistry` enum (source of truth)
 - **Fixtures:** `project/fixtures_data/metric_definitions.json`
 
 ### Common Patterns
 
 #### Adding a New Field
+
 1. Add to Django model with migration
 2. Add to serializer
 3. Add to frontend TypeScript interface (`types/`)
@@ -105,7 +112,9 @@ This project targets **Python 3.12**. Do NOT add `from __future__ import annotat
 5. Update tests
 
 #### Data Migrations
+
 Follow pattern in `migration_script.py`:
+
 ```python
 def migrate_example(self):
     Model.objects.filter(old_field__isnull=False).update(
@@ -115,6 +124,7 @@ def migrate_example(self):
 ```
 
 #### Service Charge Fields
+
 - **Income:** `service_charge_income`, `service_charge_income_mechanism`
 - **Cost:** `service_charges_pct`, `service_charges_cal_mechanism`
 - **Mechanisms:** `PERCENTAGE_OF_ERV`, `PRICE_PER_AREA`
@@ -122,8 +132,9 @@ def migrate_example(self):
 ## Jira API Access
 
 Environment variables for Jira access are configured in `~/.zshrc`:
+
 - `JIRA_USERNAME` - Atlassian account email
-- `JIRA_API_TOKEN` - API token from https://id.atlassian.com/manage-profile/security/api-tokens
+- `JIRA_API_TOKEN` - API token from <https://id.atlassian.com/manage-profile/security/api-tokens>
 
 ### Fetching Tickets
 
