@@ -87,9 +87,7 @@
     "figma@claude-plugins-official": true,
     "slack@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "playwright@claude-plugins-official": true,
@@ -97,7 +95,6 @@
     "typescript-lsp@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "document-skills@anthropic-agent-skills": true,
-    "example-skills@anthropic-agent-skills": true
+    "document-skills@anthropic-agent-skills": true
   }
 }

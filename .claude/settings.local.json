@@ -340,7 +340,8 @@
       "WebFetch(domain:developer.hashicorp.com)",
       "Bash(./scripts/setup-project.sh:*)",
       "mcp__plugin_atlassian_atlassian__getAccessibleAtlassianResources",
-      "mcp__plugin_atlassian_atlassian__atlassianUserInfo"
+      "mcp__plugin_atlassian_atlassian__atlassianUserInfo",
+      "Bash(claude plugins:*)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
