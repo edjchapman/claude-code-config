@@ -1,12 +1,9 @@
-[
-  {
-    "context": "input",
-    "bindings": {
-      "ctrl+shift+r": "review",
-      "ctrl+shift+c": "commit",
-      "ctrl+shift+p": "pr",
-      "ctrl+shift+l": "lint",
-      "ctrl+shift+t": "tdd"
-    }
-  }
-]
+{
+  "bindings": [
+    { "key": "ctrl+shift+r", "command": "review", "when": "input" },
+    { "key": "ctrl+shift+c", "command": "commit", "when": "input" },
+    { "key": "ctrl+shift+p", "command": "pr", "when": "input" },
+    { "key": "ctrl+shift+l", "command": "lint", "when": "input" },
+    { "key": "ctrl+shift+t", "command": "tdd", "when": "input" }
+  ]
+}

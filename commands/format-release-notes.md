@@ -1,335 +1,195 @@
-# Format Release Notes
+# Release Notes
 
-Format GitHub release notes for Jira and stakeholder communication.
+Generate a formatted GitHub release description from PRs merged between two tags.
 
 ## Arguments
 
 `$ARGUMENTS`
 
-**Options:**
-
-- `--fetch <tag>`: Fetch release notes for a specific tag (e.g., `--fetch v103`)
-- `--no-fetch`: Disable auto-fetch; prompt for pasted input instead
-- `--no-slack`: Skip Slack mrkdwn file generation
-- `--no-notion`: Skip Notion database entry
-- `--no-publish`: Skip GitHub release body update
-- `--local-only`: Shorthand for `--no-slack --no-notion --no-publish` (only save local files)
-
-**Positional:**
-
-- `format`: `both` (default), `md`, or `csv`
-- `version`: Override auto-detected version (e.g., `v103`)
+- `<tag>`: The release tag to generate notes for (e.g., `v2.1.0`)
+- `<previous-tag>`: Optional. The previous tag to diff against. Auto-detected if omitted.
+- `--publish`: Update the GitHub release body immediately (default is draft/preview)
+- `--no-deps`: Exclude dependency bumps (Dependabot, Renovate) and CI-only changes
 
 **Examples:**
 
-- `/format-release-notes` - Fetch latest, generate all outputs (md, csv, Slack, Notion, GitHub)
-- `/format-release-notes --fetch v103` - Fetch specific tag, all outputs
-- `/format-release-notes --no-fetch md` - Paste notes manually, md only
-- `/format-release-notes --local-only` - Only save local files (md + csv), skip Slack/Notion/publish
-- `/format-release-notes --no-publish` - All outputs except GitHub release update
+- `/format-release-notes v2.1.0` — auto-detect previous tag, preview as draft
+- `/format-release-notes v2.1.0 v2.0.0` — explicit range, preview as draft
+- `/format-release-notes v2.1.0 --publish` — generate and publish to GitHub release
+- `/format-release-notes v2.1.0 --no-deps` — exclude dependabot/CI PRs
 
 ## Instructions
 
-### Step 1: Resolve Project Configuration
+### Step 1: Resolve Project Context
 
-Resolve project-specific values dynamically instead of using hardcoded defaults.
-
-**GitHub repo:**
+Determine the repository and verify the tag exists.
 
 ```bash
+# Get repo identifier
 gh repo view --json nameWithOwner -q '.nameWithOwner'
+
+# Verify tag exists
+git tag -l "<tag>"
 ```
 
-**Jira base URL:**
+Store `REPO` (e.g., `octocat/my-project`) for use in later steps. If the tag doesn't exist, inform the user and stop.
 
-- Check `CLAUDE.md` for a Jira URL override (look for `atlassian.net` or a `jira_base_url` key)
-- Fall back to `https://builtai.atlassian.net/browse/`
+### Step 2: Determine Tag Range
 
-**Ticket pattern:**
+**If `<previous-tag>` provided:** Use both tags directly.
 
-- Auto-detect from PR titles using `[A-Z]+-[0-9]+`
-- Common patterns: `BIL-1234`, `ABC-123`, `PROJ-456`
-
-Store these resolved values for use in formatting steps:
-
-- `REPO` — e.g., `Built-AI/clarion_app`
-- `JIRA_BASE_URL` — e.g., `https://builtai.atlassian.net/browse/`
-- `TICKET_PATTERN` — regex for ticket IDs found in PR titles
-
-### Step 2: Determine Input Source
-
-**Default (no flags):** Fetch the latest release automatically:
+**If only `<tag>` provided:** Auto-detect the previous tag:
 
 ```bash
-# Get latest release tag
-gh release list --limit 1 --json tagName -q '.[0].tagName'
-# Then fetch that release
-gh release view <tag> --json body,tagName,name -q '{body: .body, tag: .tagName, name: .name}'
+# Try: most recent release before this tag
+gh release list --json tagName,isLatest --limit 20 -q '[.[] | select(.tagName != "<tag>")] | .[0].tagName'
+
+# Fallback: previous tag by git history
+git describe --tags --abbrev=0 "<tag>^"
 ```
 
-**If `--fetch <tag>` provided:** Fetch the specified release:
+Store `PREV_TAG` and `TAG` for use in the next step.
+
+### Step 3: Fetch PRs Between Tags
+
+Extract merged PRs from the tag range using git log:
 
 ```bash
-gh release view <tag> --json body,tagName,name -q '{body: .body, tag: .tagName, name: .name}'
+# Get merge commits and squash-merge subjects between tags
+git log <PREV_TAG>..<TAG> --pretty=format:"%s" --first-parent
 ```
 
-**If `--no-fetch` provided:**
-Prompt the user to paste their raw release notes.
+Extract PR numbers from commit subjects:
 
-### Step 3: Parse and Categorize
+- Merge commits: `Merge pull request #123 from ...`
+- Squash merges: `Some description (#123)`
 
-1. **Parse** the release notes (from GitHub fetch or user-provided input)
-2. **Extract version** from the release title or tag
-3. **Categorize** each PR into sections
+Then fetch PR details for each extracted number:
 
-### Categories
-
-Order sections by importance to stakeholders:
-
-| Category | Include |
-|----------|---------|
-| **Breaking Changes** | API changes, removed endpoints, migration required |
-| **New Features** | New functionality (group by domain area dynamically) |
-| **Improvements** | Enhancements to existing features |
-| **Bug Fixes** | Defect corrections |
-| **Security** | Security patches, dependency CVE fixes |
-| **Deprecations** | Features marked for removal |
-| **Maintenance** | Chores, refactoring, test improvements, dependency bumps |
-| **New Contributors** | First-time contributors with their debut PR link |
-
-Omit empty sections from output.
-
-### Formatting Rules
-
-- Link tickets: `[BIL-1234]({JIRA_BASE_URL}BIL-1234)` (using resolved Jira URL)
-- Link PRs: `[#123](https://github.com/{REPO}/pull/123)` (using resolved repo)
-- **One PR per line** — never group multiple PRs on the same line
-- Same ticket can appear on multiple lines if it has multiple PRs
-- Include contributors: `@username`
-- Strip conventional commit prefixes (`feat:`, `fix:`, `chore:`)
-- PRs without ticket IDs: List under their category without a ticket link
-- Dependabot PRs: List individually under Maintenance > Dependency Updates with bump description
-- Revert PRs: Note as "(reverted)" on the original PR line if both present
-- Separate sections with `---` horizontal rules
-- End with `**Full Changelog**: <GitHub compare URL>`
-
-### Step 4: Format Outputs
-
-Generate all output formats (unless individually opted out with `--no-*` flags or `--local-only`). Each format targets a different audience: markdown has full detail for developers, CSV has structured data for tracking, and Slack has an executive summary for stakeholders.
-
-#### Markdown (`release-notes-{version}.md`)
-
-```markdown
-# Release Candidate {version}
-
-## Summary
-
-- **X new features** across {dynamically detected domain areas}
-- **X bug fixes**
-- **X improvements**
-- **X maintenance items** (including X dependency updates)
-
----
-
-## Breaking Changes
-
-- [{TICKET}]({JIRA_BASE_URL}{TICKET}) Description [#456](https://github.com/{REPO}/pull/456) @dev
-
----
-
-## New Features
-
-### {Domain Area}
-
-- [{TICKET}]({JIRA_BASE_URL}{TICKET}) Description [#123](https://github.com/{REPO}/pull/123) @contributor
-
----
-
-## Improvements
-
-- [{TICKET}]({JIRA_BASE_URL}{TICKET}) Description [#125](https://github.com/{REPO}/pull/125) @contributor
-
----
-
-## Bug Fixes
-
-- [{TICKET}]({JIRA_BASE_URL}{TICKET}) Description [#126](https://github.com/{REPO}/pull/126) @contributor
-
----
-
-## Maintenance
-
-### Code Quality
-
-- [{TICKET}]({JIRA_BASE_URL}{TICKET}) Description [#127](https://github.com/{REPO}/pull/127) @contributor
-
-### Dependency Updates
-
-- [#130](https://github.com/{REPO}/pull/130) Bump package-name X.X to Y.Y @dependabot
-- [#131](https://github.com/{REPO}/pull/131) Bump package-name X.X to Y.Y @dependabot
-
----
-
-## New Contributors
-
-- @username made their first contribution in [#132](https://github.com/{REPO}/pull/132)
-
----
-
-**Full Changelog**: https://github.com/{REPO}/compare/prev-tag...current-tag
+```bash
+gh pr view <number> --json number,title,author,labels,url
 ```
 
-#### CSV (`release-notes-{version}.csv`)
+Batch where possible using `gh api graphql` for efficiency if there are many PRs.
 
-```
-Release,Category,Subcategory,Ticket,Ticket Link,Description,Contributors,PR Number,PR Link
-{version},New Features,{Domain},{TICKET},{JIRA_BASE_URL}{TICKET},Description,@contributor,123,https://github.com/{REPO}/pull/123
-{version},Bug Fixes,,{TICKET},{JIRA_BASE_URL}{TICKET},Description,@contributor,126,https://github.com/{REPO}/pull/126
-{version},Maintenance,Dependency Updates,,,Bump package-name X.X to Y.Y,@dependabot,130,https://github.com/{REPO}/pull/130
-{version},New Contributors,,,,"@username made their first contribution",@username,132,https://github.com/{REPO}/pull/132
-```
+### Step 4: Categorize and Detect Issue Tracker
 
-**CSV notes:**
+**Categorize** each PR by conventional commit prefix in the title:
 
-- One row per PR (same ticket can appear on multiple rows if it has multiple PRs)
-- Leave cells empty for optional fields (Subcategory, Ticket, Ticket Link) when not applicable
-- Dependency updates use `@dependabot` as contributor
+| Prefix | Category |
+|--------|----------|
+| `feat:` / `feat(scope):` | New Features |
+| `fix:` / `fix(scope):` | Bug Fixes |
+| `perf:`, `improve:` | Improvements |
+| `BREAKING CHANGE` or `!:` | Breaking Changes |
+| `security:` | Security |
+| `deprecate:` | Deprecations |
+| `chore:`, `ci:`, `test:`, `docs:`, `refactor:`, `build:` | Maintenance |
+| No prefix | Infer from labels/content, or place under "Other Changes" |
 
-#### Slack mrkdwn (`release-notes-{version}.slack.txt`) — unless `--no-slack` or `--local-only`
+**Filtering:** If `--no-deps` is set, exclude:
 
-Write a file using Slack `mrkdwn` syntax (not standard Markdown). Key differences:
+- Dependabot / Renovate PRs (by author or title pattern)
+- CI-only changes (`ci:` prefix, CI labels)
 
-- Bold: `*text*` (not `**text**`)
-- Links: `<url|text>` (not `[text](url)`)
-- No heading syntax — use bold + emoji for section headers
+By default, all PRs are included.
 
-Structure:
+**Auto-detect issue tracker** by scanning all PR titles:
 
-```
-:rocket: *Release {version}*
-
-*{X}* new features · *{Y}* bug fixes · *{Z}* improvements · *{W}* maintenance
-
-:sparkles: *Highlights*
-• {Most impactful change — plain text, no ticket ID or link}
-• {Second highlight}
-• {Third highlight}
-• {Fourth highlight}
-• {Fifth highlight}
-
-:boom: *Breaking Changes*
-• {Description} — {TICKET} {JIRA_BASE_URL}{TICKET}
-
-:gift: *New Features*
-• {Description} — {TICKET} {JIRA_BASE_URL}{TICKET}
-• {Description} — {TICKET} {JIRA_BASE_URL}{TICKET}
-
-:chart_with_upwards_trend: *Improvements*
-• {Description} — {TICKET} {JIRA_BASE_URL}{TICKET}
-
-:bug: *Bug Fixes*
-• {Description} — {TICKET} {JIRA_BASE_URL}{TICKET}
-
-:shield: *Security*
-• {Description}
-
-:warning: *Deprecations*
-• {Description} — {TICKET} {JIRA_BASE_URL}{TICKET}
-
-:wrench: *Maintenance*
-• {X} code quality improvements, {Y} dependency updates
-
-https://github.com/{REPO}/releases/tag/{tag}
-```
-
-**Slack formatting rules:**
-
-- Include a `:sparkles: *Highlights*` section — curate 3-5 plain-text one-liners of the most impactful changes across all categories. Prioritize user-facing features, then impactful bug fixes, then notable improvements. Exclude maintenance items from highlights.
-- List features, improvements, and bug fixes individually — one bullet per PR
-- Use em-dash (`—`) to separate description from ticket reference
-- Item format: `• {Description} — {TICKET} {JIRA_BASE_URL}{TICKET}`
-- Items without Jira tickets: `• {Description}` (no link)
-- Do NOT include PR links (`#123`) in Slack items — only Jira ticket references
-- Do NOT include `@contributor` names in Slack items
-- Do NOT include domain sub-groupings under New Features — use a flat list
-- Condense Maintenance to a single summary: `• {X} code quality improvements, {Y} dependency updates`
-- Omit the New Contributors section from Slack — it appears in markdown/GitHub only
-- Omit empty sections
-- No CSV data or file paths — content ready to paste into Slack
-- Use emoji prefixes: `:sparkles:` `:boom:` `:gift:` `:chart_with_upwards_trend:` `:bug:` `:shield:` `:warning:` `:wrench:`
-- Bullet points with `•` character
-- Footer: bare URL to the GitHub release
+1. Look for Jira-style patterns: `[A-Z]+-[0-9]+` (e.g., `BIL-1234`, `PROJ-456`)
+2. If found, check `CLAUDE.md` for `atlassian.net` or `jira_base_url` to build links
+3. If Jira URL found → `[PROJ-123](https://jira.example.com/browse/PROJ-123)`
+4. If no Jira URL → show ticket ID as plain text, note this for the user
+5. GitHub issue refs (`#123`) → `[#123](https://github.com/REPO/issues/123)`
 
 ### Step 5: Preview and Confirm
 
-Before writing any files or publishing, show a preview and ask for confirmation. Match the pattern from `/pr` and `/commit`.
+Format the release body as GitHub-flavored markdown and show a preview.
 
-1. **Show markdown preview** — first ~30 lines of the formatted markdown output
-2. **Show Slack preview** — first ~15 lines of the Slack mrkdwn output (unless Slack is skipped)
-3. **List ALL outputs** with their targets, marking each as **✓ active** or **⊘ skipped** based on opt-out flags:
-   - Local: `./releases/release-notes-{version}.md` (always ✓)
-   - Local: `./releases/release-notes-{version}.csv` (if format is `both` or `csv` ✓)
-   - Local: `./releases/release-notes-{version}.slack.txt` (unless `--no-slack` or `--local-only`)
-   - Notion: "Create row in Release Notes database" (unless `--no-notion` or `--local-only`)
-   - GitHub: "Update release body for {tag}" (unless `--no-publish` or `--local-only`)
-4. **Ask for confirmation** before proceeding:
-   - "Ready to generate? [Y/modify/cancel]"
-   - Allow the user to request changes before writing
+**Output format:**
 
-### Step 6: Save Files
+```markdown
+## Summary
 
-Save all local files to `./releases/` in the current working directory:
+**X** features · **Y** bug fixes · **Z** improvements · **W** maintenance
 
-- `release-notes-{version}.md` (always, unless format is `csv` only)
-- `release-notes-{version}.csv` (if format is `both` or `csv`)
-- `release-notes-{version}.slack.txt` (unless `--no-slack` or `--local-only`)
+## Breaking Changes
+- Description [#456](pr_url) @contributor — [PROJ-123](issue_url)
 
-### Step 7: Publish to GitHub — unless `--no-publish` or `--local-only`
+## New Features
+- Description [#123](pr_url) @contributor
 
-Update the GitHub release body with the formatted markdown:
+## Improvements
+- Description [#125](pr_url) @contributor
 
-```bash
-gh release edit <tag> --notes-file ./releases/release-notes-{version}.md
+## Bug Fixes
+- Description [#126](pr_url) @contributor
+
+## Security
+- Description [#127](pr_url) @contributor
+
+## Deprecations
+- Description [#128](pr_url) @contributor
+
+## Maintenance
+- Description [#129](pr_url) @contributor
+
+## New Contributors
+- @user made their first contribution in [#N](pr_url)
+
+**Full Changelog**: https://github.com/REPO/compare/PREV_TAG...TAG
 ```
 
-Confirm the update succeeded and report the release URL.
+**Formatting rules:**
 
-### Step 8: Save to Notion — unless `--no-notion` or `--local-only`
+- One PR per line — never group multiple PRs on a single line
+- Strip conventional commit prefixes from display text (`feat:`, `fix:`, etc.)
+- Include PR link and `@author` on every line
+- Append issue tracker reference where detected (Jira ticket or GitHub issue)
+- Omit empty sections entirely
+- Separate sections with blank lines (no horizontal rules — GitHub renders them heavily)
 
-**If Notion MCP is available (`mcp__plugin_Notion_notion__notion-search`):**
+**Show the user:**
 
-1. **Search** for an existing "Release Notes" database:
-   - Use `notion-search` to find a database titled "Release Notes"
+1. The formatted markdown preview (first ~30 lines)
+2. Ask how to proceed:
+   - If `--publish` was passed: "Will update release body for `<TAG>` via `gh release edit`. Ready? [Y/edit/cancel]"
+   - Otherwise (default): "How would you like to proceed? [publish/draft (default)/edit/cancel]"
+     - **publish**: Update the GitHub release body now
+     - **draft**: Output the full markdown without modifying the release (default if user just presses enter)
+     - **edit**: Let the user request changes before finalizing
+     - **cancel**: Abort
 
-2. **If database found:** Create a new row with these properties:
-   - `Version` (title) — e.g., "v104"
-   - `Date` (date) — release date
-   - `Status` (select) — "Published" if GitHub publish is active, otherwise "Draft"
-   - `Features` (number) — count of new features
-   - `Bug Fixes` (number) — count of bug fixes
-   - `GitHub Release` (url) — link to GitHub release
-   - `Summary` (rich text) — brief summary line
+### Step 6: Publish
 
-   Add the full formatted markdown as the page body content (including all sections: Breaking Changes, New Features, Improvements, Bug Fixes, Security, Deprecations, Maintenance, and New Contributors).
+**If draft (default, or user chose "draft" at the prompt):** Output the full markdown and stop. Do not modify the GitHub release.
 
-3. **If database NOT found:** Prompt the user for a parent page, then create the database with the schema above using `notion-create-database`. Then create the first row.
+**If publish (`--publish` flag, or user chose "publish" at the prompt):** Update the GitHub release body:
 
-4. Return the Notion page URL.
+```bash
+# Write formatted notes to a temp file, then update the release
+gh release edit <TAG> --notes-file <tempfile>
+```
 
-**If Notion MCP is NOT available:**
+If the release doesn't exist yet for this tag, inform the user and suggest:
 
-- Skip Notion save
-- Inform user: "Notion MCP not available — files saved locally but not to Notion"
+```bash
+gh release create <TAG> --notes-file <tempfile>
+```
+
+Confirm success and report the release URL:
+
+```
+https://github.com/REPO/releases/tag/TAG
+```
 
 ## Output
 
 Present summary when complete:
 
-> "Release notes for {version} formatted:
+> "Release notes for {TAG} generated:
 >
-> - Local: `./releases/release-notes-{version}.md` and `.csv`
-> - Slack: `./releases/release-notes-{version}.slack.txt` ✓ / skipped
-> - Notion: {url} ✓ / skipped
-> - GitHub: Release updated — {release_url} ✓ / skipped
+> - PRs included: X (Y features, Z fixes, W maintenance)
+> - GitHub release: {url} ✓ / draft only (default)
 >
-> Summary: X features, Y bug fixes, Z maintenance items"
+> Summary: X features, Y bug fixes, Z improvements, W maintenance"
