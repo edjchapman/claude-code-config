@@ -1,9 +1,5 @@
 {
-  "bindings": [
-    { "key": "ctrl+shift+r", "command": "review", "when": "input" },
-    { "key": "ctrl+shift+c", "command": "commit", "when": "input" },
-    { "key": "ctrl+shift+p", "command": "pr", "when": "input" },
-    { "key": "ctrl+shift+l", "command": "lint", "when": "input" },
-    { "key": "ctrl+shift+t", "command": "tdd", "when": "input" }
-  ]
+  "$schema": "https://www.schemastore.org/claude-code-keybindings.json",
+  "$docs": "https://code.claude.com/docs/en/keybindings",
+  "bindings": []
 }
