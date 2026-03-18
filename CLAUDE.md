@@ -110,6 +110,7 @@ Available skills:
 - `django-patterns.md`: Fat models, managers, query optimization, signals (`**/models.py`, `**/views.py`, `**/managers.py`, `**/signals.py`, etc.)
 - `docker-patterns.md`: Multi-stage builds, layer caching, security (`**/Dockerfile`, `**/docker-compose*.yml`, `**/.dockerignore`)
 - `infrastructure.md`: Terraform modules, K8s resources, Helm charts (`**/*.tf`, `**/k8s/**`, `**/helm/**`)
+- `root-cause-analysis.md`: Guides bug fixes toward root causes over symptom-level bandaids (`**/*.py`)
 
 ### Rules
 
