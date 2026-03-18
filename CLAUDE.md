@@ -198,6 +198,31 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 
 Commands in `commands/` are Markdown files where the filename becomes the slash command (e.g., `commit.md` → `/commit`).
 
+## Scope and Implementation Philosophy
+
+### Strict Scope Adherence
+
+When the user specifies a task, treat the scope as a contract:
+
+- Focus strictly on the scope specified. Do not touch files or add changes beyond what was requested without explicit approval.
+- If you discover the task requires changes beyond the stated scope, **pause and describe** what you've found. Get explicit user approval before expanding scope.
+- Never assume scope expansion is welcome, even if architecturally cleaner.
+
+### Root Cause Over Symptom Fixes
+
+When fixing bugs, always address the root cause rather than applying symptom-level bandaids:
+
+- Trace errors to their earliest origin point — fix division-by-zero at the calculation layer, not with `fillna` in serialization.
+- If you still need a secondary bandaid after fixing the root cause, the root cause fix was incomplete.
+
+### Derivation Over Duplication
+
+When refactoring or adding new config/constants, always derive from existing sources of truth rather than duplicating logic. Check for existing constants, registries, or config objects before creating new ones.
+
+### Adopt User Corrections Immediately
+
+When the user asks to narrow scope or correct an approach, immediately adopt their direction without further deliberation or alternative proposals. The user knows the codebase constraints.
+
 ## Code Style
 
 - Shell scripts: Use `shellcheck` for linting
