@@ -230,6 +230,10 @@ When the user asks to narrow scope or correct an approach, immediately adopt the
 - Python: Format with `black`, lint with `ruff`
 - JSON: Validate with `python -m json.tool`
 
+## Tooling Troubleshooting
+
+If a tool or integration isn't working (e.g., MCP server, browser extension, external API), pivot after 2 failed attempts rather than retrying across the entire session. Suggest an alternative approach or escalate to the user. The cost of continued retrying far exceeds the cost of asking for help.
+
 ## Commit Messages
 
 Follow conventional commits:
