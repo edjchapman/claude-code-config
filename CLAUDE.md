@@ -9,7 +9,7 @@ This is a configuration repository for Claude Code. It provides reusable agents,
 ## Key Scripts
 
 ```bash
-# Global setup (creates ~/.claude/agents, commands, skills, rules, settings.json, and keybindings.json symlinks)
+# Global setup (creates ~/.claude/agents, commands, skills, rules, and settings.json symlinks)
 ./scripts/setup-global.sh
 
 # Project setup (run from target project directory)
@@ -52,7 +52,7 @@ Hooks use string-based matchers (not object-based). The correct format:
 - Simple string: `"Bash"` matches only Bash tool
 - Regex: `"Write|Edit"` or `"Notebook.*"`
 - Match all: `"*"` or `""`
-- Omit matcher for events that don't use it (SessionStart, Stop, PreCompact, UserPromptSubmit, SubagentStop, SessionEnd)
+- Omit matcher for events that don't use it (SessionStart, Stop, PreCompact, UserPromptSubmit, SubagentStop)
 
 **Example:**
 
@@ -78,13 +78,10 @@ Hooks use string-based matchers (not object-based). The correct format:
 - **Setup (init)**: Detects project type and suggests configuration
 - **UserPromptSubmit**: LLM-evaluated check that user prompt is specific enough to act on
 - **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
-- **PostToolUseFailure**: Logs tool failure details to `~/.claude/debug/tool-failures.log`
 - **PreToolUse (Bash)**: Blocks dangerous command patterns (defense-in-depth)
 - **Stop**: LLM-evaluated completeness check (tests run? linters run? TODOs left?)
 - **SubagentStop**: LLM-evaluated check that subagent completed its assigned task fully
 - **PreCompact**: Preserves working state before context compaction
-- **Notification (permission_prompt)**: macOS desktop notification when Claude needs permission
-- **SessionEnd**: Logs session info and cleans up temp files
 
 ### Settings Keys
 
@@ -215,6 +212,10 @@ When fixing bugs, always address the root cause rather than applying symptom-lev
 
 - Trace errors to their earliest origin point — fix division-by-zero at the calculation layer, not with `fillna` in serialization.
 - If you still need a secondary bandaid after fixing the root cause, the root cause fix was incomplete.
+
+### Test Safety Net Before Refactoring
+
+Never refactor without a safety net. Before restructuring code, verify that tests exist for the behavior being changed. If they don't, write them first. Tests must pass before, during, and after every refactoring step.
 
 ### Derivation Over Duplication
 

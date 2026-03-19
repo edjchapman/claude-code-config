@@ -85,19 +85,6 @@ fi
 
 ln -s "$REPO_ROOT/settings.json" ~/.claude/settings.json
 
-# Handle keybindings.json symlink
-if [ -f "$REPO_ROOT/keybindings.json" ]; then
-  if [ -L ~/.claude/keybindings.json ]; then
-    echo "Removing existing symlink: ~/.claude/keybindings.json"
-    rm ~/.claude/keybindings.json
-  elif [ -e ~/.claude/keybindings.json ]; then
-    backup_file=~/.claude/keybindings.json.backup.$(date +%s)
-    echo "Backing up existing file: ~/.claude/keybindings.json -> $backup_file"
-    mv ~/.claude/keybindings.json "$backup_file"
-  fi
-  ln -s "$REPO_ROOT/keybindings.json" ~/.claude/keybindings.json
-fi
-
 echo ""
 echo "Global Claude Code config set up successfully!"
 echo ""
@@ -106,15 +93,9 @@ echo "  ~/.claude/commands        -> $REPO_ROOT/commands"
 echo "  ~/.claude/skills          -> $REPO_ROOT/skills"
 echo "  ~/.claude/rules           -> $REPO_ROOT/rules"
 echo "  ~/.claude/settings.json   -> $REPO_ROOT/settings.json"
-if [ -f "$REPO_ROOT/keybindings.json" ]; then
-  echo "  ~/.claude/keybindings.json -> $REPO_ROOT/keybindings.json"
-fi
 echo ""
 echo "Notes:"
 echo "  - settings.json is now symlinked (global plugin + hooks configuration)"
-if [ -f "$REPO_ROOT/keybindings.json" ]; then
-  echo "  - keybindings.json is now symlinked (custom keyboard shortcuts)"
-fi
 echo "  - settings.local.json remains local (machine-specific permissions)"
 echo "  - Run setup-project.sh in project directories to set up per-project config"
 echo ""

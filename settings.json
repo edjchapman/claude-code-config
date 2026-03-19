@@ -24,16 +24,6 @@
         ]
       }
     ],
-    "PostToolUseFailure": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/log-tool-failure.sh"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -54,32 +44,11 @@
           }
         ]
       }
-    ],
-    "Notification": [
-      {
-        "matcher": "permission_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/notify-permission.sh"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/session-end.sh"
-          }
-        ]
-      }
     ]
   },
   "statusLine": {
     "type": "command",
-    "command": "/Users/ed/.claude/statusline-command.sh"
+    "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/statusline.sh"
   },
   "enabledPlugins": {
     "github@claude-plugins-official": true,

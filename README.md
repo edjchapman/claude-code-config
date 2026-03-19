@@ -74,8 +74,7 @@ claude-setup django react
 ├── commands          -> ~/Development/claude-code-config/commands
 ├── skills            -> ~/Development/claude-code-config/skills
 ├── rules             -> ~/Development/claude-code-config/rules
-├── settings.json     -> ~/Development/claude-code-config/settings.json
-└── keybindings.json  -> ~/Development/claude-code-config/keybindings.json
+└── settings.json     -> ~/Development/claude-code-config/settings.json
 ```
 
 **Project setup** (`setup-project.sh`) creates in your project:
@@ -103,13 +102,12 @@ Everything in this repo falls into two categories:
 
 | | Active (you invoke) | Passive (auto-activates) |
 |---|---|---|
-| **What** | Orchestrator agents, Specialist agents, Commands, CLI scripts | Skills, Rules, Hooks |
+| **What** | Specialist agents, Commands, CLI scripts | Skills, Rules, Hooks |
 | **How** | `@name`, `/name`, or shell command | Triggered by file patterns or lifecycle events |
-| **Example** | `@implement`, `/commit`, `review-changes.sh` | `testing-patterns` skill activates on `test_*.py` |
+| **Example** | `@code-reviewer`, `/commit`, `review-changes.sh` | `testing-patterns` skill activates on `test_*.py` |
 
 **Active tools** — you choose when to use them:
 
-- **Orchestrator agents** (`@implement`, `@fix`, `@refactor`, `@review-pr`, `@ship`) coordinate multiple specialists through multi-phase workflows
 - **Specialist agents** (`@code-reviewer`, `@test-engineer`, etc.) provide deep expertise in a single domain
 - **Commands** (`/commit`, `/review`, `/standup`, etc.) run focused, single-purpose workflows
 - **CLI scripts** (`review-changes.sh`, `daily-report.sh`, etc.) run headless — no interactive session needed
@@ -126,12 +124,8 @@ Everything in this repo falls into two categories:
 
 | I want to... | Use | Why |
 |---|---|---|
-| Build a feature end-to-end | `@implement` | Orchestrates plan → code → test → review |
-| Fix a bug systematically | `@fix` | Investigates, fixes, adds regression tests, reviews |
-| Refactor code safely | `@refactor` | Ensures test coverage first, then refactors with review |
-| Ship my work (commit + PR) | `@ship` | Full quality gate: review → security → tests → commit → PR |
 | Quick review before committing | `/review` | Fast diff review, no agent overhead |
-| Deep code review of a PR | `@review-pr` | Multi-agent: code + security + test coverage |
+| Deep code review | `@code-reviewer` | Thorough code review for any language |
 | Write or fix tests | `@test-engineer` | Creates unit and integration tests |
 | Run a security audit | `/security-scan` | Delegates to `@security-auditor` |
 | Analyze test coverage gaps | `/coverage-report` | Delegates to `@test-engineer` |
@@ -152,11 +146,8 @@ Everything in this repo falls into two categories:
 Some tools overlap intentionally at different levels of depth:
 
 ```
-Code review depth:     /review  →  @code-reviewer  →  @review-pr
-                       (quick)     (thorough)          (multi-agent: code + security + coverage)
-
-Shipping approaches:   /commit + /pr  (manual, step-by-step)
-                       @ship          (orchestrated: review → security → tests → commit → PR)
+Code review depth:     /review  →  @code-reviewer
+                       (quick)     (thorough)
 
 Reporting scopes:      daily-report.sh  →  /standup  →  /eow-review
                        (headless)          (24h)        (full week)
@@ -210,56 +201,26 @@ Use one or combine multiple:
 
 ## Available Agents
 
-### Orchestrator Agents
+Invoke with `@agent-name` in Claude Code:
 
-These coordinate multiple specialist agents to complete multi-phase workflows end-to-end:
-
-| Agent | What It Does | Phases | Model |
-|-------|--------------|--------|-------|
-| `@implement` | Feature implementation: plan → code → test → review | spec-writer, test-engineer, code-reviewer | sonnet |
-| `@fix` | Bug fix: investigate → fix → regression test → review | bug-resolver, test-engineer, code-reviewer | sonnet |
-| `@review-pr` | PR review: context → code review → security → coverage | pr-review-bundler, code-reviewer, security-auditor, test-engineer | sonnet |
-| `@refactor` | Safe refactoring: analyze → safety-net tests → refactor → review | refactoring-engineer, test-engineer, code-reviewer | sonnet |
-| `@ship` | Pre-merge gate: assess → review → security → test → commit → PR | code-reviewer, security-auditor | sonnet |
-
-### How Orchestrators Use Specialists
-
-Each orchestrator coordinates a pipeline of specialists. Here's what runs under the hood:
-
-```
-@implement:   spec-writer → [you code] → test-engineer → code-reviewer
-@fix:         bug-resolver → [you fix] → test-engineer → code-reviewer
-@refactor:    refactoring-engineer → test-engineer → [refactor] → code-reviewer
-@review-pr:   pr-review-bundler → code-reviewer → security-auditor → test-engineer
-@ship:        [assess changes] → code-reviewer → security-auditor → [tests] → [commit + PR]
-```
-
-You don't need to remember these — just invoke the orchestrator and it handles the rest.
-
-### Specialist Agents
-
-Invoke with `@agent-name` in Claude Code. The "Used By" column shows which orchestrators delegate to each specialist:
-
-| Agent | What It Does | Model | Used By |
-|-------|--------------|-------|---------|
-| `@bug-resolver` | Systematic debugging, root cause analysis | opus | `@fix` |
-| `@career-adviser` | CV/resume review, LinkedIn optimization, interview prep | opus | Direct use |
-| `@ci-debugger` | CI/CD failure investigation, flaky tests | opus | Direct use |
-| `@code-reviewer` | General code review for any language | opus | `@implement`, `@fix`, `@refactor`, `@review-pr`, `@ship` |
-| `@content-reviewer` | Review promotional content: LinkedIn posts, PR announcements, conference talks, blog posts | sonnet | Direct use |
-| `@database-architect` | Schema design, migration planning, query optimization | opus | Direct use |
-| `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet | Direct use |
-| `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus | Direct use |
-| `@documentation-writer` | README, API docs, ADRs, onboarding guides | sonnet | Direct use |
-| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | opus | Direct use |
-| `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet | Direct use |
-| `@migration-engineer` | Database migrations, framework upgrades, zero-downtime | opus | Direct use |
-| `@performance-engineer` | Profiling, bottleneck analysis, optimization | opus | Direct use |
-| `@pr-review-bundler` | Bundle PR reviews into markdown | opus | `@review-pr` |
-| `@refactoring-engineer` | Systematic, safe refactoring | opus | `@refactor` |
-| `@security-auditor` | Security audit, OWASP, dependency vulnerabilities | opus | `@review-pr`, `@ship` |
-| `@spec-writer` | Technical specs and planning docs | opus | `@implement` |
-| `@test-engineer` | Create unit and integration tests | sonnet | `@implement`, `@fix`, `@refactor`, `@review-pr` |
+| Agent | What It Does | Model |
+|-------|--------------|-------|
+| `@bug-resolver` | Systematic debugging, root cause analysis | opus |
+| `@ci-debugger` | CI/CD failure investigation, flaky tests | opus |
+| `@code-reviewer` | General code review for any language | opus |
+| `@database-architect` | Schema design, migration planning, query optimization | opus |
+| `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet |
+| `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus |
+| `@documentation-writer` | README, API docs, ADRs, onboarding guides | sonnet |
+| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | opus |
+| `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet |
+| `@migration-engineer` | Database migrations, framework upgrades, zero-downtime | opus |
+| `@performance-engineer` | Profiling, bottleneck analysis, optimization | opus |
+| `@pr-review-bundler` | Bundle PR reviews into markdown | opus |
+| `@refactoring-engineer` | Systematic, safe refactoring | opus |
+| `@security-auditor` | Security audit, OWASP, dependency vulnerabilities | opus |
+| `@spec-writer` | Technical specs and planning docs | opus |
+| `@test-engineer` | Create unit and integration tests | sonnet |
 
 **Model notes:**
 
@@ -276,16 +237,11 @@ Invoke with `/command` in Claude Code:
 | `/pr` | Create PR with auto-generated description | -- |
 | `/review` | Review changes before committing | -- |
 | `/standup` | Summarize last 24h of git activity | -- |
-| `/explain` | Explain code at a specific location | -- |
-| `/lint` | Run all project linters | -- |
 | `/tdd` | TDD workflow: write failing test, implement, refactor | -- |
 | `/hotfix` | Guided hotfix: branch from main, minimal fix, targeted tests, PR | -- |
 | `/deps` | Dependency audit: vulnerabilities, outdated packages, update plan | -- |
 | `/adr` | Create Architecture Decision Record (Nygard format) | -- |
-| `/context` | Refresh context: branch, commits, open PRs, project status | -- |
-| `/format-release-notes` | Format GitHub release notes | -- |
 | `/coverage-report` | Analyze test coverage and identify gaps | `@test-engineer` |
-| `/generate-changelog` | Generate changelog from commits since last tag | -- |
 | `/refinement` | Prepare technical analysis for backlog refinement | Explore sub-agent |
 | `/eow-review` | Prepare end-of-week review notes | -- |
 | `/security-scan` | Run security audit on the codebase | `@security-auditor` |
@@ -298,8 +254,6 @@ Here's how the pieces compose for everyday tasks:
 ### Implement a Feature
 
 ```
-@implement                          # Plan → code → test → review (all-in-one)
-  ... or break it down manually:
 @spec-writer                        # 1. Write the spec
   (you write the code)              # 2. Implement
 @test-engineer                      # 3. Write tests
@@ -310,27 +264,24 @@ Here's how the pieces compose for everyday tasks:
 ### Fix a Bug
 
 ```
-@fix                                # Investigate → fix → regression test → review (all-in-one)
-  ... or for simple bugs:
-  (you fix the code)
+@bug-resolver                       # Investigate root cause
+  (you fix the code)                # Apply the fix
 /review → /commit                   # Quick check and commit
 ```
 
 ### Daily Development Cycle
 
 ```
-/context                            # Morning: see branch, PRs, CI status
 /standup                            # Generate standup notes
   (you work)                        # Write code
 /review                             # Before committing: quick diff check
 /commit → /pr                       # Commit and open PR
-  ... or use @ship                  # Orchestrated: review + security + tests + commit + PR
 ```
 
 ### Review a PR
 
 ```
-@review-pr 142                      # Interactive: multi-agent review (code + security + coverage)
+@code-reviewer                      # Interactive: thorough code review
   ... or headless:
 review-pr.sh 142                    # CLI: runs without an interactive session
 ```
@@ -429,7 +380,6 @@ claude-code-config/
 ├── settings-templates/      # Permission templates (JSON)
 ├── mcp-templates/           # MCP server templates (JSON)
 ├── settings.json            # Plugin config + hooks (symlinked globally)
-├── keybindings.json         # Custom keybindings (symlinked globally)
 ├── templates/               # Example files (CLAUDE.local.md.example)
 ├── scripts/
 │   ├── setup-global.sh      # One-time machine setup
@@ -439,16 +389,10 @@ claude-code-config/
 │   ├── hooks/               # Hook scripts referenced by settings.json
 │   │   ├── session-context.sh
 │   │   ├── statusline.sh
-│   │   ├── project-init.sh
-│   │   ├── session-end.sh
-│   │   ├── format-python.sh
-│   │   ├── format-js.sh
 │   │   ├── dangerous-cmd-check.sh
 │   │   ├── check-duplicates.sh
 │   │   ├── format-on-edit.sh
-│   │   ├── pre-compact-state.sh
-│   │   ├── notify-permission.sh
-│   │   └── log-tool-failure.sh
+│   │   └── pre-compact-state.sh
 │   └── cli/                 # Headless CLI automation scripts
 │       ├── review-changes.sh
 │       ├── explain-error.sh
@@ -479,13 +423,10 @@ Hooks are configured in `settings.json` and run automatically at key points in t
 | Setup (init) | Project init | Detects project type, suggests configuration |
 | UserPromptSubmit | Before prompt sent | LLM checks if prompt is specific enough to act on |
 | PostToolUse (Write/Edit) | After file edits | Auto-formats Python (ruff) and JS/TS (prettier) |
-| PostToolUseFailure | After tool failure | Logs failure details to `~/.claude/debug/tool-failures.log` |
 | PreToolUse (Bash) | Before commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.) |
 | Stop | Session end | LLM checks: tests run? linters run? TODOs left? |
 | SubagentStop | Before subagent returns | LLM checks if subagent completed its task fully |
 | PreCompact | Before compaction | Saves working state (branch, staged files, recent commits) |
-| Notification | Permission needed | Sends macOS desktop notification (with tool details) |
-| SessionEnd | Session ends | Logs session info, cleans up temp files |
 
 Hook scripts live in `scripts/hooks/` and only run when the required tools are available (e.g., `ruff`, `prettier`).
 
@@ -596,6 +537,8 @@ Add to your project's `.gitignore`:
 
 ```bash
 rm ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/rules ~/.claude/settings.json
+# If upgrading from an older version that included keybindings.json:
+rm -f ~/.claude/keybindings.json
 ```
 
 **Remove from a project:**
