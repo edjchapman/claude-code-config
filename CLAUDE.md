@@ -173,7 +173,6 @@ Available MCP templates:
 
 **Environment Variables**: Variables like `${DATABASE_URL}` are expanded at Claude Code runtime.
 Ensure required variables are set in your shell or `.envrc` before launching Claude Code.
-See `docs/mcp-servers.md` for detailed configuration guidance.
 
 ### CLI Scripts
 
@@ -227,9 +226,9 @@ When the user asks to narrow scope or correct an approach, immediately adopt the
 
 ## Code Style
 
-- Shell scripts: Use `shellcheck` for linting
-- Python: Format with `black`, lint with `ruff`
-- JSON: Validate with `python -m json.tool`
+- Shell scripts: Linted with `shellcheck` (CI validates on every push)
+- Python: Linted with `ruff` (auto-formatted by `format-on-edit` hook)
+- JSON: Validated with `python -m json.tool` (CI validates templates and merge outputs)
 
 ## Tooling Troubleshooting
 

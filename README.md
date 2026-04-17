@@ -23,20 +23,6 @@ This repo solves that by providing:
 - **Rules** for path-scoped code style enforcement
 - **Setup scripts** that work on any machine
 
-## Quality Standards
-
-This repository maintains high code quality through automated checks:
-
-- ✅ **Pre-commit hooks**: Auto-format code, lint, validate syntax (< 5s per commit)
-- ✅ **CI validation**: GitHub Actions runs all checks on every PR
-- ✅ **Shell scripts**: Linted with `shellcheck`, formatted with `shfmt`
-- ✅ **Python**: Formatted and linted with `ruff`
-- ✅ **Markdown**: Style checked with `markdownlint`
-- ✅ **JSON/YAML**: Syntax validation
-- ✅ **Custom checks**: Duplicate name detection, frontmatter validation, settings merge tests
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions.
-
 ## Quick Start
 
 ```bash
@@ -291,7 +277,7 @@ review-pr.sh 142                    # CLI: runs without an interactive session
 ```
 /standup                            # Daily: last 24h activity
 /eow-review                        # Weekly: full week summary across Git, GitHub, Jira, Notion
-daily-report.sh                     # Headless: auto-generate at 9am via LaunchAgent
+daily-report.sh                     # Headless: auto-generate daily summary
 ```
 
 ## CLI Scripts
@@ -312,14 +298,6 @@ alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
 | `daily-report.sh` | `cdr` | Summarize last 24h of git activity |
 | `review-pr.sh` | `cpr 123` | Headless PR review |
 
-### Git Pre-Push Hook (Optional)
-
-Claude can review your diff before pushing (non-blocking):
-
-```bash
-git config core.hooksPath ~/Development/claude-code-config/githooks
-```
-
 ## MCP Templates
 
 MCP server configurations per project type, generated alongside `settings.local.json`:
@@ -332,43 +310,6 @@ MCP server configurations per project type, generated alongside `settings.local.
 
 MCP templates are automatically merged when running `setup-project.sh` if a matching template exists.
 
-## GitHub Actions Templates
-
-Copy these workflow files to your project's `.github/workflows/` directory:
-
-| Template | Trigger | What It Does |
-|----------|---------|--------------|
-| `claude-pr-review.yml` | Pull request | Reviews PRs for bugs, security, test coverage |
-| `claude-issue-triage.yml` | Issue opened | Labels, estimates complexity, suggests files |
-| `claude-changelog.yml` | Release created | Generates grouped release notes |
-
-```bash
-# Copy a workflow to your project
-cp ~/Development/claude-code-config/github-actions/claude-pr-review.yml .github/workflows/
-# Set the ANTHROPIC_API_KEY secret in your repo settings
-```
-
-## macOS Automation
-
-### LaunchAgent (Daily Report)
-
-Auto-generate daily reports at 9am:
-
-```bash
-cp ~/Development/claude-code-config/macos/launchagents/com.claude.daily-report.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.claude.daily-report.plist
-```
-
-Reports are saved to `~/claude-reports/YYYY-MM-DD.md`.
-
-### Raycast Script Commands
-
-Copy scripts to your Raycast script commands directory:
-
-```bash
-cp ~/Development/claude-code-config/macos/raycast/*.sh ~/raycast-scripts/
-```
-
 ## Directory Structure
 
 ```
@@ -380,7 +321,6 @@ claude-code-config/
 ├── settings-templates/      # Permission templates (JSON)
 ├── mcp-templates/           # MCP server templates (JSON)
 ├── settings.json            # Plugin config + hooks (symlinked globally)
-├── templates/               # Example files (CLAUDE.local.md.example)
 ├── scripts/
 │   ├── setup-global.sh      # One-time machine setup
 │   ├── setup-project.sh     # Per-project setup
@@ -398,19 +338,6 @@ claude-code-config/
 │       ├── explain-error.sh
 │       ├── daily-report.sh
 │       └── review-pr.sh
-├── githooks/                # Optional git hooks
-│   └── pre-push
-├── github-actions/          # GitHub Actions workflow templates
-│   ├── claude-pr-review.yml
-│   ├── claude-issue-triage.yml
-│   └── claude-changelog.yml
-├── macos/                   # macOS automation
-│   ├── launchagents/
-│   │   └── com.claude.daily-report.plist
-│   └── raycast/
-│       ├── claude-review-changes.sh
-│       └── claude-open-project.sh
-└── web_shortcuts/           # Web workflow prompts (for claude.ai web interface)
 ```
 
 ## Hooks
@@ -455,10 +382,6 @@ Rules are path-scoped code style enforcement files in `rules/`. They use `paths`
 | `react-style` | `**/*.tsx` | Component structure, props, hooks, state |
 
 Rules were extracted from the former `coding-standards` skill. Skills provide domain knowledge (patterns and best practices), while rules enforce style requirements.
-
-### Web Shortcuts
-
-The `web_shortcuts/` directory contains prompts designed for use with the Claude web interface (claude.ai) rather than Claude Code CLI. These integrate with external services like Jira, Notion, and Slack via MCP. Copy the prompt content and use it in a web conversation with the appropriate MCP integrations enabled.
 
 ## Customization
 
@@ -599,4 +522,4 @@ MIT - see [LICENSE](LICENSE)
 
 ## Contributing
 
-PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+PRs welcome!
