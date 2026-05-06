@@ -360,6 +360,29 @@ Hooks are configured in `settings.json` and run automatically at key points in t
 
 Hook scripts live in `scripts/hooks/` and only run when the required tools are available (e.g., `ruff`, `prettier`).
 
+## Output Styles
+
+Claude Code supports several response styles via `outputStyle` in `settings.json`
+or with the per-session `/output-style` command. This repo doesn't set a default —
+`outputStyle` is a personal preference and varies by task type.
+
+| Style | When to use |
+|-------|-------------|
+| `default` | Standard task-focused responses |
+| `explanatory` | Adds learning insights inline (good for unfamiliar codebases) |
+| `learning` | More guided; fewer one-shot answers (good for upskilling) |
+
+To set a default:
+
+```json
+{
+  "outputStyle": "explanatory"
+}
+```
+
+Or switch on the fly with `/output-style explanatory`. See the official Claude
+Code docs for the current list of styles and how to author custom ones.
+
 ## Sandbox
 
 Claude Code supports a sandbox mode that constrains Bash execution. This repo
