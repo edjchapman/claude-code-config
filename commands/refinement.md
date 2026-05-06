@@ -28,7 +28,7 @@ For each ticket ID:
 **If Jira MCP is NOT available:**
 > "I don't have direct Jira access. Please provide ticket details in one of these formats:
 >
-> 1. Jira REST API JSON (paste from `https://builtai.atlassian.net/rest/api/2/issue/BIL-XXXX`)
+> 1. Jira REST API JSON (paste from `<your-jira-base>/rest/api/2/issue/TICKET-ID`)
 > 2. Copy/paste the ticket description from Jira
 > 3. Tell me the ticket IDs and I'll ask for details on each"
 

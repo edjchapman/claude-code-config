@@ -10,8 +10,12 @@ Analyze my staged changes and help me write a good commit message.
 
 ## Jira Configuration
 
-- **Base URL**: `https://builtai.atlassian.net/browse/` (customize per-project in CLAUDE.md)
-- **Ticket Patterns**: `BIL-XXXX`, `ABC-123`
+Read Jira config from the project's `CLAUDE.md` if present (look for a
+`## Jira` section with `Base URL` and `Ticket Pattern`). If absent, prefer
+the `mcp__claude_ai_Atlassian__*` tools, or skip linking and use a bare
+ticket reference.
+
+- **Common ticket patterns**: `[A-Z]+-\d+` (e.g. `ABC-123`, `PROJ-456`)
 
 ## Steps
 
@@ -75,8 +79,9 @@ Analyze my staged changes and help me write a good commit message.
    - Blank line after the first line
    - Bullet points describe specific changes made
    - **Ticket reference**: If ticket found and not `--no-ticket`, add on separate line:
-     - Format: `Refs: BIL-123` or `Fixes: BIL-123` (for bug fixes)
-     - Include Jira link if helpful: `Refs: BIL-123 (https://builtai.atlassian.net/browse/BIL-123)`
+     - Format: `Refs: TICKET-ID` or `Fixes: TICKET-ID` (for bug fixes)
+     - Include the full URL only if a project CLAUDE.md `Jira` section provides a base URL:
+       `Refs: TICKET-ID (<base_url>/TICKET-ID)`
 
 6. **Present options**:
    - Provide 2-3 commit message options if the changes are ambiguous

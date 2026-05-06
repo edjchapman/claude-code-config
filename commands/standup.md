@@ -55,7 +55,7 @@ Use the following tools:
    JQL: assignee = '<accountId>' AND updated >= '-24h' ORDER BY updated DESC
    ```
 
-3. For the project board context, reference: `https://builtai.atlassian.net/jira/software/projects/BIL/boards/42`
+3. For project board context, read the board URL from the project's `CLAUDE.md` (look for a `## Jira` section with a `Board URL`). If absent, skip the board reference.
 4. Extract from each ticket:
    - Status transitions (e.g., In Progress → Review)
    - Comments added/received
@@ -208,5 +208,5 @@ If yes, use `mcp__plugin_Notion_notion__notion-create-pages` to create a new pag
 - Focus on outcomes and progress, not just "worked on X"
 - Flag blockers prominently
 - If asked about "today" plans but none are clear from In Progress tickets, ask the user what they're planning
-- Link ticket references when possible (e.g., `[BIL-123](https://builtai.atlassian.net/browse/BIL-123)`)
+- Link ticket references using the Jira base URL from the project's `CLAUDE.md` `## Jira` section, or via the `self` field returned by Atlassian MCP. If no base URL is configured, include the bare ticket ID (e.g., `TICKET-ID`).
 - For team activity, keep summaries concise - one line per team member
