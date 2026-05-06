@@ -192,17 +192,17 @@ Invoke with `@agent-name` in Claude Code:
 | Agent | What It Does | Model |
 |-------|--------------|-------|
 | `@bug-resolver` | Systematic debugging, root cause analysis | opus |
-| `@ci-debugger` | CI/CD failure investigation, flaky tests | opus |
+| `@ci-debugger` | CI/CD failure investigation, flaky tests | sonnet |
 | `@code-reviewer` | General code review for any language | opus |
 | `@database-architect` | Schema design, migration planning, query optimization | opus |
 | `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet |
 | `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus |
 | `@documentation-writer` | README, API docs, ADRs, onboarding guides | sonnet |
-| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | opus |
+| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | sonnet |
 | `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet |
 | `@migration-engineer` | Database migrations, framework upgrades, zero-downtime | opus |
 | `@performance-engineer` | Profiling, bottleneck analysis, optimization | opus |
-| `@pr-review-bundler` | Bundle PR reviews into markdown | opus |
+| `@pr-review-bundler` | Bundle PR reviews into markdown | sonnet |
 | `@refactoring-engineer` | Systematic, safe refactoring | opus |
 | `@security-auditor` | Security audit, OWASP, dependency vulnerabilities | opus |
 | `@spec-writer` | Technical specs and planning docs | opus |

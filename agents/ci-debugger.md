@@ -20,7 +20,7 @@ description: |
   user: "Our build started failing after merging the auth PR but all tests pass locally"
   assistant: "I'll use the ci-debugger agent to compare the CI environment with your local setup."
   </example>
-model: opus
+model: sonnet
 color: red
 ---
 

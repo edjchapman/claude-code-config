@@ -20,7 +20,7 @@ description: |
   user: "We need a fixture for the new admin dashboard page"
   assistant: "I'll use the e2e-playwright-engineer agent to create a properly structured fixture for the admin dashboard."
   </example>
-model: opus
+model: sonnet
 color: blue
 ---
 

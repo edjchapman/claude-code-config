@@ -20,7 +20,7 @@ description: |
   user: "Export all the review threads from pull request 256 in myorg/myrepo"
   assistant: "I'll launch the pr-review-bundler agent to generate a complete markdown bundle of PR #256 from myorg/myrepo."
   </example>
-model: opus
+model: sonnet
 color: purple
 permissionMode: plan
 ---
