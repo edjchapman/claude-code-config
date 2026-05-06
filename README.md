@@ -360,6 +360,33 @@ Hooks are configured in `settings.json` and run automatically at key points in t
 
 Hook scripts live in `scripts/hooks/` and only run when the required tools are available (e.g., `ruff`, `prettier`).
 
+## Sandbox
+
+Claude Code supports a sandbox mode that constrains Bash execution. This repo
+ships **disabled** by default so the baseline config doesn't change a user's
+effective security posture when symlinked into projects:
+
+```json
+"sandbox": {
+  "enabled": false,
+  "autoAllowBashIfSandboxed": false
+}
+```
+
+To opt in, override in your local user settings (`~/.claude/settings.local.json`)
+or per-project once you've confirmed the boundary is acceptable:
+
+```json
+"sandbox": {
+  "enabled": true,
+  "autoAllowBashIfSandboxed": true
+}
+```
+
+`autoAllowBashIfSandboxed` reduces permission prompts inside sandboxed worktrees.
+Enable deliberately, not by default — silent enablement of auto-approved Bash is
+exactly the kind of behaviour shared/symlinked configs should avoid.
+
 ## Skills
 
 Skills are domain knowledge documents that auto-activate when you touch matching files. They provide passive guidance without explicit invocation.
