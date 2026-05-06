@@ -27,9 +27,10 @@ case "$FILE_PATH" in
     $RUFF check --fix --quiet "$FILE_PATH" 2> /dev/null
     ;;
   *.js | *.jsx | *.ts | *.tsx | *.css | *.scss | *.json | *.md)
-    # Find prettier: check project-local first, then global
-    if [ -f "node_modules/.bin/prettier" ]; then
-      PRETTIER="node_modules/.bin/prettier"
+    # Find prettier: check project-local (resolved to git root) first, then global
+    GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+    if [ -n "$GIT_ROOT" ] && [ -f "$GIT_ROOT/node_modules/.bin/prettier" ]; then
+      PRETTIER="$GIT_ROOT/node_modules/.bin/prettier"
     elif command -v prettier &> /dev/null; then
       PRETTIER="prettier"
     else
