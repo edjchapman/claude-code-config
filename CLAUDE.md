@@ -8,20 +8,23 @@ This is a configuration repository for Claude Code. It provides reusable agents,
 
 ## Key Scripts
 
+Substitute `<repo>` below with wherever you cloned this repo (commonly
+`~/.config/claude-code-config/` or `~/Development/claude-code-config/`).
+
 ```bash
 # Global setup (creates ~/.claude/agents, commands, skills, rules, and settings.json symlinks)
-./scripts/setup-global.sh
+<repo>/scripts/setup-global.sh
 
 # Project setup (run from target project directory)
-~/Development/claude-code-config/scripts/setup-project.sh <template> [template2...]
-~/Development/claude-code-config/scripts/setup-project.sh --list       # Show templates
-~/Development/claude-code-config/scripts/setup-project.sh --check django   # Check drift + symlinks
-~/Development/claude-code-config/scripts/setup-project.sh --status     # Show current config state
-~/Development/claude-code-config/scripts/setup-project.sh --dry-run django # Preview changes
+<repo>/scripts/setup-project.sh <template> [template2...]
+<repo>/scripts/setup-project.sh --list       # Show templates
+<repo>/scripts/setup-project.sh --check django   # Check drift + symlinks
+<repo>/scripts/setup-project.sh --status     # Show current config state
+<repo>/scripts/setup-project.sh --dry-run django # Preview changes
 
 # Merge templates (used internally by setup-project.sh)
-python3 scripts/merge-settings.py <templates-dir> base <type1> [type2...]
-python3 scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]
+python3 <repo>/scripts/merge-settings.py <templates-dir> base <type1> [type2...]
+python3 <repo>/scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]
 ```
 
 ## Architecture
@@ -32,56 +35,28 @@ Hooks are configured in `settings.json` under the `"hooks"` key. Since `settings
 
 #### Hook Format
 
-Hooks use string-based matchers (not object-based). The correct format:
-
-```json
-{
-  "hooks": {
-    "EventName": [
-      {
-        "matcher": "ToolPattern",
-        "hooks": [{"type": "command", "command": "your-command"}]
-      }
-    ]
-  }
-}
-```
-
-**Matcher patterns:**
-
-- Simple string: `"Bash"` matches only Bash tool
-- Regex: `"Write|Edit"` or `"Notebook.*"`
-- Match all: `"*"` or `""`
-- Omit matcher for events that don't use it (SessionStart, Stop, PreCompact, UserPromptSubmit, SubagentStop)
-
-**Example:**
-
-```json
-{
-  "PostToolUse": [
-    {
-      "matcher": "Write|Edit",
-      "hooks": [{"type": "command", "command": "./format.sh"}]
-    }
-  ],
-  "SessionStart": [
-    {
-      "hooks": [{"type": "command", "command": "./load-context.sh"}]
-    }
-  ]
-}
-```
+Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See
+the official Claude Code hooks docs for the full schema. Repo gotcha: omit
+`matcher` for events that don't dispatch on a tool name (`SessionStart`,
+`PreCompact`, `Stop`, `SubagentStop`, `UserPromptSubmit`).
 
 #### Available hooks
 
+Currently configured in `settings.json`:
+
 - **SessionStart**: Auto-loads git context (branch, recent commits, dirty files)
-- **Setup (init)**: Detects project type and suggests configuration
-- **UserPromptSubmit**: LLM-evaluated check that user prompt is specific enough to act on
 - **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
 - **PreToolUse (Bash)**: Blocks dangerous command patterns (defense-in-depth)
-- **Stop**: LLM-evaluated completeness check (tests run? linters run? TODOs left?)
-- **SubagentStop**: LLM-evaluated check that subagent completed its assigned task fully
 - **PreCompact**: Preserves working state before context compaction
+
+Available but **not configured by default** (opt-in by adding to `settings.json`):
+
+- **UserPromptSubmit**: LLM-evaluated check that the user prompt is specific enough
+- **Stop**: LLM-evaluated completeness check (tests run? linters run? TODOs left?)
+- **SubagentStop**: LLM-evaluated check that a subagent completed its assigned task
+
+The three opt-in hooks invoke an LLM on every fire and incur token cost — enable
+deliberately, not by default.
 
 ### Settings Keys
 
@@ -192,7 +167,10 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 
 - `name`: Agent identifier (used as `@agent-name`)
 - `description`: When Claude should invoke this agent (include examples)
-- `model`: `opus` for complex reasoning, `sonnet` for pattern-based tasks
+- `model`: `opus` for complex reasoning, `sonnet` for pattern-based, `haiku` for highly structured / data-plumbing
+- `tools` (optional): Restrict the agent to a specific tool subset
+- `color` (optional): UI hint for the agent's display colour
+- `permissionMode` (optional): Override the subagent's permission mode (e.g. `plan` starts the agent in plan mode for spec/review work that should not edit until approved)
 
 ### Command Definitions
 
