@@ -169,7 +169,10 @@ Available MCP templates:
 
 - `base.json`: Empty (MCP servers are opt-in)
 - `django.json`: PostgreSQL MCP server
-- `react.json`: Playwright MCP server
+
+Playwright is now provided as a first-class plugin (`playwright@claude-plugins-official`,
+enabled in `settings.json`), not via an MCP template, so React projects do not
+generate a `.mcp.json` from this repo by default.
 
 **Environment Variables**: Variables like `${DATABASE_URL}` are expanded at Claude Code runtime.
 Ensure required variables are set in your shell or `.envrc` before launching Claude Code.
