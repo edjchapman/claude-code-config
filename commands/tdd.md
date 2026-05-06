@@ -1,5 +1,7 @@
 Guide me through a TDD (Test-Driven Development) workflow for the given feature or change.
 
+> **Workflow command** for disciplined Red-Green-Refactor cycles. For batch test creation (e.g., backfilling coverage on existing code), use `@test-engineer` instead.
+
 ## Arguments
 
 `$ARGUMENTS`
