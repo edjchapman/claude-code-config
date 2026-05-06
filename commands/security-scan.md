@@ -1,5 +1,7 @@
 Run a security audit on the codebase.
 
+> **Quick entry point** for security audits. Delegates to `@security-auditor` agent for the comprehensive scan; this command adds dependency and secret-detection passes around it.
+
 ## Arguments
 
 `$ARGUMENTS`

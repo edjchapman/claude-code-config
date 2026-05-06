@@ -20,6 +20,8 @@ description: |
   user: "I need a security review of our payment processing code"
   assistant: "I'll use the code-reviewer agent to audit the payment processing code for security vulnerabilities."
   </example>
+
+  For a quick uncommitted-diff pass without the full production-readiness checklist, prefer the `/review` command. Use this agent when depth matters: pre-merge audits, security-sensitive changes, or larger PRs.
 model: opus
 color: yellow
 ---
