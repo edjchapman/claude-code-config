@@ -367,10 +367,24 @@ if [ "$DRY_RUN" = true ]; then
   python3 "$SCRIPT_DIR/merge-settings.py" "$TEMPLATES_PATH" base "${TYPES[@]}"
   echo ""
   if [ -d "$MCP_TEMPLATES_PATH" ]; then
-    echo "Generated .mcp.json content:"
-    echo "----------------------------"
-    python3 "$SCRIPT_DIR/merge-mcp.py" "$MCP_TEMPLATES_PATH" base "${TYPES[@]}" 2> /dev/null || echo "{}"
-    echo ""
+    # Mirror the production filter: only include types that actually have MCP templates
+    HAS_MCP=false
+    MCP_TYPES=("base")
+    for type in "${TYPES[@]}"; do
+      if [ -f "$MCP_TEMPLATES_PATH/$type.json" ]; then
+        HAS_MCP=true
+        MCP_TYPES+=("$type")
+      fi
+    done
+    if [ "$HAS_MCP" = true ]; then
+      echo "Generated .mcp.json content:"
+      echo "----------------------------"
+      python3 "$SCRIPT_DIR/merge-mcp.py" "$MCP_TEMPLATES_PATH" "${MCP_TYPES[@]}"
+      echo ""
+    else
+      echo "  (no MCP templates found for ${TYPES[*]}, no .mcp.json would be generated)"
+      echo ""
+    fi
   fi
   echo "To apply these changes, run without --dry-run:"
   echo "  $0 ${TYPES[*]}"
