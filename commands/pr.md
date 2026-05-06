@@ -11,8 +11,12 @@ Help me create a pull request with a well-crafted description.
 
 ## Jira Configuration
 
-- **Base URL**: `https://builtai.atlassian.net/browse/`
-- **Ticket Patterns**: `BIL-XXXX`, `ABC-123`, `#123`, `GH-123`
+Read Jira config from the project's `CLAUDE.md` if present (look for a
+`## Jira` section with `Base URL` and `Ticket Pattern`). If absent, prefer
+the `mcp__claude_ai_Atlassian__*` tools (which return canonical URLs from
+the API), or ask the user. Do not assume any specific organisation's URL.
+
+- **Common ticket patterns**: `[A-Z]+-\d+` (e.g. `ABC-123`, `PROJ-456`), `#123`, `GH-123`
 
 ## Steps
 
@@ -52,8 +56,10 @@ Extract ticket ID from branch name patterns:
 
 **If Jira MCP is NOT available but ticket ID found:**
 
-- Add Jira link to PR body: `Related: [BIL-123](https://builtai.atlassian.net/browse/BIL-123)`
-- Note: "Jira details not available - add acceptance criteria manually if needed"
+- Add a Jira link to the PR body using the project CLAUDE.md base URL:
+  `Related: [TICKET-ID](<base_url>/TICKET-ID)`
+- If no base URL is configured, include the ticket ID as plain text and note:
+  "Jira base URL not configured in project CLAUDE.md - add manually if needed"
 
 ### Step 5: Check for PR template
 
@@ -92,7 +98,7 @@ Search for PR templates in order:
 <Any context that helps review: focus areas, known issues, follow-ups>
 
 ## Related Issues
-- [BIL-XXX](https://builtai.atlassian.net/browse/BIL-XXX) - {summary from Jira if available}
+- [TICKET-ID](<base_url>/TICKET-ID) - {summary from Jira if available}
 ```
 
 ### Step 7: Ask for confirmation before creating
