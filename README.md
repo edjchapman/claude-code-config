@@ -306,7 +306,10 @@ MCP server configurations per project type, generated alongside `settings.local.
 |----------|-------------|
 | `base` | None (MCP is opt-in) |
 | `django` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
-| `react` | Playwright (`@playwright/mcp`) |
+
+Playwright is provided as a first-class plugin (`playwright@claude-plugins-official`,
+enabled in `settings.json`), so React projects do not get a generated `.mcp.json`
+from this repo by default.
 
 MCP templates are automatically merged when running `setup-project.sh` if a matching template exists.
 
