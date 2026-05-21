@@ -60,14 +60,17 @@ deliberately, not by default.
 
 ### Settings Keys
 
-Beyond plugins and hooks, `settings.json` includes:
+Beyond plugins and hooks, `settings.json` currently sets:
 
-- **`env`**: Environment variables for Claude Code sessions (e.g., `MAX_THINKING_TOKENS`)
-- **`attribution`**: Auto-appended commit trailer (e.g., `Co-Authored-By` line)
+- **`model`**: Default model (e.g. `opus[1m]` for Opus with 1M context)
+- **`hooks`**: Per-event hook configuration (see Hooks section above)
 - **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
-- **`fileSuggestion`**: Command-based file suggestion using `git ls-files`
-- **`sandbox`**: Sandbox configuration with `autoAllowBashIfSandboxed`
-- **`spinnerVerbs`**: Custom spinner verbs appended to defaults
+- **`enabledPlugins`**: Plugin enablement map (GitHub, Notion, Figma, LSPs, etc.)
+- **`sandbox`**: Sandbox configuration with `enabled` and `autoAllowBashIfSandboxed`
+- **`effortLevel`**: Default effort level (e.g. `high`)
+- **`agentPushNotifEnabled`**: Push notifications for background agent activity
+
+Other documented keys that this repo does **not** currently set (available as opt-ins): `env`, `attribution`, `fileSuggestion`, `spinnerVerbs`, `worktree`, `outputStyle`, `skillListingBudgetFraction`, `skillOverrides`, `autoMode`, `alwaysThinkingEnabled`, `parentSettingsBehavior`.
 
 ### Skills
 
@@ -91,8 +94,7 @@ Rules are path-scoped code style enforcement files in `rules/`. They use `paths`
 Available rules:
 
 - `python-style.md`: Naming, error handling, imports, type hints (`**/*.py`)
-- `typescript-style.md`: Naming, error handling, type usage (`**/*.ts`, `**/*.tsx`)
-- `react-style.md`: Component structure, props, hooks, state (`**/*.tsx`)
+- `typescript-style.md`: Naming, error handling, type usage, plus a React-specific section for `.tsx` (`**/*.ts`, `**/*.tsx`)
 
 ### Settings Files: Two Purposes
 

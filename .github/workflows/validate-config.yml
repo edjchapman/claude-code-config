@@ -73,3 +73,12 @@ jobs:
         with:
           scandir: scripts
           severity: warning
+
+  check-duplicates:
+    name: Check for duplicate agent/command/skill names
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run check-duplicates.sh
+        run: bash scripts/hooks/check-duplicates.sh
