@@ -1,0 +1,29 @@
+# Dependabot config — only ecosystem in this repo is GitHub Actions pinned
+# in workflow files. No npm/pip/etc lockfiles to track.
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      # Bundle minor/patch action bumps into a single PR per week to keep
+      # the noise low. Majors stay as individual PRs so the breaking-change
+      # context is reviewable in isolation.
+      actions-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
