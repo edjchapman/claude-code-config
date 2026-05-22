@@ -90,13 +90,18 @@ Everything in this repo falls into two categories:
 |---|---|---|
 | **What** | Specialist agents, Commands, CLI scripts | Skills, Rules, Hooks |
 | **How** | `@name`, `/name`, or shell command | Triggered by file patterns or lifecycle events |
-| **Example** | `@code-reviewer`, `/commit`, `review-changes.sh` | `testing-patterns` skill activates on `test_*.py` |
+| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` skill activates on `test_*.py` |
 
 **Active tools** — you choose when to use them:
 
-- **Specialist agents** (`@code-reviewer`, `@test-engineer`, etc.) provide deep expertise in a single domain
-- **Commands** (`/commit`, `/review`, `/standup`, etc.) run focused, single-purpose workflows
+- **Specialist agents** (`@bug-resolver`, `@test-engineer`, etc.) provide deep expertise in a single domain
+- **Commands** (`/commit`, `/pr`, `/standup`, etc.) run focused, single-purpose workflows
 - **CLI scripts** (`review-changes.sh`, `daily-report.sh`, etc.) run headless — no interactive session needed
+
+Code review and spec-writing are now handled by **bundled plugins** rather than custom artifacts:
+- `/review` (bundled) and `pr-review-toolkit:review-pr` for code review
+- `feature-dev:code-architect` for implementation blueprints
+- `/security-review` (bundled) for security audits
 
 **Passive tools** — they activate automatically when relevant:
 
@@ -110,10 +115,14 @@ Everything in this repo falls into two categories:
 
 | I want to... | Use | Why |
 |---|---|---|
-| Quick review before committing | `/review` | Fast diff review, no agent overhead |
-| Deep code review | `@code-reviewer` | Thorough code review for any language |
+| Quick review before committing | `/review` (bundled) | Fast diff review, no agent overhead |
+| Deep code review | `pr-review-toolkit:code-reviewer` | Thorough pre-merge audit via plugin |
+| Inline code review | `feature-dev:code-reviewer` | Confidence-filtered high-priority issues |
+| Bundle PR comments for analysis | `@pr-review-bundler` | Gathers PR metadata, reviews, comments into one markdown file |
 | Write or fix tests | `@test-engineer` | Creates unit and integration tests |
-| Run a security audit | `/security-scan` | Delegates to `@security-auditor` |
+| Run a security audit | `/security-review` (bundled) | Security review of pending changes |
+| Deeper security audit | `@security-auditor` | OWASP, dependency vulnerabilities, secrets |
+| Plan a feature before coding | `feature-dev:code-architect` | Implementation blueprint via plugin |
 | Analyze test coverage gaps | `/coverage-report` | Delegates to `@test-engineer` |
 | Create a good commit message | `/commit` | Analyzes staged changes, follows conventions |
 | Create a pull request | `/pr` | Auto-generates PR description from commits |
@@ -132,8 +141,8 @@ Everything in this repo falls into two categories:
 Some tools overlap intentionally at different levels of depth:
 
 ```
-Code review depth:     /review  →  @code-reviewer
-                       (quick)     (thorough)
+Code review depth:     /review  →  feature-dev:code-reviewer  →  pr-review-toolkit:code-reviewer  →  /ultrareview
+                       (uncommitted diff)  (inline, filtered)     (pre-merge audit)                  (multi-agent cloud)
 
 Reporting scopes:      daily-report.sh  →  /standup  →  /eow-review
                        (headless)          (24h)        (full week)
@@ -193,7 +202,6 @@ Invoke with `@agent-name` in Claude Code:
 |-------|--------------|-------|
 | `@bug-resolver` | Systematic debugging, root cause analysis | opus |
 | `@ci-debugger` | CI/CD failure investigation, flaky tests | sonnet |
-| `@code-reviewer` | General code review for any language | opus |
 | `@database-architect` | Schema design, migration planning, query optimization | opus |
 | `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet |
 | `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus |
@@ -205,8 +213,9 @@ Invoke with `@agent-name` in Claude Code:
 | `@pr-review-bundler` | Bundle PR reviews into markdown | sonnet |
 | `@refactoring-engineer` | Systematic, safe refactoring | opus |
 | `@security-auditor` | Security audit, OWASP, dependency vulnerabilities | opus |
-| `@spec-writer` | Technical specs and planning docs | opus |
 | `@test-engineer` | Create unit and integration tests | sonnet |
+
+> **Not in this repo (provided by enabled plugins):** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture writing (`feature-dev:code-architect`), code simplification (`code-simplifier` plugin). Custom versions of these were retired in favour of the plugin implementations.
 
 **Model notes:**
 
@@ -221,7 +230,6 @@ Invoke with `/command` in Claude Code:
 |---------|--------------|--------------|
 | `/commit` | Analyze staged changes, generate commit message | -- |
 | `/pr` | Create PR with auto-generated description | -- |
-| `/review` | Review changes before committing | -- |
 | `/standup` | Summarize last 24h of git activity | -- |
 | `/tdd` | TDD workflow: write failing test, implement, refactor | -- |
 | `/hotfix` | Guided hotfix: branch from main, minimal fix, targeted tests, PR | -- |
@@ -230,8 +238,9 @@ Invoke with `/command` in Claude Code:
 | `/coverage-report` | Analyze test coverage and identify gaps | `@test-engineer` |
 | `/refinement` | Prepare technical analysis for backlog refinement | Explore sub-agent |
 | `/eow-review` | Prepare end-of-week review notes | -- |
-| `/security-scan` | Run security audit on the codebase | `@security-auditor` |
 | `/later` | Create a personal backlog item (learn, research, do, read) | -- |
+
+> **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`. Custom `commands/review.md` and `commands/security-scan.md` were retired in favour of the bundled versions.
 
 ## Common Workflows
 
@@ -240,10 +249,10 @@ Here's how the pieces compose for everyday tasks:
 ### Implement a Feature
 
 ```
-@spec-writer                        # 1. Write the spec
+feature-dev:code-architect          # 1. Implementation blueprint via plugin
   (you write the code)              # 2. Implement
 @test-engineer                      # 3. Write tests
-/review                             # 4. Quick check
+/review                             # 4. Quick diff check
 /commit → /pr                       # 5. Ship it
 ```
 
@@ -267,7 +276,9 @@ Here's how the pieces compose for everyday tasks:
 ### Review a PR
 
 ```
-@code-reviewer                      # Interactive: thorough code review
+pr-review-toolkit:review-pr         # Bundled plugin: full PR analysis
+  ... or for a deeper audit:
+/ultrareview                        # Multi-agent cloud review (billed)
   ... or headless:
 review-pr.sh 142                    # CLI: runs without an interactive session
 ```
@@ -431,10 +442,9 @@ Rules are path-scoped code style enforcement files in `rules/`. They use `paths`
 | Rule | Applies To | What It Enforces |
 |------|-----------|-----------------|
 | `python-style` | `**/*.py` | Naming, error handling, imports, type hints |
-| `typescript-style` | `**/*.ts`, `**/*.tsx` | Naming, error handling, type usage |
-| `react-style` | `**/*.tsx` | Component structure, props, hooks, state |
+| `typescript-style` | `**/*.ts`, `**/*.tsx` | Naming, error handling, type usage, plus React-specific rules for `.tsx` |
 
-Rules were extracted from the former `coding-standards` skill. Skills provide domain knowledge (patterns and best practices), while rules enforce style requirements.
+Skills provide domain knowledge (patterns and best practices); rules enforce style requirements.
 
 ## Customization
 

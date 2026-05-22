@@ -34,3 +34,11 @@ paths:
 - Use `unknown` instead of `any` -- narrow with type guards
 - Export types alongside their implementations
 - Use `readonly` for data that shouldn't mutate
+
+## React (`.tsx` files)
+
+- Components: one per file, named same as file
+- Props: define interface above component, suffix with `Props`
+- Hooks: prefix custom hooks with `use`
+- State: prefer derived state over synchronized state
+- Effects: minimize `useEffect` -- prefer event handlers

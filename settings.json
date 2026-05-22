@@ -1,16 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "model": "opus[1m]",
-  "effortLevel": "high",
-  "env": {},
-  "sandbox": {
-    "enabled": false,
-    "autoAllowBashIfSandboxed": false
-  },
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
   "hooks": {
     "SessionStart": [
       {
@@ -71,5 +61,11 @@
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "document-skills@anthropic-agent-skills": true
-  }
+  },
+  "sandbox": {
+    "enabled": false,
+    "autoAllowBashIfSandboxed": false
+  },
+  "effortLevel": "high",
+  "agentPushNotifEnabled": true
 }
