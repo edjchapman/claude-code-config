@@ -82,3 +82,29 @@ jobs:
 
       - name: Run check-duplicates.sh
         run: bash scripts/hooks/check-duplicates.sh
+
+  markdownlint:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run markdownlint-cli2
+        uses: DavidAnson/markdownlint-cli2-action@v18
+        with:
+          globs: "**/*.md"
+          config: ".markdownlint.json"
+
+  actionlint:
+    name: Lint GitHub Actions workflows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run actionlint
+        # Use the official download script to fetch a pinned actionlint
+        # binary — avoids the Go-build path that breaks in some
+        # environments (see .pre-commit-config.yaml comment).
+        run: |
+          bash <(curl -sSf https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color

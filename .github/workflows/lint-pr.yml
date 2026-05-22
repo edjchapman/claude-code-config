@@ -1,0 +1,52 @@
+name: Lint PR
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [main]
+
+# Cancel in-flight runs when a PR is updated quickly in succession.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: read
+
+jobs:
+  conventional-commits:
+    name: Validate PR title follows Conventional Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Allowed types — keep in sync with CONTRIBUTING.md and .pre-commit-config.yaml.
+          types: |
+            feat
+            fix
+            chore
+            docs
+            style
+            refactor
+            test
+            ci
+            perf
+            build
+            revert
+          # Scope is optional (e.g. `feat(skills):` or just `feat:`).
+          requireScope: false
+          # Disallow merge-commit-style titles that PR-edit UIs sometimes
+          # produce: `Merge pull request #N from branch`.
+          subjectPattern: "^(?![A-Z]).+$"
+          subjectPatternError: |
+            The PR title's subject (after `type(scope):`) should start with a
+            lowercase letter. Examples:
+              feat(skills): add ruby workflow skill
+              chore: bump actions/checkout to v5
+              fix(scripts): handle spaces in paths
+          # The repo uses squash-merge — only the PR title becomes the
+          # commit subject. We don't validate every PR commit message.
+          validateSingleCommit: false
