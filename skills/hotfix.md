@@ -1,3 +1,10 @@
+---
+name: hotfix
+description: Guide me through creating a hotfix branch with a minimal fix, targeted tests, and PR
+when_to_use: User describes an urgent production bug, says "hotfix", or asks for a quick fix to ship to main
+argument-hint: "<bug description>"
+---
+
 Guide me through creating a hotfix: branch from main, apply a minimal fix, run targeted tests, and prepare a PR.
 
 ## Arguments

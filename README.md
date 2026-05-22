@@ -222,23 +222,23 @@ Invoke with `@agent-name` in Claude Code:
 - **Opus** = complex reasoning, security reviews, planning (higher cost)
 - **Sonnet** = pattern-based tasks, faster, lower cost
 
-## Available Commands
+## Available Commands & Workflow Skills
 
-Invoke with `/command` in Claude Code:
+All entries below are invoked with `/<name>` in Claude Code. The **workflow skills** additionally have `when_to_use` frontmatter so Claude can auto-invoke them from plain English (e.g. "commit my staged work" → fires `/commit`). The **commands** in `commands/` are user-invoke only.
 
-| Command | What It Does | Delegates To |
-|---------|--------------|--------------|
-| `/commit` | Analyze staged changes, generate commit message | -- |
-| `/pr` | Create PR with auto-generated description | -- |
-| `/standup` | Summarize last 24h of git activity | -- |
-| `/tdd` | TDD workflow: write failing test, implement, refactor | -- |
-| `/hotfix` | Guided hotfix: branch from main, minimal fix, targeted tests, PR | -- |
-| `/deps` | Dependency audit: vulnerabilities, outdated packages, update plan | -- |
-| `/adr` | Create Architecture Decision Record (Nygard format) | -- |
-| `/coverage-report` | Analyze test coverage and identify gaps | `@test-engineer` |
-| `/refinement` | Prepare technical analysis for backlog refinement | Explore sub-agent |
-| `/eow-review` | Prepare end-of-week review notes | -- |
-| `/later` | Create a personal backlog item (learn, research, do, read) | -- |
+| Slash | Source | What It Does | Delegates To |
+|-------|--------|--------------|--------------|
+| `/commit` | skill | Analyze staged changes, generate commit message | -- |
+| `/pr` | skill | Create PR with auto-generated description | -- |
+| `/hotfix` | skill | Guided hotfix: branch from main, minimal fix, targeted tests, PR | -- |
+| `/tdd` | skill | TDD workflow: write failing test, implement, refactor | -- |
+| `/adr` | skill | Create Architecture Decision Record (Nygard format) | -- |
+| `/standup` | command | Summarize last 24h of git activity | -- |
+| `/deps` | command | Dependency audit: vulnerabilities, outdated packages, update plan | -- |
+| `/coverage-report` | command | Analyze test coverage and identify gaps | `@test-engineer` |
+| `/refinement` | command | Prepare technical analysis for backlog refinement | Explore sub-agent |
+| `/eow-review` | command | Prepare end-of-week review notes | -- |
+| `/later` | command | Create a personal backlog item (learn, research, do, read) | -- |
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`. Custom `commands/review.md` and `commands/security-scan.md` were retired in favour of the bundled versions.
 
