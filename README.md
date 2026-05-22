@@ -25,6 +25,25 @@ This repo solves that by providing:
 
 ## Quick Start
 
+There are two ways to consume this repo: as a **plugin** (recommended; uses Claude Code's plugin loader) or as a **symlinked global config** (legacy path, still supported).
+
+### Option A: Plugin install (recommended)
+
+```bash
+# From inside Claude Code:
+/plugin marketplace add edjchapman/claude-code-config
+/plugin install claude-code-config
+```
+
+Then add per-project permissions only:
+
+```bash
+cd ~/my-django-project
+~/Development/claude-code-config/scripts/setup-project.sh django   # for settings.local.json + .mcp.json
+```
+
+### Option B: Symlinked global config (legacy)
+
 ```bash
 # 1. Clone (or fork if you want to customize)
 git clone https://github.com/edjchapman/claude-code-config.git ~/claude-code-config
@@ -39,6 +58,8 @@ cd ~/my-django-project
 # 4. Start using Claude Code - agents and commands are now available
 claude
 ```
+
+Both modes coexist — the hook command paths in `settings.json` use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve correctly whether loaded as a plugin (`CLAUDE_PLUGIN_DIR` set by the loader) or via symlink (`readlink` resolves the symlinked `settings.json` back to the repo).
 
 **Tip:** Add an alias for easier use:
 
