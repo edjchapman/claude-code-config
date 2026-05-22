@@ -317,6 +317,14 @@ MCP server configurations per project type, generated alongside `settings.local.
 |----------|-------------|
 | `base` | None (MCP is opt-in) |
 | `django` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `nextjs` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `fastapi` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+
+Other stacks (`node`, `python`, `go`, `rust`, `java`, `kubernetes`, `terraform`)
+fall through to `base.json` — add MCP servers manually in the project's
+generated `.mcp.json` when needed. Only PostgreSQL is templated because
+it's the one reference server with a stable npm package this repo has
+confirmed working end-to-end.
 
 Playwright is provided as a first-class plugin (`playwright@claude-plugins-official`,
 enabled in `settings.json`), so React projects do not get a generated `.mcp.json`

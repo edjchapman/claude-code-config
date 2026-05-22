@@ -1,0 +1,15 @@
+{
+  "_source": "fastapi",
+  "_version": 1,
+  "mcpServers": {
+    "postgres": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_URL": "${DATABASE_URL:-postgresql://localhost:5432/postgres}",
+        "POSTGRES_SSL_MODE": "${POSTGRES_SSL_MODE:-disable}"
+      }
+    }
+  }
+}
