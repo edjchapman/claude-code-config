@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/session-context.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/session-context.sh"
           }
         ]
       }
@@ -24,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/format-on-edit.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/format-on-edit.sh"
           }
         ]
       }
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/log-tool-failure.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/log-tool-failure.sh"
           }
         ]
       }
@@ -45,7 +45,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/dangerous-cmd-check.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/dangerous-cmd-check.sh"
           }
         ]
       }
@@ -55,7 +55,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/pre-compact-state.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/pre-compact-state.sh"
           }
         ]
       }
@@ -65,7 +65,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/task-completed-chime.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/task-completed-chime.sh"
           }
         ]
       }
@@ -73,7 +73,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/statusline.sh"
+    "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/statusline.sh"
   },
   "enabledPlugins": {
     "github@claude-plugins-official": true,
