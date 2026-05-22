@@ -1,0 +1,25 @@
+# Minimal pyproject.toml — only used to configure ruff for the two
+# utility scripts in scripts/. This repo isn't a Python package and
+# isn't installed via pip; no [project] table is needed.
+
+[tool.ruff]
+target-version = "py38"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "UP",  # pyupgrade
+  "SIM", # flake8-simplify
+]
+ignore = [
+  # Allow `assert` statements — these scripts aren't long-running services.
+  "S101",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

@@ -11,11 +11,14 @@ cd claude-code-config
 # Install pre-commit hooks (one-time)
 pip install pre-commit
 pre-commit install
+```
 
-# Optional: install commit-msg hook too (only relevant if you ever start
-# enforcing per-commit conventional-commits; right now only PR titles are
-# validated in CI)
-# pre-commit install --hook-type commit-msg
+**If you have a global `core.hooksPath`** (some dotfile setups do):
+
+```bash
+# pre-commit refuses to install when this is set globally. Override per-repo:
+git config core.hooksPath .git/hooks
+pre-commit install
 ```
 
 `pre-commit install` writes a `.git/hooks/pre-commit` script that runs the hooks defined in `.pre-commit-config.yaml` on every `git commit`. Hooks formatted-only fixes are applied automatically; lint failures block the commit until resolved.

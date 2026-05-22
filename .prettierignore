@@ -1,0 +1,19 @@
+# Prettier ignore — mirrors .gitignore plus a few generated artefacts.
+
+# Generated / per-project
+settings.local.json
+.mcp.json
+.claude/
+.claude-plugin/
+
+# Auto-managed by release-please — don't reflow them post-write
+CHANGELOG.md
+.release-please-manifest.json
+
+# Lockfiles / vendor
+node_modules/
+.venv/
+__pycache__/
+
+# CI artefacts
+.github/dependabot.yml

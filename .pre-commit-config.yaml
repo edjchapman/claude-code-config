@@ -1,0 +1,60 @@
+# Pre-commit hooks — fast local fail before CI.
+# Install once with `pre-commit install`; runs on every `git commit`.
+# Update pinned revisions occasionally with `pre-commit autoupdate`.
+# https://pre-commit.com/
+#
+# actionlint and markdownlint intentionally live only in CI, not here:
+# - actionlint's pre-commit hook builds via `go install`, adding a Go
+#   toolchain dependency this repo doesn't otherwise need.
+# - markdownlint-cli's pre-commit environment uses the system Node, which
+#   breaks on older Node versions (||= syntax requires Node 15+).
+# Both are still enforced in CI where the runtime is controlled. Workflow
+# and markdown edits are common enough to benefit from CI feedback, but
+# the local-install friction isn't worth it.
+
+repos:
+  # ---- General hygiene -----------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        # *.md is excluded because trailing double-space is a significant
+        # Markdown line-break (mirror of .editorconfig).
+        exclude: \.md$
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+      - id: check-symlinks
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  # ---- Shell ---------------------------------------------------------
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args: ["--severity=warning"]
+
+  # ---- Python --------------------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.4
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+  # ---- Prettier (Markdown, JSON, YAML) -------------------------------
+  # rbubley/mirrors-prettier is the actively-maintained mirror after
+  # pre-commit/mirrors-prettier went unmaintained.
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.3.3
+    hooks:
+      - id: prettier
+        # Respect .prettierignore at repo root.
+        # Don't format markdownlint's config or release-please outputs.
+        types_or: [markdown, json, yaml]
