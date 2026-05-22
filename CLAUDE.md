@@ -46,8 +46,10 @@ Currently configured in `settings.json`:
 
 - **SessionStart**: Auto-loads git context (branch, recent commits, dirty files)
 - **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
+- **PostToolUseFailure**: Appends failed tool calls to `~/.claude/logs/tool-failures.jsonl` for later pattern analysis
 - **PreToolUse (Bash)**: Blocks dangerous command patterns (defense-in-depth)
 - **PreCompact**: Preserves working state before context compaction
+- **TaskCompleted**: Emits a terminal bell when an autonomous task completes
 
 Available but **not configured by default** (opt-in by adding to `settings.json`):
 
