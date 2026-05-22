@@ -185,9 +185,54 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 - `color` (optional): UI hint for the agent's display colour
 - `permissionMode` (optional): Override the subagent's permission mode (e.g. `plan` starts the agent in plan mode for spec/review work that should not edit until approved)
 
+### Skill Definitions
+
+Skills in `skills/` are Markdown files with YAML frontmatter:
+
+- `name`: Skill identifier (used as `/skill-name`)
+- `description`: One-line summary shown in the skill picker
+- `when_to_use`: Plain-English trigger description; Claude self-invokes when the conversation matches
+- `globs` (optional): Glob patterns that auto-activate the skill when files match (passive domain knowledge use case)
+- `argument-hint` (optional): Hint shown in autocomplete for `$ARGUMENTS`
+- `allowed-tools` (optional): Restrict tools available while the skill is active
+
 ### Command Definitions
 
-Commands in `commands/` are Markdown files where the filename becomes the slash command (e.g., `commit.md` → `/commit`).
+Commands in `commands/` are Markdown files where the filename becomes the slash command (e.g., `standup.md` → `/standup`). Commands are user-invoke only — Claude does not auto-invoke them. Use a skill with `when_to_use` instead when you want auto-invocation.
+
+## Commands, Agents, and Skills — when to use each
+
+The three primitives serve different purposes; picking the right one keeps the agent/skill picker uncluttered.
+
+| Use a... | When | Example in this repo |
+|---|---|---|
+| **Skill** (`skills/`) | Workflow you want Claude to auto-invoke based on the conversation, or domain knowledge that auto-activates on matching files | `/commit` (auto-fires on "commit my staged work"), `django-patterns` (auto-activates on `models.py`) |
+| **Command** (`commands/`) | Personal/meta workflow that should only fire when you explicitly ask | `/standup`, `/eow-review`, `/later` |
+| **Agent** (`agents/`) | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation | `@bug-resolver`, `@migration-engineer`, `@security-auditor` |
+
+Rule of thumb: if the action is **conversational** ("commit my work", "open a PR"), it wants to be a skill. If the action is **on-demand and personal** ("give me a standup summary"), it wants to be a command. If the action is **scoped expertise that benefits from isolation** ("audit this for security"), it wants to be an agent.
+
+## Plugin vs custom — what stays in this repo
+
+Several enabled plugins (visible in `settings.json`'s `enabledPlugins`) overlap with what custom agents/commands could provide. The rule applied during the modernization sweep:
+
+> **Retire custom only when the plugin fully subsumes its purpose AND the plugin is already enabled.** Borderline cases stay custom.
+
+Currently retired in favor of plugins:
+
+| Retired | Replaced by |
+|---|---|
+| `agents/code-reviewer.md` | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered) |
+| `agents/spec-writer.md` | `feature-dev:code-architect` |
+| `commands/review.md` | bundled `/review` |
+| `commands/security-scan.md` | bundled `/security-review` |
+
+Kept custom because no enabled plugin fully covers them:
+
+- `@bug-resolver`, `@ci-debugger`, `@database-architect`, `@dependency-manager`, `@devops-engineer`, `@documentation-writer`, `@e2e-playwright-engineer`, `@git-helper`, `@migration-engineer`, `@performance-engineer`, `@pr-review-bundler`, `@refactoring-engineer`, `@security-auditor`, `@test-engineer`
+- `/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, `/standup`, `/deps`, `/coverage-report`, `/refinement`, `/eow-review`, `/later`
+
+If you enable a new plugin and it overlaps with one of the kept-custom items, re-apply the rule.
 
 ## Scope and Implementation Philosophy
 
@@ -223,6 +268,20 @@ When the user asks to narrow scope or correct an approach, immediately adopt the
 - Shell scripts: Linted with `shellcheck` (CI validates on every push)
 - Python: Linted with `ruff` (auto-formatted by `format-on-edit` hook)
 - JSON: Validated with `python -m json.tool` (CI validates templates and merge outputs)
+
+## Prompting Techniques
+
+A short reference for getting better results from Claude Code in this repo. These are pointers, not full guides — read the [official best-practices doc](https://code.claude.com/docs/en/best-practices.md) for depth.
+
+- **Explore → Plan → Code → Verify.** For non-trivial changes, start in plan mode (Shift+Tab) so Claude reads the relevant code, surfaces edge cases, and produces a written plan before editing. Especially valuable on large refactors and migrations where rework is expensive.
+- **Subagents for fan-out and isolation.** Use the Agent tool when you need to read a lot of files (keeps the main context clean) or want a forked context for one specialist task. The Explore subagent is purpose-built for read-only investigation.
+- **`/clear` vs `/compact`.** `/clear` resets entirely — use it between unrelated tasks. `/compact <instructions>` keeps the conversation but summarizes it, optionally biased toward what you care about (e.g. `/compact focus on the API changes`).
+- **`/goal` for autonomous runs.** Set a completion condition and let Claude work without per-turn prompting. Useful for long migrations or "fix all the failing tests" type sweeps. Live token/turn overlay shows cost.
+- **`/ultrareview` for high-stakes reviews.** Multi-agent cloud review. Billed; use when a serious second opinion is worth the cost (security-sensitive merges, large PRs).
+- **`/less-permission-prompts`.** Scans your transcripts and proposes allowlist rules for `.claude/settings.json`. Run periodically when you're tired of the same permission prompts.
+- **`/btw` for ephemeral questions.** Dismissible overlay; doesn't enter conversation history. Good for "what does X do?" tangents that shouldn't bloat context.
+- **Verify before claiming done.** Run the test suite, type-check, or visually test UI in the browser before saying "done". Self-verification is the single biggest leverage point for output quality.
+- **CLAUDE.md hygiene.** This file is loaded into every session — keep it under 1,000 lines and prune ruthlessly when something is being ignored.
 
 ## Tooling Troubleshooting
 
