@@ -148,6 +148,10 @@ Available MCP templates:
 
 - `base.json`: Empty (MCP servers are opt-in)
 - `django.json`: PostgreSQL MCP server
+- `nextjs.json`: PostgreSQL MCP server
+- `fastapi.json`: PostgreSQL MCP server
+
+Stacks without an MCP template (Node, Python, Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); add MCP servers manually in the project's generated `.mcp.json` when needed. Only PostgreSQL is templated because it's the one canonical reference server with a stable npm package this repo has confirmed working — other MCP servers can be added per-project once you've validated the package name and connection.
 
 Playwright is now provided as a first-class plugin (`playwright@claude-plugins-official`,
 enabled in `settings.json`), not via an MCP template, so React projects do not
