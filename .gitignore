@@ -10,6 +10,9 @@ Thumbs.db
 
 # Python
 __pycache__/
+# uv generates uv.lock even though pyproject.toml has no [project] table
+# (it only configures ruff). Nothing meaningful to lock.
+uv.lock
 
 # Root settings file (for local development/testing only)
 /settings.local.json
