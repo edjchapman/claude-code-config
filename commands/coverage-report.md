@@ -85,11 +85,12 @@ Prioritize coverage gaps by:
 **Overall Coverage:** X% (target: {threshold}%)
 
 **Summary:**
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Line Coverage | 75% | 80% | Below Target |
-| Branch Coverage | 68% | 70% | Below Target |
-| Files Covered | 45/50 | 50/50 | 5 Uncovered |
+
+| Metric          | Value | Target | Status       |
+| --------------- | ----- | ------ | ------------ |
+| Line Coverage   | 75%   | 80%    | Below Target |
+| Branch Coverage | 68%   | 70%    | Below Target |
+| Files Covered   | 45/50 | 50/50  | 5 Uncovered  |
 
 ### Files Below Threshold
 

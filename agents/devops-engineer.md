@@ -421,9 +421,10 @@ data "aws_ami" "amazon_linux" {
 - Bottlenecks identified: [list]
 
 **Optimization Recommendations:**
-| Change | Impact | Effort |
-|--------|--------|--------|
-| Add caching | -5 min | Low |
+
+| Change            | Impact  | Effort |
+| ----------------- | ------- | ------ |
+| Add caching       | -5 min  | Low    |
 | Parallelize tests | -10 min | Medium |
 
 **Optimized Workflow:**
@@ -452,10 +453,11 @@ data "aws_ami" "amazon_linux" {
 ### Monitoring Strategy
 
 **Key Metrics to Track:**
-| Metric | Threshold | Alert Severity |
-|--------|-----------|----------------|
-| Error rate | > 1% | Critical |
-| P99 latency | > 500ms | Warning |
+
+| Metric      | Threshold | Alert Severity |
+| ----------- | --------- | -------------- |
+| Error rate  | > 1%      | Critical       |
+| P99 latency | > 500ms   | Warning        |
 
 **Dashboard Sections:**
 

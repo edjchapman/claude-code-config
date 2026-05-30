@@ -337,10 +337,11 @@ COMMENT ON COLUMN table_name.column IS 'Description';
    - Rollback command
 
 **Risk Assessment:**
-| Step | Risk Level | Mitigation |
-|------|------------|------------|
-| Add column | Low | None needed |
-| Backfill data | Medium | Batch processing |
+
+| Step          | Risk Level | Mitigation       |
+| ------------- | ---------- | ---------------- |
+| Add column    | Low        | None needed      |
+| Backfill data | Medium     | Batch processing |
 
 **Rollback Plan:**
 
