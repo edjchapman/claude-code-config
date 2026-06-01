@@ -11,7 +11,7 @@ jobs:
     name: Validate JSON files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -66,7 +66,7 @@ jobs:
     name: Lint shell scripts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run shellcheck on setup scripts
         uses: ludeeus/action-shellcheck@2.0.0
@@ -78,7 +78,7 @@ jobs:
     name: Check for duplicate agent/command/skill names
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run check-duplicates.sh
         run: bash scripts/hooks/check-duplicates.sh
@@ -87,7 +87,7 @@ jobs:
     name: Lint Markdown
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run markdownlint-cli2
         uses: DavidAnson/markdownlint-cli2-action@v18
@@ -99,7 +99,7 @@ jobs:
     name: Lint GitHub Actions workflows
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run actionlint
         # Use the official download script to fetch a pinned actionlint
