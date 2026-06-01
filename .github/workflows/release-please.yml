@@ -1,0 +1,24 @@
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Maintain release PR / cut release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          # Manifest-driven config; see release-please-config.json and
+          # .release-please-manifest.json in the repo root.
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          # Use the default GITHUB_TOKEN. If/when this repo needs cross-
+          # repo or workflow-creating releases, swap to a fine-grained
+          # PAT (`token: ${{ secrets.RELEASE_PLEASE_TOKEN }}`).

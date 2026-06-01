@@ -112,6 +112,7 @@ The generated markdown file must contain these sections in order:
 You will use the GitHub CLI (`gh`) to fetch all required data:
 
 1. **Use these `gh` commands**:
+
    - `gh pr view <PR_NUMBER> --json <fields>` for metadata
    - `gh pr view <PR_NUMBER> --json reviews` for review summary
    - `gh api repos/{owner}/{repo}/pulls/{pr}/comments` for inline review comments

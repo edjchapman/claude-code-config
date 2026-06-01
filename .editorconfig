@@ -1,0 +1,33 @@
+# EditorConfig — https://editorconfig.org
+# Tells most editors how to handle whitespace, line endings, and final
+# newlines for files in this repo. Matches the conventions enforced by
+# pre-commit hooks (trailing-whitespace, end-of-file-fixer, mixed-line-ending).
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.py]
+indent_size = 4
+
+[*.{sh,bash}]
+# Existing shell scripts in this repo use 2-space indents (see
+# scripts/hooks/*.sh). Keeping that convention; revisit if shellcheck/shfmt
+# style ever conflicts.
+indent_size = 2
+
+[Makefile]
+# Tabs are mandatory in Makefile recipes.
+indent_style = tab
+
+[*.md]
+# Trailing whitespace is significant in Markdown (two trailing spaces =
+# line break). Don't auto-trim — the pre-commit hook for trailing
+# whitespace excludes *.md for the same reason.
+trim_trailing_whitespace = false

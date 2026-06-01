@@ -25,13 +25,13 @@ Apply these conventions when building or reviewing REST APIs.
 
 ## HTTP Methods
 
-| Method | Purpose | Idempotent | Response |
-|--------|---------|------------|----------|
-| GET | Read resource(s) | Yes | 200 with data |
-| POST | Create resource | No | 201 with created resource |
-| PUT | Full replace | Yes | 200 with updated resource |
-| PATCH | Partial update | Yes | 200 with updated resource |
-| DELETE | Remove resource | Yes | 204 no content |
+| Method | Purpose          | Idempotent | Response                  |
+| ------ | ---------------- | ---------- | ------------------------- |
+| GET    | Read resource(s) | Yes        | 200 with data             |
+| POST   | Create resource  | No         | 201 with created resource |
+| PUT    | Full replace     | Yes        | 200 with updated resource |
+| PATCH  | Partial update   | Yes        | 200 with updated resource |
+| DELETE | Remove resource  | Yes        | 204 no content            |
 
 ## Status Codes
 

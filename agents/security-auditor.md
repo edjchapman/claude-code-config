@@ -248,11 +248,11 @@ For each finding:
 
 ### Compliance Summary
 
-| Standard | Status | Gaps |
-|----------|--------|------|
-| OWASP Top 10 | PARTIAL | A01, A03 |
-| PCI-DSS | N/A or status | |
-| SOC 2 | N/A or status | |
+| Standard     | Status        | Gaps     |
+| ------------ | ------------- | -------- |
+| OWASP Top 10 | PARTIAL       | A01, A03 |
+| PCI-DSS      | N/A or status |          |
+| SOC 2        | N/A or status |          |
 
 ## Severity Classification
 

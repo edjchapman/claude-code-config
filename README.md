@@ -107,10 +107,10 @@ your-project/
 
 Everything in this repo falls into two categories:
 
-| | Active (you invoke) | Passive (auto-activates) |
-|---|---|---|
-| **What** | Specialist agents, Commands, CLI scripts | Skills, Rules, Hooks |
-| **How** | `@name`, `/name`, or shell command | Triggered by file patterns or lifecycle events |
+|             | Active (you invoke)                           | Passive (auto-activates)                          |
+| ----------- | --------------------------------------------- | ------------------------------------------------- |
+| **What**    | Specialist agents, Commands, CLI scripts      | Skills, Rules, Hooks                              |
+| **How**     | `@name`, `/name`, or shell command            | Triggered by file patterns or lifecycle events    |
 | **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` skill activates on `test_*.py` |
 
 **Active tools** — you choose when to use them:
@@ -120,6 +120,7 @@ Everything in this repo falls into two categories:
 - **CLI scripts** (`review-changes.sh`, `daily-report.sh`, etc.) run headless — no interactive session needed
 
 Code review and spec-writing are now handled by **bundled plugins** rather than custom artifacts:
+
 - `/review` (bundled) and `pr-review-toolkit:review-pr` for code review
 - `feature-dev:code-architect` for implementation blueprints
 - `/security-review` (bundled) for security audits
@@ -134,28 +135,28 @@ Code review and spec-writing are now handled by **bundled plugins** rather than 
 
 ### "I want to..." Lookup
 
-| I want to... | Use | Why |
-|---|---|---|
-| Quick review before committing | `/review` (bundled) | Fast diff review, no agent overhead |
-| Deep code review | `pr-review-toolkit:code-reviewer` | Thorough pre-merge audit via plugin |
-| Inline code review | `feature-dev:code-reviewer` | Confidence-filtered high-priority issues |
-| Bundle PR comments for analysis | `@pr-review-bundler` | Gathers PR metadata, reviews, comments into one markdown file |
-| Write or fix tests | `@test-engineer` | Creates unit and integration tests |
-| Run a security audit | `/security-review` (bundled) | Security review of pending changes |
-| Deeper security audit | `@security-auditor` | OWASP, dependency vulnerabilities, secrets |
-| Plan a feature before coding | `feature-dev:code-architect` | Implementation blueprint via plugin |
-| Analyze test coverage gaps | `/coverage-report` | Delegates to `@test-engineer` |
-| Create a good commit message | `/commit` | Analyzes staged changes, follows conventions |
-| Create a pull request | `/pr` | Auto-generates PR description from commits |
-| Check what I've been doing | `/standup` | Summarizes last 24h across Git, Jira, Notion |
-| Weekly summary for manager | `/eow-review` | Full week review across all sources |
-| Prepare for backlog refinement | `/refinement` | Technical analysis of tickets with code context |
-| Debug CI/CD failures | `@ci-debugger` | Investigates pipeline failures, flaky tests |
-| Optimize slow queries/endpoints | `@performance-engineer` | Profiling, bottleneck analysis, optimization |
-| Plan a database migration | `@migration-engineer` | Zero-downtime migration strategies |
-| Review dependencies | `/deps` | Audit vulnerabilities, outdated packages |
-| Write documentation | `@documentation-writer` | README, API docs, ADRs, onboarding guides |
-| Headless review (no session) | `review-changes.sh` | Runs in CI or as a shell alias |
+| I want to...                    | Use                               | Why                                                           |
+| ------------------------------- | --------------------------------- | ------------------------------------------------------------- |
+| Quick review before committing  | `/review` (bundled)               | Fast diff review, no agent overhead                           |
+| Deep code review                | `pr-review-toolkit:code-reviewer` | Thorough pre-merge audit via plugin                           |
+| Inline code review              | `feature-dev:code-reviewer`       | Confidence-filtered high-priority issues                      |
+| Bundle PR comments for analysis | `@pr-review-bundler`              | Gathers PR metadata, reviews, comments into one markdown file |
+| Write or fix tests              | `@test-engineer`                  | Creates unit and integration tests                            |
+| Run a security audit            | `/security-review` (bundled)      | Security review of pending changes                            |
+| Deeper security audit           | `@security-auditor`               | OWASP, dependency vulnerabilities, secrets                    |
+| Plan a feature before coding    | `feature-dev:code-architect`      | Implementation blueprint via plugin                           |
+| Analyze test coverage gaps      | `/coverage-report`                | Delegates to `@test-engineer`                                 |
+| Create a good commit message    | `/commit`                         | Analyzes staged changes, follows conventions                  |
+| Create a pull request           | `/pr`                             | Auto-generates PR description from commits                    |
+| Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, Jira, Notion                  |
+| Weekly summary for manager      | `/eow-review`                     | Full week review across all sources                           |
+| Prepare for backlog refinement  | `/refinement`                     | Technical analysis of tickets with code context               |
+| Debug CI/CD failures            | `@ci-debugger`                    | Investigates pipeline failures, flaky tests                   |
+| Optimize slow queries/endpoints | `@performance-engineer`           | Profiling, bottleneck analysis, optimization                  |
+| Plan a database migration       | `@migration-engineer`             | Zero-downtime migration strategies                            |
+| Review dependencies             | `/deps`                           | Audit vulnerabilities, outdated packages                      |
+| Write documentation             | `@documentation-writer`           | README, API docs, ADRs, onboarding guides                     |
+| Headless review (no session)    | `review-changes.sh`               | Runs in CI or as a shell alias                                |
 
 ### Understanding the Layers
 
@@ -171,10 +172,10 @@ Reporting scopes:      daily-report.sh  →  /standup  →  /eow-review
 
 ## Fork or Clone?
 
-| Approach | When to Use |
-|----------|-------------|
-| **Clone** | You want to use as-is, or contribute improvements back |
-| **Fork** | You want to customize agents/commands for your own workflow |
+| Approach  | When to Use                                                 |
+| --------- | ----------------------------------------------------------- |
+| **Clone** | You want to use as-is, or contribute improvements back      |
+| **Fork**  | You want to customize agents/commands for your own workflow |
 
 If you fork, you can still pull updates from upstream:
 
@@ -198,43 +199,43 @@ Use one or combine multiple:
 ~/Development/claude-code-config/scripts/setup-project.sh all             # ALL templates
 ```
 
-| Template | What It Allows |
-|----------|----------------|
-| `all` | All templates below combined |
-| `base` | Git, GitHub CLI, file operations, WebSearch *(always included)* |
-| `python` | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry |
-| `django` | Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright) |
-| `react` | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier |
-| `node` | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun |
-| `nextjs` | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright |
-| `fastapi` | uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose |
-| `go` | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire |
-| `docker` | Docker build, compose, buildx, system commands |
-| `java` | Gradle, Maven, Java compilation (javac, jar) |
-| `kubernetes` | kubectl, helm, kustomize, kubectx, stern |
-| `rust` | cargo, rustc, rustup, rustfmt, clippy |
-| `terraform` | terraform fmt/validate/plan/init |
+| Template     | What It Allows                                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `all`        | All templates below combined                                                                                       |
+| `base`       | Git, GitHub CLI, file operations, WebSearch _(always included)_                                                    |
+| `python`     | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry                              |
+| `django`     | Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright) |
+| `react`      | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier                                                  |
+| `node`       | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun                                                   |
+| `nextjs`     | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright                                              |
+| `fastapi`    | uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose                                                   |
+| `go`         | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire                                                  |
+| `docker`     | Docker build, compose, buildx, system commands                                                                     |
+| `java`       | Gradle, Maven, Java compilation (javac, jar)                                                                       |
+| `kubernetes` | kubectl, helm, kustomize, kubectx, stern                                                                           |
+| `rust`       | cargo, rustc, rustup, rustfmt, clippy                                                                              |
+| `terraform`  | terraform fmt/validate/plan/init                                                                                   |
 
 ## Available Agents
 
 Invoke with `@agent-name` in Claude Code:
 
-| Agent | What It Does | Model |
-|-------|--------------|-------|
-| `@bug-resolver` | Systematic debugging, root cause analysis | opus |
-| `@ci-debugger` | CI/CD failure investigation, flaky tests | sonnet |
-| `@database-architect` | Schema design, migration planning, query optimization | opus |
-| `@dependency-manager` | Dependency audit, outdated packages, license checks | sonnet |
-| `@devops-engineer` | Infrastructure, CI/CD pipelines, containers | opus |
-| `@documentation-writer` | README, API docs, ADRs, onboarding guides | sonnet |
-| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests | sonnet |
-| `@git-helper` | Complex git: rebase, conflicts, recovery | sonnet |
-| `@migration-engineer` | Database migrations, framework upgrades, zero-downtime | opus |
-| `@performance-engineer` | Profiling, bottleneck analysis, optimization | opus |
-| `@pr-review-bundler` | Bundle PR reviews into markdown | sonnet |
-| `@refactoring-engineer` | Systematic, safe refactoring | opus |
-| `@security-auditor` | Security audit, OWASP, dependency vulnerabilities | opus |
-| `@test-engineer` | Create unit and integration tests | sonnet |
+| Agent                      | What It Does                                           | Model  |
+| -------------------------- | ------------------------------------------------------ | ------ |
+| `@bug-resolver`            | Systematic debugging, root cause analysis              | opus   |
+| `@ci-debugger`             | CI/CD failure investigation, flaky tests               | sonnet |
+| `@database-architect`      | Schema design, migration planning, query optimization  | opus   |
+| `@dependency-manager`      | Dependency audit, outdated packages, license checks    | sonnet |
+| `@devops-engineer`         | Infrastructure, CI/CD pipelines, containers            | opus   |
+| `@documentation-writer`    | README, API docs, ADRs, onboarding guides              | sonnet |
+| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests                  | sonnet |
+| `@git-helper`              | Complex git: rebase, conflicts, recovery               | sonnet |
+| `@migration-engineer`      | Database migrations, framework upgrades, zero-downtime | opus   |
+| `@performance-engineer`    | Profiling, bottleneck analysis, optimization           | opus   |
+| `@pr-review-bundler`       | Bundle PR reviews into markdown                        | sonnet |
+| `@refactoring-engineer`    | Systematic, safe refactoring                           | opus   |
+| `@security-auditor`        | Security audit, OWASP, dependency vulnerabilities      | opus   |
+| `@test-engineer`           | Create unit and integration tests                      | sonnet |
 
 > **Not in this repo (provided by enabled plugins):** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture writing (`feature-dev:code-architect`), code simplification (`code-simplifier` plugin). Custom versions of these were retired in favour of the plugin implementations.
 
@@ -247,19 +248,19 @@ Invoke with `@agent-name` in Claude Code:
 
 All entries below are invoked with `/<name>` in Claude Code. The **workflow skills** additionally have `when_to_use` frontmatter so Claude can auto-invoke them from plain English (e.g. "commit my staged work" → fires `/commit`). The **commands** in `commands/` are user-invoke only.
 
-| Slash | Source | What It Does | Delegates To |
-|-------|--------|--------------|--------------|
-| `/commit` | skill | Analyze staged changes, generate commit message | -- |
-| `/pr` | skill | Create PR with auto-generated description | -- |
-| `/hotfix` | skill | Guided hotfix: branch from main, minimal fix, targeted tests, PR | -- |
-| `/tdd` | skill | TDD workflow: write failing test, implement, refactor | -- |
-| `/adr` | skill | Create Architecture Decision Record (Nygard format) | -- |
-| `/standup` | command | Summarize last 24h of git activity | -- |
-| `/deps` | command | Dependency audit: vulnerabilities, outdated packages, update plan | -- |
-| `/coverage-report` | command | Analyze test coverage and identify gaps | `@test-engineer` |
-| `/refinement` | command | Prepare technical analysis for backlog refinement | Explore sub-agent |
-| `/eow-review` | command | Prepare end-of-week review notes | -- |
-| `/later` | command | Create a personal backlog item (learn, research, do, read) | -- |
+| Slash              | Source  | What It Does                                                      | Delegates To      |
+| ------------------ | ------- | ----------------------------------------------------------------- | ----------------- |
+| `/commit`          | skill   | Analyze staged changes, generate commit message                   | --                |
+| `/pr`              | skill   | Create PR with auto-generated description                         | --                |
+| `/hotfix`          | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR  | --                |
+| `/tdd`             | skill   | TDD workflow: write failing test, implement, refactor             | --                |
+| `/adr`             | skill   | Create Architecture Decision Record (Nygard format)               | --                |
+| `/standup`         | command | Summarize last 24h of git activity                                | --                |
+| `/deps`            | command | Dependency audit: vulnerabilities, outdated packages, update plan | --                |
+| `/coverage-report` | command | Analyze test coverage and identify gaps                           | `@test-engineer`  |
+| `/refinement`      | command | Prepare technical analysis for backlog refinement                 | Explore sub-agent |
+| `/eow-review`      | command | Prepare end-of-week review notes                                  | --                |
+| `/later`           | command | Create a personal backlog item (learn, research, do, read)        | --                |
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`. Custom `commands/review.md` and `commands/security-scan.md` were retired in favour of the bundled versions.
 
@@ -323,22 +324,22 @@ alias cdr='~/Development/claude-code-config/scripts/cli/daily-report.sh'
 alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
 ```
 
-| Script | Usage | What It Does |
-|--------|-------|--------------|
-| `review-changes.sh` | `cr` | Review uncommitted changes for bugs, security, code quality |
-| `explain-error.sh` | `cmd 2>&1 \| cee` | Pipe error output to Claude for explanation |
-| `daily-report.sh` | `cdr` | Summarize last 24h of git activity |
-| `review-pr.sh` | `cpr 123` | Headless PR review |
+| Script              | Usage             | What It Does                                                |
+| ------------------- | ----------------- | ----------------------------------------------------------- |
+| `review-changes.sh` | `cr`              | Review uncommitted changes for bugs, security, code quality |
+| `explain-error.sh`  | `cmd 2>&1 \| cee` | Pipe error output to Claude for explanation                 |
+| `daily-report.sh`   | `cdr`             | Summarize last 24h of git activity                          |
+| `review-pr.sh`      | `cpr 123`         | Headless PR review                                          |
 
 ## MCP Templates
 
 MCP server configurations per project type, generated alongside `settings.local.json`:
 
-| Template | MCP Servers |
-|----------|-------------|
-| `base` | None (MCP is opt-in) |
-| `django` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
-| `nextjs` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| Template  | MCP Servers                                          |
+| --------- | ---------------------------------------------------- |
+| `base`    | None (MCP is opt-in)                                 |
+| `django`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `nextjs`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
 | `fastapi` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
 
 Other stacks (`node`, `python`, `go`, `rust`, `java`, `kubernetes`, `terraform`)
@@ -387,16 +388,16 @@ claude-code-config/
 
 Hooks are configured in `settings.json` and run automatically at key points in the Claude Code lifecycle. Since `settings.json` is symlinked globally, hooks work in all projects.
 
-| Hook | Trigger | What It Does |
-|------|---------|--------------|
-| SessionStart | New session | Outputs git branch, recent commits, and dirty files |
-| Setup (init) | Project init | Detects project type, suggests configuration |
-| UserPromptSubmit | Before prompt sent | LLM checks if prompt is specific enough to act on |
-| PostToolUse (Write/Edit) | After file edits | Auto-formats Python (ruff) and JS/TS (prettier) |
-| PreToolUse (Bash) | Before commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.) |
-| Stop | Session end | LLM checks: tests run? linters run? TODOs left? |
-| SubagentStop | Before subagent returns | LLM checks if subagent completed its task fully |
-| PreCompact | Before compaction | Saves working state (branch, staged files, recent commits) |
+| Hook                     | Trigger                 | What It Does                                               |
+| ------------------------ | ----------------------- | ---------------------------------------------------------- |
+| SessionStart             | New session             | Outputs git branch, recent commits, and dirty files        |
+| Setup (init)             | Project init            | Detects project type, suggests configuration               |
+| UserPromptSubmit         | Before prompt sent      | LLM checks if prompt is specific enough to act on          |
+| PostToolUse (Write/Edit) | After file edits        | Auto-formats Python (ruff) and JS/TS (prettier)            |
+| PreToolUse (Bash)        | Before commands         | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)         |
+| Stop                     | Session end             | LLM checks: tests run? linters run? TODOs left?            |
+| SubagentStop             | Before subagent returns | LLM checks if subagent completed its task fully            |
+| PreCompact               | Before compaction       | Saves working state (branch, staged files, recent commits) |
 
 Hook scripts live in `scripts/hooks/` and only run when the required tools are available (e.g., `ruff`, `prettier`).
 
@@ -406,11 +407,11 @@ Claude Code supports several response styles via `outputStyle` in `settings.json
 or with the per-session `/output-style` command. This repo doesn't set a default —
 `outputStyle` is a personal preference and varies by task type.
 
-| Style | When to use |
-|-------|-------------|
-| `default` | Standard task-focused responses |
+| Style         | When to use                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `default`     | Standard task-focused responses                               |
 | `explanatory` | Adds learning insights inline (good for unfamiliar codebases) |
-| `learning` | More guided; fewer one-shot answers (good for upskilling) |
+| `learning`    | More guided; fewer one-shot answers (good for upskilling)     |
 
 To set a default:
 
@@ -454,23 +455,23 @@ exactly the kind of behaviour shared/symlinked configs should avoid.
 
 Skills are domain knowledge documents that auto-activate when you touch matching files. They provide passive guidance without explicit invocation.
 
-| Skill | Activates On | What It Covers |
-|-------|-------------|----------------|
-| `git-workflow` | `.git/**` | Conventional commits, branch naming, PR size |
-| `testing-patterns` | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc. | AAA pattern, factories, coverage |
-| `security-review` | `auth/**`, `middleware/**`, `security/**`, `routes/**` | Input validation, JWT, CSRF, secrets |
-| `api-design` | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination |
-| `django-patterns` | `models.py`, `views.py`, `managers.py`, `signals.py`, etc. | Fat models, managers, query optimization, signals |
-| `docker-patterns` | `Dockerfile`, `docker-compose*.yml`, `.dockerignore` | Multi-stage builds, layer caching, security |
-| `infrastructure` | `*.tf`, `k8s/**/*.yaml`, `helm/**` | Terraform modules, K8s resources, Helm charts |
+| Skill              | Activates On                                                        | What It Covers                                    |
+| ------------------ | ------------------------------------------------------------------- | ------------------------------------------------- |
+| `git-workflow`     | `.git/**`                                                           | Conventional commits, branch naming, PR size      |
+| `testing-patterns` | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.            | AAA pattern, factories, coverage                  |
+| `security-review`  | `auth/**`, `middleware/**`, `security/**`, `routes/**`              | Input validation, JWT, CSRF, secrets              |
+| `api-design`       | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination        |
+| `django-patterns`  | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.          | Fat models, managers, query optimization, signals |
+| `docker-patterns`  | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                | Multi-stage builds, layer caching, security       |
+| `infrastructure`   | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                  | Terraform modules, K8s resources, Helm charts     |
 
 ## Rules
 
 Rules are path-scoped code style enforcement files in `rules/`. They use `paths` frontmatter for granular file matching and are enforced when touching matching files.
 
-| Rule | Applies To | What It Enforces |
-|------|-----------|-----------------|
-| `python-style` | `**/*.py` | Naming, error handling, imports, type hints |
+| Rule               | Applies To            | What It Enforces                                                         |
+| ------------------ | --------------------- | ------------------------------------------------------------------------ |
+| `python-style`     | `**/*.py`             | Naming, error handling, imports, type hints                              |
 | `typescript-style` | `**/*.ts`, `**/*.tsx` | Naming, error handling, type usage, plus React-specific rules for `.tsx` |
 
 Skills provide domain knowledge (patterns and best practices); rules enforce style requirements.
@@ -487,7 +488,6 @@ name: my-agent
 description: Brief description for when Claude should use this agent
 model: opus
 ---
-
 ## Instructions
 
 Your detailed agent instructions here...
@@ -506,10 +506,7 @@ Create `settings-templates/my-stack.json`:
   "_source": "my-stack",
   "_version": 1,
   "permissions": {
-    "allow": [
-      "Bash(my-cli-tool:*)",
-      "WebFetch(domain:docs.my-tool.com)"
-    ]
+    "allow": ["Bash(my-cli-tool:*)", "WebFetch(domain:docs.my-tool.com)"]
   }
 }
 ```

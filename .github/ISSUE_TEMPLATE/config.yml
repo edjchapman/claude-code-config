@@ -1,0 +1,10 @@
+# Disable bare "blank" issues; nudge questions toward Discussions so the
+# tracker stays focused on actionable bugs/features.
+# When/if Discussions are enabled, set has_discussions=true on the repo
+# and the link below will resolve.
+
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/edjchapman/claude-code-config/discussions
+    about: For usage questions, ideas, or general discussion. Open an Issue only for reproducible bugs or concrete feature requests.

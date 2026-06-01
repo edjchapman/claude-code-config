@@ -175,6 +175,7 @@ Create the end-of-week review document with all gathered information. Use this s
 ## Completed This Week
 
 ### [Ticket ID]: [Title] ([Type], [Priority])
+
 **Status:** [Current Status]
 
 [Bullet points describing work done, PRs merged, key decisions made]
@@ -200,25 +201,25 @@ Create the end-of-week review document with all gathered information. Use this s
 
 ## Pull Requests
 
-| # | Title | Status | Merged | Reviewers | +/- |
-|---|-------|--------|--------|-----------|-----|
-| NNNN | [Title] | Merged/Open | DD Mon | [names] | +N/-N |
+| #    | Title   | Status      | Merged | Reviewers | +/-   |
+| ---- | ------- | ----------- | ------ | --------- | ----- |
+| NNNN | [Title] | Merged/Open | DD Mon | [names]   | +N/-N |
 
 ## Jira Tickets
 
-| Key | Summary | Type | Status |
-|-----|---------|------|--------|
+| Key       | Summary   | Type           | Status           |
+| --------- | --------- | -------------- | ---------------- |
 | PROJ-NNNN | [Summary] | Story/Bug/Task | Done/In Progress |
 
 ## Meetings & Calendar
 
-| Date | Meeting |
-|------|---------|
-| Mon | [meetings] |
-| Tue | [meetings] |
-| Wed | [meetings] |
-| Thu | [meetings] |
-| Fri | [meetings] |
+| Date | Meeting    |
+| ---- | ---------- |
+| Mon  | [meetings] |
+| Tue  | [meetings] |
+| Wed  | [meetings] |
+| Thu  | [meetings] |
+| Fri  | [meetings] |
 
 ## Notion Activity
 

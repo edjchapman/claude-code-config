@@ -93,18 +93,23 @@ Search for PR templates in order:
 
 ```markdown
 ## Summary
+
 <1-3 bullet points explaining what this PR does and why>
 
 ## Changes
+
 <Grouped list of significant changes>
 
 ## Testing
+
 <How this was tested or how reviewers should test>
 
 ## Notes for Reviewers
+
 <Any context that helps review: focus areas, known issues, follow-ups>
 
 ## Related Issues
+
 - [TICKET-ID](<base_url>/TICKET-ID) - {summary from Jira if available}
 ```
 

@@ -26,6 +26,7 @@ For each ticket ID:
 ```
 
 **If Jira MCP is NOT available:**
+
 > "I don't have direct Jira access. Please provide ticket details in one of these formats:
 >
 > 1. Jira REST API JSON (paste from `<your-jira-base>/rest/api/2/issue/TICKET-ID`)
@@ -64,13 +65,13 @@ For each ticket, determine:
 
 **Story Points (Fibonacci: 1, 2, 3, 5, 8, 13):**
 
-| Factor | 1-2 pts | 3-5 pts | 8-13 pts |
-|--------|---------|---------|----------|
-| Files touched | 1-2 | 3-5 | 6+ |
-| Backend changes | None | Model or API | Model + API + Migration |
-| Frontend changes | None | Single component | Multiple components |
-| New patterns | Following existing | Minor adaptation | New architecture |
-| Dependencies | None | 1-2 tickets | Blocked or complex chain |
+| Factor           | 1-2 pts            | 3-5 pts          | 8-13 pts                 |
+| ---------------- | ------------------ | ---------------- | ------------------------ |
+| Files touched    | 1-2                | 3-5              | 6+                       |
+| Backend changes  | None               | Model or API     | Model + API + Migration  |
+| Frontend changes | None               | Single component | Multiple components      |
+| New patterns     | Following existing | Minor adaptation | New architecture         |
+| Dependencies     | None               | 1-2 tickets      | Blocked or complex chain |
 
 **Generate for each ticket:**
 
@@ -105,10 +106,10 @@ Create output directory structure:
 
 ## Key Files
 
-| File | Purpose | Lines |
-|------|---------|-------|
+| File              | Purpose       | Lines |
+| ----------------- | ------------- | ----- |
 | `path/to/file.py` | Model changes | 50-75 |
-| ... | ... | ... |
+| ...               | ...           | ...   |
 
 ---
 
@@ -143,9 +144,9 @@ Create output directory structure:
 
 ## Summary Table
 
-| Ticket | Title | Points | Complexity | Risk | Details |
-|--------|-------|--------|------------|------|---------|
-| BIL-XXXX | Title | **N** | Low/Med/High | Low/Med/High | [View](./BIL-XXXX_title.md) |
+| Ticket   | Title | Points | Complexity   | Risk         | Details                     |
+| -------- | ----- | ------ | ------------ | ------------ | --------------------------- |
+| BIL-XXXX | Title | **N**  | Low/Med/High | Low/Med/High | [View](./BIL-XXXX_title.md) |
 
 ---
 
@@ -170,6 +171,7 @@ After generating files, present:
 4. **Recommended discussion order** for refinement meeting
 
 Ask:
+
 > "I've created refinement documents in `{output_dir}/`. Would you like me to:
 >
 > 1. Add meeting notes after your refinement session?
@@ -196,6 +198,7 @@ Ask:
 - Inform user: "Notion MCP not available - files saved locally but not to Notion"
 
 **Output with `--notion`:**
+
 > "Refinement analysis complete:
 >
 > - Local files: `{output_dir}/`

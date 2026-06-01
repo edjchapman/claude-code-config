@@ -14,12 +14,12 @@ When fixing bugs or errors, always distinguish between symptoms and root causes.
 **Symptom:** The observed failure or error message.
 **Root Cause:** The underlying issue that produced the symptom.
 
-| Symptom | Root Cause |
-|---------|------------|
-| NaN in serialized output | Division by zero in calculation |
-| 500 error on API endpoint | Missing validation at entry point |
-| Stale data in UI | Cache invalidation logic missing |
-| Type error in function result | Type mismatch at data source |
+| Symptom                       | Root Cause                        |
+| ----------------------------- | --------------------------------- |
+| NaN in serialized output      | Division by zero in calculation   |
+| 500 error on API endpoint     | Missing validation at entry point |
+| Stale data in UI              | Cache invalidation logic missing  |
+| Type error in function result | Type mismatch at data source      |
 
 ## Investigation Checklist
 

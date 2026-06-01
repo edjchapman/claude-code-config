@@ -64,6 +64,7 @@ Use the following tools:
 
 **If Jira MCP is NOT available:**
 Ask the user:
+
 > "I don't have direct Jira access. Please paste your Jira activity summary, or tell me:
 >
 > 1. Which tickets did you work on? (e.g., BIL-123, BIL-456)
@@ -90,6 +91,7 @@ Use the following tools:
 
 **If Notion MCP is NOT available:**
 Ask the user:
+
 > "I don't have direct Notion access. Did you update any documentation or meeting notes? If so, briefly describe what."
 
 ## Step 5: Slack & Google Calendar via Notion AI Search
@@ -102,6 +104,7 @@ Use `mcp__plugin_Notion_notion__notion-search` with `content_search_mode="ai_sea
 
 **Fallback prompt if no results or unavailable:**
 Ask the user:
+
 > "I couldn't find Slack/Calendar data through Notion. Please share:
 >
 > 1. Any important Slack discussions or decisions from the period?
@@ -134,28 +137,34 @@ Create the standup document with all gathered information:
 # Standup - [DATE]
 
 ## Yesterday / Since Last Standup
+
 - [Completed items with ticket refs, e.g., "Implemented auth flow (BIL-123)"]
 - [Documentation updates]
 - [Meetings attended]
 
 ## Today
+
 - [Planned work from In Progress tickets]
 - [Scheduled meetings/discussions]
 - [Goals for the day]
 
 ## Blockers / Discussion Points
+
 - [Any blockers flagged in Jira]
 - [Items needing team input or decisions]
 - [Dependencies on others]
 
 ---
+
 ### Activity Details
 
 **Git Commits**: N commits across M files
+
 - [Repo 1]: X commits - [summary of changes]
 - [Repo 2]: Y commits - [summary of changes]
 
 **Pull Requests**:
+
 - [#123 - Title - Status (merged/open/draft)]
 
 **Jira Tickets**:
@@ -165,21 +174,25 @@ Create the standup document with all gathered information:
 | BIL-456 | Fix bug Y | Done | 1 |
 
 **Notion/Documentation**:
+
 - [Page name] - [type of update]
 
 **Slack Highlights** (if available):
+
 - [Key discussion or decision]
 
 **Calendar/Meetings** (if available):
+
 - [Meeting name] - [outcome or action items]
 
 ---
+
 ### Team Activity (if --team flag used)
 
-| Team Member | Recent Activity |
-|-------------|-----------------|
-| [Name 1] | BIL-XXX: [brief], BIL-YYY: [brief] |
-| [Name 2] | BIL-ZZZ: [brief] |
+| Team Member | Recent Activity                    |
+| ----------- | ---------------------------------- |
+| [Name 1]    | BIL-XXX: [brief], BIL-YYY: [brief] |
+| [Name 2]    | BIL-ZZZ: [brief]                   |
 ```
 
 ## Step 8: Save to File
@@ -197,6 +210,7 @@ Create the standup document with all gathered information:
 
 **Optional Notion save:**
 After saving locally, ask the user:
+
 > "Would you like me to also save this standup to Notion?"
 
 If yes, use `mcp__plugin_Notion_notion__notion-create-pages` to create a new page in their workspace.

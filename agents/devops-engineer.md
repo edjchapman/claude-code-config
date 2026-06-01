@@ -188,7 +188,7 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - .:/app
-      - /app/__pycache__  # Exclude pycache
+      - /app/__pycache__ # Exclude pycache
     environment:
       - DEBUG=true
     depends_on:
@@ -235,7 +235,7 @@ spec:
       # Resource limits
       containers:
         - name: app
-          image: myapp:v1.2.3  # Always use specific tags
+          image: myapp:v1.2.3 # Always use specific tags
           resources:
             requests:
               memory: "256Mi"
@@ -421,9 +421,10 @@ data "aws_ami" "amazon_linux" {
 - Bottlenecks identified: [list]
 
 **Optimization Recommendations:**
-| Change | Impact | Effort |
-|--------|--------|--------|
-| Add caching | -5 min | Low |
+
+| Change            | Impact  | Effort |
+| ----------------- | ------- | ------ |
+| Add caching       | -5 min  | Low    |
 | Parallelize tests | -10 min | Medium |
 
 **Optimized Workflow:**
@@ -452,10 +453,11 @@ data "aws_ami" "amazon_linux" {
 ### Monitoring Strategy
 
 **Key Metrics to Track:**
-| Metric | Threshold | Alert Severity |
-|--------|-----------|----------------|
-| Error rate | > 1% | Critical |
-| P99 latency | > 500ms | Warning |
+
+| Metric      | Threshold | Alert Severity |
+| ----------- | --------- | -------------- |
+| Error rate  | > 1%      | Critical       |
+| P99 latency | > 500ms   | Warning        |
 
 **Dashboard Sections:**
 

@@ -213,10 +213,10 @@ def test_with_mock(mock_api):
 ### TypeScript
 
 ```typescript
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
-vi.mock('./api', () => ({
-  fetchUser: vi.fn().mockResolvedValue({ id: 1, name: 'Test' })
+vi.mock("./api", () => ({
+  fetchUser: vi.fn().mockResolvedValue({ id: 1, name: "Test" }),
 }));
 ```
 

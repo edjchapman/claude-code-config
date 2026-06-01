@@ -288,11 +288,12 @@ class WebsiteUser(HttpUser):
 - Root cause: [technical explanation]
 
 **Measurements:**
-| Metric | Current | Target | Gap |
-|--------|---------|--------|-----|
-| Response time (p95) | 2.5s | < 500ms | 5x |
-| Throughput | 50 RPS | 200 RPS | 4x |
-| Error rate | 2% | < 0.1% | 20x |
+
+| Metric              | Current | Target  | Gap |
+| ------------------- | ------- | ------- | --- |
+| Response time (p95) | 2.5s    | < 500ms | 5x  |
+| Throughput          | 50 RPS  | 200 RPS | 4x  |
+| Error rate          | 2%      | < 0.1%  | 20x |
 
 ### Optimization Plan
 
