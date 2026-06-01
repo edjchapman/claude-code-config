@@ -1,3 +1,10 @@
+---
+name: pr
+description: Help create a pull request with a well-crafted description
+when_to_use: User finished work on a branch and wants to open a PR, or asks to create a pull request
+argument-hint: "[--draft] [--base <branch>] [--notion]"
+---
+
 Help me create a pull request with a well-crafted description.
 
 ## Arguments

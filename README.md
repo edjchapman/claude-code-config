@@ -25,6 +25,25 @@ This repo solves that by providing:
 
 ## Quick Start
 
+There are two ways to consume this repo: as a **plugin** (recommended; uses Claude Code's plugin loader) or as a **symlinked global config** (legacy path, still supported).
+
+### Option A: Plugin install (recommended)
+
+```bash
+# From inside Claude Code:
+/plugin marketplace add edjchapman/claude-code-config
+/plugin install claude-code-config
+```
+
+Then add per-project permissions only:
+
+```bash
+cd ~/my-django-project
+~/Development/claude-code-config/scripts/setup-project.sh django   # for settings.local.json + .mcp.json
+```
+
+### Option B: Symlinked global config (legacy)
+
 ```bash
 # 1. Clone (or fork if you want to customize)
 git clone https://github.com/edjchapman/claude-code-config.git ~/claude-code-config
@@ -39,6 +58,8 @@ cd ~/my-django-project
 # 4. Start using Claude Code - agents and commands are now available
 claude
 ```
+
+Both modes coexist — the hook command paths in `settings.json` use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve correctly whether loaded as a plugin (`CLAUDE_PLUGIN_DIR` set by the loader) or via symlink (`readlink` resolves the symlinked `settings.json` back to the repo).
 
 **Tip:** Add an alias for easier use:
 
@@ -222,23 +243,23 @@ Invoke with `@agent-name` in Claude Code:
 - **Opus** = complex reasoning, security reviews, planning (higher cost)
 - **Sonnet** = pattern-based tasks, faster, lower cost
 
-## Available Commands
+## Available Commands & Workflow Skills
 
-Invoke with `/command` in Claude Code:
+All entries below are invoked with `/<name>` in Claude Code. The **workflow skills** additionally have `when_to_use` frontmatter so Claude can auto-invoke them from plain English (e.g. "commit my staged work" → fires `/commit`). The **commands** in `commands/` are user-invoke only.
 
-| Command | What It Does | Delegates To |
-|---------|--------------|--------------|
-| `/commit` | Analyze staged changes, generate commit message | -- |
-| `/pr` | Create PR with auto-generated description | -- |
-| `/standup` | Summarize last 24h of git activity | -- |
-| `/tdd` | TDD workflow: write failing test, implement, refactor | -- |
-| `/hotfix` | Guided hotfix: branch from main, minimal fix, targeted tests, PR | -- |
-| `/deps` | Dependency audit: vulnerabilities, outdated packages, update plan | -- |
-| `/adr` | Create Architecture Decision Record (Nygard format) | -- |
-| `/coverage-report` | Analyze test coverage and identify gaps | `@test-engineer` |
-| `/refinement` | Prepare technical analysis for backlog refinement | Explore sub-agent |
-| `/eow-review` | Prepare end-of-week review notes | -- |
-| `/later` | Create a personal backlog item (learn, research, do, read) | -- |
+| Slash | Source | What It Does | Delegates To |
+|-------|--------|--------------|--------------|
+| `/commit` | skill | Analyze staged changes, generate commit message | -- |
+| `/pr` | skill | Create PR with auto-generated description | -- |
+| `/hotfix` | skill | Guided hotfix: branch from main, minimal fix, targeted tests, PR | -- |
+| `/tdd` | skill | TDD workflow: write failing test, implement, refactor | -- |
+| `/adr` | skill | Create Architecture Decision Record (Nygard format) | -- |
+| `/standup` | command | Summarize last 24h of git activity | -- |
+| `/deps` | command | Dependency audit: vulnerabilities, outdated packages, update plan | -- |
+| `/coverage-report` | command | Analyze test coverage and identify gaps | `@test-engineer` |
+| `/refinement` | command | Prepare technical analysis for backlog refinement | Explore sub-agent |
+| `/eow-review` | command | Prepare end-of-week review notes | -- |
+| `/later` | command | Create a personal backlog item (learn, research, do, read) | -- |
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`. Custom `commands/review.md` and `commands/security-scan.md` were retired in favour of the bundled versions.
 
@@ -317,6 +338,14 @@ MCP server configurations per project type, generated alongside `settings.local.
 |----------|-------------|
 | `base` | None (MCP is opt-in) |
 | `django` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `nextjs` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `fastapi` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+
+Other stacks (`node`, `python`, `go`, `rust`, `java`, `kubernetes`, `terraform`)
+fall through to `base.json` — add MCP servers manually in the project's
+generated `.mcp.json` when needed. Only PostgreSQL is templated because
+it's the one reference server with a stable npm package this repo has
+confirmed working end-to-end.
 
 Playwright is provided as a first-class plugin (`playwright@claude-plugins-official`,
 enabled in `settings.json`), so React projects do not get a generated `.mcp.json`

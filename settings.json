@@ -1,13 +1,19 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "model": "opus[1m]",
+  "outputStyle": "Explanatory",
+  "skillListingBudgetFraction": 0.02,
+  "worktree": {
+    "baseRef": "head",
+    "bgIsolation": "worktree"
+  },
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/session-context.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/session-context.sh"
           }
         ]
       }
@@ -18,7 +24,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/format-on-edit.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/format-on-edit.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/log-tool-failure.sh"
           }
         ]
       }
@@ -29,7 +45,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/dangerous-cmd-check.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/dangerous-cmd-check.sh"
           }
         ]
       }
@@ -39,7 +55,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/pre-compact-state.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/pre-compact-state.sh"
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/task-completed-chime.sh"
           }
         ]
       }
@@ -47,7 +73,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "$(readlink -f ~/.claude/settings.json | xargs dirname)/scripts/hooks/statusline.sh"
+    "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/statusline.sh"
   },
   "enabledPlugins": {
     "github@claude-plugins-official": true,

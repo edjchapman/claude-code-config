@@ -1,3 +1,10 @@
+---
+name: tdd
+description: Guide me through a TDD (Test-Driven Development) workflow for the given feature or change
+when_to_use: User is starting a new feature or behavior change and asks for TDD, or wants disciplined Red-Green-Refactor cycles
+argument-hint: "<feature or change to implement>"
+---
+
 Guide me through a TDD (Test-Driven Development) workflow for the given feature or change.
 
 > **Workflow command** for disciplined Red-Green-Refactor cycles. For batch test creation (e.g., backfilling coverage on existing code), use `@test-engineer` instead.

@@ -1,3 +1,10 @@
+---
+name: commit
+description: Analyze staged changes and write a conventional commit message
+when_to_use: User has staged git changes and asks to commit, or wants help writing a commit message
+argument-hint: "[scope hint] [--no-ticket]"
+---
+
 Analyze my staged changes and help me write a good commit message.
 
 ## Arguments
