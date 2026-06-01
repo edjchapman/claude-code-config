@@ -20,3 +20,6 @@ uv.lock
 # Claude Code local config (symlinks are machine-specific)
 .claude/*
 !.claude/settings.local.json
+
+# Session-end log hook output (local artifact, written by hooks)
+/standups/
