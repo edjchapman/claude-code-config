@@ -13,7 +13,7 @@ jobs:
     name: Maintain release PR / cut release
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         with:
           # Manifest-driven config; see release-please-config.json and
           # .release-please-manifest.json in the repo root.
