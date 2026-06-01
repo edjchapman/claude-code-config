@@ -68,12 +68,15 @@ Proposed
 ## Consequences
 
 ### Positive
+
 - <Benefits of this decision>
 
 ### Negative
+
 - <Trade-offs and costs>
 
 ### Neutral
+
 - <Other effects that are neither positive nor negative>
 ```
 

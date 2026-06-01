@@ -119,19 +119,19 @@ Present findings as a prioritized action list:
 ### Security Issues (Act Now)
 
 | Package | Severity | Current | Fixed In | CVE |
-|---------|----------|---------|----------|-----|
+| ------- | -------- | ------- | -------- | --- |
 
 ### Recommended Updates (This Sprint)
 
 | Package | Current | Latest | Type | Risk |
-|---------|---------|--------|------|------|
+| ------- | ------- | ------ | ---- | ---- |
 
 ### Major Upgrades (Plan)
 
 | Package | Current | Latest | Breaking Changes |
-|---------|---------|--------|-----------------|
+| ------- | ------- | ------ | ---------------- |
 
 ### Unused Dependencies (Clean Up)
 
 | Package | Last Used | Recommendation |
-|---------|-----------|---------------|
+| ------- | --------- | -------------- |

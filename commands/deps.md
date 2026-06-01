@@ -21,12 +21,12 @@ This command invokes the `@dependency-manager` agent, which handles:
 
 ## When to Use
 
-| Scenario | Command |
-|----------|---------|
-| Quick audit before release | `/deps` |
-| Investigate specific package | `/deps requests` |
-| Security-focused check | `/deps --security-only` |
-| Pre-upgrade assessment | `/deps --major-updates` |
+| Scenario                     | Command                 |
+| ---------------------------- | ----------------------- |
+| Quick audit before release   | `/deps`                 |
+| Investigate specific package | `/deps requests`        |
+| Security-focused check       | `/deps --security-only` |
+| Pre-upgrade assessment       | `/deps --major-updates` |
 
 ## Delegation
 

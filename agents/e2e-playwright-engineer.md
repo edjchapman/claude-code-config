@@ -81,14 +81,14 @@ If `mcp__plugin_atlassian_atlassian__*` tools are available:
 ### Test Structure
 
 ```typescript
-import { test, expect } from '../fixtures';
+import { test, expect } from "../fixtures";
 
-test.describe('Feature Name', () => {
+test.describe("Feature Name", () => {
   test.beforeEach(async ({ relevantFixture }) => {
     // Setup if needed
   });
 
-  test('should [expected behavior]', async ({ fixture1, fixture2 }) => {
+  test("should [expected behavior]", async ({ fixture1, fixture2 }) => {
     // Arrange
     await fixture1.setup();
 
@@ -96,7 +96,7 @@ test.describe('Feature Name', () => {
     await fixture1.performAction();
 
     // Assert
-    await expect(fixture1.result).toHaveText('Expected');
+    await expect(fixture1.result).toHaveText("Expected");
   });
 });
 ```
@@ -105,17 +105,17 @@ test.describe('Feature Name', () => {
 
 ```typescript
 // fixtures/newFeature.ts
-import { Page } from '@playwright/test';
+import { Page } from "@playwright/test";
 
 export class NewFeaturePage {
   constructor(private page: Page) {}
 
   async navigate() {
-    await this.page.goto('/new-feature');
+    await this.page.goto("/new-feature");
   }
 
   get someElement() {
-    return this.page.getByTestId('some-element');
+    return this.page.getByTestId("some-element");
   }
 
   async performAction() {
@@ -149,15 +149,15 @@ export class NewFeaturePage {
 ## API Test Pattern
 
 ```typescript
-import { test, expect } from '../fixtures';
+import { test, expect } from "../fixtures";
 
-test.describe('API: Feature', () => {
-  test('GET /api/endpoint returns expected data', async ({ request }) => {
-    const response = await request.get('/api/endpoint');
+test.describe("API: Feature", () => {
+  test("GET /api/endpoint returns expected data", async ({ request }) => {
+    const response = await request.get("/api/endpoint");
     expect(response.status()).toBe(200);
 
     const data = await response.json();
-    expect(data).toHaveProperty('expectedField');
+    expect(data).toHaveProperty("expectedField");
   });
 });
 ```

@@ -34,6 +34,7 @@ ticket reference.
    ```
 
 2. **Analyze the changes**:
+
    - What files were modified?
    - What is the nature of the change? (feature, fix, refactor, docs, test, chore)
    - What is the scope/impact?
@@ -51,16 +52,19 @@ ticket reference.
    ```
 
    Extract ticket ID from branch name patterns:
+
    - `feature/BIL-123-description` → `BIL-123`
    - `fix/BIL-456-bug-fix` → `BIL-456`
    - `BIL-789/some-feature` → `BIL-789`
    - Common patterns: `[A-Z]+-[0-9]+` (e.g., `ABC-123`, `PROJ-456`)
 
    **If Jira MCP is available (`mcp__plugin_atlassian_atlassian__getJiraIssue`):**
+
    - Fetch ticket summary to validate and provide context
    - Use ticket title to inform commit message scope
 
    **If Jira MCP is NOT available but ticket ID found:**
+
    - Include ticket reference in commit message
    - Note: "Jira details not available - using ticket ID only"
 
@@ -78,6 +82,7 @@ ticket reference.
    Types: feat, fix, docs, style, refactor, test, chore, ci, perf
 
    Guidelines:
+
    - First line: type(scope): description
    - Type should be lowercase
    - Scope is the area/module affected (e.g., auth, api, ui)

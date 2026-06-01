@@ -65,12 +65,12 @@ If `mcp__plugin_github_github__*` tools are available:
 
 ### Phase 2: Classify the Failure
 
-| Type | Characteristics | Common Causes |
-|------|----------------|---------------|
-| **Consistent** | Fails every time | Code bug, dependency issue, config error |
-| **Flaky** | Passes sometimes | Race condition, timing, external service |
-| **Environment** | Passes locally | Different OS, versions, env vars, services |
-| **Infrastructure** | Sudden change | Runner issues, network, rate limits |
+| Type               | Characteristics  | Common Causes                              |
+| ------------------ | ---------------- | ------------------------------------------ |
+| **Consistent**     | Fails every time | Code bug, dependency issue, config error   |
+| **Flaky**          | Passes sometimes | Race condition, timing, external service   |
+| **Environment**    | Passes locally   | Different OS, versions, env vars, services |
+| **Infrastructure** | Sudden change    | Runner issues, network, rate limits        |
 
 ### Phase 3: Diagnose by Type
 

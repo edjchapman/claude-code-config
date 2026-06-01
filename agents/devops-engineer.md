@@ -188,7 +188,7 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - .:/app
-      - /app/__pycache__  # Exclude pycache
+      - /app/__pycache__ # Exclude pycache
     environment:
       - DEBUG=true
     depends_on:
@@ -235,7 +235,7 @@ spec:
       # Resource limits
       containers:
         - name: app
-          image: myapp:v1.2.3  # Always use specific tags
+          image: myapp:v1.2.3 # Always use specific tags
           resources:
             requests:
               memory: "256Mi"

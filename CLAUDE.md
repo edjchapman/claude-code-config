@@ -107,10 +107,10 @@ Available rules:
 
 This repo manages two distinct settings files:
 
-| File | Purpose | Distribution | Source |
-|------|---------|--------------|--------|
-| `settings.json` | Plugin enablement (GitHub, Notion, LSPs, etc.) | **Symlinked** from repo root | Canonical copy in repo |
-| `settings.local.json` | Bash permissions (what commands Claude can run) | **Generated** per-project | Merged from `settings-templates/` |
+| File                  | Purpose                                         | Distribution                 | Source                            |
+| --------------------- | ----------------------------------------------- | ---------------------------- | --------------------------------- |
+| `settings.json`       | Plugin enablement (GitHub, Notion, LSPs, etc.)  | **Symlinked** from repo root | Canonical copy in repo            |
+| `settings.local.json` | Bash permissions (what commands Claude can run) | **Generated** per-project    | Merged from `settings-templates/` |
 
 **Why separate?**
 
@@ -204,11 +204,11 @@ Commands in `commands/` are Markdown files where the filename becomes the slash 
 
 The three primitives serve different purposes; picking the right one keeps the agent/skill picker uncluttered.
 
-| Use a... | When | Example in this repo |
-|---|---|---|
-| **Skill** (`skills/`) | Workflow you want Claude to auto-invoke based on the conversation, or domain knowledge that auto-activates on matching files | `/commit` (auto-fires on "commit my staged work"), `django-patterns` (auto-activates on `models.py`) |
-| **Command** (`commands/`) | Personal/meta workflow that should only fire when you explicitly ask | `/standup`, `/eow-review`, `/later` |
-| **Agent** (`agents/`) | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation | `@bug-resolver`, `@migration-engineer`, `@security-auditor` |
+| Use a...                  | When                                                                                                                         | Example in this repo                                                                                 |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Skill** (`skills/`)     | Workflow you want Claude to auto-invoke based on the conversation, or domain knowledge that auto-activates on matching files | `/commit` (auto-fires on "commit my staged work"), `django-patterns` (auto-activates on `models.py`) |
+| **Command** (`commands/`) | Personal/meta workflow that should only fire when you explicitly ask                                                         | `/standup`, `/eow-review`, `/later`                                                                  |
+| **Agent** (`agents/`)     | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation  | `@bug-resolver`, `@migration-engineer`, `@security-auditor`                                          |
 
 Rule of thumb: if the action is **conversational** ("commit my work", "open a PR"), it wants to be a skill. If the action is **on-demand and personal** ("give me a standup summary"), it wants to be a command. If the action is **scoped expertise that benefits from isolation** ("audit this for security"), it wants to be an agent.
 
@@ -220,12 +220,12 @@ Several enabled plugins (visible in `settings.json`'s `enabledPlugins`) overlap 
 
 Currently retired in favor of plugins:
 
-| Retired | Replaced by |
-|---|---|
-| `agents/code-reviewer.md` | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered) |
-| `agents/spec-writer.md` | `feature-dev:code-architect` |
-| `commands/review.md` | bundled `/review` |
-| `commands/security-scan.md` | bundled `/security-review` |
+| Retired                     | Replaced by                                                                                   |
+| --------------------------- | --------------------------------------------------------------------------------------------- |
+| `agents/code-reviewer.md`   | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered) |
+| `agents/spec-writer.md`     | `feature-dev:code-architect`                                                                  |
+| `commands/review.md`        | bundled `/review`                                                                             |
+| `commands/security-scan.md` | bundled `/security-review`                                                                    |
 
 Kept custom because no enabled plugin fully covers them:
 

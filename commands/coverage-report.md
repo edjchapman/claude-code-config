@@ -94,16 +94,17 @@ Prioritize coverage gaps by:
 
 ### Files Below Threshold
 
-| File | Coverage | Gap | Priority | Suggested Tests |
-|------|----------|-----|----------|-----------------|
-| `src/auth/login.py` | 45% | -35% | HIGH | Auth flows, error cases |
-| `src/api/orders.py` | 72% | -8% | MEDIUM | Edge cases |
+| File                | Coverage | Gap  | Priority | Suggested Tests         |
+| ------------------- | -------- | ---- | -------- | ----------------------- |
+| `src/auth/login.py` | 45%      | -35% | HIGH     | Auth flows, error cases |
+| `src/api/orders.py` | 72%      | -8%  | MEDIUM   | Edge cases              |
 
 ### Uncovered Critical Paths
 
 **High Priority (Security/Business Critical):**
 
 1. `src/auth/login.py:45-67` - Password validation logic
+
    - **Risk**: Security-critical, no edge case testing
    - **Suggested tests**:
      - Test invalid password formats
