@@ -19,6 +19,13 @@ jobs:
           # .release-please-manifest.json in the repo root.
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-          # Use the default GITHUB_TOKEN. If/when this repo needs cross-
-          # repo or workflow-creating releases, swap to a fine-grained
-          # PAT (`token: ${{ secrets.RELEASE_PLEASE_TOKEN }}`).
+          # Prefer a fine-grained PAT so the release PR can trigger
+          # required workflows. GitHub deliberately blocks workflows
+          # triggered by PRs that were created with the default
+          # GITHUB_TOKEN (loop-prevention), which means release PRs
+          # otherwise sit on `BLOCKED` status until someone close+reopens
+          # them. The PAT needs Contents R/W + Pull requests R/W on this
+          # repo (Workflows R/W is optional, only for workflow edits).
+          # Falls back to GITHUB_TOKEN if the secret isn't set, so the
+          # workflow keeps working during initial setup.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
