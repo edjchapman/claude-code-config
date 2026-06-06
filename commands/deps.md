@@ -1,3 +1,8 @@
+---
+description: Audit project dependencies for vulnerabilities, outdated packages, and license issues.
+argument-hint: "[<package>] [--security-only] [--major-updates]"
+---
+
 Audit project dependencies for vulnerabilities, outdated packages, and license issues.
 
 > **Quick entry point** for dependency management. Delegates to `@dependency-manager` agent for comprehensive analysis.

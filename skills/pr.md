@@ -1,7 +1,6 @@
 ---
 name: pr
-description: Help create a pull request with a well-crafted description
-when_to_use: User finished work on a branch and wants to open a PR, or asks to create a pull request
+description: Create a pull request with a well-crafted description. Use when the user finished work on a branch and wants to open a PR, or asks to create a pull request.
 argument-hint: "[--draft] [--base <branch>] [--notion]"
 ---
 

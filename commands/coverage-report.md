@@ -1,3 +1,8 @@
+---
+description: Analyze test coverage and identify critical gaps.
+argument-hint: "[--run] [--scope <path>] [--threshold <pct>] [--uncovered-only]"
+---
+
 Analyze test coverage and identify gaps.
 
 ## Arguments

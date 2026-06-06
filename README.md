@@ -246,21 +246,22 @@ Invoke with `@agent-name` in Claude Code:
 
 ## Available Commands & Workflow Skills
 
-All entries below are invoked with `/<name>` in Claude Code. The **workflow skills** additionally have `when_to_use` frontmatter so Claude can auto-invoke them from plain English (e.g. "commit my staged work" → fires `/commit`). The **commands** in `commands/` are user-invoke only.
+All entries below are invoked with `/<name>` in Claude Code. The **workflow skills** include a "Use when…" clause in their `description:` so Claude can also auto-invoke them from plain English (e.g. "commit my staged work" → fires `/commit`). The **commands** in `commands/` are user-invoke only.
 
-| Slash              | Source  | What It Does                                                      | Delegates To      |
-| ------------------ | ------- | ----------------------------------------------------------------- | ----------------- |
-| `/commit`          | skill   | Analyze staged changes, generate commit message                   | --                |
-| `/pr`              | skill   | Create PR with auto-generated description                         | --                |
-| `/hotfix`          | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR  | --                |
-| `/tdd`             | skill   | TDD workflow: write failing test, implement, refactor             | --                |
-| `/adr`             | skill   | Create Architecture Decision Record (Nygard format)               | --                |
-| `/standup`         | command | Summarize last 24h of git activity                                | --                |
-| `/deps`            | command | Dependency audit: vulnerabilities, outdated packages, update plan | --                |
-| `/coverage-report` | command | Analyze test coverage and identify gaps                           | `@test-engineer`  |
-| `/refinement`      | command | Prepare technical analysis for backlog refinement                 | Explore sub-agent |
-| `/eow-review`      | command | Prepare end-of-week review notes                                  | --                |
-| `/later`           | command | Create a personal backlog item (learn, research, do, read)        | --                |
+| Slash              | Source  | What It Does                                                      | Delegates To          |
+| ------------------ | ------- | ----------------------------------------------------------------- | --------------------- |
+| `/commit`          | skill   | Analyze staged changes, generate commit message                   | --                    |
+| `/pr`              | skill   | Create PR with auto-generated description                         | --                    |
+| `/hotfix`          | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR  | --                    |
+| `/tdd`             | skill   | TDD workflow: write failing test, implement, refactor             | --                    |
+| `/adr`             | skill   | Create Architecture Decision Record (Nygard format)               | --                    |
+| `/standup`         | command | Summarize last 24h across Git, GitHub, Jira, and Notion           | --                    |
+| `/status`          | command | Quick status update appended to today's daily log                 | --                    |
+| `/deps`            | command | Dependency audit: vulnerabilities, outdated packages, update plan | `@dependency-manager` |
+| `/coverage-report` | command | Analyze test coverage and identify gaps                           | `@test-engineer`      |
+| `/refinement`      | command | Prepare technical analysis for backlog refinement                 | Explore sub-agent     |
+| `/eow-review`      | command | Prepare end-of-week review notes                                  | --                    |
+| `/later`           | command | Create a personal backlog item (learn, research, do, read)        | --                    |
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`. Custom `commands/review.md` and `commands/security-scan.md` were retired in favour of the bundled versions.
 
@@ -371,12 +372,15 @@ claude-code-config/
 │   ├── merge-settings.py    # Permission template merger
 │   ├── merge-mcp.py         # MCP template merger
 │   ├── hooks/               # Hook scripts referenced by settings.json
-│   │   ├── session-context.sh
-│   │   ├── statusline.sh
-│   │   ├── dangerous-cmd-check.sh
-│   │   ├── check-duplicates.sh
-│   │   ├── format-on-edit.sh
-│   │   └── pre-compact-state.sh
+│   │   ├── session-context.sh        # SessionStart hook
+│   │   ├── session-end.sh            # SessionEnd hook
+│   │   ├── format-on-edit.sh         # PostToolUse (Write|Edit) hook
+│   │   ├── log-tool-failure.sh       # PostToolUseFailure hook
+│   │   ├── dangerous-cmd-check.sh    # PreToolUse (Bash) hook
+│   │   ├── pre-compact-state.sh      # PreCompact hook
+│   │   ├── task-completed-chime.sh   # TaskCompleted hook
+│   │   ├── statusline.sh             # Used by settings.json statusLine.command
+│   │   └── check-duplicates.sh       # CI-only (validate-config.yml)
 │   └── cli/                 # Headless CLI automation scripts
 │       ├── review-changes.sh
 │       ├── explain-error.sh
@@ -388,16 +392,27 @@ claude-code-config/
 
 Hooks are configured in `settings.json` and run automatically at key points in the Claude Code lifecycle. Since `settings.json` is symlinked globally, hooks work in all projects.
 
-| Hook                     | Trigger                 | What It Does                                               |
-| ------------------------ | ----------------------- | ---------------------------------------------------------- |
-| SessionStart             | New session             | Outputs git branch, recent commits, and dirty files        |
-| Setup (init)             | Project init            | Detects project type, suggests configuration               |
-| UserPromptSubmit         | Before prompt sent      | LLM checks if prompt is specific enough to act on          |
-| PostToolUse (Write/Edit) | After file edits        | Auto-formats Python (ruff) and JS/TS (prettier)            |
-| PreToolUse (Bash)        | Before commands         | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)         |
-| Stop                     | Session end             | LLM checks: tests run? linters run? TODOs left?            |
-| SubagentStop             | Before subagent returns | LLM checks if subagent completed its task fully            |
-| PreCompact               | Before compaction       | Saves working state (branch, staged files, recent commits) |
+**Currently configured** (in `settings.json`):
+
+| Hook                      | Trigger              | What It Does                                                   |
+| ------------------------- | -------------------- | -------------------------------------------------------------- |
+| SessionStart              | New session          | Outputs git branch, recent commits, and dirty files            |
+| SessionEnd                | Session end          | Appends session summary to `./standups/YYYY-MM-DD-log.md`      |
+| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier)                |
+| PostToolUseFailure        | After tool failure   | Logs failed tool calls to `~/.claude/logs/tool-failures.jsonl` |
+| PreToolUse (Bash)         | Before bash commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)             |
+| PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)     |
+| TaskCompleted             | Autonomous task done | Emits a terminal bell                                          |
+
+**Available but not configured by default** (opt-in by editing `settings.json`):
+
+| Hook             | Trigger                 | What It Would Do                                  |
+| ---------------- | ----------------------- | ------------------------------------------------- |
+| UserPromptSubmit | Before prompt sent      | LLM-evaluated check: is the prompt specific?      |
+| Stop             | Session end             | LLM-evaluated check: tests run? linters run?      |
+| SubagentStop     | Before subagent returns | LLM-evaluated check: did subagent complete fully? |
+
+The three opt-in hooks invoke an LLM on every fire — enable deliberately, not by default.
 
 Hook scripts live in `scripts/hooks/` and only run when the required tools are available (e.g., `ruff`, `prettier`).
 
@@ -493,9 +508,13 @@ model: opus
 Your detailed agent instructions here...
 ```
 
-### Adding a Command
+### Adding a Skill or Command
 
-Create `commands/my-command.md`. The filename becomes `/my-command`.
+For agents, skills, hooks, and templates the canonical recipes (with exemplar pointers) live in the **Self-Extension Guide** section of `CLAUDE.md`. Quick summary:
+
+- New auto-invokable workflow → `skills/<name>.md` with a rich `description: "<what>. Use when <trigger>."` (see `skills/commit.md`)
+- New user-only command → `commands/<name>.md` with `description:` and optional `argument-hint:` (see `commands/eow-review.md`)
+- New passive-domain skill → `skills/<name>.md` with `paths:` glob list (see `skills/django-patterns.md`)
 
 ### Adding a Template
 

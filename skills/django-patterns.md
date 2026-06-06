@@ -1,7 +1,7 @@
 ---
 name: django-patterns
 description: Django architecture patterns including fat models, custom managers, query optimization, signals, and migration best practices.
-globs:
+paths:
   - "**/models.py"
   - "**/views.py"
   - "**/serializers.py"

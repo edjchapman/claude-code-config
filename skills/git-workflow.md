@@ -1,7 +1,7 @@
 ---
 name: git-workflow
 description: Enforces conventional commits, branch naming conventions, and PR size guidelines.
-globs:
+paths:
   - ".git/**"
 ---
 

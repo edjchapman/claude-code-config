@@ -1,7 +1,7 @@
 ---
 name: infrastructure
 description: Infrastructure as code patterns for Terraform, Kubernetes, and Helm.
-globs:
+paths:
   - "**/*.tf"
   - "**/k8s/**/*.yaml"
   - "**/k8s/**/*.yml"

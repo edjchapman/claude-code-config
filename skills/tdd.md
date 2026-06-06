@@ -1,7 +1,6 @@
 ---
 name: tdd
-description: Guide me through a TDD (Test-Driven Development) workflow for the given feature or change
-when_to_use: User is starting a new feature or behavior change and asks for TDD, or wants disciplined Red-Green-Refactor cycles
+description: Guide a TDD (Test-Driven Development) workflow with disciplined Red-Green-Refactor cycles for the given feature or change. Use when the user is starting a new feature or behavior change and asks for TDD.
 argument-hint: "<feature or change to implement>"
 ---
 

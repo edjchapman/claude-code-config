@@ -1,3 +1,8 @@
+---
+description: Prepare a standup document summarizing recent work activity across Git, GitHub, Jira, and Notion.
+argument-hint: "[<period>] [--output <path>] [--team] [--notion] [--skip-jira|--skip-notion|--skip-slack]"
+---
+
 Prepare a standup document summarizing my recent work activity.
 
 ## Arguments
@@ -32,6 +37,7 @@ Check for today's daily log file at `./standups/YYYY-MM-DD-log.md` (where YYYY-M
 2. **Session Summaries** (`## Session Summaries` section): These are auto-logged git commits from session-end hooks. Use these to supplement git log data — they may overlap with Step 2's git output, so de-duplicate by commit hash.
 
 Store the extracted data to enrich later steps:
+
 - Status updates marked `[notion]` may indicate items already shared externally
 - Entries mentioning "blocked", "waiting", or "stuck" should surface as blockers
 - Timestamps help establish the narrative flow of the day

@@ -83,6 +83,15 @@ jobs:
       - name: Run check-duplicates.sh
         run: bash scripts/hooks/check-duplicates.sh
 
+  check-docs-drift:
+    name: Check docs reference all primitives on disk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run check-docs-drift.sh
+        run: bash scripts/check-docs-drift.sh
+
   markdownlint:
     name: Lint Markdown
     runs-on: ubuntu-latest
