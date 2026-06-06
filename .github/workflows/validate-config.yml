@@ -101,7 +101,12 @@ jobs:
       - name: Run markdownlint-cli2
         uses: DavidAnson/markdownlint-cli2-action@v23
         with:
-          globs: "**/*.md"
+          # Explicit `globs` bypasses `.markdownlintignore` discovery, so
+          # exclusions have to be negated here. CHANGELOG.md is auto-generated
+          # by release-please and uses a format that doesn't satisfy MD012.
+          globs: |
+            **/*.md
+            !CHANGELOG.md
           config: ".markdownlint.json"
 
   actionlint:
