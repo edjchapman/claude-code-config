@@ -1,7 +1,7 @@
 ---
 name: security-review
 description: Input validation, parameterized queries, JWT rules, CSRF, and authentication security patterns.
-globs:
+paths:
   - "**/auth/**"
   - "**/authentication/**"
   - "**/middleware/**"

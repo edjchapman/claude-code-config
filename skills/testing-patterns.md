@@ -1,7 +1,7 @@
 ---
 name: testing-patterns
 description: Enforces AAA pattern, factory usage, and coverage expectations for Python and TypeScript tests.
-globs:
+paths:
   - "**/test_*.py"
   - "**/*_test.py"
   - "**/tests/**/*.py"

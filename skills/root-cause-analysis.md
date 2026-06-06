@@ -1,7 +1,7 @@
 ---
 name: root-cause-analysis
 description: Guides bug fixes toward root causes rather than symptom-level bandaids in Python codebases.
-globs:
+paths:
   - "**/*.py"
 ---
 

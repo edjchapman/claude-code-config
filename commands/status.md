@@ -1,3 +1,8 @@
+---
+description: Capture a quick status update and append it to today's daily log.
+argument-hint: "<message> [--notion]"
+---
+
 Capture a quick status update and append it to today's daily log.
 
 ## Arguments
@@ -11,10 +16,12 @@ Capture a quick status update and append it to today's daily log.
 ## Step 1: Parse Arguments
 
 Parse `$ARGUMENTS` for:
+
 1. **`--notion` flag**: If present, remove it from the message and set a flag to sync to Notion
 2. **Message**: Everything remaining after flag removal is the status message
 
 If no message is provided (empty after flag removal), ask the user:
+
 > "What's your status update?"
 
 ## Step 2: Determine File Path

@@ -1,3 +1,8 @@
+---
+description: Prepare technical analysis for backlog refinement meetings.
+argument-hint: "<ticket-ids...> [--jql <query>] [--output <dir>] [--explore <depth>] [--notion]"
+---
+
 Prepare technical analysis for backlog refinement meetings.
 
 ## Arguments

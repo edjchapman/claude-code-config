@@ -1,4 +1,11 @@
-Create a new "Later" item from the template — a personal backlog entry for things to learn, research, do, or read.
+---
+description: Create a new "Later" backlog item (Learn / Research / Do / Read) from a configurable template.
+argument-hint: "<title> [--category <name>] [--priority <level>]"
+---
+
+Create a new "Later" item — a personal backlog entry for things to learn, research, do, or read.
+
+> **Backlog location**: this command writes to `$LATER_DIR` (defaults to `~/notes/Later`). Set `LATER_DIR` in your shell if your backlog lives elsewhere.
 
 ## Arguments
 
@@ -17,9 +24,31 @@ Create a new "Later" item from the template — a personal backlog entry for thi
    - `--priority` defaults to Medium if not provided.
    - If `--category` is missing, ask the user to choose one: Learn, Research, Do, Read.
 
-2. **Read the template**: Read the file at `Later/_template.md` in this repository.
+2. **Resolve the backlog directory and template**:
+
+   - Read `LATER_DIR` from the environment; if unset, default to `~/notes/Later`.
+   - Look for a template file at `$LATER_DIR/_template.md`. If it exists, use it.
+   - If no template file exists, fall back to this inline template:
+
+     ```markdown
+     # [Title]
+
+     **Added:** YYYY-MM-DD
+     **Priority:** Medium
+     **Status:** New
+
+     ## What
+
+     ## Why
+
+     ## Resources
+
+     ## Notes
+     ```
 
 3. **Generate filename**: Convert the title to kebab-case for the filename.
+
+   Note: the inline-fallback path skips step 2 ("Read the template") since the template is already inlined above.
 
    - Strip special characters (slashes, colons, quotes, etc.)
    - Example: "Learn Rust Async" → `learn-rust-async.md`
@@ -38,7 +67,7 @@ Create a new "Later" item from the template — a personal backlog entry for thi
    - **Resources** — any links, books, courses (optional — skip if user has none)
    - **Notes** — additional context (optional — skip if user has none)
 
-6. **Write the file**: Save the completed file to `Later/<Category>/<filename>.md`.
+6. **Write the file**: Save the completed file to `$LATER_DIR/<Category>/<filename>.md` (creating subdirectories as needed).
 
 7. **Confirm**: Show the user the final file path and the rendered contents.
 

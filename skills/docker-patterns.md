@@ -1,7 +1,7 @@
 ---
 name: docker-patterns
 description: Docker best practices including multi-stage builds, layer caching, security, and compose patterns.
-globs:
+paths:
   - "**/Dockerfile"
   - "**/docker-compose*.yml"
   - "**/.dockerignore"

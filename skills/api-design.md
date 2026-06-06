@@ -1,7 +1,7 @@
 ---
 name: api-design
 description: REST conventions, status codes, pagination, and error format standards for API development.
-globs:
+paths:
   - "**/views/**"
   - "**/api/**"
   - "**/serializers/**"

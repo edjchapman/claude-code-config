@@ -49,12 +49,13 @@ the official Claude Code hooks docs for the full schema. Repo gotcha: omit
 
 Currently configured in `settings.json`:
 
-- **SessionStart**: Auto-loads git context (branch, recent commits, dirty files)
-- **PostToolUse (Write|Edit)**: Auto-formats Python files (ruff) and JS/TS files (prettier)
-- **PostToolUseFailure**: Appends failed tool calls to `~/.claude/logs/tool-failures.jsonl` for later pattern analysis
-- **PreToolUse (Bash)**: Blocks dangerous command patterns (defense-in-depth)
-- **PreCompact**: Preserves working state before context compaction
-- **TaskCompleted**: Emits a terminal bell when an autonomous task completes
+- **SessionStart** → `scripts/hooks/session-context.sh`: auto-loads git context (branch, recent commits, dirty files)
+- **SessionEnd** → `scripts/hooks/session-end.sh`: appends session summary to `./standups/YYYY-MM-DD-log.md` for later `/standup` consumption
+- **PostToolUse (Write|Edit)** → `scripts/hooks/format-on-edit.sh`: auto-formats Python files (ruff) and JS/TS files (prettier)
+- **PostToolUseFailure** → `scripts/hooks/log-tool-failure.sh`: appends failed tool calls to `~/.claude/logs/tool-failures.jsonl` for later pattern analysis
+- **PreToolUse (Bash)** → `scripts/hooks/dangerous-cmd-check.sh`: blocks dangerous command patterns (defense-in-depth)
+- **PreCompact** → `scripts/hooks/pre-compact-state.sh`: preserves working state before context compaction
+- **TaskCompleted** → `scripts/hooks/task-completed-chime.sh`: emits a terminal bell when an autonomous task completes
 
 Available but **not configured by default** (opt-in by adding to `settings.json`):
 
@@ -64,6 +65,8 @@ Available but **not configured by default** (opt-in by adding to `settings.json`
 
 The three opt-in hooks invoke an LLM on every fire and incur token cost — enable
 deliberately, not by default.
+
+CI-only utility (not a runtime hook): `scripts/hooks/check-duplicates.sh` runs from `.github/workflows/validate-config.yml` to fail CI if two agents/skills/commands share a name.
 
 ### Settings Keys
 
@@ -81,9 +84,12 @@ Other documented keys that this repo does **not** currently set (available as op
 
 ### Skills
 
-Skills are domain knowledge documents in `skills/` that auto-activate based on file glob patterns. Unlike agents (explicitly invoked), skills provide passive context when relevant files are touched.
+Skills in `skills/` come in two activation flavours:
 
-Available skills:
+1. **Passive-domain skills** auto-activate when a session edits files matching the skill's `paths:` glob list. They inject domain knowledge silently — Claude does not "invoke" them like a command.
+2. **Workflow skills** are conversation-triggered. Their `description:` includes a "Use when..." clause that Claude matches against the user's request, and they're also user-invocable via `/skill-name`.
+
+Passive-domain skills:
 
 - `git-workflow.md`: Conventional commits, branch naming, PR size (`.git/**`)
 - `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*_test.py`, `**/*.test.ts`, `**/*.test.tsx`, `**/*.spec.ts`, `**/*.spec.tsx`)
@@ -93,6 +99,14 @@ Available skills:
 - `docker-patterns.md`: Multi-stage builds, layer caching, security (`**/Dockerfile`, `**/docker-compose*.yml`, `**/.dockerignore`)
 - `infrastructure.md`: Terraform modules, K8s resources, Helm charts (`**/*.tf`, `**/k8s/**`, `**/helm/**`)
 - `root-cause-analysis.md`: Guides bug fixes toward root causes over symptom-level bandaids (`**/*.py`)
+
+Workflow skills (user-invocable as `/<name>`, also auto-fire on matching conversation):
+
+- `commit.md` (`/commit`): Analyze staged changes and write a conventional commit message
+- `pr.md` (`/pr`): Create a pull request with a well-crafted description
+- `hotfix.md` (`/hotfix`): Create a hotfix branch with a minimal fix, targeted tests, and PR
+- `tdd.md` (`/tdd`): Guide a TDD workflow (Red-Green-Refactor) for a feature or change
+- `adr.md` (`/adr`): Create an Architecture Decision Record (Nygard format)
 
 ### Rules
 
@@ -128,6 +142,13 @@ Templates in `settings-templates/` are JSON files defining Claude Code permissio
 3. Merges permissions with precedence: **deny > allow**
 4. Outputs combined `settings.local.json`
 
+Available templates (13 total):
+
+- **Base**: `base.json` (always included)
+- **Backend stacks**: `django.json`, `fastapi.json`, `go.json`, `java.json`, `node.json`, `python.json`, `rust.json`
+- **Frontend stacks**: `nextjs.json`, `react.json`
+- **Platform / infra**: `docker.json`, `kubernetes.json`, `terraform.json`
+
 Template structure:
 
 ```json
@@ -141,6 +162,8 @@ Template structure:
 }
 ```
 
+Bump `_version` when a template's permission set changes meaningfully — the value isn't used by the merge logic but signals drift to humans reviewing diffs.
+
 ### MCP Template System
 
 MCP templates in `mcp-templates/` define MCP server configurations per project type. The merge system:
@@ -152,7 +175,7 @@ MCP templates in `mcp-templates/` define MCP server configurations per project t
 Available MCP templates:
 
 - `base.json`: Empty (MCP servers are opt-in)
-- `django.json`: PostgreSQL MCP server
+- `django.json` (`_version: 2`): PostgreSQL MCP server
 - `nextjs.json`: PostgreSQL MCP server
 - `fastapi.json`: PostgreSQL MCP server
 
@@ -187,18 +210,22 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 
 ### Skill Definitions
 
-Skills in `skills/` are Markdown files with YAML frontmatter:
+Skills in `skills/` are Markdown files with YAML frontmatter. **Canonical fields** (per the [Claude Code skills docs](https://code.claude.com/docs/en/skills)):
 
 - `name`: Skill identifier (used as `/skill-name`)
-- `description`: One-line summary shown in the skill picker
-- `when_to_use`: Plain-English trigger description; Claude self-invokes when the conversation matches
-- `globs` (optional): Glob patterns that auto-activate the skill when files match (passive domain knowledge use case)
+- `description`: Rich description shown in the skill picker AND used by Claude to decide when to auto-invoke. Pattern: `"<what it does>. Use when <user trigger phrasing>."`
+- `paths` (optional): Glob patterns that auto-activate the skill when files match. Passive-domain skills use this.
 - `argument-hint` (optional): Hint shown in autocomplete for `$ARGUMENTS`
-- `allowed-tools` (optional): Restrict tools available while the skill is active
+- `allowed-tools` (optional): Tools pre-approved while the skill is active (space/comma-separated or YAML list)
+- `disable-model-invocation` (optional): Set `true` for user-only invocation (Claude won't auto-fire)
+- `user-invocable` (optional): Set `false` to hide from the `/` picker (background knowledge only)
+- `model`, `effort` (optional): Per-skill model/effort overrides
+
+**Do not use** `when_to_use:` or `globs:` — these are non-canonical and silently ignored. Merge "when to use" content into `description:`, and use `paths:` instead of `globs:`.
 
 ### Command Definitions
 
-Commands in `commands/` are Markdown files where the filename becomes the slash command (e.g., `standup.md` → `/standup`). Commands are user-invoke only — Claude does not auto-invoke them. Use a skill with `when_to_use` instead when you want auto-invocation.
+Per the official docs, custom commands have been merged into skills: `commands/foo.md` and `skills/foo.md` both create `/foo` and use the same frontmatter contract. We keep `commands/` for personal/meta workflows that are user-invoke only (no `description:` "Use when..." clause), and `skills/` for everything that should also be auto-invokable. New work should prefer `skills/` over `commands/`.
 
 ## Commands, Agents, and Skills — when to use each
 
@@ -230,7 +257,7 @@ Currently retired in favor of plugins:
 Kept custom because no enabled plugin fully covers them:
 
 - `@bug-resolver`, `@ci-debugger`, `@database-architect`, `@dependency-manager`, `@devops-engineer`, `@documentation-writer`, `@e2e-playwright-engineer`, `@git-helper`, `@migration-engineer`, `@performance-engineer`, `@pr-review-bundler`, `@refactoring-engineer`, `@security-auditor`, `@test-engineer`
-- `/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, `/standup`, `/deps`, `/coverage-report`, `/refinement`, `/eow-review`, `/later`
+- `/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, `/standup`, `/status`, `/deps`, `/coverage-report`, `/refinement`, `/eow-review`, `/later`
 
 If you enable a new plugin and it overlaps with one of the kept-custom items, re-apply the rule.
 
@@ -262,6 +289,68 @@ When refactoring or adding new config/constants, always derive from existing sou
 ### Adopt User Corrections Immediately
 
 When the user asks to narrow scope or correct an approach, immediately adopt their direction without further deliberation or alternative proposals. The user knows the codebase constraints.
+
+## Self-Extension Guide
+
+When extending this repo (adding a new agent / skill / command / hook / template), copy the most-similar exemplar rather than writing frontmatter from scratch. The exemplars below have been verified against the canonical Claude Code docs.
+
+### Add an agent
+
+- **Where**: `agents/<kebab-name>.md`
+- **Required frontmatter**: `name`, `description` (include `<example>` blocks for when to invoke)
+- **Optional**: `model` (`opus`/`sonnet`/`haiku`), `tools`, `color`, `permissionMode`
+- **Model heuristic**: `opus` for complex reasoning (bug-resolver, security-auditor), `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
+- **Exemplar**: [`agents/bug-resolver.md`](agents/bug-resolver.md) — opus, rich description with examples
+
+### Add a passive-domain skill (file-glob activated)
+
+- **Where**: `skills/<kebab-name>.md`
+- **Required frontmatter**: `name`, `description` (state what domain knowledge it provides), `paths` (YAML list of globs)
+- **Exemplar**: [`skills/django-patterns.md`](skills/django-patterns.md)
+- **Don't**: use `globs:` (silently ignored — `paths:` is the canonical field)
+
+### Add a workflow skill (conversation-triggered + user-invocable)
+
+- **Where**: `skills/<kebab-name>.md`
+- **Required frontmatter**: `name`, `description` — write description as `"<what it does>. Use when <user trigger phrasing>."` so Claude can match conversational intent
+- **Optional**: `argument-hint`, `allowed-tools`, `disable-model-invocation: true` (for workflows you want only triggered by `/name`, never by inference)
+- **Exemplar**: [`skills/commit.md`](skills/commit.md) — workflow skill with rich description, argument hint, and tight allowed-tools scope
+- **Don't**: use `when_to_use:` (non-canonical — merge into `description:`)
+
+### Add a command
+
+- **Where**: `commands/<kebab-name>.md`
+- **Required frontmatter**: `description` (and optionally `argument-hint`)
+- **When to choose this over a skill**: only for personal/meta workflows that you never want Claude to auto-invoke. For everything else, prefer a skill — they're a strict superset.
+- **Exemplar**: [`commands/eow-review.md`](commands/eow-review.md)
+
+### Add a hook
+
+- **Script location**: `scripts/hooks/<name>.sh` (set `chmod +x`, include `#!/usr/bin/env bash`)
+- **Wire-up**: add an entry to `settings.json` under `hooks.<EventName>`. Use this command pattern so it works in both plugin and symlink-global modes:
+  ```
+  "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"
+  ```
+- **Matcher rules**: events that dispatch on a tool name (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`) take a string matcher (e.g. `"Bash"`, `"Write|Edit"`). Events that don't (`SessionStart`, `SessionEnd`, `PreCompact`, `Stop`, `SubagentStop`, `UserPromptSubmit`, `TaskCompleted`) **omit** the matcher field.
+- **Exemplar wire-up**: any current entry in `settings.json` under `hooks.*`
+
+### Add a settings template
+
+- **Where**: `settings-templates/<stack>.json`
+- **Schema**: `_source`, `_version`, `permissions.allow`, `permissions.deny`
+- **Precedence**: `deny` beats `allow` during merge — use deny lists for stack-specific footguns (e.g. `terraform.json` denying `terraform destroy:*`)
+- **Exemplar**: [`settings-templates/django.json`](settings-templates/django.json)
+
+### After extending
+
+Run the validation suite locally before pushing:
+
+```bash
+python -m json.tool settings.json > /dev/null   # JSON sanity
+scripts/hooks/check-duplicates.sh               # No agent/skill/command name collisions
+```
+
+CI (`.github/workflows/validate-config.yml`) runs the same checks.
 
 ## Code Style
 
