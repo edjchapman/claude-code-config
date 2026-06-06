@@ -175,11 +175,13 @@ MCP templates in `mcp-templates/` define MCP server configurations per project t
 Available MCP templates:
 
 - `base.json`: Empty (MCP servers are opt-in)
-- `django.json` (`_version: 2`): PostgreSQL MCP server
+- `django.json` (`_version: 2`): PostgreSQL MCP server (`@modelcontextprotocol/server-postgres`)
 - `nextjs.json`: PostgreSQL MCP server
 - `fastapi.json`: PostgreSQL MCP server
+- `python.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Python local dev
+- `node.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Node local dev
 
-Stacks without an MCP template (Node, Python, Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); add MCP servers manually in the project's generated `.mcp.json` when needed. Only PostgreSQL is templated because it's the one canonical reference server with a stable npm package this repo has confirmed working — other MCP servers can be added per-project once you've validated the package name and connection.
+Stacks without an MCP template (Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); add MCP servers manually in the project's generated `.mcp.json` when needed. The frameworks with web/DB context default to PostgreSQL; generic Python/Node templates use SQLite because there's no shared external DB assumption. Verify each template's package against the npm registry before relying on it — versions move (npm search confirmed `mcp-server-sqlite-npx@0.8.0` exists at template creation time).
 
 Playwright is now provided as a first-class plugin (`playwright@claude-plugins-official`,
 enabled in `settings.json`), not via an MCP template, so React projects do not

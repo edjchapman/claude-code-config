@@ -21,6 +21,12 @@ jobs:
       - name: Validate settings.json
         run: python -m json.tool settings.json > /dev/null
 
+      - name: Validate hooks/hooks.json (plugin-mode hooks file)
+        run: python -m json.tool hooks/hooks.json > /dev/null
+
+      - name: Validate settings.personal.json.example
+        run: python -m json.tool settings.personal.json.example > /dev/null
+
       - name: Validate all settings templates
         run: |
           for f in settings-templates/*.json; do
@@ -82,6 +88,69 @@ jobs:
 
       - name: Run check-duplicates.sh
         run: bash scripts/hooks/check-duplicates.sh
+
+  validate-hooks:
+    name: Validate hook files (sync + script integrity)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Hook configs in settings.json and hooks/hooks.json must match
+        # Plugin distribution reads hooks/hooks.json; symlink-global mode reads
+        # settings.json. Both must carry the same hook definitions or hooks
+        # will silently differ between install paths.
+        run: |
+          diff <(python3 -c "import json; print(json.dumps(json.load(open('settings.json'))['hooks'], indent=2, sort_keys=True))") \
+               <(python3 -c "import json; print(json.dumps(json.load(open('hooks/hooks.json'))['hooks'], indent=2, sort_keys=True))")
+
+      - name: Every hook command must reference an existing executable script with a shebang
+        # Catches typos in hook paths and hook scripts that were renamed without
+        # the settings.json reference being updated.
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import sys
+
+          errors = []
+          for source in ('settings.json', 'hooks/hooks.json'):
+              with open(source) as f:
+                  data = json.load(f)
+              hooks = data.get('hooks', {})
+              for event, entries in hooks.items():
+                  for entry in entries:
+                      for hook in entry.get('hooks', []):
+                          if hook.get('type') != 'command':
+                              continue
+                          cmd = hook.get('command', '')
+                          # Hook commands use ${CLAUDE_PLUGIN_DIR:-...readlink...}
+                          # followed by a path under scripts/hooks/. Extract the
+                          # script-relative path so we can check it on disk.
+                          if 'scripts/hooks/' not in cmd:
+                              errors.append(f'{source} {event}: command does not reference scripts/hooks/: {cmd}')
+                              continue
+                          script_rel = 'scripts/hooks/' + cmd.split('scripts/hooks/', 1)[1].split()[0]
+                          if not os.path.isfile(script_rel):
+                              errors.append(f'{source} {event}: referenced script does not exist: {script_rel}')
+                              continue
+                          if not os.access(script_rel, os.X_OK):
+                              errors.append(f'{source} {event}: referenced script is not executable: {script_rel}')
+                          with open(script_rel, 'rb') as sf:
+                              first_line = sf.readline()
+                          if not first_line.startswith(b'#!'):
+                              errors.append(f'{source} {event}: referenced script lacks a shebang: {script_rel}')
+
+          if errors:
+              for e in errors:
+                  print(e)
+              sys.exit(1)
+          print('All hook script references are valid.')
+          PY
 
   check-docs-drift:
     name: Check docs reference all primitives on disk
