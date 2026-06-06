@@ -36,14 +36,16 @@ python3 <repo>/scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]
 
 ### Hooks
 
-Hooks are configured in `settings.json` under the `"hooks"` key. Since `settings.json` is symlinked globally, hooks are available in all projects. Hook scripts live in `scripts/hooks/` and are referenced via `readlink` to resolve the repo path from the symlink.
+Hooks are configured in **two places** so the repo works in both consumption modes:
+
+- `settings.json` (`hooks` key) — read by the symlink-global install path. Since `settings.json` is symlinked into `~/.claude/`, hooks are available in all projects.
+- `hooks/hooks.json` at the repo root — read by the plugin install path (per [plugin docs](https://code.claude.com/docs/en/plugins.md)). Same shape as `settings.json`'s `hooks` object, wrapped as `{ "hooks": { ... } }`.
+
+**Keep both files in sync** whenever you add or change a hook. Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
 
 #### Hook Format
 
-Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See
-the official Claude Code hooks docs for the full schema. Repo gotcha: omit
-`matcher` for events that don't dispatch on a tool name (`SessionStart`,
-`PreCompact`, `Stop`, `SubagentStop`, `UserPromptSubmit`).
+Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the [official hooks reference](https://code.claude.com/docs/en/hooks.md) for the full schema and the per-event matcher fields. Repo gotcha: most events support a matcher (filtering on an event-specific field — e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `PreCompact` on `manual`/`auto`, `SubagentStop` on agent type). The events that **do not** support a matcher and must omit it are: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`. Adding a `matcher` field to a no-matcher event is silently ignored per docs.
 
 #### Available hooks
 
@@ -75,7 +77,7 @@ Beyond plugins and hooks, `settings.json` currently sets:
 - **`model`**: Default model (e.g. `opus[1m]` for Opus with 1M context)
 - **`hooks`**: Per-event hook configuration (see Hooks section above)
 - **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
-- **`enabledPlugins`**: Plugin enablement map (GitHub, Notion, Figma, LSPs, etc.)
+- **`enabledPlugins`**: Plugin enablement map. The checked-in `settings.json` lists only **universal** plugins (no external accounts required). Personal opt-ins (Notion, Figma, frontend-design) live in `settings.personal.json.example`
 - **`sandbox`**: Sandbox configuration with `enabled` and `autoAllowBashIfSandboxed`
 - **`effortLevel`**: Default effort level (e.g. `high`)
 - **`agentPushNotifEnabled`**: Push notifications for background agent activity
@@ -119,19 +121,17 @@ Available rules:
 
 ### Settings Files: Two Purposes
 
-This repo manages two distinct settings files:
+This repo manages three distinct settings files:
 
-| File                  | Purpose                                         | Distribution                 | Source                            |
-| --------------------- | ----------------------------------------------- | ---------------------------- | --------------------------------- |
-| `settings.json`       | Plugin enablement (GitHub, Notion, LSPs, etc.)  | **Symlinked** from repo root | Canonical copy in repo            |
-| `settings.local.json` | Bash permissions (what commands Claude can run) | **Generated** per-project    | Merged from `settings-templates/` |
+| File                             | Purpose                                                             | Distribution                                            | Source                            |
+| -------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------- | --------------------------------- |
+| `settings.json`                  | **Universal** plugin enablement + hooks (no external auth required) | **Symlinked** from repo root                            | Canonical copy in repo            |
+| `settings.personal.json.example` | Opt-in fragment for plugins requiring external accounts/auth        | **Copied** by hand into `~/.claude/settings.local.json` | Template in repo                  |
+| `settings.local.json`            | Bash permissions + any personal plugin opt-ins                      | **Generated** per-project + hand-edited globally        | Merged from `settings-templates/` |
 
-**Why separate?**
+**Why split universal vs personal plugins?** The repo is consumable by anyone (via plugin install or symlink). Auto-enabling Notion/Figma/etc. for someone who has no account or doesn't use those tools is surprising. `settings.json` carries only plugins that work without external accounts (github, pr-review-toolkit, feature-dev, code-simplifier, playwright, pyright-lsp, typescript-lsp, document-skills). Personal opt-ins (`Notion`, `figma`, `frontend-design`) live in `settings.personal.json.example` and are merged into the maintainer's `~/.claude/settings.local.json` by hand.
 
-- **Plugins** (`settings.json`): Personal preference, same across all projects, updated by adding plugins to repo
-- **Permissions** (`settings.local.json`): Project-specific, varies by tech stack (Django vs React vs Go)
-
-Both files coexist in `.claude/` directories and serve different purposes.
+**Note on merge semantics**: Claude Code's documented behavior for `enabledPlugins` across settings layers is not explicitly spelled out in the docs (the example given covers scalars, where the higher-precedence layer wins). If you observe universal plugins being shadowed when the example is active, include the universal list alongside the personal entries in your local file. See [Claude Code settings docs](https://code.claude.com/docs/en/settings.md) for precedence rules.
 
 ### Settings Template System
 
@@ -175,11 +175,13 @@ MCP templates in `mcp-templates/` define MCP server configurations per project t
 Available MCP templates:
 
 - `base.json`: Empty (MCP servers are opt-in)
-- `django.json` (`_version: 2`): PostgreSQL MCP server
+- `django.json` (`_version: 2`): PostgreSQL MCP server (`@modelcontextprotocol/server-postgres`)
 - `nextjs.json`: PostgreSQL MCP server
 - `fastapi.json`: PostgreSQL MCP server
+- `python.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Python local dev
+- `node.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Node local dev
 
-Stacks without an MCP template (Node, Python, Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); add MCP servers manually in the project's generated `.mcp.json` when needed. Only PostgreSQL is templated because it's the one canonical reference server with a stable npm package this repo has confirmed working — other MCP servers can be added per-project once you've validated the package name and connection.
+Stacks without an MCP template (Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); add MCP servers manually in the project's generated `.mcp.json` when needed. The frameworks with web/DB context default to PostgreSQL; generic Python/Node templates use SQLite because there's no shared external DB assumption. Verify each template's package against the npm registry before relying on it — versions move (npm search confirmed `mcp-server-sqlite-npx@0.8.0` exists at template creation time).
 
 Playwright is now provided as a first-class plugin (`playwright@claude-plugins-official`,
 enabled in `settings.json`), not via an MCP template, so React projects do not
@@ -247,17 +249,19 @@ Several enabled plugins (visible in `settings.json`'s `enabledPlugins`) overlap 
 
 Currently retired in favor of plugins:
 
-| Retired                     | Replaced by                                                                                   |
-| --------------------------- | --------------------------------------------------------------------------------------------- |
-| `agents/code-reviewer.md`   | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered) |
-| `agents/spec-writer.md`     | `feature-dev:code-architect`                                                                  |
-| `commands/review.md`        | bundled `/review`                                                                             |
-| `commands/security-scan.md` | bundled `/security-review`                                                                    |
+| Retired                                            | Replaced by                                                                                   |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `agents/code-reviewer.md`                          | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered) |
+| `agents/spec-writer.md`                            | `feature-dev:code-architect`                                                                  |
+| `commands/review.md`                               | bundled `/review`                                                                             |
+| `commands/security-scan.md`                        | bundled `/security-review`                                                                    |
+| `commands/deps.md` (delegation wrapper)            | `@dependency-manager` (the agent auto-detects npm/pip/uv/poetry/go/cargo)                     |
+| `commands/coverage-report.md` (delegation wrapper) | `@test-engineer` (the agent auto-detects Django/Jest/Vitest and analyzes coverage gaps)       |
 
 Kept custom because no enabled plugin fully covers them:
 
 - `@bug-resolver`, `@ci-debugger`, `@database-architect`, `@dependency-manager`, `@devops-engineer`, `@documentation-writer`, `@e2e-playwright-engineer`, `@git-helper`, `@migration-engineer`, `@performance-engineer`, `@pr-review-bundler`, `@refactoring-engineer`, `@security-auditor`, `@test-engineer`
-- `/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, `/standup`, `/status`, `/deps`, `/coverage-report`, `/refinement`, `/eow-review`, `/later`
+- `/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, `/standup`, `/status`, `/refinement`, `/eow-review`, `/later`
 
 If you enable a new plugin and it overlaps with one of the kept-custom items, re-apply the rule.
 
@@ -327,9 +331,9 @@ When extending this repo (adding a new agent / skill / command / hook / template
 ### Add a hook
 
 - **Script location**: `scripts/hooks/<name>.sh` (set `chmod +x`, include `#!/usr/bin/env bash`)
-- **Wire-up**: add an entry to `settings.json` under `hooks.<EventName>` with a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` — that pattern works in both plugin and symlink-global modes.
-- **Matcher rules**: events that dispatch on a tool name (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`) take a string matcher (e.g. `"Bash"`, `"Write|Edit"`). Events that don't (`SessionStart`, `SessionEnd`, `PreCompact`, `Stop`, `SubagentStop`, `UserPromptSubmit`, `TaskCompleted`) **omit** the matcher field.
-- **Exemplar wire-up**: any current entry in `settings.json` under `hooks.*`
+- **Wire-up — two files**: add the entry to **both** `settings.json` (under `hooks.<EventName>`) and `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper). Same shape in both. Use a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` so it resolves in both plugin and symlink-global modes.
+- **Matcher rules**: most events support a `matcher` field — tool events filter on tool name (e.g. `"Bash"`, `"Edit|Write"`); other events filter on event-specific fields (e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `SubagentStop` on agent type). Events that **don't** support matchers and must omit the field: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`. See [hooks reference](https://code.claude.com/docs/en/hooks.md) for the full per-event schema.
+- **Exemplar wire-up**: any current entry in `settings.json` or `hooks/hooks.json` under `hooks.*`
 
 ### Add a settings template
 
