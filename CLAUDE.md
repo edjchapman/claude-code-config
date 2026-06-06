@@ -327,10 +327,7 @@ When extending this repo (adding a new agent / skill / command / hook / template
 ### Add a hook
 
 - **Script location**: `scripts/hooks/<name>.sh` (set `chmod +x`, include `#!/usr/bin/env bash`)
-- **Wire-up**: add an entry to `settings.json` under `hooks.<EventName>`. Use this command pattern so it works in both plugin and symlink-global modes:
-  ```
-  "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"
-  ```
+- **Wire-up**: add an entry to `settings.json` under `hooks.<EventName>` with a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` — that pattern works in both plugin and symlink-global modes.
 - **Matcher rules**: events that dispatch on a tool name (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`) take a string matcher (e.g. `"Bash"`, `"Write|Edit"`). Events that don't (`SessionStart`, `SessionEnd`, `PreCompact`, `Stop`, `SubagentStop`, `UserPromptSubmit`, `TaskCompleted`) **omit** the matcher field.
 - **Exemplar wire-up**: any current entry in `settings.json` under `hooks.*`
 
