@@ -249,17 +249,19 @@ Several enabled plugins (visible in `settings.json`'s `enabledPlugins`) overlap 
 
 Currently retired in favor of plugins:
 
-| Retired                     | Replaced by                                                                                   |
-| --------------------------- | --------------------------------------------------------------------------------------------- |
-| `agents/code-reviewer.md`   | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered) |
-| `agents/spec-writer.md`     | `feature-dev:code-architect`                                                                  |
-| `commands/review.md`        | bundled `/review`                                                                             |
-| `commands/security-scan.md` | bundled `/security-review`                                                                    |
+| Retired                                            | Replaced by                                                                                   |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `agents/code-reviewer.md`                          | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered) |
+| `agents/spec-writer.md`                            | `feature-dev:code-architect`                                                                  |
+| `commands/review.md`                               | bundled `/review`                                                                             |
+| `commands/security-scan.md`                        | bundled `/security-review`                                                                    |
+| `commands/deps.md` (delegation wrapper)            | `@dependency-manager` (the agent auto-detects npm/pip/uv/poetry/go/cargo)                     |
+| `commands/coverage-report.md` (delegation wrapper) | `@test-engineer` (the agent auto-detects Django/Jest/Vitest and analyzes coverage gaps)       |
 
 Kept custom because no enabled plugin fully covers them:
 
 - `@bug-resolver`, `@ci-debugger`, `@database-architect`, `@dependency-manager`, `@devops-engineer`, `@documentation-writer`, `@e2e-playwright-engineer`, `@git-helper`, `@migration-engineer`, `@performance-engineer`, `@pr-review-bundler`, `@refactoring-engineer`, `@security-auditor`, `@test-engineer`
-- `/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, `/standup`, `/status`, `/deps`, `/coverage-report`, `/refinement`, `/eow-review`, `/later`
+- `/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, `/standup`, `/status`, `/refinement`, `/eow-review`, `/later`
 
 If you enable a new plugin and it overlaps with one of the kept-custom items, re-apply the rule.
 

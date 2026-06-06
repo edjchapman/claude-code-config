@@ -1,6 +1,6 @@
 ---
 name: adr
-description: Create an Architecture Decision Record (Nygard format) documenting a technical decision. Use when the user is making a non-trivial architectural decision and wants to document context, alternatives, and trade-offs, or explicitly asks for an ADR.
+description: Create an Architecture Decision Record (Nygard format) documenting a technical decision. Use when the user is deciding between multiple technical approaches, evaluating trade-offs for a framework/library/database choice, planning a schema migration or multi-component refactor, or explicitly asks for an ADR.
 argument-hint: "<decision summary>"
 ---
 
