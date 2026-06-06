@@ -36,14 +36,16 @@ python3 <repo>/scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]
 
 ### Hooks
 
-Hooks are configured in `settings.json` under the `"hooks"` key. Since `settings.json` is symlinked globally, hooks are available in all projects. Hook scripts live in `scripts/hooks/` and are referenced via `readlink` to resolve the repo path from the symlink.
+Hooks are configured in **two places** so the repo works in both consumption modes:
+
+- `settings.json` (`hooks` key) — read by the symlink-global install path. Since `settings.json` is symlinked into `~/.claude/`, hooks are available in all projects.
+- `hooks/hooks.json` at the repo root — read by the plugin install path (per [plugin docs](https://code.claude.com/docs/en/plugins.md)). Same shape as `settings.json`'s `hooks` object, wrapped as `{ "hooks": { ... } }`.
+
+**Keep both files in sync** whenever you add or change a hook. Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
 
 #### Hook Format
 
-Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See
-the official Claude Code hooks docs for the full schema. Repo gotcha: omit
-`matcher` for events that don't dispatch on a tool name (`SessionStart`,
-`PreCompact`, `Stop`, `SubagentStop`, `UserPromptSubmit`).
+Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the [official hooks reference](https://code.claude.com/docs/en/hooks.md) for the full schema and the per-event matcher fields. Repo gotcha: most events support a matcher (filtering on an event-specific field — e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `PreCompact` on `manual`/`auto`, `SubagentStop` on agent type). The events that **do not** support a matcher and must omit it are: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`. Adding a `matcher` field to a no-matcher event is silently ignored per docs.
 
 #### Available hooks
 
@@ -327,9 +329,9 @@ When extending this repo (adding a new agent / skill / command / hook / template
 ### Add a hook
 
 - **Script location**: `scripts/hooks/<name>.sh` (set `chmod +x`, include `#!/usr/bin/env bash`)
-- **Wire-up**: add an entry to `settings.json` under `hooks.<EventName>` with a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` — that pattern works in both plugin and symlink-global modes.
-- **Matcher rules**: events that dispatch on a tool name (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`) take a string matcher (e.g. `"Bash"`, `"Write|Edit"`). Events that don't (`SessionStart`, `SessionEnd`, `PreCompact`, `Stop`, `SubagentStop`, `UserPromptSubmit`, `TaskCompleted`) **omit** the matcher field.
-- **Exemplar wire-up**: any current entry in `settings.json` under `hooks.*`
+- **Wire-up — two files**: add the entry to **both** `settings.json` (under `hooks.<EventName>`) and `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper). Same shape in both. Use a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` so it resolves in both plugin and symlink-global modes.
+- **Matcher rules**: most events support a `matcher` field — tool events filter on tool name (e.g. `"Bash"`, `"Edit|Write"`); other events filter on event-specific fields (e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `SubagentStop` on agent type). Events that **don't** support matchers and must omit the field: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`. See [hooks reference](https://code.claude.com/docs/en/hooks.md) for the full per-event schema.
+- **Exemplar wire-up**: any current entry in `settings.json` or `hooks/hooks.json` under `hooks.*`
 
 ### Add a settings template
 
