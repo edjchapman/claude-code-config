@@ -42,6 +42,11 @@ if [ ! -d "$REPO_ROOT/rules" ]; then
   exit 1
 fi
 
+if [ ! -f "$REPO_ROOT/home/CLAUDE.md" ]; then
+  echo "Error: home/CLAUDE.md not found at: $REPO_ROOT"
+  exit 1
+fi
+
 # Warn if Claude Code CLI is not installed (non-blocking)
 if ! command -v claude &> /dev/null; then
   echo "Note: Claude Code CLI not found in PATH"
@@ -85,6 +90,18 @@ fi
 
 ln -s "$REPO_ROOT/settings.json" ~/.claude/settings.json
 
+# Handle CLAUDE.md symlink (global cross-project behavioural rules)
+if [ -L ~/.claude/CLAUDE.md ]; then
+  echo "Removing existing symlink: ~/.claude/CLAUDE.md"
+  rm ~/.claude/CLAUDE.md
+elif [ -e ~/.claude/CLAUDE.md ]; then
+  backup_file=~/.claude/CLAUDE.md.backup.$(date +%s)
+  echo "Backing up existing file: ~/.claude/CLAUDE.md -> $backup_file"
+  mv ~/.claude/CLAUDE.md "$backup_file"
+fi
+
+ln -s "$REPO_ROOT/home/CLAUDE.md" ~/.claude/CLAUDE.md
+
 echo ""
 echo "Global Claude Code config set up successfully!"
 echo ""
@@ -93,6 +110,7 @@ echo "  ~/.claude/commands        -> $REPO_ROOT/commands"
 echo "  ~/.claude/skills          -> $REPO_ROOT/skills"
 echo "  ~/.claude/rules           -> $REPO_ROOT/rules"
 echo "  ~/.claude/settings.json   -> $REPO_ROOT/settings.json"
+echo "  ~/.claude/CLAUDE.md       -> $REPO_ROOT/home/CLAUDE.md"
 echo ""
 echo "Notes:"
 echo "  - settings.json is now symlinked (universal plugin + hooks configuration)"
