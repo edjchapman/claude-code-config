@@ -1,0 +1,5 @@
+#!/bin/sh
+# Pre-commit hook: run validation checks before committing.
+# Activate with: git config core.hooksPath .githooks
+
+make check

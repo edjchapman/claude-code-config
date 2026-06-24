@@ -5,6 +5,9 @@
 [tool.ruff]
 target-version = "py38"
 line-length = 100
+# tooling/ is vendored payload copied verbatim into other repos — not this
+# repo's own source, so it's excluded from this repo's lint/format.
+extend-exclude = ["tooling"]
 
 [tool.ruff.lint]
 select = [

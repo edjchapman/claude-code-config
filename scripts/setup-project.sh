@@ -29,6 +29,28 @@ TEMPLATES_PATH="$REPO_ROOT/settings-templates"
 MCP_TEMPLATES_PATH="$REPO_ROOT/mcp-templates"
 DRY_RUN=false
 
+# Extract the --tooling modifier (it can appear anywhere alongside the project
+# types). Unlike a project type it is not a template — it triggers vendoring the
+# hard-tooling layer (Makefile + validator scripts + CI workflows + git hooks)
+# via scripts/install-tooling.sh after the Claude-layer setup. Strip it from the
+# positional args here so the flag handlers below never see it.
+INSTALL_TOOLING=false
+_args=()
+for _a in "$@"; do
+  if [ "$_a" = "--tooling" ]; then
+    INSTALL_TOOLING=true
+  else
+    _args+=("$_a")
+  fi
+done
+set -- "${_args[@]}"
+
+# `--tooling` with no project type → install only the tooling layer.
+if [ "$INSTALL_TOOLING" = true ] && [ $# -eq 0 ]; then
+  echo "Installing project tooling only (no Claude-layer templates)..."
+  exec "$SCRIPT_DIR/install-tooling.sh" --hooks
+fi
+
 # Check Python 3.8+ is available
 check_python() {
   if ! command -v python3 &> /dev/null; then
@@ -58,6 +80,8 @@ show_help() {
   echo "  $0 --check, -c <types>     Check settings drift and symlink integrity"
   echo "  $0 --status, -s            Show current configuration state"
   echo "  $0 --dry-run, -n <types>   Preview changes without applying"
+  echo "  $0 <types> --tooling       Also vendor the hard-tooling layer (Makefile,"
+  echo "                             scripts, CI, git hooks) — copied, not symlinked"
   echo "  $0 --help, -h              Show this help"
   echo ""
   echo "Available templates:"
@@ -90,6 +114,10 @@ show_help() {
   echo "  ├── settings.json       -> (symlink to repo settings.json - plugins + hooks)"
   echo "  ├── settings.local.json (merged from base + your templates - permissions)"
   echo "  └── .mcp.json           (merged from mcp-templates - MCP server config)"
+  echo ""
+  echo "With --tooling, additionally COPIES into the project root (idempotent, never clobbers):"
+  echo "  Makefile, scripts/, .githooks/, .github/workflows/, .editorconfig, .markdownlint-cli2.jsonc"
+  echo "  (run scripts/install-tooling.sh directly for the tooling layer on its own)"
 }
 
 # Handle --help flag
@@ -386,6 +414,11 @@ if [ "$DRY_RUN" = true ]; then
       echo ""
     fi
   fi
+  if [ "$INSTALL_TOOLING" = true ]; then
+    echo "Project tooling (--tooling) — would copy into $(pwd):"
+    "$SCRIPT_DIR/install-tooling.sh" --dry-run "${TYPES[@]}"
+    echo ""
+  fi
   echo "To apply these changes, run without --dry-run:"
   echo "  $0 ${TYPES[*]}"
   exit 0
@@ -488,3 +521,10 @@ if [ -f .mcp.json ]; then
 fi
 echo ""
 echo "Verify: ls -la .claude/"
+
+# Vendor the hard-tooling layer (Makefile + scripts + CI + git hooks) if requested.
+if [ "$INSTALL_TOOLING" = true ]; then
+  echo ""
+  echo "Installing project tooling (--tooling)..."
+  "$SCRIPT_DIR/install-tooling.sh" --hooks "${TYPES[@]}"
+fi

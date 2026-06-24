@@ -17,3 +17,6 @@ __pycache__/
 
 # CI artefacts
 .github/dependabot.yml
+
+# Vendored project-tooling payload — copied verbatim into other repos; don't reflow
+tooling/

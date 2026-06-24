@@ -1,0 +1,34 @@
+{
+  // markdownlint-cli2 config — minimal, focused on catching genuinely-broken markdown.
+  // Style/whitespace rules are intentionally disabled to avoid churn; tighten over
+  // time if specific rules become valuable for your project.
+
+  "config": {
+    "default": false,
+
+    // Genuinely broken markdown (rendering or link bugs):
+    "MD001": true,                            // heading levels increment by one
+    "MD011": true,                            // no reversed link syntax
+    "MD018": true,                            // no missing space after # in heading
+    "MD019": true,                            // no multiple spaces after # in heading
+    "MD020": true,                            // no missing space in closed atx heading
+    "MD021": true,                            // no multiple spaces in closed atx heading
+    "MD023": true,                            // headings start at left margin
+    "MD037": true,                            // no spaces inside emphasis markers
+    "MD038": true,                            // no spaces inside code spans
+    "MD039": true,                            // no spaces inside link text
+    "MD042": true,                            // no empty links
+
+    // Heading + list style consistency:
+    "MD003": { "style": "atx" },              // ATX-style headings (# instead of ===)
+    "MD004": { "style": "dash" }              // unordered lists use `-`
+  },
+
+  // Paths to skip — generic vendored defaults; add project-specific paths as needed.
+  "ignores": [
+    "node_modules/**",
+    "**/vendor/**",
+    "**/.venv/**",
+    "CHANGELOG.md"
+  ]
+}

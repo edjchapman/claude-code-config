@@ -22,10 +22,15 @@ Substitute `<repo>` below with wherever you cloned this repo (commonly
 
 # Project setup (run from target project directory)
 <repo>/scripts/setup-project.sh <template> [template2...]
+<repo>/scripts/setup-project.sh django --tooling  # + vendor the make-check tooling layer
 <repo>/scripts/setup-project.sh --list       # Show templates
 <repo>/scripts/setup-project.sh --check django   # Check drift + symlinks
 <repo>/scripts/setup-project.sh --status     # Show current config state
 <repo>/scripts/setup-project.sh --dry-run django # Preview changes
+
+# Vendor the hard-tooling layer (Makefile, validators, git hooks, CI) into a project.
+# Run by `setup-project.sh --tooling`; also works standalone.
+<repo>/scripts/install-tooling.sh --hooks [--target DIR] [--dry-run]
 
 # Merge templates (used internally by setup-project.sh)
 python3 <repo>/scripts/merge-settings.py <templates-dir> base <type1> [type2...]
