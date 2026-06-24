@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Check that internal markdown links resolve to existing files.
-# Excludes http/mailto/tel links and template placeholder files.
+# Scans tracked markdown via `git ls-files` (same discovery as check_anchors.py,
+# so the two halves of `make check` agree on the file set). Skips http/mailto/tel.
 #
 # Run via `make check-links`. Wired into `make check` (hard-fail).
 
@@ -26,12 +27,7 @@ while IFS= read -r file; do
         echo 1 > "$tmpfile"
       fi
     done
-done < <(find . -name '*.md' \
-  -not -path './.git/*' \
-  -not -path './.idea/*' \
-  -not -path './.claude/*' \
-  -not -path './.junie/*' \
-  -not -path '*/_templates/*')
+done < <(git ls-files '*.md')
 
 if [ -s "$tmpfile" ]; then
   exit 1

@@ -118,6 +118,7 @@ show_help() {
   echo "With --tooling, additionally COPIES into the project root (idempotent, never clobbers):"
   echo "  Makefile, scripts/, .githooks/, .github/workflows/, .editorconfig, .markdownlint-cli2.jsonc"
   echo "  (run scripts/install-tooling.sh directly for the tooling layer on its own)"
+  echo "  --tooling applies to a setup run or --dry-run; it is ignored with --check/--list/--status."
 }
 
 # Handle --help flag

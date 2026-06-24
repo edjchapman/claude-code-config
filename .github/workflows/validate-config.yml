@@ -80,6 +80,12 @@ jobs:
           scandir: scripts
           severity: warning
 
+      - name: Run shellcheck on the vendored tooling payload
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: tooling
+          severity: warning
+
   check-duplicates:
     name: Check for duplicate agent/command/skill names
     runs-on: ubuntu-latest

@@ -90,7 +90,7 @@ def main() -> int:
         p = Path(rel)
         if not p.exists():
             continue
-        slugs_by_file[rel] = heading_slugs(p.read_text())
+        slugs_by_file[rel] = heading_slugs(p.read_text(encoding="utf-8"))
 
     broken: list[tuple[str, int, str, str]] = []
     checked = 0
@@ -99,7 +99,7 @@ def main() -> int:
         p = Path(rel)
         if not p.exists():
             continue
-        text = p.read_text()
+        text = p.read_text(encoding="utf-8")
         for lineno, line in enumerate(text.splitlines(), start=1):
             if "stale-anchor-allow" in line:
                 continue
