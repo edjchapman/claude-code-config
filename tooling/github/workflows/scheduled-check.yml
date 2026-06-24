@@ -1,0 +1,16 @@
+name: scheduled-check
+
+on:
+  schedule:
+    # Mondays 09:00 UTC — catches drift from out-of-band edits (e.g. via GitHub web UI)
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+jobs:
+  make-check:
+    name: make check (scheduled)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run make check
+        run: make check

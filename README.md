@@ -103,6 +103,32 @@ your-project/
 - **`settings.json`** (symlinked): Plugin enablement, hooks configuration, and model selection
 - **`settings.local.json`** (generated): Permissions - what bash commands and tools Claude can use in your project
 
+### Project Tooling (`--tooling`)
+
+The Claude layer above is **symlinked** so updates propagate. A project's **hard tooling** — a `make check` quality gate, validator scripts, git hooks, and CI workflows — cannot be symlinked: GitHub Actions only runs workflows physically present in your repo, and a Makefile/scripts/hooks belong in your project's own committed tree. So `setup-project.sh <type> --tooling` **copies** (vendors) that layer in, idempotently — existing files are never clobbered, and a re-run is a no-op.
+
+```bash
+# Add the tooling layer alongside the Claude layer:
+setup-project.sh python --tooling
+
+# Or install only the tooling layer (no Claude symlinks):
+setup-project.sh --tooling
+# ...equivalently, run the helper directly:
+scripts/install-tooling.sh --hooks
+```
+
+What it copies into the project root:
+
+| Path                                        | What it is                                                                                                                                                              |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Makefile`                                  | `make check` aggregate gate: link + anchor validators plus a `stack-check` target you wire to your lint/test                                                            |
+| `scripts/`                                  | `check-links.sh`, `check_anchors.py`, `check-commit-msg.sh`, and the stale-branch trio (`check-stale-branches.sh`, `sweep-stale-branches.sh`, `_lib-stale-branches.sh`) |
+| `.githooks/`                                | `pre-commit` (runs `make check`) and `commit-msg` (Conventional Commits), activated via `core.hooksPath`                                                                |
+| `.github/workflows/`                        | `check.yml` (gate on PR + push), `commit-style.yml` (PR-title lint), `scheduled-check.yml` (weekly drift cron)                                                          |
+| `.editorconfig`, `.markdownlint-cli2.jsonc` | Editor and markdown-lint defaults                                                                                                                                       |
+
+The payload lives in [`tooling/`](tooling/); [`scripts/install-tooling.sh`](scripts/install-tooling.sh) performs the copy. After install, wire your stack's lint/test into the Makefile's `stack-check` target — the installer prints a suggested snippet for your project type.
+
 ## How It Works
 
 Everything in this repo falls into two categories:
@@ -366,9 +392,11 @@ claude-code-config/
 ├── settings-templates/      # Permission templates (JSON)
 ├── mcp-templates/           # MCP server templates (JSON)
 ├── settings.json            # Plugin config + hooks (symlinked globally)
+├── tooling/                 # Vendored project hard-tooling payload (--tooling)
 ├── scripts/
 │   ├── setup-global.sh      # One-time machine setup
-│   ├── setup-project.sh     # Per-project setup
+│   ├── setup-project.sh     # Per-project setup (+ --tooling)
+│   ├── install-tooling.sh   # Vendors tooling/ into a project (--tooling)
 │   ├── merge-settings.py    # Permission template merger
 │   ├── merge-mcp.py         # MCP template merger
 │   ├── hooks/               # Hook scripts referenced by settings.json

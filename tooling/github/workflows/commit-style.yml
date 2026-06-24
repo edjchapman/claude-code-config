@@ -1,0 +1,30 @@
+name: commit-style
+
+# Validate the PR title against the repository commit standard (CONTRIBUTING.md).
+# The repo squash-merges every PR, so the PR TITLE becomes the permanent commit
+# subject — that is the thing worth validating, not the per-branch WIP commits
+# (which are squashed away). Gated to pull_request because the title only exists
+# there; the tree-state `check.yml` workflow also runs on push and does not have it.
+#
+# Warn-only today: check-commit-msg.sh exits 0 on a non-conforming subject. To
+# promote to a blocking check once commits have followed the standard for a few
+# weeks, add `--strict` to the run command below (and to .githooks/commit-msg).
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: commit-style-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-title:
+    name: validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | ./scripts/check-commit-msg.sh --stdin

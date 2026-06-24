@@ -1,0 +1,6 @@
+#!/bin/sh
+# Commit-msg hook: validate the commit subject against the commit standard.
+# Activate with: git config core.hooksPath .githooks
+# Warn-only today (prints a WARN, allows the commit). See CONTRIBUTING.md.
+
+exec "$(git rev-parse --show-toplevel)/scripts/check-commit-msg.sh" "$1"
