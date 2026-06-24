@@ -76,7 +76,7 @@ if printf '%s' "$subject" | grep -Eq "$SUBJECT_RE"; then
   if [ "${#subject}" -gt "$MAX_LEN" ]; then
     echo "WARN: commit subject is ${#subject} chars (>${MAX_LEN}); consider tightening."
   fi
-  echo "OK: commit subject follows the commit standard."
+  echo "OK: commit subject follows the Conventional Commits standard."
   exit 0
 fi
 
