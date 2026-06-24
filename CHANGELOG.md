@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/edjchapman/claude-code-config/compare/1.3.0...1.4.0) (2026-06-17)
+
+
+### Features
+
+* **home:** add global CLAUDE.md and symlink it from ~/.claude/ ([34cb72e](https://github.com/edjchapman/claude-code-config/commit/34cb72e394cca2c6ca1611e8ec4febf4e827038e))
+
 ## [1.3.0](https://github.com/edjchapman/claude-code-config/compare/1.2.0...1.3.0) (2026-06-06)
 
 
