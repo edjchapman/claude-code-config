@@ -2,8 +2,10 @@
 # install-tooling.sh — vendor the project hard-tooling layer into a target repo.
 #
 # Copies the tooling/ payload (Makefile, validator scripts, git hooks, CI
-# workflows, .editorconfig, .markdownlint-cli2.jsonc) into a project. Unlike the
-# Claude layer (symlinked so updates propagate), the hard tooling is COPIED:
+# workflows, .editorconfig, .markdownlint-cli2.jsonc, and the Claude-on-web
+# bootstrap — .claude/hooks/session-start.sh + .claude/settings.json) into a
+# project. Unlike the Claude layer (symlinked so updates propagate), the hard
+# tooling is COPIED:
 # GitHub Actions only runs workflows physically present in the project's own
 # committed tree, and the Makefile/scripts/hooks become part of that repo's
 # source. There is no auto-propagation — re-run to pick up new payload files.
@@ -89,7 +91,7 @@ copy_file() {
   cp "$src" "$dst"
   # Preserve executability for scripts and git hooks (pre-commit enforces this).
   case "$dst_rel" in
-    scripts/*.sh | scripts/*.py | .githooks/*) chmod +x "$dst" ;;
+    scripts/*.sh | scripts/*.py | .githooks/* | .claude/hooks/*) chmod +x "$dst" ;;
   esac
   echo "  add    $dst_rel"
   added=$((added + 1))
@@ -121,6 +123,12 @@ for f in "$PAYLOAD"/github/workflows/*; do
   [ -e "$f" ] || continue
   copy_file "$f" ".github/workflows/$(basename "$f")"
 done
+
+# Claude-on-web bootstrap: the SessionStart hook + the committed settings.json
+# that wires it, so Claude Code on the web installs deps after cloning the repo.
+# (These are Claude hooks, not git hooks — no core.hooksPath involved.)
+copy_file "$PAYLOAD/claude-hooks/session-start.sh" ".claude/hooks/session-start.sh"
+copy_file "$PAYLOAD/claude-settings.json" ".claude/settings.json"
 
 echo ""
 echo "Summary: $added added, $skipped skipped."
@@ -167,3 +175,6 @@ echo "Next steps:"
 echo "  - Review the vendored Makefile and wire 'stack-check' to your lint/test."
 echo "  - Activate git hooks:  git config core.hooksPath .githooks"
 echo "  - Run the gate:        make check"
+echo "  - Tailor .claude/hooks/session-start.sh for Claude-on-web (deps + env),"
+echo "    and keep .claude/hooks/ + .claude/settings.json OUT of .gitignore"
+echo "    (they must be committed so the web session can run them)."

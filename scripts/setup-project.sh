@@ -111,12 +111,16 @@ show_help() {
   echo "  ├── commands            -> (symlink to repo commands)"
   echo "  ├── skills              -> (symlink to repo skills)"
   echo "  ├── rules               -> (symlink to repo rules)"
-  echo "  ├── settings.json       -> (symlink to repo settings.json - plugins + hooks)"
   echo "  ├── settings.local.json (merged from base + your templates - permissions)"
   echo "  └── .mcp.json           (merged from mcp-templates - MCP server config)"
   echo ""
+  echo "  Note: .claude/settings.json is NOT symlinked — your global ~/.claude/settings.json"
+  echo "  already provides plugins + hooks. A committed .claude/settings.json + .claude/hooks/"
+  echo "  (Claude-on-web bootstrap) come from the --tooling payload below."
+  echo ""
   echo "With --tooling, additionally COPIES into the project root (idempotent, never clobbers):"
-  echo "  Makefile, scripts/, .githooks/, .github/workflows/, .editorconfig, .markdownlint-cli2.jsonc"
+  echo "  Makefile, scripts/, .githooks/, .github/workflows/, .editorconfig, .markdownlint-cli2.jsonc,"
+  echo "  .claude/hooks/session-start.sh, .claude/settings.json (Claude-on-web bootstrap)"
   echo "  (run scripts/install-tooling.sh directly for the tooling layer on its own)"
   echo "  --tooling applies to a setup run or --dry-run; it is ignored with --check/--list/--status."
 }
@@ -173,20 +177,6 @@ if [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
       echo "✗ $item (missing)"
     fi
   done
-
-  # Check settings.json symlink
-  if [ -L .claude/settings.json ]; then
-    target=$(readlink .claude/settings.json)
-    if [ -f .claude/settings.json ]; then
-      echo "✓ settings.json -> $target"
-    else
-      echo "✗ settings.json -> $target (broken symlink)"
-    fi
-  elif [ -f .claude/settings.json ]; then
-    echo "? settings.json (regular file, not symlink)"
-  else
-    echo "✗ settings.json (missing)"
-  fi
 
   # Check settings file
   echo ""
@@ -258,23 +248,6 @@ if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
       HAS_ISSUES=true
     fi
   done
-
-  # Check settings.json symlink
-  if [ -L .claude/settings.json ]; then
-    target=$(readlink .claude/settings.json)
-    if [ -f .claude/settings.json ]; then
-      echo "✓ settings.json symlink OK -> $target"
-    else
-      echo "✗ settings.json symlink BROKEN -> $target"
-      HAS_ISSUES=true
-    fi
-  elif [ -f .claude/settings.json ]; then
-    echo "? settings.json is a regular file (expected symlink)"
-    HAS_ISSUES=true
-  elif [ ! -e .claude/settings.json ]; then
-    echo "✗ settings.json missing"
-    HAS_ISSUES=true
-  fi
 
   echo ""
 
@@ -387,7 +360,6 @@ if [ "$DRY_RUN" = true ]; then
   echo "  ├── commands            -> $REPO_ROOT/commands"
   echo "  ├── skills              -> $REPO_ROOT/skills"
   echo "  ├── rules               -> $REPO_ROOT/rules"
-  echo "  ├── settings.json       -> $REPO_ROOT/settings.json"
   echo "  ├── settings.local.json"
   echo "  └── .mcp.json (project root)"
   echo ""
@@ -463,16 +435,10 @@ ln -s "$REPO_ROOT/commands" .claude/commands
 ln -s "$REPO_ROOT/skills" .claude/skills
 ln -s "$REPO_ROOT/rules" .claude/rules
 
-# Handle settings.json symlink (plugin configuration)
-if [ -L .claude/settings.json ]; then
-  rm .claude/settings.json
-elif [ -e .claude/settings.json ]; then
-  backup_file=.claude/settings.json.backup.$(date +%s)
-  echo "Backing up existing file: .claude/settings.json -> $backup_file"
-  mv .claude/settings.json "$backup_file"
-fi
-
-ln -s "$REPO_ROOT/settings.json" .claude/settings.json
+# NOTE: .claude/settings.json is intentionally NOT symlinked. The global
+# ~/.claude/settings.json (also -> this repo) already provides plugins + hooks,
+# so a per-project symlink is redundant — and it would clobber a committed
+# .claude/settings.json (the Claude-on-web bootstrap installed via --tooling).
 
 echo "Generating settings.local.json (base + ${TYPES[*]})..."
 python3 "$SCRIPT_DIR/merge-settings.py" "$TEMPLATES_PATH" base "${TYPES[@]}" > .claude/settings.local.json
@@ -515,7 +481,6 @@ echo "  .claude/agents              -> $REPO_ROOT/agents"
 echo "  .claude/commands            -> $REPO_ROOT/commands"
 echo "  .claude/skills              -> $REPO_ROOT/skills"
 echo "  .claude/rules               -> $REPO_ROOT/rules"
-echo "  .claude/settings.json       -> $REPO_ROOT/settings.json"
 echo "  .claude/settings.local.json (base + ${TYPES[*]})"
 if [ -f .mcp.json ]; then
   echo "  .mcp.json                   (MCP server config)"
