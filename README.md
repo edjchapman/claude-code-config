@@ -518,7 +518,20 @@ claude-code-config/
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
     ├── hooks/               # Hook scripts referenced by settings.json
+    │   ├── session-context.sh        # SessionStart
+    │   ├── session-end.sh            # SessionEnd
+    │   ├── format-on-edit.sh         # PostToolUse (Write|Edit)
+    │   ├── log-tool-failure.sh       # PostToolUseFailure
+    │   ├── dangerous-cmd-check.sh    # PreToolUse (Bash)
+    │   ├── pre-compact-state.sh      # PreCompact
+    │   ├── task-completed-chime.sh   # TaskCompleted
+    │   ├── statusline.sh             # settings.json statusLine.command
+    │   └── check-duplicates.sh       # CI-only (validate-config.yml)
     └── cli/                 # Headless CLI automation scripts
+        ├── review-changes.sh
+        ├── explain-error.sh
+        ├── daily-report.sh
+        └── review-pr.sh
 ```
 
 </details>
