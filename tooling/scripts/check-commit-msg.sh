@@ -45,7 +45,7 @@ for arg in "$@"; do
     --strict) strict=1 ;;
     --stdin)  src="-" ;;
     -h|--help)
-      grep '^#' "$0" | sed 's/^# \{0,1\}//'
+      grep '^#' "$0" | grep -v '^#!' | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *) src="$arg" ;;
