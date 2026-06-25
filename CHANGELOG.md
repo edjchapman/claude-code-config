@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/edjchapman/claude-code-config/compare/1.5.0...1.6.0) (2026-06-25)
+
+
+### Features
+
+* **tooling:** add Claude-on-web bootstrap to the --tooling payload ([#38](https://github.com/edjchapman/claude-code-config/issues/38)) ([aa21d1f](https://github.com/edjchapman/claude-code-config/commit/aa21d1f9adac8f6e6030b1895969a40d00a125ef))
+
 ## [1.5.0](https://github.com/edjchapman/claude-code-config/compare/1.4.0...1.5.0) (2026-06-25)
 
 
