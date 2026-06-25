@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0](https://github.com/edjchapman/claude-code-config/compare/1.4.0...1.5.0) (2026-06-25)
+
+
+### Features
+
+* **scripts:** add setup-project --tooling to vendor a project quality-gate layer ([#33](https://github.com/edjchapman/claude-code-config/issues/33)) ([220082d](https://github.com/edjchapman/claude-code-config/commit/220082d7f339ab80bf81c3d5fe314c2309392012))
+* **settings:** disable Claude git attribution on commits and PRs ([#35](https://github.com/edjchapman/claude-code-config/issues/35)) ([f9b3147](https://github.com/edjchapman/claude-code-config/commit/f9b3147cee69813615f547afd6d35a38b77f8190))
+
+
+### Bug Fixes
+
+* **tooling:** address code-review follow-ups for setup-project --tooling ([#34](https://github.com/edjchapman/claude-code-config/issues/34)) ([d23aa54](https://github.com/edjchapman/claude-code-config/commit/d23aa54a422cb77ac910c84d2b7fa8a4fd0a4cca))
+
 ## [1.4.0](https://github.com/edjchapman/claude-code-config/compare/1.3.0...1.4.0) (2026-06-17)
 
 
