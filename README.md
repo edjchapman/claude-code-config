@@ -94,18 +94,17 @@ your-project/
     ├── commands            -> ~/Development/claude-code-config/commands
     ├── skills              -> ~/Development/claude-code-config/skills
     ├── rules               -> ~/Development/claude-code-config/rules
-    ├── settings.json       -> ~/Development/claude-code-config/settings.json
     └── settings.local.json (generated from templates)
 ```
 
 ### Understanding Settings Files
 
-- **`settings.json`** (symlinked): Plugin enablement, hooks configuration, and model selection
+- **`settings.json`** (global only): Plugin enablement, hooks, and model selection live in your **global** `~/.claude/settings.json` (symlinked to this repo), so they apply everywhere — `setup-project.sh` does **not** create a per-project symlink. A project may still **commit** its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
 - **`settings.local.json`** (generated): Permissions - what bash commands and tools Claude can use in your project
 
 ### Project Tooling (`--tooling`)
 
-The Claude layer above is **symlinked** so updates propagate. A project's **hard tooling** — a `make check` quality gate, validator scripts, git hooks, and CI workflows — cannot be symlinked: GitHub Actions only runs workflows physically present in your repo, and a Makefile/scripts/hooks belong in your project's own committed tree. So `setup-project.sh <type> --tooling` **copies** (vendors) that layer in, idempotently — existing files are never clobbered, and a re-run is a no-op.
+The Claude layer above is **symlinked** so updates propagate. A project's **hard tooling** — a `make check` quality gate, validator scripts, git hooks, CI workflows, and a Claude-on-web bootstrap — cannot be symlinked: GitHub Actions only runs workflows physically present in your repo, and a Makefile/scripts/hooks belong in your project's own committed tree. So `setup-project.sh <type> --tooling` **copies** (vendors) that layer in, idempotently — existing files are never clobbered, and a re-run is a no-op.
 
 ```bash
 # Add the tooling layer alongside the Claude layer:
@@ -119,13 +118,14 @@ scripts/install-tooling.sh --hooks
 
 What it copies into the project root:
 
-| Path                                        | What it is                                                                                                                                                              |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Makefile`                                  | `make check` aggregate gate: link + anchor validators plus a `stack-check` target you wire to your lint/test                                                            |
-| `scripts/`                                  | `check-links.sh`, `check_anchors.py`, `check-commit-msg.sh`, and the stale-branch trio (`check-stale-branches.sh`, `sweep-stale-branches.sh`, `_lib-stale-branches.sh`) |
-| `.githooks/`                                | `pre-commit` (runs `make check`) and `commit-msg` (Conventional Commits), activated via `core.hooksPath`                                                                |
-| `.github/workflows/`                        | `check.yml` (gate on PR + push), `commit-style.yml` (PR-title lint), `scheduled-check.yml` (weekly drift cron)                                                          |
-| `.editorconfig`, `.markdownlint-cli2.jsonc` | Editor and markdown-lint defaults                                                                                                                                       |
+| Path                                                      | What it is                                                                                                                                                                                                                       |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Makefile`                                                | `make check` aggregate gate: link + anchor validators plus a `stack-check` target you wire to your lint/test                                                                                                                     |
+| `scripts/`                                                | `check-links.sh`, `check_anchors.py`, `check-commit-msg.sh`, and the stale-branch trio (`check-stale-branches.sh`, `sweep-stale-branches.sh`, `_lib-stale-branches.sh`)                                                          |
+| `.githooks/`                                              | `pre-commit` (runs `make check`) and `commit-msg` (Conventional Commits), activated via `core.hooksPath`                                                                                                                         |
+| `.github/workflows/`                                      | `check.yml` (gate on PR + push), `commit-style.yml` (PR-title lint), `scheduled-check.yml` (weekly drift cron)                                                                                                                   |
+| `.editorconfig`, `.markdownlint-cli2.jsonc`               | Editor and markdown-lint defaults                                                                                                                                                                                                |
+| `.claude/hooks/session-start.sh`, `.claude/settings.json` | **Claude-on-web bootstrap** — a `SessionStart` hook that stack-detects and installs deps when `CLAUDE_CODE_REMOTE=true` (a no-op locally), plus the committed settings that wire it. Commit both; keep them out of `.gitignore`. |
 
 The payload lives in [`tooling/`](tooling/); [`scripts/install-tooling.sh`](scripts/install-tooling.sh) performs the copy. After install, wire your stack's lint/test into the Makefile's `stack-check` target — the installer prints a suggested snippet for your project type.
 
