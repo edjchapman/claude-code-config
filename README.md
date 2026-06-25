@@ -1,33 +1,52 @@
+<div align="center">
+
 # Claude Code Config
 
 [![Validate Config](https://github.com/edjchapman/claude-code-config/actions/workflows/validate-config.yml/badge.svg)](https://github.com/edjchapman/claude-code-config/actions/workflows/validate-config.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-config-d97757.svg)](https://claude.ai/code)
 
-Reusable agents, commands, and permission templates for [Claude Code](https://claude.ai/code).
+**A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, commands, hooks, and permission templates that propagate to every project and machine.**
 
-## Why This Exists
+`14 specialist agents` · `12 commands & skills` · `13 permission templates` · `7 passive skills` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
-Claude Code stores configuration in `~/.claude/` (global) and `.claude/` (per-project). Managing this across multiple projects and machines becomes tedious:
+</div>
 
-- **Agents** need to be copied to each project
-- **Commands** are duplicated everywhere
-- **Permission templates** drift between projects
-- **New machines** require manual setup
+---
 
-This repo solves that by providing:
+## Contents
 
-- A **single source of truth** for your Claude Code configuration
+- [🤔 Why This Exists](#-why-this-exists)
+- [🚀 Quick Start](#-quick-start)
+- [🧰 What's Inside](#-whats-inside)
+- [🧭 Choosing & Composing](#-choosing--composing)
+- [🔧 How Setup Works](#-how-setup-works)
+- [🎨 Customization](#-customization)
+- [❓ Troubleshooting](#-troubleshooting)
+- [📋 Requirements](#-requirements)
+- [📚 Project & Docs](#-project--docs)
+
+---
+
+## 🤔 Why This Exists
+
+Claude Code stores configuration in `~/.claude/` (global) and `.claude/` (per-project). Keeping that consistent across projects and machines is tedious — agents get copied around, commands are duplicated, permission templates drift, and every new machine means manual setup.
+
+This repo fixes that with **one canonical config** that everything else links back to:
+
 - **Symlinks** so updates propagate everywhere automatically
 - **Composable templates** for different project types
 - **Hooks** for auto-formatting, safety checks, and notifications
-- **Skills** for passive domain knowledge activation
-- **Rules** for path-scoped code style enforcement
+- **Skills & rules** for passive domain knowledge and style enforcement
 - **Setup scripts** that work on any machine
 
-## Quick Start
+---
 
-There are two ways to consume this repo: as a **plugin** (recommended; uses Claude Code's plugin loader) or as a **symlinked global config** (legacy path, still supported).
+## 🚀 Quick Start
 
-### Option A: Plugin install (recommended)
+There are two ways to consume this repo: as a **plugin** (recommended) or as a **symlinked global config** (legacy, still supported). Both modes coexist — hook paths use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve either way.
+
+### Option A — Plugin install (recommended)
 
 ```bash
 # From inside Claude Code:
@@ -39,127 +58,285 @@ Then add per-project permissions only:
 
 ```bash
 cd ~/my-django-project
-~/Development/claude-code-config/scripts/setup-project.sh django   # for settings.local.json + .mcp.json
+~/Development/claude-code-config/scripts/setup-project.sh django   # settings.local.json + .mcp.json
 ```
 
-### Option B: Symlinked global config (legacy)
+### Option B — Symlinked global config (legacy)
 
 ```bash
-# 1. Clone (or fork if you want to customize)
+# 1. Clone (or fork to customize)
 git clone https://github.com/edjchapman/claude-code-config.git ~/claude-code-config
 
-# 2. Set up global config
+# 2. Global config (symlinks into ~/.claude/)
 ~/Development/claude-code-config/scripts/setup-global.sh
 
-# 3. Set up a project (from your project directory)
+# 3. Project config (from your project directory)
 cd ~/my-django-project
 ~/Development/claude-code-config/scripts/setup-project.sh django
 
-# 4. Start using Claude Code - agents and commands are now available
+# 4. Start Claude Code — agents and commands are now available
 claude
 ```
 
-Both modes coexist — the hook command paths in `settings.json` use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve correctly whether loaded as a plugin (`CLAUDE_PLUGIN_DIR` set by the loader) or via symlink (`readlink` resolves the symlinked `settings.json` back to the repo).
+> **Tip — alias it.** Add `alias claude-setup='~/Development/claude-code-config/scripts/setup-project.sh'` to your shell profile, then run `claude-setup django react`.
 
-**Tip:** Add an alias for easier use:
+### Fork or Clone?
 
-```bash
-# Add to ~/.bashrc or ~/.zshrc
-alias claude-setup='~/Development/claude-code-config/scripts/setup-project.sh'
+| Approach  | When to use                                                 |
+| --------- | ----------------------------------------------------------- |
+| **Clone** | Use as-is, or contribute improvements back                  |
+| **Fork**  | Customize agents/commands for your own workflow             |
 
-# Then use it like:
-claude-setup django react
-```
-
-## What Gets Created
-
-**Global setup** (`setup-global.sh`) creates symlinks in `~/.claude/`:
-
-```
-~/.claude/
-├── agents            -> ~/Development/claude-code-config/agents
-├── commands          -> ~/Development/claude-code-config/commands
-├── skills            -> ~/Development/claude-code-config/skills
-├── rules             -> ~/Development/claude-code-config/rules
-└── settings.json     -> ~/Development/claude-code-config/settings.json
-```
-
-**Project setup** (`setup-project.sh`) creates in your project:
-
-```
-your-project/
-├── .mcp.json (MCP server config, if applicable)
-└── .claude/
-    ├── agents              -> ~/Development/claude-code-config/agents
-    ├── commands            -> ~/Development/claude-code-config/commands
-    ├── skills              -> ~/Development/claude-code-config/skills
-    ├── rules               -> ~/Development/claude-code-config/rules
-    └── settings.local.json (generated from templates)
-```
-
-### Understanding Settings Files
-
-- **`settings.json`** (global only): Plugin enablement, hooks, and model selection live in your **global** `~/.claude/settings.json` (symlinked to this repo), so they apply everywhere — `setup-project.sh` does **not** create a per-project symlink. A project may still **commit** its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
-- **`settings.local.json`** (generated): Permissions - what bash commands and tools Claude can use in your project
-
-### Project Tooling (`--tooling`)
-
-The Claude layer above is **symlinked** so updates propagate. A project's **hard tooling** — a `make check` quality gate, validator scripts, git hooks, CI workflows, and a Claude-on-web bootstrap — cannot be symlinked: GitHub Actions only runs workflows physically present in your repo, and a Makefile/scripts/hooks belong in your project's own committed tree. So `setup-project.sh <type> --tooling` **copies** (vendors) that layer in, idempotently — existing files are never clobbered, and a re-run is a no-op.
+Forks can still pull upstream updates:
 
 ```bash
-# Add the tooling layer alongside the Claude layer:
-setup-project.sh python --tooling
-
-# Or install only the tooling layer (no Claude symlinks):
-setup-project.sh --tooling
-# ...equivalently, run the helper directly:
-scripts/install-tooling.sh --hooks
+git remote add upstream https://github.com/edjchapman/claude-code-config.git
+git fetch upstream && git merge upstream/main
 ```
 
-What it copies into the project root:
+---
 
-| Path                                                      | What it is                                                                                                                                                                                                                       |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Makefile`                                                | `make check` aggregate gate: link + anchor validators plus a `stack-check` target you wire to your lint/test                                                                                                                     |
-| `scripts/`                                                | `check-links.sh`, `check_anchors.py`, `check-commit-msg.sh`, and the stale-branch trio (`check-stale-branches.sh`, `sweep-stale-branches.sh`, `_lib-stale-branches.sh`)                                                          |
-| `.githooks/`                                              | `pre-commit` (runs `make check`) and `commit-msg` (Conventional Commits), activated via `core.hooksPath`                                                                                                                         |
-| `.github/workflows/`                                      | `check.yml` (gate on PR + push), `commit-style.yml` (PR-title lint), `scheduled-check.yml` (weekly drift cron)                                                                                                                   |
-| `.editorconfig`, `.markdownlint-cli2.jsonc`               | Editor and markdown-lint defaults                                                                                                                                                                                                |
-| `.claude/hooks/session-start.sh`, `.claude/settings.json` | **Claude-on-web bootstrap** — a `SessionStart` hook that stack-detects and installs deps when `CLAUDE_CODE_REMOTE=true` (a no-op locally), plus the committed settings that wire it. Commit both; keep them out of `.gitignore`. |
+## 🧰 What's Inside
 
-The payload lives in [`tooling/`](tooling/); [`scripts/install-tooling.sh`](scripts/install-tooling.sh) performs the copy. After install, wire your stack's lint/test into the Makefile's `stack-check` target — the installer prints a suggested snippet for your project type.
-
-## How It Works
-
-Everything in this repo falls into two categories:
+Everything falls into two modes — tools you **invoke** and tools that **auto-activate**:
 
 |             | Active (you invoke)                           | Passive (auto-activates)                          |
 | ----------- | --------------------------------------------- | ------------------------------------------------- |
-| **What**    | Specialist agents, Commands, CLI scripts      | Skills, Rules, Hooks                              |
+| **What**    | Specialist agents, commands, CLI scripts      | Skills, rules, hooks                              |
 | **How**     | `@name`, `/name`, or shell command            | Triggered by file patterns or lifecycle events    |
-| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` skill activates on `test_*.py` |
+| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` activates on `test_*.py`        |
 
-**Active tools** — you choose when to use them:
+> Some capabilities are now handled by **bundled plugins** rather than custom artifacts: `/review` + `pr-review-toolkit:review-pr` (code review), `feature-dev:code-architect` (implementation blueprints), `/security-review` (security audits).
 
-- **Specialist agents** (`@bug-resolver`, `@test-engineer`, etc.) provide deep expertise in a single domain
-- **Commands** (`/commit`, `/pr`, `/standup`, etc.) run focused, single-purpose workflows
-- **CLI scripts** (`review-changes.sh`, `daily-report.sh`, etc.) run headless — no interactive session needed
+### Agents
 
-Code review and spec-writing are now handled by **bundled plugins** rather than custom artifacts:
+Invoke with `@agent-name`. **Opus** = complex reasoning (higher cost); **Sonnet** = pattern-based, faster.
 
-- `/review` (bundled) and `pr-review-toolkit:review-pr` for code review
-- `feature-dev:code-architect` for implementation blueprints
-- `/security-review` (bundled) for security audits
+<details>
+<summary><strong>14 specialist agents</strong> — click to expand</summary>
 
-**Passive tools** — they activate automatically when relevant:
+| Agent                      | What It Does                                           | Model  |
+| -------------------------- | ------------------------------------------------------ | ------ |
+| `@bug-resolver`            | Systematic debugging, root cause analysis              | opus   |
+| `@ci-debugger`             | CI/CD failure investigation, flaky tests               | sonnet |
+| `@database-architect`      | Schema design, migration planning, query optimization  | opus   |
+| `@dependency-manager`      | Dependency audit, outdated packages, license checks    | sonnet |
+| `@devops-engineer`         | Infrastructure, CI/CD pipelines, containers            | opus   |
+| `@documentation-writer`    | README, API docs, ADRs, onboarding guides              | sonnet |
+| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests                  | sonnet |
+| `@git-helper`              | Complex git: rebase, conflicts, recovery               | sonnet |
+| `@migration-engineer`      | Database migrations, framework upgrades, zero-downtime | opus   |
+| `@performance-engineer`    | Profiling, bottleneck analysis, optimization           | opus   |
+| `@pr-review-bundler`       | Bundle PR reviews into markdown                        | sonnet |
+| `@refactoring-engineer`    | Systematic, safe refactoring                           | opus   |
+| `@security-auditor`        | Security audit, OWASP, dependency vulnerabilities      | opus   |
+| `@test-engineer`           | Create unit and integration tests                      | sonnet |
 
-- **Skills** inject domain knowledge when you touch matching files (e.g., `django-patterns` activates on `models.py`)
-- **Rules** enforce code style on matching file types (e.g., `python-style` on `*.py`)
-- **Hooks** run at lifecycle events (e.g., auto-format on file save, safety checks before commands)
+> **Provided by enabled plugins instead:** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture (`feature-dev:code-architect`), simplification (`code-simplifier`). Custom versions were retired in favour of these.
 
-## Which Should I Use?
+</details>
 
-### "I want to..." Lookup
+### Commands & Workflow Skills
+
+Invoke with `/<name>`. **Workflow skills** carry a "Use when…" clause so Claude can auto-invoke them from plain English (e.g. "commit my staged work" → `/commit`). **Commands** are user-invoke only.
+
+<details>
+<summary><strong>12 commands & skills</strong> — click to expand</summary>
+
+| Slash              | Source  | What It Does                                                      | Delegates To          |
+| ------------------ | ------- | ----------------------------------------------------------------- | --------------------- |
+| `/commit`          | skill   | Analyze staged changes, generate commit message                   | --                    |
+| `/pr`              | skill   | Create PR with auto-generated description                         | --                    |
+| `/hotfix`          | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR  | --                    |
+| `/tdd`             | skill   | TDD workflow: write failing test, implement, refactor             | --                    |
+| `/adr`             | skill   | Create Architecture Decision Record (Nygard format)               | --                    |
+| `/standup`         | command | Summarize last 24h across Git, GitHub, Jira, and Notion           | --                    |
+| `/status`          | command | Quick status update appended to today's daily log                 | --                    |
+| `/deps`            | command | Dependency audit: vulnerabilities, outdated packages, update plan | `@dependency-manager` |
+| `/coverage-report` | command | Analyze test coverage and identify gaps                           | `@test-engineer`      |
+| `/refinement`      | command | Prepare technical analysis for backlog refinement                 | Explore sub-agent     |
+| `/eow-review`      | command | Prepare end-of-week review notes                                  | --                    |
+| `/later`           | command | Create a personal backlog item (learn, research, do, read)        | --                    |
+
+> **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`.
+
+</details>
+
+### Skills (passive)
+
+Domain knowledge that auto-activates when you touch matching files — guidance without explicit invocation.
+
+<details>
+<summary><strong>7 passive skills</strong> — click to expand</summary>
+
+| Skill              | Activates On                                                        | What It Covers                                    |
+| ------------------ | ------------------------------------------------------------------- | ------------------------------------------------- |
+| `git-workflow`     | `.git/**`                                                           | Conventional commits, branch naming, PR size      |
+| `testing-patterns` | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.            | AAA pattern, factories, coverage                  |
+| `security-review`  | `auth/**`, `middleware/**`, `security/**`, `routes/**`              | Input validation, JWT, CSRF, secrets              |
+| `api-design`       | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination        |
+| `django-patterns`  | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.          | Fat models, managers, query optimization, signals |
+| `docker-patterns`  | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                | Multi-stage builds, layer caching, security       |
+| `infrastructure`   | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                  | Terraform modules, K8s resources, Helm charts     |
+
+</details>
+
+### Rules
+
+Path-scoped style enforcement (`paths` frontmatter). Skills provide patterns; rules enforce style.
+
+<details>
+<summary><strong>2 style rules</strong> — click to expand</summary>
+
+| Rule               | Applies To            | What It Enforces                                                         |
+| ------------------ | --------------------- | ------------------------------------------------------------------------ |
+| `python-style`     | `**/*.py`             | Naming, error handling, imports, type hints                              |
+| `typescript-style` | `**/*.ts`, `**/*.tsx` | Naming, error handling, type usage, plus React-specific rules for `.tsx` |
+
+</details>
+
+### Hooks
+
+Run automatically at lifecycle events. Configured in `settings.json` (symlinked globally, so active in all projects); scripts live in `scripts/hooks/` and only run when their tools are present (e.g. `ruff`, `prettier`).
+
+<details>
+<summary><strong>7 configured hooks + 3 opt-in</strong> — click to expand</summary>
+
+**Configured:**
+
+| Hook                      | Trigger              | What It Does                                                   |
+| ------------------------- | -------------------- | -------------------------------------------------------------- |
+| SessionStart              | New session          | Outputs git branch, recent commits, and dirty files            |
+| SessionEnd                | Session end          | Appends session summary to `./standups/YYYY-MM-DD-log.md`      |
+| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier)                |
+| PostToolUseFailure        | After tool failure   | Logs failed tool calls to `~/.claude/logs/tool-failures.jsonl` |
+| PreToolUse (Bash)         | Before bash commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)             |
+| PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)     |
+| TaskCompleted             | Autonomous task done | Emits a terminal bell                                          |
+
+**Opt-in** (each invokes an LLM on every fire — enable deliberately):
+
+| Hook             | Trigger                 | What It Would Do                                  |
+| ---------------- | ----------------------- | ------------------------------------------------- |
+| UserPromptSubmit | Before prompt sent      | LLM-evaluated check: is the prompt specific?      |
+| Stop             | Session end             | LLM-evaluated check: tests run? linters run?      |
+| SubagentStop     | Before subagent returns | LLM-evaluated check: did subagent complete fully? |
+
+</details>
+
+### Settings Templates
+
+Composable permission sets merged into `settings.local.json`. `base` is always included; `deny` beats `allow` during merge.
+
+<details>
+<summary><strong>13 permission templates</strong> — click to expand</summary>
+
+```bash
+setup-project.sh python          # Python project
+setup-project.sh django react    # Full-stack (combine multiple)
+setup-project.sh all             # ALL templates
+```
+
+| Template     | What It Allows                                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `all`        | All templates below combined                                                                                       |
+| `base`       | Git, GitHub CLI, file operations, WebSearch _(always included)_                                                    |
+| `python`     | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry                              |
+| `django`     | Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright) |
+| `react`      | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier                                                  |
+| `node`       | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun                                                   |
+| `nextjs`     | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright                                              |
+| `fastapi`    | uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose                                                   |
+| `go`         | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire                                                  |
+| `docker`     | Docker build, compose, buildx, system commands                                                                     |
+| `java`       | Gradle, Maven, Java compilation (javac, jar)                                                                       |
+| `kubernetes` | kubectl, helm, kustomize, kubectx, stern                                                                           |
+| `rust`       | cargo, rustc, rustup, rustfmt, clippy                                                                              |
+| `terraform`  | terraform fmt/validate/plan/init                                                                                   |
+
+</details>
+
+### MCP Templates
+
+MCP server configs generated alongside `settings.local.json` when a matching template exists.
+
+<details>
+<summary><strong>MCP server templates</strong> — click to expand</summary>
+
+| Template  | MCP Servers                                          |
+| --------- | ---------------------------------------------------- |
+| `base`    | None (MCP is opt-in)                                 |
+| `django`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `nextjs`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `fastapi` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+
+Other stacks (`node`, `python`, `go`, `rust`, `java`, `kubernetes`, `terraform`) fall through to `base.json` — add servers manually in the project's `.mcp.json` when needed. Only PostgreSQL is templated because it's the one reference server with a stable npm package confirmed working end-to-end. Playwright is a first-class plugin (`playwright@claude-plugins-official`), not an MCP template.
+
+</details>
+
+### CLI Scripts
+
+Headless Claude Code scripts for automation — no interactive session needed.
+
+<details>
+<summary><strong>4 CLI scripts</strong> — click to expand</summary>
+
+Add aliases for quick access:
+
+```bash
+alias cr='~/Development/claude-code-config/scripts/cli/review-changes.sh'
+alias cpr='~/Development/claude-code-config/scripts/cli/review-pr.sh'
+alias cdr='~/Development/claude-code-config/scripts/cli/daily-report.sh'
+alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
+```
+
+| Script              | Usage             | What It Does                                                |
+| ------------------- | ----------------- | ----------------------------------------------------------- |
+| `review-changes.sh` | `cr`              | Review uncommitted changes for bugs, security, code quality |
+| `explain-error.sh`  | `cmd 2>&1 \| cee` | Pipe error output to Claude for explanation                 |
+| `daily-report.sh`   | `cdr`             | Summarize last 24h of git activity                          |
+| `review-pr.sh`      | `cpr 123`         | Headless PR review                                          |
+
+</details>
+
+### Output Styles & Sandbox
+
+<details>
+<summary><strong>Output styles</strong> — set <code>outputStyle</code> or use <code>/output-style</code></summary>
+
+This repo doesn't set a default — `outputStyle` is a personal preference.
+
+| Style         | When to use                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `default`     | Standard task-focused responses                               |
+| `explanatory` | Adds learning insights inline (good for unfamiliar codebases) |
+| `learning`    | More guided; fewer one-shot answers (good for upskilling)     |
+
+Set a default with `{ "outputStyle": "explanatory" }`, or switch on the fly via `/output-style explanatory`.
+
+</details>
+
+<details>
+<summary><strong>Sandbox</strong> — ships disabled by default</summary>
+
+Sandbox mode constrains Bash execution. It ships **disabled** so the baseline config doesn't change a user's security posture when symlinked into projects:
+
+```json
+"sandbox": { "enabled": false, "autoAllowBashIfSandboxed": false }
+```
+
+Opt in via local/per-project settings once you've confirmed the boundary is acceptable. `autoAllowBashIfSandboxed` reduces prompts inside sandboxed worktrees — enable deliberately; silent auto-approved Bash is exactly what shared configs should avoid.
+
+</details>
+
+---
+
+## 🧭 Choosing & Composing
+
+### "I want to…" lookup
+
+<details>
+<summary><strong>Task → tool cheat sheet</strong> — click to expand</summary>
 
 | I want to...                    | Use                               | Why                                                           |
 | ------------------------------- | --------------------------------- | ------------------------------------------------------------- |
@@ -184,204 +361,145 @@ Code review and spec-writing are now handled by **bundled plugins** rather than 
 | Write documentation             | `@documentation-writer`           | README, API docs, ADRs, onboarding guides                     |
 | Headless review (no session)    | `review-changes.sh`               | Runs in CI or as a shell alias                                |
 
-### Understanding the Layers
+</details>
 
-Some tools overlap intentionally at different levels of depth:
+### Tool depth layers
+
+Some tools overlap intentionally at different depths:
 
 ```
-Code review depth:     /review  →  feature-dev:code-reviewer  →  pr-review-toolkit:code-reviewer  →  /ultrareview
-                       (uncommitted diff)  (inline, filtered)     (pre-merge audit)                  (multi-agent cloud)
+Code review:     /review  →  feature-dev:code-reviewer  →  pr-review-toolkit:code-reviewer  →  /ultrareview
+                 (uncommitted)  (inline, filtered)         (pre-merge audit)                   (multi-agent cloud)
 
-Reporting scopes:      daily-report.sh  →  /standup  →  /eow-review
-                       (headless)          (24h)        (full week)
+Reporting:       daily-report.sh  →  /standup  →  /eow-review
+                 (headless)          (24h)        (full week)
 ```
 
-## Fork or Clone?
+### Common workflows
 
-| Approach  | When to Use                                                 |
-| --------- | ----------------------------------------------------------- |
-| **Clone** | You want to use as-is, or contribute improvements back      |
-| **Fork**  | You want to customize agents/commands for your own workflow |
+<details>
+<summary><strong>Implement a feature</strong></summary>
 
-If you fork, you can still pull updates from upstream:
+```
+feature-dev:code-architect    # 1. Implementation blueprint (plugin)
+  (you write the code)         # 2. Implement
+@test-engineer                 # 3. Write tests
+/review                        # 4. Quick diff check
+/commit → /pr                  # 5. Ship it
+```
+
+</details>
+
+<details>
+<summary><strong>Fix a bug</strong></summary>
+
+```
+@bug-resolver                  # Investigate root cause
+  (you fix the code)           # Apply the fix
+/review → /commit              # Quick check and commit
+```
+
+</details>
+
+<details>
+<summary><strong>Daily development cycle</strong></summary>
+
+```
+/standup                       # Generate standup notes
+  (you work)                   # Write code
+/review                        # Quick diff check before committing
+/commit → /pr                  # Commit and open PR
+```
+
+</details>
+
+<details>
+<summary><strong>Review a PR</strong></summary>
+
+```
+pr-review-toolkit:review-pr    # Bundled plugin: full PR analysis
+/ultrareview                   # ...or deeper: multi-agent cloud review (billed)
+review-pr.sh 142               # ...or headless: no interactive session
+```
+
+</details>
+
+<details>
+<summary><strong>End-of-week reporting</strong></summary>
+
+```
+/standup                       # Daily: last 24h activity
+/eow-review                    # Weekly: full week across Git, GitHub, Jira, Notion
+daily-report.sh                # Headless: auto-generate daily summary
+```
+
+</details>
+
+---
+
+## 🔧 How Setup Works
+
+### What gets created
+
+**Global** (`setup-global.sh`) — symlinks in `~/.claude/`:
+
+```
+~/.claude/
+├── agents          -> claude-code-config/agents
+├── commands        -> claude-code-config/commands
+├── skills          -> claude-code-config/skills
+├── rules           -> claude-code-config/rules
+└── settings.json   -> claude-code-config/settings.json
+```
+
+**Project** (`setup-project.sh`) — in your project:
+
+```
+your-project/
+├── .mcp.json                  # MCP server config (if applicable)
+└── .claude/
+    ├── agents              -> claude-code-config/agents
+    ├── commands            -> claude-code-config/commands
+    ├── skills              -> claude-code-config/skills
+    ├── rules               -> claude-code-config/rules
+    └── settings.local.json    # generated from templates
+```
+
+### Settings files
+
+- **`settings.json`** (global): plugin enablement, hooks, model selection — applies everywhere via the `~/.claude/` symlink. `setup-project.sh` does **not** create a per-project copy. A project may still commit its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
+- **`settings.local.json`** (generated): permissions — which bash commands and tools Claude can use in your project.
+
+### Project tooling (`--tooling`)
+
+The Claude layer is symlinked so updates propagate. A project's **hard tooling** — a `make check` quality gate, validators, git hooks, CI workflows, a Claude-on-web bootstrap — can't be symlinked (GitHub Actions only runs workflows physically present in the repo). So `setup-project.sh <type> --tooling` **copies** (vendors) that layer in idempotently — existing files are never clobbered.
 
 ```bash
-git remote add upstream https://github.com/edjchapman/claude-code-config.git
-git fetch upstream
-git merge upstream/main
+setup-project.sh python --tooling    # Claude layer + tooling layer
+setup-project.sh --tooling           # tooling layer only
+scripts/install-tooling.sh --hooks   # ...equivalently, the helper directly
 ```
 
-## Available Templates
+<details>
+<summary><strong>What gets vendored into the project root</strong></summary>
 
-Use one or combine multiple:
+| Path                                                      | What it is                                                                                                                                                                                                                       |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Makefile`                                                | `make check` aggregate gate: link + anchor validators plus a `stack-check` target you wire to your lint/test                                                                                                                     |
+| `scripts/`                                                | `check-links.sh`, `check_anchors.py`, `check-commit-msg.sh`, and the stale-branch trio (`check-stale-branches.sh`, `sweep-stale-branches.sh`, `_lib-stale-branches.sh`)                                                          |
+| `.githooks/`                                              | `pre-commit` (runs `make check`) and `commit-msg` (Conventional Commits), activated via `core.hooksPath`                                                                                                                         |
+| `.github/workflows/`                                      | `check.yml` (gate on PR + push), `commit-style.yml` (PR-title lint), `scheduled-check.yml` (weekly drift cron)                                                                                                                   |
+| `.editorconfig`, `.markdownlint-cli2.jsonc`               | Editor and markdown-lint defaults                                                                                                                                                                                                |
+| `.claude/hooks/session-start.sh`, `.claude/settings.json` | **Claude-on-web bootstrap** — a `SessionStart` hook that stack-detects and installs deps when `CLAUDE_CODE_REMOTE=true` (a no-op locally), plus the committed settings that wire it. Commit both; keep them out of `.gitignore`. |
 
-```bash
-~/Development/claude-code-config/scripts/setup-project.sh python          # Python project
-~/Development/claude-code-config/scripts/setup-project.sh django          # Django
-~/Development/claude-code-config/scripts/setup-project.sh django react    # Full-stack
-~/Development/claude-code-config/scripts/setup-project.sh go              # Go project
-~/Development/claude-code-config/scripts/setup-project.sh node            # Node.js
-~/Development/claude-code-config/scripts/setup-project.sh terraform       # Infrastructure
-~/Development/claude-code-config/scripts/setup-project.sh all             # ALL templates
-```
+The payload lives in [`tooling/`](tooling/); [`scripts/install-tooling.sh`](scripts/install-tooling.sh) performs the copy. After install, wire your stack's lint/test into the Makefile's `stack-check` target — the installer prints a suggested snippet for your project type.
 
-| Template     | What It Allows                                                                                                     |
-| ------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `all`        | All templates below combined                                                                                       |
-| `base`       | Git, GitHub CLI, file operations, WebSearch _(always included)_                                                    |
-| `python`     | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry                              |
-| `django`     | Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright) |
-| `react`      | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier                                                  |
-| `node`       | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun                                                   |
-| `nextjs`     | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright                                              |
-| `fastapi`    | uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose                                                   |
-| `go`         | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire                                                  |
-| `docker`     | Docker build, compose, buildx, system commands                                                                     |
-| `java`       | Gradle, Maven, Java compilation (javac, jar)                                                                       |
-| `kubernetes` | kubectl, helm, kustomize, kubectx, stern                                                                           |
-| `rust`       | cargo, rustc, rustup, rustfmt, clippy                                                                              |
-| `terraform`  | terraform fmt/validate/plan/init                                                                                   |
+</details>
 
-## Available Agents
+### Directory structure
 
-Invoke with `@agent-name` in Claude Code:
-
-| Agent                      | What It Does                                           | Model  |
-| -------------------------- | ------------------------------------------------------ | ------ |
-| `@bug-resolver`            | Systematic debugging, root cause analysis              | opus   |
-| `@ci-debugger`             | CI/CD failure investigation, flaky tests               | sonnet |
-| `@database-architect`      | Schema design, migration planning, query optimization  | opus   |
-| `@dependency-manager`      | Dependency audit, outdated packages, license checks    | sonnet |
-| `@devops-engineer`         | Infrastructure, CI/CD pipelines, containers            | opus   |
-| `@documentation-writer`    | README, API docs, ADRs, onboarding guides              | sonnet |
-| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests                  | sonnet |
-| `@git-helper`              | Complex git: rebase, conflicts, recovery               | sonnet |
-| `@migration-engineer`      | Database migrations, framework upgrades, zero-downtime | opus   |
-| `@performance-engineer`    | Profiling, bottleneck analysis, optimization           | opus   |
-| `@pr-review-bundler`       | Bundle PR reviews into markdown                        | sonnet |
-| `@refactoring-engineer`    | Systematic, safe refactoring                           | opus   |
-| `@security-auditor`        | Security audit, OWASP, dependency vulnerabilities      | opus   |
-| `@test-engineer`           | Create unit and integration tests                      | sonnet |
-
-> **Not in this repo (provided by enabled plugins):** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture writing (`feature-dev:code-architect`), code simplification (`code-simplifier` plugin). Custom versions of these were retired in favour of the plugin implementations.
-
-**Model notes:**
-
-- **Opus** = complex reasoning, security reviews, planning (higher cost)
-- **Sonnet** = pattern-based tasks, faster, lower cost
-
-## Available Commands & Workflow Skills
-
-All entries below are invoked with `/<name>` in Claude Code. The **workflow skills** include a "Use when…" clause in their `description:` so Claude can also auto-invoke them from plain English (e.g. "commit my staged work" → fires `/commit`). The **commands** in `commands/` are user-invoke only.
-
-| Slash              | Source  | What It Does                                                      | Delegates To          |
-| ------------------ | ------- | ----------------------------------------------------------------- | --------------------- |
-| `/commit`          | skill   | Analyze staged changes, generate commit message                   | --                    |
-| `/pr`              | skill   | Create PR with auto-generated description                         | --                    |
-| `/hotfix`          | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR  | --                    |
-| `/tdd`             | skill   | TDD workflow: write failing test, implement, refactor             | --                    |
-| `/adr`             | skill   | Create Architecture Decision Record (Nygard format)               | --                    |
-| `/standup`         | command | Summarize last 24h across Git, GitHub, Jira, and Notion           | --                    |
-| `/status`          | command | Quick status update appended to today's daily log                 | --                    |
-| `/deps`            | command | Dependency audit: vulnerabilities, outdated packages, update plan | `@dependency-manager` |
-| `/coverage-report` | command | Analyze test coverage and identify gaps                           | `@test-engineer`      |
-| `/refinement`      | command | Prepare technical analysis for backlog refinement                 | Explore sub-agent     |
-| `/eow-review`      | command | Prepare end-of-week review notes                                  | --                    |
-| `/later`           | command | Create a personal backlog item (learn, research, do, read)        | --                    |
-
-> **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`. Custom `commands/review.md` and `commands/security-scan.md` were retired in favour of the bundled versions.
-
-## Common Workflows
-
-Here's how the pieces compose for everyday tasks:
-
-### Implement a Feature
-
-```
-feature-dev:code-architect          # 1. Implementation blueprint via plugin
-  (you write the code)              # 2. Implement
-@test-engineer                      # 3. Write tests
-/review                             # 4. Quick diff check
-/commit → /pr                       # 5. Ship it
-```
-
-### Fix a Bug
-
-```
-@bug-resolver                       # Investigate root cause
-  (you fix the code)                # Apply the fix
-/review → /commit                   # Quick check and commit
-```
-
-### Daily Development Cycle
-
-```
-/standup                            # Generate standup notes
-  (you work)                        # Write code
-/review                             # Before committing: quick diff check
-/commit → /pr                       # Commit and open PR
-```
-
-### Review a PR
-
-```
-pr-review-toolkit:review-pr         # Bundled plugin: full PR analysis
-  ... or for a deeper audit:
-/ultrareview                        # Multi-agent cloud review (billed)
-  ... or headless:
-review-pr.sh 142                    # CLI: runs without an interactive session
-```
-
-### End-of-Week Reporting
-
-```
-/standup                            # Daily: last 24h activity
-/eow-review                        # Weekly: full week summary across Git, GitHub, Jira, Notion
-daily-report.sh                     # Headless: auto-generate daily summary
-```
-
-## CLI Scripts
-
-Headless Claude Code scripts for automation. Add aliases to your shell profile for quick access:
-
-```bash
-alias cr='~/Development/claude-code-config/scripts/cli/review-changes.sh'
-alias cpr='~/Development/claude-code-config/scripts/cli/review-pr.sh'
-alias cdr='~/Development/claude-code-config/scripts/cli/daily-report.sh'
-alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
-```
-
-| Script              | Usage             | What It Does                                                |
-| ------------------- | ----------------- | ----------------------------------------------------------- |
-| `review-changes.sh` | `cr`              | Review uncommitted changes for bugs, security, code quality |
-| `explain-error.sh`  | `cmd 2>&1 \| cee` | Pipe error output to Claude for explanation                 |
-| `daily-report.sh`   | `cdr`             | Summarize last 24h of git activity                          |
-| `review-pr.sh`      | `cpr 123`         | Headless PR review                                          |
-
-## MCP Templates
-
-MCP server configurations per project type, generated alongside `settings.local.json`:
-
-| Template  | MCP Servers                                          |
-| --------- | ---------------------------------------------------- |
-| `base`    | None (MCP is opt-in)                                 |
-| `django`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
-| `nextjs`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
-| `fastapi` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
-
-Other stacks (`node`, `python`, `go`, `rust`, `java`, `kubernetes`, `terraform`)
-fall through to `base.json` — add MCP servers manually in the project's
-generated `.mcp.json` when needed. Only PostgreSQL is templated because
-it's the one reference server with a stable npm package this repo has
-confirmed working end-to-end.
-
-Playwright is provided as a first-class plugin (`playwright@claude-plugins-official`,
-enabled in `settings.json`), so React projects do not get a generated `.mcp.json`
-from this repo by default.
-
-MCP templates are automatically merged when running `setup-project.sh` if a matching template exists.
-
-## Directory Structure
+<details>
+<summary><strong>Repository layout</strong></summary>
 
 ```
 claude-code-config/
@@ -393,137 +511,44 @@ claude-code-config/
 ├── mcp-templates/           # MCP server templates (JSON)
 ├── settings.json            # Plugin config + hooks (symlinked globally)
 ├── tooling/                 # Vendored project hard-tooling payload (--tooling)
-├── scripts/
-│   ├── setup-global.sh      # One-time machine setup
-│   ├── setup-project.sh     # Per-project setup (+ --tooling)
-│   ├── install-tooling.sh   # Vendors tooling/ into a project (--tooling)
-│   ├── merge-settings.py    # Permission template merger
-│   ├── merge-mcp.py         # MCP template merger
-│   ├── hooks/               # Hook scripts referenced by settings.json
-│   │   ├── session-context.sh        # SessionStart hook
-│   │   ├── session-end.sh            # SessionEnd hook
-│   │   ├── format-on-edit.sh         # PostToolUse (Write|Edit) hook
-│   │   ├── log-tool-failure.sh       # PostToolUseFailure hook
-│   │   ├── dangerous-cmd-check.sh    # PreToolUse (Bash) hook
-│   │   ├── pre-compact-state.sh      # PreCompact hook
-│   │   ├── task-completed-chime.sh   # TaskCompleted hook
-│   │   ├── statusline.sh             # Used by settings.json statusLine.command
-│   │   └── check-duplicates.sh       # CI-only (validate-config.yml)
-│   └── cli/                 # Headless CLI automation scripts
-│       ├── review-changes.sh
-│       ├── explain-error.sh
-│       ├── daily-report.sh
-│       └── review-pr.sh
+└── scripts/
+    ├── setup-global.sh      # One-time machine setup
+    ├── setup-project.sh     # Per-project setup (+ --tooling)
+    ├── install-tooling.sh   # Vendors tooling/ into a project (--tooling)
+    ├── merge-settings.py    # Permission template merger
+    ├── merge-mcp.py         # MCP template merger
+    ├── hooks/               # Hook scripts referenced by settings.json
+    │   ├── session-context.sh        # SessionStart
+    │   ├── session-end.sh            # SessionEnd
+    │   ├── format-on-edit.sh         # PostToolUse (Write|Edit)
+    │   ├── log-tool-failure.sh       # PostToolUseFailure
+    │   ├── dangerous-cmd-check.sh    # PreToolUse (Bash)
+    │   ├── pre-compact-state.sh      # PreCompact
+    │   ├── task-completed-chime.sh   # TaskCompleted
+    │   ├── statusline.sh             # settings.json statusLine.command
+    │   └── check-duplicates.sh       # CI-only (validate-config.yml)
+    └── cli/                 # Headless CLI automation scripts
+        ├── review-changes.sh
+        ├── explain-error.sh
+        ├── daily-report.sh
+        └── review-pr.sh
 ```
 
-## Hooks
+</details>
 
-Hooks are configured in `settings.json` and run automatically at key points in the Claude Code lifecycle. Since `settings.json` is symlinked globally, hooks work in all projects.
+### Keeping settings in sync
 
-**Currently configured** (in `settings.json`):
-
-| Hook                      | Trigger              | What It Does                                                   |
-| ------------------------- | -------------------- | -------------------------------------------------------------- |
-| SessionStart              | New session          | Outputs git branch, recent commits, and dirty files            |
-| SessionEnd                | Session end          | Appends session summary to `./standups/YYYY-MM-DD-log.md`      |
-| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier)                |
-| PostToolUseFailure        | After tool failure   | Logs failed tool calls to `~/.claude/logs/tool-failures.jsonl` |
-| PreToolUse (Bash)         | Before bash commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)             |
-| PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)     |
-| TaskCompleted             | Autonomous task done | Emits a terminal bell                                          |
-
-**Available but not configured by default** (opt-in by editing `settings.json`):
-
-| Hook             | Trigger                 | What It Would Do                                  |
-| ---------------- | ----------------------- | ------------------------------------------------- |
-| UserPromptSubmit | Before prompt sent      | LLM-evaluated check: is the prompt specific?      |
-| Stop             | Session end             | LLM-evaluated check: tests run? linters run?      |
-| SubagentStop     | Before subagent returns | LLM-evaluated check: did subagent complete fully? |
-
-The three opt-in hooks invoke an LLM on every fire — enable deliberately, not by default.
-
-Hook scripts live in `scripts/hooks/` and only run when the required tools are available (e.g., `ruff`, `prettier`).
-
-## Output Styles
-
-Claude Code supports several response styles via `outputStyle` in `settings.json`
-or with the per-session `/output-style` command. This repo doesn't set a default —
-`outputStyle` is a personal preference and varies by task type.
-
-| Style         | When to use                                                   |
-| ------------- | ------------------------------------------------------------- |
-| `default`     | Standard task-focused responses                               |
-| `explanatory` | Adds learning insights inline (good for unfamiliar codebases) |
-| `learning`    | More guided; fewer one-shot answers (good for upskilling)     |
-
-To set a default:
-
-```json
-{
-  "outputStyle": "explanatory"
-}
+```bash
+cd ~/my-project
+setup-project.sh --check django   # Check drift + symlinks
+setup-project.sh django           # Regenerate if drifted
 ```
 
-Or switch on the fly with `/output-style explanatory`. See the official Claude
-Code docs for the current list of styles and how to author custom ones.
+---
 
-## Sandbox
+## 🎨 Customization
 
-Claude Code supports a sandbox mode that constrains Bash execution. This repo
-ships **disabled** by default so the baseline config doesn't change a user's
-effective security posture when symlinked into projects:
-
-```json
-"sandbox": {
-  "enabled": false,
-  "autoAllowBashIfSandboxed": false
-}
-```
-
-To opt in, override in your local user settings (`~/.claude/settings.local.json`)
-or per-project once you've confirmed the boundary is acceptable:
-
-```json
-"sandbox": {
-  "enabled": true,
-  "autoAllowBashIfSandboxed": true
-}
-```
-
-`autoAllowBashIfSandboxed` reduces permission prompts inside sandboxed worktrees.
-Enable deliberately, not by default — silent enablement of auto-approved Bash is
-exactly the kind of behaviour shared/symlinked configs should avoid.
-
-## Skills
-
-Skills are domain knowledge documents that auto-activate when you touch matching files. They provide passive guidance without explicit invocation.
-
-| Skill              | Activates On                                                        | What It Covers                                    |
-| ------------------ | ------------------------------------------------------------------- | ------------------------------------------------- |
-| `git-workflow`     | `.git/**`                                                           | Conventional commits, branch naming, PR size      |
-| `testing-patterns` | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.            | AAA pattern, factories, coverage                  |
-| `security-review`  | `auth/**`, `middleware/**`, `security/**`, `routes/**`              | Input validation, JWT, CSRF, secrets              |
-| `api-design`       | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination        |
-| `django-patterns`  | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.          | Fat models, managers, query optimization, signals |
-| `docker-patterns`  | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                | Multi-stage builds, layer caching, security       |
-| `infrastructure`   | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                  | Terraform modules, K8s resources, Helm charts     |
-
-## Rules
-
-Rules are path-scoped code style enforcement files in `rules/`. They use `paths` frontmatter for granular file matching and are enforced when touching matching files.
-
-| Rule               | Applies To            | What It Enforces                                                         |
-| ------------------ | --------------------- | ------------------------------------------------------------------------ |
-| `python-style`     | `**/*.py`             | Naming, error handling, imports, type hints                              |
-| `typescript-style` | `**/*.ts`, `**/*.tsx` | Naming, error handling, type usage, plus React-specific rules for `.tsx` |
-
-Skills provide domain knowledge (patterns and best practices); rules enforce style requirements.
-
-## Customization
-
-### Adding an Agent
-
-Create `agents/my-agent.md`:
+**Adding an agent** — create `agents/my-agent.md`:
 
 ```yaml
 ---
@@ -536,48 +561,16 @@ model: opus
 Your detailed agent instructions here...
 ```
 
-### Adding a Skill or Command
+**Adding a skill, command, or template** — the canonical recipes (with exemplar pointers) live in the **Self-Extension Guide** in [`CLAUDE.md`](CLAUDE.md). In short:
 
-For agents, skills, hooks, and templates the canonical recipes (with exemplar pointers) live in the **Self-Extension Guide** section of `CLAUDE.md`. Quick summary:
+- Auto-invokable workflow → `skills/<name>.md` with `description: "<what>. Use when <trigger>."`
+- User-only command → `commands/<name>.md` with `description:` (+ optional `argument-hint:`)
+- Passive-domain skill → `skills/<name>.md` with a `paths:` glob list
+- Permission template → `settings-templates/<stack>.json` (`_source`, `_version`, `permissions.allow/deny`), then `setup-project.sh <stack>`
 
-- New auto-invokable workflow → `skills/<name>.md` with a rich `description: "<what>. Use when <trigger>."` (see `skills/commit.md`)
-- New user-only command → `commands/<name>.md` with `description:` and optional `argument-hint:` (see `commands/eow-review.md`)
-- New passive-domain skill → `skills/<name>.md` with `paths:` glob list (see `skills/django-patterns.md`)
+### Git setup for projects
 
-### Adding a Template
-
-Create `settings-templates/my-stack.json`:
-
-```json
-{
-  "_source": "my-stack",
-  "_version": 1,
-  "permissions": {
-    "allow": ["Bash(my-cli-tool:*)", "WebFetch(domain:docs.my-tool.com)"]
-  }
-}
-```
-
-Then use: `setup-project.sh my-stack`
-
-## Keeping Settings in Sync
-
-Check if your project settings match the templates:
-
-```bash
-cd ~/my-project
-~/Development/claude-code-config/scripts/setup-project.sh --check django
-```
-
-Regenerate if drifted:
-
-```bash
-~/Development/claude-code-config/scripts/setup-project.sh django
-```
-
-## Git Setup for Projects
-
-Add to your project's `.gitignore`:
+Add the personal symlinks to your project's `.gitignore`:
 
 ```gitignore
 # Claude Code symlinks (personal config)
@@ -588,74 +581,67 @@ Add to your project's `.gitignore`:
 .claude/settings.json
 ```
 
-**Do commit** `settings.local.json` if you want to share permissions with your team. The `settings.json` symlink is personal (plugin preferences), while `settings.local.json` contains project-specific permissions worth sharing.
+**Do commit** `settings.local.json` if you want to share permissions with your team — the symlinks are personal, but the permission set is worth sharing.
 
-## Uninstalling / Cleanup
+### Uninstalling / cleanup
 
-**Remove global symlinks:**
+<details>
+<summary><strong>Remove symlinks / move the repo</strong></summary>
 
 ```bash
+# Remove global symlinks
 rm ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/rules ~/.claude/settings.json
-# If upgrading from an older version that included keybindings.json:
-rm -f ~/.claude/keybindings.json
-```
 
-**Remove from a project:**
-
-```bash
+# Remove from a project
 rm -rf .claude/agents .claude/commands .claude/skills .claude/rules .claude/settings.json
-# Optionally remove generated permissions too:
-rm .claude/settings.local.json
-```
+rm .claude/settings.local.json   # optionally, generated permissions too
 
-**Moving the repo to a new location:**
-
-```bash
-# After moving, re-run setup scripts to update symlinks
+# After moving the repo, re-run setups to refresh symlinks
 ~/new-location/claude-code-config/scripts/setup-global.sh
 cd ~/my-project && ~/new-location/claude-code-config/scripts/setup-project.sh django
 ```
 
-## Troubleshooting
+</details>
+
+---
+
+## ❓ Troubleshooting
+
+<details>
+<summary><strong>Common issues</strong></summary>
 
 **Python not found**
 
 ```bash
 python3 --version  # Need 3.8+
-# macOS: brew install python@3.11
-# Ubuntu: sudo apt install python3
+# macOS: brew install python@3.11   |   Ubuntu: sudo apt install python3
 ```
 
-**Symlinks broken after moving repo**
+**Symlinks broken after moving the repo** — re-run both setups:
 
 ```bash
-# Re-run both setups
 ~/Development/claude-code-config/scripts/setup-global.sh
 cd ~/my-project && ~/Development/claude-code-config/scripts/setup-project.sh django
 ```
 
-**"Circular symlink" error**
-You're running setup-project.sh from inside the config repo. Run it from your actual project directory instead.
+**"Circular symlink" error** — you're running `setup-project.sh` from inside the config repo. Run it from your actual project directory instead.
 
-## Requirements
+</details>
+
+---
+
+## 📋 Requirements
 
 - Bash shell (macOS, Linux, or WSL on Windows)
 - Python 3.8+
 - [Claude Code CLI](https://claude.ai/code)
 
-### Windows Users
+**Windows:** these scripts need a Unix-like environment. Use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) (recommended) and run scripts from within it; Git Bash may work but is untested. Note that symlinks created in WSL aren't visible to native Windows apps.
 
-These scripts require a Unix-like environment. Options:
+---
 
-- **WSL (recommended)**: Install [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install), then run scripts from within WSL
-- **Git Bash**: May work but is not tested
+## 📚 Project & Docs
 
-Note: Symlinks created in WSL are not visible from native Windows applications.
+[Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Changelog](CHANGELOG.md) · [License](LICENSE)
 
-## License
-
-MIT - see [LICENSE](LICENSE)
-
-## Contributing
-
-PRs welcome!
+PRs welcome. Licensed under **MIT** — see [LICENSE](LICENSE).
