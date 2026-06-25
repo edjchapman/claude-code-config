@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, commands, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `12 commands & skills` · `13 permission templates` · `8 passive skills` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`14 specialist agents` · `12 commands & skills` · `14 permission templates` · `8 passive skills` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 </div>
 
@@ -230,7 +230,7 @@ Run automatically at lifecycle events. Configured in `settings.json` (symlinked 
 Composable permission sets merged into `settings.local.json`. `base` is always included; `deny` beats `allow` during merge.
 
 <details>
-<summary><strong>13 permission templates</strong> — click to expand</summary>
+<summary><strong>14 permission templates</strong> — click to expand</summary>
 
 ```bash
 setup-project.sh python          # Python project
@@ -254,6 +254,7 @@ setup-project.sh all             # ALL templates
 | `kubernetes` | kubectl, helm, kustomize, kubectx, stern                                                                           |
 | `rust`       | cargo, rustc, rustup, rustfmt, clippy                                                                              |
 | `terraform`  | terraform fmt/validate/plan/init                                                                                   |
+| `aws`        | AWS CLI describe/validate (read-only), cfn-lint, cfn-guard, cdk synth/diff (deletion & deploy denied)             |
 
 </details>
 
@@ -270,6 +271,7 @@ MCP server configs generated alongside `settings.local.json` when a matching tem
 | `django`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
 | `nextjs`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
 | `fastapi` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `aws`     | AWS IaC (`awslabs.aws-iac-mcp-server`, via `uvx`)    |
 
 Other stacks (`node`, `python`, `go`, `rust`, `java`, `kubernetes`, `terraform`) fall through to `base.json` — add servers manually in the project's `.mcp.json` when needed. Only PostgreSQL is templated because it's the one reference server with a stable npm package confirmed working end-to-end. Playwright is a first-class plugin (`playwright@claude-plugins-official`), not an MCP template.
 
