@@ -1,11 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "opus[1m]",
-  "outputStyle": "Explanatory",
   "skillListingBudgetFraction": 0.02,
-  "worktree": {
-    "baseRef": "head",
-    "bgIsolation": "worktree"
+  "model": "opus[1m]",
+  "attribution": {
+    "commit": "",
+    "pr": ""
   },
   "hooks": {
     "SessionStart": [
@@ -81,6 +80,10 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "head",
+    "bgIsolation": "worktree"
+  },
   "statusLine": {
     "type": "command",
     "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/statusline.sh"
@@ -95,10 +98,12 @@
     "typescript-lsp@claude-plugins-official": true,
     "document-skills@anthropic-agent-skills": true
   },
+  "outputStyle": "Explanatory",
   "sandbox": {
     "enabled": false,
     "autoAllowBashIfSandboxed": false
   },
   "effortLevel": "high",
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "tui": "fullscreen"
 }
