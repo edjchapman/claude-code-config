@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, commands, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `12 commands & skills` · `13 permission templates` · `7 passive skills` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`14 specialist agents` · `12 commands & skills` · `13 permission templates` · `8 passive skills` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 </div>
 
@@ -167,7 +167,7 @@ Invoke with `/<name>`. **Workflow skills** carry a "Use when…" clause so Claud
 Domain knowledge that auto-activates when you touch matching files — guidance without explicit invocation.
 
 <details>
-<summary><strong>7 passive skills</strong> — click to expand</summary>
+<summary><strong>8 passive skills</strong> — click to expand</summary>
 
 | Skill              | Activates On                                                        | What It Covers                                    |
 | ------------------ | ------------------------------------------------------------------- | ------------------------------------------------- |
@@ -178,6 +178,7 @@ Domain knowledge that auto-activates when you touch matching files — guidance 
 | `django-patterns`  | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.          | Fat models, managers, query optimization, signals |
 | `docker-patterns`  | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                | Multi-stage builds, layer caching, security       |
 | `infrastructure`   | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                  | Terraform modules, K8s resources, Helm charts     |
+| `root-cause-analysis` | `**/*.py`                                                        | Root causes over symptom-level bandaids           |
 
 </details>
 
