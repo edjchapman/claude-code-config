@@ -77,17 +77,22 @@ CI-only utility (not a runtime hook): `scripts/hooks/check-duplicates.sh` runs f
 
 ### Settings Keys
 
-Beyond plugins and hooks, `settings.json` currently sets:
+Beyond plugins and hooks, `settings.json` currently sets (listed in file order — keep this list in sync when reordering keys):
 
+- **`skillListingBudgetFraction`**: Share of the prompt budget reserved for the skills listing (`0.02` = 2%). In use here but absent from the public settings JSON schema and docs as of this writing — verify its semantics before relying on it.
 - **`model`**: Default model (e.g. `opus[1m]` for Opus with 1M context)
+- **`attribution`**: Git commit/PR attribution text. Both fields are set to empty strings (`commit: ""`, `pr: ""`) to suppress the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line on commits **and** PRs — per the schema, the `commit` field covers trailers too, so one empty string handles both. Modern replacement for the deprecated `includeCoAuthoredBy` boolean.
 - **`hooks`**: Per-event hook configuration (see Hooks section above)
+- **`worktree`**: Worktree-session config. `baseRef: head` branches new worktrees from local HEAD (preserving unpushed commits) instead of `origin/<default>`; `bgIsolation: worktree` blocks Edit/Write in the main checkout until `EnterWorktree` is called.
 - **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
 - **`enabledPlugins`**: Plugin enablement map. The checked-in `settings.json` lists only **universal** plugins (no external accounts required). Personal opt-ins (Notion, Figma, frontend-design) live in `settings.personal.json.example`
+- **`outputStyle`**: Output style for assistant responses (`Explanatory`; built-ins are `default`, `Explanatory`, `Learning`)
 - **`sandbox`**: Sandbox configuration with `enabled` and `autoAllowBashIfSandboxed`
 - **`effortLevel`**: Default effort level (e.g. `high`)
 - **`agentPushNotifEnabled`**: Push notifications for background agent activity
+- **`tui`**: TUI rendering mode (`fullscreen` = flicker-free alt-screen renderer with virtualized scrollback; `default` = classic renderer). Corresponds to the `/tui` command.
 
-Other documented keys that this repo does **not** currently set (available as opt-ins): `env`, `attribution`, `fileSuggestion`, `spinnerVerbs`, `worktree`, `outputStyle`, `skillListingBudgetFraction`, `skillOverrides`, `autoMode`, `alwaysThinkingEnabled`, `parentSettingsBehavior`.
+Other documented keys that this repo does **not** currently set (available as opt-ins): `env`, `fileSuggestion`, `spinnerVerbs`, `skillOverrides`, `autoMode`, `alwaysThinkingEnabled`, `parentSettingsBehavior`.
 
 ### Skills
 
