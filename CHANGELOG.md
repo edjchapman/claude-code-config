@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/edjchapman/claude-code-config/compare/1.6.0...1.7.0) (2026-06-26)
+
+
+### Features
+
+* **templates:** add AWS IaC MCP + permission template ([#37](https://github.com/edjchapman/claude-code-config/issues/37)) ([ffc46c8](https://github.com/edjchapman/claude-code-config/commit/ffc46c8e801e00b5a1d368f67e65cafabf6539f2))
+
 ## [1.6.0](https://github.com/edjchapman/claude-code-config/compare/1.5.0...1.6.0) (2026-06-25)
 
 
