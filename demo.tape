@@ -3,7 +3,9 @@
 # Render:  brew install vhs  &&  vhs demo.tape   ->   docs/demo.gif
 # Docs:    https://github.com/charmbracelet/vhs
 #
-# Run from the repo root so the relative `scripts/...` paths resolve.
+# Run from the repo root. The hidden setup below puts scripts/ on PATH and
+# moves into a throwaway sample project, so the visible demo reads like setting
+# up a real project (not running inside this repo).
 
 Output docs/demo.gif
 
@@ -15,17 +17,27 @@ Set Theme "Catppuccin Mocha"
 Set Padding 20
 Set TypingSpeed 45ms
 
+# --- Hidden setup: portable, no machine-specific paths shown on screen ---
+Hide
+Type 'export PATH="$(pwd)/scripts:$PATH"'
+Enter
+Type "mkdir -p /tmp/acme-app && cd /tmp/acme-app"
+Enter
+Type "clear"
+Enter
+Show
+
 # Settle the prompt before recording the first command.
 Sleep 800ms
 
 # --- 1. The menu of composable templates ---
-Type "scripts/setup-project.sh --list"
+Type "setup-project.sh --list"
 Sleep 500ms
 Enter
 Sleep 3.5s
 
 # --- 2. Compose two stacks into one project (dry-run — nothing is written) ---
-Type "scripts/setup-project.sh --dry-run django react"
+Type "setup-project.sh --dry-run django react"
 Sleep 500ms
 Enter
 Sleep 6s
