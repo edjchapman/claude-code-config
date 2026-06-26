@@ -8,7 +8,13 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, commands, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `12 commands & skills` · `14 permission templates` · `8 passive skills` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`14 specialist agents` · `13 skills (8 passive · 5 workflow)` · `5 commands` · `14 permission templates` · `7 MCP templates` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+
+<br/>
+
+![Composing Django + React permissions into one project with a single command](docs/demo.gif)
+
+<sub><code>setup-project.sh --dry-run django react</code> — two stacks compose into one merged, deny-aware permission set.</sub>
 
 </div>
 
@@ -39,6 +45,25 @@ This repo fixes that with **one canonical config** that everything else links ba
 - **Hooks** for auto-formatting, safety checks, and notifications
 - **Skills & rules** for passive domain knowledge and style enforcement
 - **Setup scripts** that work on any machine
+
+```mermaid
+flowchart LR
+  repo["claude-code-config<br/>(one canonical repo)"]
+  subgraph Global["~/.claude — global"]
+    direction TB
+    a["agents · skills<br/>commands · rules"]
+    set["settings.json"]
+  end
+  subgraph Proj[".claude — per-project"]
+    direction TB
+    sl["settings.local.json"]
+    mcp[".mcp.json"]
+  end
+  repo -- "setup-global.sh<br/>(symlink)" --> Global
+  repo -- "setup-project.sh<br/>(merge templates)" --> Proj
+```
+
+One repo links into every machine (global symlinks) and composes per-project permissions (template merge) — so a change here propagates everywhere instead of being copied around.
 
 ---
 
@@ -82,10 +107,10 @@ claude
 
 ### Fork or Clone?
 
-| Approach  | When to use                                                 |
-| --------- | ----------------------------------------------------------- |
-| **Clone** | Use as-is, or contribute improvements back                  |
-| **Fork**  | Customize agents/commands for your own workflow             |
+| Approach  | When to use                                     |
+| --------- | ----------------------------------------------- |
+| **Clone** | Use as-is, or contribute improvements back      |
+| **Fork**  | Customize agents/commands for your own workflow |
 
 Forks can still pull upstream updates:
 
@@ -100,11 +125,11 @@ git fetch upstream && git merge upstream/main
 
 Everything falls into two modes — tools you **invoke** and tools that **auto-activate**:
 
-|             | Active (you invoke)                           | Passive (auto-activates)                          |
-| ----------- | --------------------------------------------- | ------------------------------------------------- |
-| **What**    | Specialist agents, commands, CLI scripts      | Skills, rules, hooks                              |
-| **How**     | `@name`, `/name`, or shell command            | Triggered by file patterns or lifecycle events    |
-| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` activates on `test_*.py`        |
+|             | Active (you invoke)                           | Passive (auto-activates)                       |
+| ----------- | --------------------------------------------- | ---------------------------------------------- |
+| **What**    | Specialist agents, commands, CLI scripts      | Skills, rules, hooks                           |
+| **How**     | `@name`, `/name`, or shell command            | Triggered by file patterns or lifecycle events |
+| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` activates on `test_*.py`    |
 
 > Some capabilities are now handled by **bundled plugins** rather than custom artifacts: `/review` + `pr-review-toolkit:review-pr` (code review), `feature-dev:code-architect` (implementation blueprints), `/security-review` (security audits).
 
@@ -141,22 +166,20 @@ Invoke with `@agent-name`. **Opus** = complex reasoning (higher cost); **Sonnet*
 Invoke with `/<name>`. **Workflow skills** carry a "Use when…" clause so Claude can auto-invoke them from plain English (e.g. "commit my staged work" → `/commit`). **Commands** are user-invoke only.
 
 <details>
-<summary><strong>12 commands & skills</strong> — click to expand</summary>
+<summary><strong>10 commands &amp; workflow skills</strong> (5 + 5) — click to expand</summary>
 
-| Slash              | Source  | What It Does                                                      | Delegates To          |
-| ------------------ | ------- | ----------------------------------------------------------------- | --------------------- |
-| `/commit`          | skill   | Analyze staged changes, generate commit message                   | --                    |
-| `/pr`              | skill   | Create PR with auto-generated description                         | --                    |
-| `/hotfix`          | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR  | --                    |
-| `/tdd`             | skill   | TDD workflow: write failing test, implement, refactor             | --                    |
-| `/adr`             | skill   | Create Architecture Decision Record (Nygard format)               | --                    |
-| `/standup`         | command | Summarize last 24h across Git, GitHub, Jira, and Notion           | --                    |
-| `/status`          | command | Quick status update appended to today's daily log                 | --                    |
-| `/deps`            | command | Dependency audit: vulnerabilities, outdated packages, update plan | `@dependency-manager` |
-| `/coverage-report` | command | Analyze test coverage and identify gaps                           | `@test-engineer`      |
-| `/refinement`      | command | Prepare technical analysis for backlog refinement                 | Explore sub-agent     |
-| `/eow-review`      | command | Prepare end-of-week review notes                                  | --                    |
-| `/later`           | command | Create a personal backlog item (learn, research, do, read)        | --                    |
+| Slash         | Source  | What It Does                                                     | Delegates To      |
+| ------------- | ------- | ---------------------------------------------------------------- | ----------------- |
+| `/commit`     | skill   | Analyze staged changes, generate commit message                  | --                |
+| `/pr`         | skill   | Create PR with auto-generated description                        | --                |
+| `/hotfix`     | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR | --                |
+| `/tdd`        | skill   | TDD workflow: write failing test, implement, refactor            | --                |
+| `/adr`        | skill   | Create Architecture Decision Record (Nygard format)              | --                |
+| `/standup`    | command | Summarize last 24h across Git, GitHub, Jira, and Notion          | --                |
+| `/status`     | command | Quick status update appended to today's daily log                | --                |
+| `/refinement` | command | Prepare technical analysis for backlog refinement                | Explore sub-agent |
+| `/eow-review` | command | Prepare end-of-week review notes                                 | --                |
+| `/later`      | command | Create a personal backlog item (learn, research, do, read)       | --                |
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`.
 
@@ -169,16 +192,16 @@ Domain knowledge that auto-activates when you touch matching files — guidance 
 <details>
 <summary><strong>8 passive skills</strong> — click to expand</summary>
 
-| Skill              | Activates On                                                        | What It Covers                                    |
-| ------------------ | ------------------------------------------------------------------- | ------------------------------------------------- |
-| `git-workflow`     | `.git/**`                                                           | Conventional commits, branch naming, PR size      |
-| `testing-patterns` | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.            | AAA pattern, factories, coverage                  |
-| `security-review`  | `auth/**`, `middleware/**`, `security/**`, `routes/**`              | Input validation, JWT, CSRF, secrets              |
-| `api-design`       | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination        |
-| `django-patterns`  | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.          | Fat models, managers, query optimization, signals |
-| `docker-patterns`  | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                | Multi-stage builds, layer caching, security       |
-| `infrastructure`   | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                  | Terraform modules, K8s resources, Helm charts     |
-| `root-cause-analysis` | `**/*.py`                                                        | Root causes over symptom-level bandaids           |
+| Skill                 | Activates On                                                        | What It Covers                                    |
+| --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- |
+| `git-workflow`        | `.git/**`                                                           | Conventional commits, branch naming, PR size      |
+| `testing-patterns`    | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.            | AAA pattern, factories, coverage                  |
+| `security-review`     | `auth/**`, `middleware/**`, `security/**`, `routes/**`              | Input validation, JWT, CSRF, secrets              |
+| `api-design`          | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination        |
+| `django-patterns`     | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.          | Fat models, managers, query optimization, signals |
+| `docker-patterns`     | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                | Multi-stage builds, layer caching, security       |
+| `infrastructure`      | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                  | Terraform modules, K8s resources, Helm charts     |
+| `root-cause-analysis` | `**/*.py`                                                           | Root causes over symptom-level bandaids           |
 
 </details>
 
@@ -254,7 +277,7 @@ setup-project.sh all             # ALL templates
 | `kubernetes` | kubectl, helm, kustomize, kubectx, stern                                                                           |
 | `rust`       | cargo, rustc, rustup, rustfmt, clippy                                                                              |
 | `terraform`  | terraform fmt/validate/plan/init                                                                                   |
-| `aws`        | AWS CLI describe/validate (read-only), cfn-lint, cfn-guard, cdk synth/diff (deletion & deploy denied)             |
+| `aws`        | AWS CLI describe/validate (read-only), cfn-lint, cfn-guard, cdk synth/diff (deletion & deploy denied)              |
 
 </details>
 
@@ -271,9 +294,11 @@ MCP server configs generated alongside `settings.local.json` when a matching tem
 | `django`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
 | `nextjs`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
 | `fastapi` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `python`  | SQLite (`mcp-server-sqlite-npx`)                     |
+| `node`    | SQLite (`mcp-server-sqlite-npx`)                     |
 | `aws`     | AWS IaC (`awslabs.aws-iac-mcp-server`, via `uvx`)    |
 
-Other stacks (`node`, `python`, `go`, `rust`, `java`, `kubernetes`, `terraform`) fall through to `base.json` — add servers manually in the project's `.mcp.json` when needed. Only PostgreSQL is templated because it's the one reference server with a stable npm package confirmed working end-to-end. Playwright is a first-class plugin (`playwright@claude-plugins-official`), not an MCP template.
+Web/DB frameworks (`django`, `nextjs`, `fastapi`) default to PostgreSQL; generic `python` and `node` use SQLite, since there's no shared external DB to assume. The remaining stacks (`go`, `rust`, `java`, `kubernetes`, `terraform`) fall through to `base.json` — add servers manually in the project's `.mcp.json` when needed. Playwright is a first-class plugin (`playwright@claude-plugins-official`), not an MCP template.
 
 </details>
 
@@ -351,7 +376,7 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 | Run a security audit            | `/security-review` (bundled)      | Security review of pending changes                            |
 | Deeper security audit           | `@security-auditor`               | OWASP, dependency vulnerabilities, secrets                    |
 | Plan a feature before coding    | `feature-dev:code-architect`      | Implementation blueprint via plugin                           |
-| Analyze test coverage gaps      | `/coverage-report`                | Delegates to `@test-engineer`                                 |
+| Analyze test coverage gaps      | `@test-engineer`                  | Auto-detects Django/Jest/Vitest, finds coverage gaps          |
 | Create a good commit message    | `/commit`                         | Analyzes staged changes, follows conventions                  |
 | Create a pull request           | `/pr`                             | Auto-generates PR description from commits                    |
 | Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, Jira, Notion                  |
@@ -360,7 +385,7 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 | Debug CI/CD failures            | `@ci-debugger`                    | Investigates pipeline failures, flaky tests                   |
 | Optimize slow queries/endpoints | `@performance-engineer`           | Profiling, bottleneck analysis, optimization                  |
 | Plan a database migration       | `@migration-engineer`             | Zero-downtime migration strategies                            |
-| Review dependencies             | `/deps`                           | Audit vulnerabilities, outdated packages                      |
+| Review dependencies             | `@dependency-manager`             | Auto-detects npm/pip/uv/poetry/go/cargo; audits & upgrades    |
 | Write documentation             | `@documentation-writer`           | README, API docs, ADRs, onboarding guides                     |
 | Headless review (no session)    | `review-changes.sh`               | Runs in CI or as a shell alias                                |
 
@@ -487,7 +512,7 @@ scripts/install-tooling.sh --hooks   # ...equivalently, the helper directly
 <summary><strong>What gets vendored into the project root</strong></summary>
 
 | Path                                                      | What it is                                                                                                                                                                                                                       |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Makefile`                                                | `make check` aggregate gate: link + anchor validators plus a `stack-check` target you wire to your lint/test                                                                                                                     |
 | `scripts/`                                                | `check-links.sh`, `check_anchors.py`, `check-commit-msg.sh`, and the stale-branch trio (`check-stale-branches.sh`, `sweep-stale-branches.sh`, `_lib-stale-branches.sh`)                                                          |
 | `.githooks/`                                              | `pre-commit` (runs `make check`) and `commit-msg` (Conventional Commits), activated via `core.hooksPath`                                                                                                                         |
