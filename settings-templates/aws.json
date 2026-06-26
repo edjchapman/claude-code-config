@@ -1,0 +1,37 @@
+{
+  "_source": "aws",
+  "_version": 1,
+  "_note": "AWS CLI for Infrastructure-as-Code workflows. Read-only/describe operations, template validation, and CDK synth/diff are allowed; stack/resource deletion and credential readout are denied. Pairs with mcp-templates/aws.json (awslabs.aws-iac-mcp-server).",
+  "permissions": {
+    "allow": [
+      "Bash(aws sts get-caller-identity:*)",
+      "Bash(aws cloudformation describe-stacks:*)",
+      "Bash(aws cloudformation describe-stack-events:*)",
+      "Bash(aws cloudformation describe-stack-resources:*)",
+      "Bash(aws cloudformation list-stacks:*)",
+      "Bash(aws cloudformation list-stack-resources:*)",
+      "Bash(aws cloudformation get-template:*)",
+      "Bash(aws cloudformation validate-template:*)",
+      "Bash(aws cloudformation detect-stack-drift:*)",
+      "Bash(aws cloudformation describe-stack-drift-detection-status:*)",
+      "Bash(cfn-lint:*)",
+      "Bash(cfn-guard:*)",
+      "Bash(cdk ls:*)",
+      "Bash(cdk diff:*)",
+      "Bash(cdk synth:*)",
+      "Bash(cdk doctor:*)",
+      "Bash(uvx awslabs.aws-iac-mcp-server:*)",
+      "WebFetch(domain:docs.aws.amazon.com)",
+      "WebFetch(domain:awslabs.github.io)"
+    ],
+    "deny": [
+      "Bash(aws cloudformation delete-stack:*)",
+      "Bash(aws cloudformation deploy:*)",
+      "Bash(aws s3 rb:*)",
+      "Bash(aws iam delete-*:*)",
+      "Bash(aws configure get:*)",
+      "Bash(cdk destroy:*)",
+      "Bash(cdk deploy:*)"
+    ]
+  }
+}

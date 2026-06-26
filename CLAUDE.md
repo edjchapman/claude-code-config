@@ -152,12 +152,12 @@ Templates in `settings-templates/` are JSON files defining Claude Code permissio
 3. Merges permissions with precedence: **deny > allow**
 4. Outputs combined `settings.local.json`
 
-Available templates (13 total):
+Available templates (14 total):
 
 - **Base**: `base.json` (always included)
 - **Backend stacks**: `django.json`, `fastapi.json`, `go.json`, `java.json`, `node.json`, `python.json`, `rust.json`
 - **Frontend stacks**: `nextjs.json`, `react.json`
-- **Platform / infra**: `docker.json`, `kubernetes.json`, `terraform.json`
+- **Platform / infra**: `aws.json`, `docker.json`, `kubernetes.json`, `terraform.json`
 
 Template structure:
 
@@ -190,8 +190,9 @@ Available MCP templates:
 - `fastapi.json`: PostgreSQL MCP server
 - `python.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Python local dev
 - `node.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Node local dev
+- `aws.json` (`_version: 1`): AWS Infrastructure-as-Code MCP server (`awslabs.aws-iac-mcp-server`) for CloudFormation/CDK validation, `cfn-guard` compliance, and deployment troubleshooting. Runs via `uvx` (Python/PyPI), not `npx` — needs the `uv` package manager plus AWS credentials (`AWS_PROFILE`/`AWS_REGION`). The deprecated `awslabs.terraform-mcp-server` is deliberately excluded; HashiCorp's official Terraform MCP server has superseded it.
 
-Stacks without an MCP template (Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); add MCP servers manually in the project's generated `.mcp.json` when needed. The frameworks with web/DB context default to PostgreSQL; generic Python/Node templates use SQLite because there's no shared external DB assumption. Verify each template's package against the npm registry before relying on it — versions move (npm search confirmed `mcp-server-sqlite-npx@0.8.0` exists at template creation time).
+Stacks without an MCP template (Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); add MCP servers manually in the project's generated `.mcp.json` when needed. The frameworks with web/DB context default to PostgreSQL; generic Python/Node templates use SQLite because there's no shared external DB assumption. The `aws` template is the lone infra MCP server — it's `uvx`-based rather than `npx`-based, so verify against PyPI (confirmed `awslabs.aws-iac-mcp-server` published at template creation time) rather than the npm registry. Verify each template's package before relying on it — versions move (npm search confirmed `mcp-server-sqlite-npx@0.8.0` exists at template creation time).
 
 Playwright is now provided as a first-class plugin (`playwright@claude-plugins-official`,
 enabled in `settings.json`), not via an MCP template, so React projects do not

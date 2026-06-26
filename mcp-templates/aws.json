@@ -1,0 +1,17 @@
+{
+  "_source": "aws",
+  "_version": 1,
+  "_note": "AWS Infrastructure-as-Code MCP server (awslabs.aws-iac-mcp-server): CloudFormation/CDK validation, cfn-guard compliance checks, and deployment troubleshooting. Runs via uvx (requires the uv package manager and Python 3.10+). Set AWS_PROFILE/AWS_REGION in your shell or .envrc; credentials resolve through the standard AWS chain. The deprecated awslabs.terraform-mcp-server is intentionally NOT included — HashiCorp's official Terraform MCP server has superseded it.",
+  "mcpServers": {
+    "aws-iac": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["awslabs.aws-iac-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "${AWS_PROFILE:-default}",
+        "AWS_REGION": "${AWS_REGION:-us-east-1}",
+        "FASTMCP_LOG_LEVEL": "${FASTMCP_LOG_LEVEL:-ERROR}"
+      }
+    }
+  }
+}
