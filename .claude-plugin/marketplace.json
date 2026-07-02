@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+  "name": "claude-code-config",
+  "owner": "edjchapman",
+  "description": "Ed Chapman's Claude Code configuration: specialist agents, skills, commands, hooks, rules, settings templates, and MCP templates.",
+  "repository": "https://github.com/edjchapman/claude-code-config",
+  "version": "1.7.0",
+  "license": "MIT",
+  "categories": [
+    "productivity",
+    "development-tools"
+  ],
+  "keywords": [
+    "claude-code",
+    "agents",
+    "skills",
+    "commands",
+    "hooks"
+  ]
+}

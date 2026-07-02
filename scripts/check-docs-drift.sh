@@ -30,8 +30,22 @@ check_dir() {
     done
 }
 
+check_skills() {
+    local dir="skills"
+    [ -d "$dir" ] || return 0
+    for f in "$dir"/*/SKILL.md; do
+        [ -e "$f" ] || continue
+        local name
+        name="$(basename "$(dirname "$f")")"
+        if ! grep -q -F "$name" "${docs[@]}"; then
+            echo "DRIFT: skill '$name' (from $f) is not mentioned in CLAUDE.md or README.md"
+            fail=1
+        fi
+    done
+}
+
 check_dir agents          md "agent"
-check_dir skills          md "skill"
+check_skills
 check_dir commands        md "command"
 check_dir scripts/hooks   sh "hook script"
 check_dir settings-templates json "settings template"

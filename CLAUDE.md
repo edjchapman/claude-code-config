@@ -95,23 +95,24 @@ Other documented keys that this repo does **not** currently set (available as op
 
 ### Skills
 
-Skills in `skills/` come in two activation flavours:
+Skills use the official nested layout: `skills/<name>/SKILL.md`. Keep frontmatter limited to skill fields such as `name` and `description`; Claude decides when to load a skill from the description, not from a `paths:` block.
 
-1. **Passive-domain skills** auto-activate when a session edits files matching the skill's `paths:` glob list. They inject domain knowledge silently — Claude does not "invoke" them like a command.
-2. **Workflow skills** are conversation-triggered. Their `description:` includes a "Use when..." clause that Claude matches against the user's request, and they're also user-invocable via `/skill-name`.
+Available skills:
 
-Passive-domain skills:
+- `git-workflow`: Conventional commits, branch naming, PR size, and release workflow guidance
+- `testing-patterns`: AAA pattern, factories, mocks, coverage, and test organization
+- `security-review`: Input validation, JWT, CSRF, auth, secrets, and security-sensitive routes
+- `api-design`: REST conventions, status codes, pagination, schemas, and error formats
+- `django-patterns`: Fat models, managers, query optimization, signals, migrations, and admin patterns
+- `docker-patterns`: Multi-stage builds, layer caching, Compose files, and container security
+- `infrastructure`: Terraform modules, Kubernetes resources, Helm charts, and deployment configuration
+- `root-cause-analysis`: Guides incident and bug investigations toward root causes over symptom-level bandaids
 
-- `git-workflow.md`: Conventional commits, branch naming, PR size (`.git/**`)
-- `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*_test.py`, `**/*.test.ts`, `**/*.test.tsx`, `**/*.spec.ts`, `**/*.spec.tsx`)
-- `security-review.md`: Input validation, JWT, CSRF, auth (`**/auth/**`, `**/middleware/**`, `**/security/**`, `**/routes/**`)
-- `api-design.md`: REST conventions, status codes, pagination (`**/views/**`, `**/api/**`, `**/routes/**`, `**/controllers/**`, `**/endpoints/**`)
-- `django-patterns.md`: Fat models, managers, query optimization, signals (`**/models.py`, `**/views.py`, `**/managers.py`, `**/signals.py`, etc.)
-- `docker-patterns.md`: Multi-stage builds, layer caching, security (`**/Dockerfile`, `**/docker-compose*.yml`, `**/.dockerignore`)
-- `infrastructure.md`: Terraform modules, K8s resources, Helm charts (`**/*.tf`, `**/k8s/**`, `**/helm/**`)
-- `root-cause-analysis.md`: Guides bug fixes toward root causes over symptom-level bandaids (`**/*.py`)
+### Commands
 
-Workflow skills (user-invocable as `/<name>`, also auto-fire on matching conversation):
+Commands live as flat Markdown files in `commands/` and are user-invocable as `/<name>`.
+
+Workflow commands:
 
 - `commit.md` (`/commit`): Analyze staged changes and write a conventional commit message
 - `pr.md` (`/pr`): Create a pull request with a well-crafted description

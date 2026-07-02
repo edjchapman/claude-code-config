@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, commands, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `13 skills (8 passive · 5 workflow)` · `5 commands` · `14 permission templates` · `7 MCP templates` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`14 specialist agents` · `8 skills` · `10 commands` · `14 permission templates` · `7 MCP templates` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 <br/>
 
@@ -125,11 +125,11 @@ git fetch upstream && git merge upstream/main
 
 Everything falls into two modes — tools you **invoke** and tools that **auto-activate**:
 
-|             | Active (you invoke)                           | Passive (auto-activates)                       |
-| ----------- | --------------------------------------------- | ---------------------------------------------- |
-| **What**    | Specialist agents, commands, CLI scripts      | Skills, rules, hooks                           |
-| **How**     | `@name`, `/name`, or shell command            | Triggered by file patterns or lifecycle events |
-| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` activates on `test_*.py`    |
+|             | Active (you invoke)                           | Passive (auto-activates)                   |
+| ----------- | --------------------------------------------- | ------------------------------------------ |
+| **What**    | Specialist agents, commands, CLI scripts      | Skills, rules, hooks                       |
+| **How**     | `@name`, `/name`, or shell command            | Selected by descriptions, paths, or events |
+| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` when working with tests |
 
 > Some capabilities are now handled by **bundled plugins** rather than custom artifacts: `/review` + `pr-review-toolkit:review-pr` (code review), `feature-dev:code-architect` (implementation blueprints), `/security-review` (security audits).
 
@@ -161,20 +161,20 @@ Invoke with `@agent-name`. **Opus** = complex reasoning (higher cost); **Sonnet*
 
 </details>
 
-### Commands & Workflow Skills
+### Commands
 
-Invoke with `/<name>`. **Workflow skills** carry a "Use when…" clause so Claude can auto-invoke them from plain English (e.g. "commit my staged work" → `/commit`). **Commands** are user-invoke only.
+Invoke with `/<name>` for explicit workflow actions such as commits, PRs, hotfixes, ADRs, and recurring personal summaries.
 
 <details>
-<summary><strong>10 commands &amp; workflow skills</strong> (5 + 5) — click to expand</summary>
+<summary><strong>10 commands</strong> — click to expand</summary>
 
 | Slash         | Source  | What It Does                                                     | Delegates To      |
 | ------------- | ------- | ---------------------------------------------------------------- | ----------------- |
-| `/commit`     | skill   | Analyze staged changes, generate commit message                  | --                |
-| `/pr`         | skill   | Create PR with auto-generated description                        | --                |
-| `/hotfix`     | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR | --                |
-| `/tdd`        | skill   | TDD workflow: write failing test, implement, refactor            | --                |
-| `/adr`        | skill   | Create Architecture Decision Record (Nygard format)              | --                |
+| `/commit`     | command | Analyze staged changes, generate commit message                  | --                |
+| `/pr`         | command | Create PR with auto-generated description                        | --                |
+| `/hotfix`     | command | Guided hotfix: branch from main, minimal fix, targeted tests, PR | --                |
+| `/tdd`        | command | TDD workflow: write failing test, implement, refactor            | --                |
+| `/adr`        | command | Create Architecture Decision Record (Nygard format)              | --                |
 | `/standup`    | command | Summarize last 24h across Git, GitHub, Jira, and Notion          | --                |
 | `/status`     | command | Quick status update appended to today's daily log                | --                |
 | `/refinement` | command | Prepare technical analysis for backlog refinement                | Explore sub-agent |
@@ -185,23 +185,23 @@ Invoke with `/<name>`. **Workflow skills** carry a "Use when…" clause so Claud
 
 </details>
 
-### Skills (passive)
+### Skills
 
-Domain knowledge that auto-activates when you touch matching files — guidance without explicit invocation.
+Domain knowledge in the official `skills/<name>/SKILL.md` layout. Claude selects these from their descriptions when the session context calls for them.
 
 <details>
 <summary><strong>8 passive skills</strong> — click to expand</summary>
 
-| Skill                 | Activates On                                                        | What It Covers                                    |
+| Skill                 | Use When Working On                                                 | What It Covers                                    |
 | --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- |
-| `git-workflow`        | `.git/**`                                                           | Conventional commits, branch naming, PR size      |
-| `testing-patterns`    | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.            | AAA pattern, factories, coverage                  |
-| `security-review`     | `auth/**`, `middleware/**`, `security/**`, `routes/**`              | Input validation, JWT, CSRF, secrets              |
-| `api-design`          | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination        |
-| `django-patterns`     | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.          | Fat models, managers, query optimization, signals |
-| `docker-patterns`     | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                | Multi-stage builds, layer caching, security       |
-| `infrastructure`      | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                  | Terraform modules, K8s resources, Helm charts     |
-| `root-cause-analysis` | `**/*.py`                                                           | Root causes over symptom-level bandaids           |
+| `git-workflow`        | Git repositories, branches, commits, PRs, or releases               | Conventional commits, branch naming, PR size      |
+| `testing-patterns`    | Tests, fixtures, factories, mocks, or coverage                      | AAA pattern, factories, coverage                  |
+| `security-review`     | Auth, middleware, routes, validation, secrets, JWT, CSRF, or CORS   | Input validation, JWT, CSRF, secrets              |
+| `api-design`          | REST APIs, serializers, schemas, routes, controllers, or endpoints  | REST conventions, status codes, pagination        |
+| `django-patterns`     | Django models, views, serializers, managers, signals, or migrations | Fat models, managers, query optimization, signals |
+| `docker-patterns`     | Dockerfiles, Compose files, build contexts, or `.dockerignore`      | Multi-stage builds, layer caching, security       |
+| `infrastructure`      | Terraform, Kubernetes manifests, Helm charts, or deploy config      | Terraform modules, K8s resources, Helm charts     |
+| `root-cause-analysis` | Incidents, production failures, regressions, flaky tests, or logs   | Root causes over symptom-level bandaids           |
 
 </details>
 
