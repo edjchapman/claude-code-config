@@ -1,8 +1,6 @@
 ---
 name: git-workflow
-description: Enforces conventional commits, branch naming conventions, and PR size guidelines.
-paths:
-  - ".git/**"
+description: Use when working with Git repositories, branches, commits, pull requests, release workflows, or files under .git.
 ---
 
 # Git Workflow

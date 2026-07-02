@@ -1,11 +1,6 @@
 ---
 name: infrastructure
-description: Infrastructure as code patterns for Terraform, Kubernetes, and Helm.
-paths:
-  - "**/*.tf"
-  - "**/k8s/**/*.yaml"
-  - "**/k8s/**/*.yml"
-  - "**/helm/**"
+description: Use when editing Terraform, Kubernetes manifests, Helm charts, infrastructure modules, or deployment configuration.
 ---
 
 # Infrastructure Patterns

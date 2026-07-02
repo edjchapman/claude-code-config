@@ -1,10 +1,6 @@
 ---
 name: docker-patterns
-description: Docker best practices including multi-stage builds, layer caching, security, and compose patterns.
-paths:
-  - "**/Dockerfile"
-  - "**/docker-compose*.yml"
-  - "**/.dockerignore"
+description: Use when editing Dockerfiles, Docker Compose files, container build contexts, .dockerignore files, or container security and caching patterns.
 ---
 
 # Docker Patterns

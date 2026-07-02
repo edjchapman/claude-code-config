@@ -1,14 +1,6 @@
 ---
 name: security-review
-description: Input validation, parameterized queries, JWT rules, CSRF, and authentication security patterns.
-paths:
-  - "**/auth/**"
-  - "**/authentication/**"
-  - "**/middleware/**"
-  - "**/security/**"
-  - "**/views/**"
-  - "**/api/**"
-  - "**/routes/**"
+description: Use when reviewing authentication, authorization, middleware, routes, input validation, secrets handling, JWT, CSRF, CORS, or security-sensitive code paths.
 ---
 
 # Security Review
