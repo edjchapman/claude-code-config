@@ -46,7 +46,7 @@ Hooks are configured in **two places** so the repo works in both consumption mod
 - `settings.json` (`hooks` key) — read by the symlink-global install path. Since `settings.json` is symlinked into `~/.claude/`, hooks are available in all projects.
 - `hooks/hooks.json` at the repo root — read by the plugin install path (per [plugin docs](https://code.claude.com/docs/en/plugins.md)). Same shape as `settings.json`'s `hooks` object, wrapped as `{ "hooks": { ... } }`.
 
-**Keep both files in sync** whenever you add or change a hook. Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
+**Keep both files in sync** whenever you add or change a hook. Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_DIR:-$HOME/.claude}` prefix in command paths makes them resolve correctly under either mode (plugin loader sets `CLAUDE_PLUGIN_DIR`; the symlink-global install puts this repo at `~/.claude`).
 
 #### Hook Format
 
@@ -80,8 +80,7 @@ CI-only utility (not a runtime hook): `scripts/hooks/check-duplicates.sh` runs f
 Beyond plugins and hooks, `settings.json` currently sets (listed in file order — keep this list in sync when reordering keys):
 
 - **`skillListingBudgetFraction`**: Share of the prompt budget reserved for the skills listing (`0.02` = 2%). In use here but absent from the public settings JSON schema and docs as of this writing — verify its semantics before relying on it.
-- **`model`**: Default model (e.g. `opus[1m]` for Opus with 1M context)
-- **`attribution`**: Git commit/PR attribution text. Both fields are set to empty strings (`commit: ""`, `pr: ""`) to suppress the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line on commits **and** PRs — per the schema, the `commit` field covers trailers too, so one empty string handles both. Modern replacement for the deprecated `includeCoAuthoredBy` boolean.
+- **`attribution`**: Git commit/PR attribution text. `commit` is set to `"Generated with Claude Code\n\nCo-authored-by: Claude <noreply@anthropic.com>"` (adds the trailer + generated-by line to commits) and `pr` to `"Generated with Claude Code"` (adds the line to PR bodies). Modern replacement for the deprecated `includeCoAuthoredBy` boolean — set either field to an empty string to suppress that surface.
 - **`hooks`**: Per-event hook configuration (see Hooks section above)
 - **`worktree`**: Worktree-session config. `baseRef: head` branches new worktrees from local HEAD (preserving unpushed commits) instead of `origin/<default>`; `bgIsolation: worktree` blocks Edit/Write in the main checkout until `EnterWorktree` is called.
 - **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
@@ -342,7 +341,7 @@ When extending this repo (adding a new agent / skill / command / hook / template
 ### Add a hook
 
 - **Script location**: `scripts/hooks/<name>.sh` (set `chmod +x`, include `#!/usr/bin/env bash`)
-- **Wire-up — two files**: add the entry to **both** `settings.json` (under `hooks.<EventName>`) and `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper). Same shape in both. Use a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` so it resolves in both plugin and symlink-global modes.
+- **Wire-up — two files**: add the entry to **both** `settings.json` (under `hooks.<EventName>`) and `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper). Same shape in both. Use a `command` value of `"${CLAUDE_PLUGIN_DIR:-$HOME/.claude}/scripts/hooks/<name>.sh"` so it resolves in both plugin mode (plugin loader sets `CLAUDE_PLUGIN_DIR`) and symlink-global mode (repo is symlinked at `~/.claude`).
 - **Matcher rules**: most events support a `matcher` field — tool events filter on tool name (e.g. `"Bash"`, `"Edit|Write"`); other events filter on event-specific fields (e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `SubagentStop` on agent type). Events that **don't** support matchers and must omit the field: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`. See [hooks reference](https://code.claude.com/docs/en/hooks.md) for the full per-event schema.
 - **Exemplar wire-up**: any current entry in `settings.json` or `hooks/hooks.json` under `hooks.*`
 

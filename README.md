@@ -69,7 +69,7 @@ One repo links into every machine (global symlinks) and composes per-project per
 
 ## 🚀 Quick Start
 
-There are two ways to consume this repo: as a **plugin** (recommended) or as a **symlinked global config** (legacy, still supported). Both modes coexist — hook paths use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve either way.
+There are two ways to consume this repo: as a **plugin** (recommended) or as a **symlinked global config** (legacy, still supported). Both modes coexist — hook paths use `${CLAUDE_PLUGIN_DIR:-$HOME/.claude}`, so they resolve either way (plugin loader sets `CLAUDE_PLUGIN_DIR`; the symlink-global install puts this repo at `~/.claude`).
 
 ### Option A — Plugin install (recommended)
 
@@ -332,7 +332,7 @@ alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
 <details>
 <summary><strong>Output styles</strong> — set <code>outputStyle</code> or use <code>/config</code></summary>
 
-This repo doesn't set a default — `outputStyle` is a personal preference.
+This repo defaults to `explanatory` (set in `settings.json`) — swap it out if you prefer another style; `outputStyle` is a personal preference.
 
 | Style         | When to use                                                   |
 | ------------- | ------------------------------------------------------------- |
@@ -495,7 +495,7 @@ your-project/
 
 ### Settings files
 
-- **`settings.json`** (global): plugin enablement, hooks, model selection — applies everywhere via the `~/.claude/` symlink. `setup-project.sh` does **not** create a per-project copy. A project may still commit its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
+- **`settings.json`** (global): plugin enablement, hooks, attribution, worktree/statusline/sandbox/TUI settings — applies everywhere via the `~/.claude/` symlink. `setup-project.sh` does **not** create a per-project copy. A project may still commit its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
 - **`settings.local.json`** (generated): permissions — which bash commands and tools Claude can use in your project.
 
 ### Project tooling (`--tooling`)
