@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/session-context.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/session-context.sh"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/format-on-edit.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/format-on-edit.sh"
           }
         ]
       }
@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/log-tool-failure.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/log-tool-failure.sh"
           }
         ]
       }
@@ -38,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/dangerous-cmd-check.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/dangerous-cmd-check.sh"
           }
         ]
       }
@@ -48,7 +48,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/pre-compact-state.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/pre-compact-state.sh"
           }
         ]
       }
@@ -58,7 +58,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/task-completed-chime.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/task-completed-chime.sh"
           }
         ]
       }
@@ -68,7 +68,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/session-end.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/session-end.sh"
           }
         ]
       }

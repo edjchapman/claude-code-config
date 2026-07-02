@@ -1,18 +1,18 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "skillListingBudgetFraction": 0.02,
-  "model": "opus[1m]",
   "attribution": {
     "commit": "",
     "pr": ""
   },
+  "model": "fable",
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/session-context.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/session-context.sh"
           }
         ]
       }
@@ -23,7 +23,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/format-on-edit.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/format-on-edit.sh"
           }
         ]
       }
@@ -33,7 +33,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/log-tool-failure.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/log-tool-failure.sh"
           }
         ]
       }
@@ -44,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/dangerous-cmd-check.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/dangerous-cmd-check.sh"
           }
         ]
       }
@@ -54,7 +54,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/pre-compact-state.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/pre-compact-state.sh"
           }
         ]
       }
@@ -64,7 +64,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/task-completed-chime.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/task-completed-chime.sh"
           }
         ]
       }
@@ -74,7 +74,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/session-end.sh"
+            "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/session-end.sh"
           }
         ]
       }
@@ -86,7 +86,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/statusline.sh"
+    "command": "${CLAUDE_PLUGIN_DIR:-$(python3 -c \"import os; print(os.path.dirname(os.path.realpath(os.path.expanduser('~/.claude/settings.json'))))\")}/scripts/hooks/statusline.sh"
   },
   "enabledPlugins": {
     "github@claude-plugins-official": true,
@@ -96,7 +96,8 @@
     "playwright@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "document-skills@anthropic-agent-skills": true
+    "document-skills@anthropic-agent-skills": true,
+    "frontend-design@claude-plugins-official": true
   },
   "outputStyle": "Explanatory",
   "sandbox": {
@@ -104,6 +105,6 @@
     "autoAllowBashIfSandboxed": false
   },
   "effortLevel": "high",
-  "agentPushNotifEnabled": true,
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "agentPushNotifEnabled": true
 }

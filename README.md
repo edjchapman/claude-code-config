@@ -330,7 +330,7 @@ alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
 ### Output Styles & Sandbox
 
 <details>
-<summary><strong>Output styles</strong> — set <code>outputStyle</code> or use <code>/output-style</code></summary>
+<summary><strong>Output styles</strong> — set <code>outputStyle</code> or use <code>/config</code></summary>
 
 This repo doesn't set a default — `outputStyle` is a personal preference.
 
@@ -340,7 +340,7 @@ This repo doesn't set a default — `outputStyle` is a personal preference.
 | `explanatory` | Adds learning insights inline (good for unfamiliar codebases) |
 | `learning`    | More guided; fewer one-shot answers (good for upskilling)     |
 
-Set a default with `{ "outputStyle": "explanatory" }`, or switch on the fly via `/output-style explanatory`.
+Set a default with `{ "outputStyle": "explanatory" }`, or switch on the fly via `/config` > Output style.
 
 </details>
 
