@@ -1,14 +1,6 @@
 ---
 name: api-design
-description: REST conventions, status codes, pagination, and error format standards for API development.
-paths:
-  - "**/views/**"
-  - "**/api/**"
-  - "**/serializers/**"
-  - "**/routes/**"
-  - "**/controllers/**"
-  - "**/endpoints/**"
-  - "**/schemas/**"
+description: Use when designing or reviewing REST APIs, including views, routes, controllers, endpoints, serializers, schemas, status codes, pagination, and error response formats.
 ---
 
 # API Design Standards

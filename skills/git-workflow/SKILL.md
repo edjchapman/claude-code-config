@@ -1,8 +1,6 @@
 ---
 name: git-workflow
-description: Enforces conventional commits, branch naming conventions, and PR size guidelines.
-paths:
-  - ".git/**"
+description: Use when working with Git repositories, branches, commits, pull requests, release workflows, or files under .git.
 ---
 
 # Git Workflow
@@ -23,7 +21,15 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 ### Types
 
-`feat` (feature), `fix` (bug fix), `docs`, `style` (formatting, no code change), `refactor`, `test`, `chore` (maintenance/deps), `ci`, `perf` (performance).
+- `feat`: New feature or functionality
+- `fix`: Bug fix
+- `docs`: Documentation only
+- `style`: Formatting, missing semicolons (no code change)
+- `refactor`: Code restructuring (no feature/fix)
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks, dependencies
+- `ci`: CI/CD changes
+- `perf`: Performance improvements
 
 ### Rules
 

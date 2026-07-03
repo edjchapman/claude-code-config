@@ -1,8 +1,6 @@
 ---
 name: root-cause-analysis
-description: Guides bug fixes toward root causes rather than symptom-level bandaids in Python codebases.
-paths:
-  - "**/*.py"
+description: Use when investigating incidents, production failures, recurring bugs, regressions, flaky tests, logs, stack traces, or system behavior that needs root-cause analysis.
 ---
 
 # Root Cause Analysis
