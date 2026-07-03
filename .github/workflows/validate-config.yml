@@ -109,10 +109,10 @@ jobs:
       - name: Hook configs in settings.json and hooks/hooks.json must match
         # Plugin distribution reads hooks/hooks.json; symlink-global mode reads
         # settings.json. Both must carry the same hook definitions or hooks
-        # will silently differ between install paths.
-        run: |
-          diff <(python3 -c "import json; print(json.dumps(json.load(open('settings.json'))['hooks'], indent=2, sort_keys=True))") \
-               <(python3 -c "import json; print(json.dumps(json.load(open('hooks/hooks.json'))['hooks'], indent=2, sort_keys=True))")
+        # will silently differ between install paths. This script is also
+        # runnable locally (python3 scripts/check-hooks-sync.py) for a pre-push
+        # check, and names the specific events that drift.
+        run: python3 scripts/check-hooks-sync.py
 
       - name: Every hook command must reference an existing executable script with a shebang
         # Catches typos in hook paths and hook scripts that were renamed without
