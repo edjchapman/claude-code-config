@@ -105,8 +105,8 @@ Passive-domain skills:
 
 - `git-workflow.md`: Conventional commits, branch naming, PR size (`.git/**`)
 - `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*_test.py`, `**/*.test.ts`, `**/*.test.tsx`, `**/*.spec.ts`, `**/*.spec.tsx`)
-- `security-review.md`: Input validation, JWT, CSRF, auth (`**/auth/**`, `**/middleware/**`, `**/security/**`, `**/routes/**`)
-- `api-design.md`: REST conventions, status codes, pagination (`**/views/**`, `**/api/**`, `**/routes/**`, `**/controllers/**`, `**/endpoints/**`)
+- `security-review.md`: Input validation, JWT, CSRF, auth (`**/auth/**`, `**/authentication/**`, `**/middleware/**`, `**/security/**`, `**/views/**`, `**/api/**`, `**/routes/**`)
+- `api-design.md`: REST conventions, status codes, pagination (`**/views/**`, `**/api/**`, `**/serializers/**`, `**/routes/**`, `**/controllers/**`, `**/endpoints/**`, `**/schemas/**`)
 - `django-patterns.md`: Fat models, managers, query optimization, signals (`**/models.py`, `**/views.py`, `**/managers.py`, `**/signals.py`, etc.)
 - `docker-patterns.md`: Multi-stage builds, layer caching, security (`**/Dockerfile`, `**/docker-compose*.yml`, `**/.dockerignore`)
 - `infrastructure.md`: Terraform modules, K8s resources, Helm charts (`**/*.tf`, `**/k8s/**`, `**/helm/**`)
@@ -360,6 +360,7 @@ Run the validation suite locally before pushing:
 ```bash
 python -m json.tool settings.json > /dev/null   # JSON sanity
 scripts/hooks/check-duplicates.sh               # No agent/skill/command name collisions
+python3 scripts/check-hooks-sync.py             # settings.json hooks == hooks/hooks.json hooks
 ```
 
 CI (`.github/workflows/validate-config.yml`) runs the same checks.

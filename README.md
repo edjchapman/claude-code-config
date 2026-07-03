@@ -192,16 +192,16 @@ Domain knowledge that auto-activates when you touch matching files — guidance 
 <details>
 <summary><strong>8 passive skills</strong> — click to expand</summary>
 
-| Skill                 | Activates On                                                        | What It Covers                                    |
-| --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- |
-| `git-workflow`        | `.git/**`                                                           | Conventional commits, branch naming, PR size      |
-| `testing-patterns`    | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.            | AAA pattern, factories, coverage                  |
-| `security-review`     | `auth/**`, `middleware/**`, `security/**`, `routes/**`              | Input validation, JWT, CSRF, secrets              |
-| `api-design`          | `views/**`, `api/**`, `routes/**`, `controllers/**`, `endpoints/**` | REST conventions, status codes, pagination        |
-| `django-patterns`     | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.          | Fat models, managers, query optimization, signals |
-| `docker-patterns`     | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                | Multi-stage builds, layer caching, security       |
-| `infrastructure`      | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                  | Terraform modules, K8s resources, Helm charts     |
-| `root-cause-analysis` | `**/*.py`                                                           | Root causes over symptom-level bandaids           |
+| Skill                 | Activates On                                                                                        | What It Covers                                    |
+| --------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `git-workflow`        | `.git/**`                                                                                           | Conventional commits, branch naming, PR size      |
+| `testing-patterns`    | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.                                            | AAA pattern, factories, coverage                  |
+| `security-review`     | `auth/**`, `authentication/**`, `middleware/**`, `security/**`, `views/**`, `api/**`, `routes/**`   | Input validation, JWT, CSRF, secrets              |
+| `api-design`          | `views/**`, `api/**`, `serializers/**`, `routes/**`, `controllers/**`, `endpoints/**`, `schemas/**` | REST conventions, status codes, pagination        |
+| `django-patterns`     | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.                                          | Fat models, managers, query optimization, signals |
+| `docker-patterns`     | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                                                | Multi-stage builds, layer caching, security       |
+| `infrastructure`      | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                                                  | Terraform modules, K8s resources, Helm charts     |
+| `root-cause-analysis` | `**/*.py`                                                                                           | Root causes over symptom-level bandaids           |
 
 </details>
 
