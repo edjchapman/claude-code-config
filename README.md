@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, commands, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `13 skills (8 passive · 5 workflow)` · `5 commands` · `14 permission templates` · `7 MCP templates` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`14 specialist agents` · `8 skills` · `10 commands` · `14 permission templates` · `7 MCP templates` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 <br/>
 
@@ -125,11 +125,11 @@ git fetch upstream && git merge upstream/main
 
 Everything falls into two modes — tools you **invoke** and tools that **auto-activate**:
 
-|             | Active (you invoke)                           | Passive (auto-activates)                       |
-| ----------- | --------------------------------------------- | ---------------------------------------------- |
-| **What**    | Specialist agents, commands, CLI scripts      | Skills, rules, hooks                           |
-| **How**     | `@name`, `/name`, or shell command            | Triggered by file patterns or lifecycle events |
-| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` activates on `test_*.py`    |
+|             | Active (you invoke)                           | Passive (auto-activates)                                                     |
+| ----------- | --------------------------------------------- | ---------------------------------------------------------------------------- |
+| **What**    | Specialist agents, commands, CLI scripts      | Skills, rules, hooks                                                         |
+| **How**     | `@name`, `/name`, or shell command            | Skills load by description; rules/hooks by file patterns or lifecycle events |
+| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` loads when you write tests                                |
 
 > Some capabilities are now handled by **bundled plugins** rather than custom artifacts: `/review` + `pr-review-toolkit:review-pr` (code review), `feature-dev:code-architect` (implementation blueprints), `/security-review` (security audits).
 
@@ -161,47 +161,47 @@ Invoke with `@agent-name`. **Opus** = complex reasoning (higher cost); **Sonnet*
 
 </details>
 
-### Commands & Workflow Skills
+### Commands
 
-Invoke with `/<name>`. **Workflow skills** carry a "Use when…" clause so Claude can auto-invoke them from plain English (e.g. "commit my staged work" → `/commit`). **Commands** are user-invoke only.
+Invoke with `/<name>`. Commands live as flat Markdown files in `commands/`. The workflow commands (`/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`) carry a "Use when…" clause so Claude can also auto-invoke them from plain English (e.g. "commit my staged work" → `/commit`); the personal/meta commands are user-invoke only.
 
 <details>
-<summary><strong>10 commands &amp; workflow skills</strong> (5 + 5) — click to expand</summary>
+<summary><strong>10 commands</strong> — click to expand</summary>
 
-| Slash         | Source  | What It Does                                                     | Delegates To      |
-| ------------- | ------- | ---------------------------------------------------------------- | ----------------- |
-| `/commit`     | skill   | Analyze staged changes, generate commit message                  | --                |
-| `/pr`         | skill   | Create PR with auto-generated description                        | --                |
-| `/hotfix`     | skill   | Guided hotfix: branch from main, minimal fix, targeted tests, PR | --                |
-| `/tdd`        | skill   | TDD workflow: write failing test, implement, refactor            | --                |
-| `/adr`        | skill   | Create Architecture Decision Record (Nygard format)              | --                |
-| `/standup`    | command | Summarize last 24h across Git, GitHub, Jira, and Notion          | --                |
-| `/status`     | command | Quick status update appended to today's daily log                | --                |
-| `/refinement` | command | Prepare technical analysis for backlog refinement                | Explore sub-agent |
-| `/eow-review` | command | Prepare end-of-week review notes                                 | --                |
-| `/later`      | command | Create a personal backlog item (learn, research, do, read)       | --                |
+| Slash         | What It Does                                                     | Delegates To      |
+| ------------- | ---------------------------------------------------------------- | ----------------- |
+| `/commit`     | Analyze staged changes, generate commit message                  | --                |
+| `/pr`         | Create PR with auto-generated description                        | --                |
+| `/hotfix`     | Guided hotfix: branch from main, minimal fix, targeted tests, PR | --                |
+| `/tdd`        | TDD workflow: write failing test, implement, refactor            | --                |
+| `/adr`        | Create Architecture Decision Record (Nygard format)              | --                |
+| `/standup`    | Summarize last 24h across Git, GitHub, Jira, and Notion          | --                |
+| `/status`     | Quick status update appended to today's daily log                | --                |
+| `/refinement` | Prepare technical analysis for backlog refinement                | Explore sub-agent |
+| `/eow-review` | Prepare end-of-week review notes                                 | --                |
+| `/later`      | Create a personal backlog item (learn, research, do, read)       | --                |
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`.
 
 </details>
 
-### Skills (passive)
+### Skills
 
-Domain knowledge that auto-activates when you touch matching files — guidance without explicit invocation.
+Domain knowledge Claude loads automatically based on the conversation — matched from each skill's `description:`, no explicit invocation needed. Skills use the nested layout `skills/<name>/SKILL.md`.
 
 <details>
-<summary><strong>8 passive skills</strong> — click to expand</summary>
+<summary><strong>8 skills</strong> — click to expand</summary>
 
-| Skill                 | Activates On                                                                                        | What It Covers                                    |
-| --------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `git-workflow`        | `.git/**`                                                                                           | Conventional commits, branch naming, PR size      |
-| `testing-patterns`    | `test_*.py`, `*_test.py`, `*.test.ts`, `*.spec.ts`, etc.                                            | AAA pattern, factories, coverage                  |
-| `security-review`     | `auth/**`, `authentication/**`, `middleware/**`, `security/**`, `views/**`, `api/**`, `routes/**`   | Input validation, JWT, CSRF, secrets              |
-| `api-design`          | `views/**`, `api/**`, `serializers/**`, `routes/**`, `controllers/**`, `endpoints/**`, `schemas/**` | REST conventions, status codes, pagination        |
-| `django-patterns`     | `models.py`, `views.py`, `managers.py`, `signals.py`, etc.                                          | Fat models, managers, query optimization, signals |
-| `docker-patterns`     | `Dockerfile`, `docker-compose*.yml`, `.dockerignore`                                                | Multi-stage builds, layer caching, security       |
-| `infrastructure`      | `*.tf`, `k8s/**/*.yaml`, `helm/**`                                                                  | Terraform modules, K8s resources, Helm charts     |
-| `root-cause-analysis` | `**/*.py`                                                                                           | Root causes over symptom-level bandaids           |
+| Skill                 | Loads When You…                                       | What It Covers                                    |
+| --------------------- | ----------------------------------------------------- | ------------------------------------------------- |
+| `git-workflow`        | Work with branches, commits, PRs, or releases         | Conventional commits, branch naming, PR size      |
+| `testing-patterns`    | Write or review tests, fixtures, mocks, coverage      | AAA pattern, factories, coverage                  |
+| `security-review`     | Touch auth, middleware, routes, or input validation   | Input validation, JWT, CSRF, secrets              |
+| `api-design`          | Design or review REST APIs, endpoints, or serializers | REST conventions, status codes, pagination        |
+| `django-patterns`     | Edit Django models, views, managers, or signals       | Fat models, managers, query optimization, signals |
+| `docker-patterns`     | Edit Dockerfiles, Compose files, or build contexts    | Multi-stage builds, layer caching, security       |
+| `infrastructure`      | Edit Terraform, Kubernetes manifests, or Helm charts  | Terraform modules, K8s resources, Helm charts     |
+| `root-cause-analysis` | Investigate incidents, regressions, or recurring bugs | Root causes over symptom-level bandaids           |
 
 </details>
 
@@ -591,9 +591,8 @@ Your detailed agent instructions here...
 
 **Adding a skill, command, or template** — the canonical recipes (with exemplar pointers) live in the **Self-Extension Guide** in [`CLAUDE.md`](CLAUDE.md). In short:
 
-- Auto-invokable workflow → `skills/<name>.md` with `description: "<what>. Use when <trigger>."`
-- User-only command → `commands/<name>.md` with `description:` (+ optional `argument-hint:`)
-- Passive-domain skill → `skills/<name>.md` with a `paths:` glob list
+- Domain-knowledge skill → `skills/<name>/SKILL.md` with `description: "<what>. Use when <trigger>."` (loaded by description, not file globs)
+- User-invocable or personal command → `commands/<name>.md` with `description:` (+ optional `argument-hint:`)
 - Permission template → `settings-templates/<stack>.json` (`_source`, `_version`, `permissions.allow/deny`), then `setup-project.sh <stack>`
 
 ### Git setup for projects
