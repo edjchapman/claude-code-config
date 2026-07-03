@@ -1,13 +1,6 @@
 ---
 name: django-patterns
-description: Django architecture patterns including fat models, custom managers, query optimization, signals, and migration best practices.
-paths:
-  - "**/models.py"
-  - "**/views.py"
-  - "**/serializers.py"
-  - "**/admin.py"
-  - "**/managers.py"
-  - "**/signals.py"
+description: Use when editing Django models, views, serializers, admin, managers, signals, migrations, querysets, or database access patterns.
 ---
 
 # Django Patterns

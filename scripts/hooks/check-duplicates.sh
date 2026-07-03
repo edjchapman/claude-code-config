@@ -28,9 +28,20 @@ find_names() {
   fi
 }
 
+find_skill_names() {
+  local dir="skills"
+  if [ -d "$dir" ]; then
+    for file in "$dir"/*/SKILL.md; do
+      [ -f "$file" ] || continue
+      name=$(basename "$(dirname "$file")")
+      echo "$name $file" >> "$tmpfile"
+    done
+  fi
+}
+
 find_names "agents"
 find_names "commands"
-find_names "skills"
+find_skill_names
 
 # Check for duplicates using sort and uniq
 duplicates_found=0

@@ -1,15 +1,6 @@
 ---
 name: testing-patterns
-description: Enforces AAA pattern, factory usage, and coverage expectations for Python and TypeScript tests.
-paths:
-  - "**/test_*.py"
-  - "**/*_test.py"
-  - "**/tests/**/*.py"
-  - "**/*.test.ts"
-  - "**/*.test.tsx"
-  - "**/*.spec.ts"
-  - "**/*.spec.tsx"
-  - "**/tests/**/*.ts"
+description: Use when writing or reviewing tests, fixtures, factories, mocks, test coverage, or files named test_*, *_test, *.test.*, or *.spec.*.
 ---
 
 # Testing Patterns

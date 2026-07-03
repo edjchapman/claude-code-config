@@ -46,7 +46,7 @@ Hooks are configured in **two places** so the repo works in both consumption mod
 - `settings.json` (`hooks` key) — read by the symlink-global install path. Since `settings.json` is symlinked into `~/.claude/`, hooks are available in all projects.
 - `hooks/hooks.json` at the repo root — read by the plugin install path (per [plugin docs](https://code.claude.com/docs/en/plugins.md)). Same shape as `settings.json`'s `hooks` object, wrapped as `{ "hooks": { ... } }`.
 
-**Keep both files in sync** whenever you add or change a hook. Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
+**Keep both files in sync** whenever you add or change a hook. Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
 
 #### Hook Format
 
@@ -96,23 +96,24 @@ Other documented keys that this repo does **not** currently set (available as op
 
 ### Skills
 
-Skills in `skills/` come in two activation flavours:
+Skills use the official nested layout: `skills/<name>/SKILL.md`. Keep frontmatter limited to skill fields such as `name` and `description`; Claude decides when to load a skill from the description, not from a `paths:` block.
 
-1. **Passive-domain skills** auto-activate when a session edits files matching the skill's `paths:` glob list. They inject domain knowledge silently — Claude does not "invoke" them like a command.
-2. **Workflow skills** are conversation-triggered. Their `description:` includes a "Use when..." clause that Claude matches against the user's request, and they're also user-invocable via `/skill-name`.
+Available skills:
 
-Passive-domain skills:
+- `git-workflow`: Conventional commits, branch naming, PR size, and release workflow guidance
+- `testing-patterns`: AAA pattern, factories, mocks, coverage, and test organization
+- `security-review`: Input validation, JWT, CSRF, auth, secrets, and security-sensitive routes
+- `api-design`: REST conventions, status codes, pagination, schemas, and error formats
+- `django-patterns`: Fat models, managers, query optimization, signals, migrations, and admin patterns
+- `docker-patterns`: Multi-stage builds, layer caching, Compose files, and container security
+- `infrastructure`: Terraform modules, Kubernetes resources, Helm charts, and deployment configuration
+- `root-cause-analysis`: Guides incident and bug investigations toward root causes over symptom-level bandaids
 
-- `git-workflow.md`: Conventional commits, branch naming, PR size (`.git/**`)
-- `testing-patterns.md`: AAA pattern, factories, coverage (`**/test_*.py`, `**/*_test.py`, `**/*.test.ts`, `**/*.test.tsx`, `**/*.spec.ts`, `**/*.spec.tsx`)
-- `security-review.md`: Input validation, JWT, CSRF, auth (`**/auth/**`, `**/authentication/**`, `**/middleware/**`, `**/security/**`, `**/views/**`, `**/api/**`, `**/routes/**`)
-- `api-design.md`: REST conventions, status codes, pagination (`**/views/**`, `**/api/**`, `**/serializers/**`, `**/routes/**`, `**/controllers/**`, `**/endpoints/**`, `**/schemas/**`)
-- `django-patterns.md`: Fat models, managers, query optimization, signals (`**/models.py`, `**/views.py`, `**/managers.py`, `**/signals.py`, etc.)
-- `docker-patterns.md`: Multi-stage builds, layer caching, security (`**/Dockerfile`, `**/docker-compose*.yml`, `**/.dockerignore`)
-- `infrastructure.md`: Terraform modules, K8s resources, Helm charts (`**/*.tf`, `**/k8s/**`, `**/helm/**`)
-- `root-cause-analysis.md`: Guides bug fixes toward root causes over symptom-level bandaids (`**/*.py`)
+### Commands
 
-Workflow skills (user-invocable as `/<name>`, also auto-fire on matching conversation):
+Commands live as flat Markdown files in `commands/` and are user-invocable as `/<name>`. The five workflow commands below were previously skills; the personal/meta commands (`/standup`, `/status`, `/refinement`, `/eow-review`, `/later`) are documented in the table further down.
+
+Workflow commands:
 
 - `commit.md` (`/commit`): Analyze staged changes and write a conventional commit message
 - `pr.md` (`/pr`): Create a pull request with a well-crafted description
@@ -223,34 +224,33 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 
 ### Skill Definitions
 
-Skills in `skills/` are Markdown files with YAML frontmatter. **Canonical fields** (per the [Claude Code skills docs](https://code.claude.com/docs/en/skills)):
+Skills use the official nested layout: each skill is a directory `skills/<name>/SKILL.md` with YAML frontmatter. **Canonical fields** (per the [Claude Code skills docs](https://code.claude.com/docs/en/skills)):
 
 - `name`: Skill identifier (used as `/skill-name`)
-- `description`: Rich description shown in the skill picker AND used by Claude to decide when to auto-invoke. Pattern: `"<what it does>. Use when <user trigger phrasing>."`
-- `paths` (optional): Glob patterns that auto-activate the skill when files match. Passive-domain skills use this.
+- `description`: Rich description shown in the skill picker AND used by Claude to decide when to load the skill. Pattern: `"<what it does>. Use when <user trigger phrasing>."` — Claude matches this against the conversation, not against file globs.
 - `argument-hint` (optional): Hint shown in autocomplete for `$ARGUMENTS`
 - `allowed-tools` (optional): Tools pre-approved while the skill is active (space/comma-separated or YAML list)
 - `disable-model-invocation` (optional): Set `true` for user-only invocation (Claude won't auto-fire)
 - `user-invocable` (optional): Set `false` to hide from the `/` picker (background knowledge only)
 - `model`, `effort` (optional): Per-skill model/effort overrides
 
-**Do not use** `when_to_use:` or `globs:` — these are non-canonical and silently ignored. Merge "when to use" content into `description:`, and use `paths:` instead of `globs:`.
+**Do not use** `when_to_use:`, `globs:`, or `paths:` — these are non-canonical for skills and silently ignored. Skills are loaded from `description:`, not file globs; merge any "when to use" content into `description:`. (Path-scoped file matching lives in `rules/`, which do use `paths:`.)
 
 ### Command Definitions
 
-Per the official docs, custom commands have been merged into skills: `commands/foo.md` and `skills/foo.md` both create `/foo` and use the same frontmatter contract. We keep `commands/` for personal/meta workflows that are user-invoke only (no `description:` "Use when..." clause), and `skills/` for everything that should also be auto-invokable. New work should prefer `skills/` over `commands/`.
+Per the official docs, custom commands and skills share the same frontmatter contract: `commands/foo.md` and `skills/foo/SKILL.md` both create `/foo`. We keep `commands/` for user-invocable workflows and personal/meta commands (`/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, plus `/standup`, `/status`, `/refinement`, `/eow-review`, `/later`), and `skills/` for domain knowledge Claude loads automatically from a skill's `description:`.
 
 ## Commands, Agents, and Skills — when to use each
 
 The three primitives serve different purposes; picking the right one keeps the agent/skill picker uncluttered.
 
-| Use a...                  | When                                                                                                                         | Example in this repo                                                                                 |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Skill** (`skills/`)     | Workflow you want Claude to auto-invoke based on the conversation, or domain knowledge that auto-activates on matching files | `/commit` (auto-fires on "commit my staged work"), `django-patterns` (auto-activates on `models.py`) |
-| **Command** (`commands/`) | Personal/meta workflow that should only fire when you explicitly ask                                                         | `/standup`, `/eow-review`, `/later`                                                                  |
-| **Agent** (`agents/`)     | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation  | `@bug-resolver`, `@migration-engineer`, `@security-auditor`                                          |
+| Use a...                  | When                                                                                                                        | Example in this repo                                                                                          |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Skill** (`skills/`)     | Domain knowledge you want Claude to load automatically based on the conversation (matched from the skill's `description:`)  | `django-patterns` (loads when editing Django models/views), `security-review` (loads on auth/middleware work) |
+| **Command** (`commands/`) | Personal/meta workflow that should only fire when you explicitly ask                                                        | `/standup`, `/eow-review`, `/later`                                                                           |
+| **Agent** (`agents/`)     | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation | `@bug-resolver`, `@migration-engineer`, `@security-auditor`                                                   |
 
-Rule of thumb: if the action is **conversational** ("commit my work", "open a PR"), it wants to be a skill. If the action is **on-demand and personal** ("give me a standup summary"), it wants to be a command. If the action is **scoped expertise that benefits from isolation** ("audit this for security"), it wants to be an agent.
+Rule of thumb: if the action is **domain knowledge Claude should load automatically** (patterns for Django models, security-sensitive code), it wants to be a skill. If the action is a **user-invocable workflow or personal/meta task** ("commit my work", "open a PR", "give me a standup summary"), it wants to be a command. If the action is **scoped expertise that benefits from isolation** ("audit this for security"), it wants to be an agent.
 
 ## Plugin vs custom — what stays in this repo
 
@@ -317,20 +317,13 @@ When extending this repo (adding a new agent / skill / command / hook / template
 - **Model heuristic**: `opus` for complex reasoning (bug-resolver, security-auditor), `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
 - **Exemplar**: [`agents/bug-resolver.md`](agents/bug-resolver.md) — opus, rich description with examples
 
-### Add a passive-domain skill (file-glob activated)
+### Add a skill (domain knowledge, loaded by description)
 
-- **Where**: `skills/<kebab-name>.md`
-- **Required frontmatter**: `name`, `description` (state what domain knowledge it provides), `paths` (YAML list of globs)
-- **Exemplar**: [`skills/django-patterns.md`](skills/django-patterns.md)
-- **Don't**: use `globs:` (silently ignored — `paths:` is the canonical field)
-
-### Add a workflow skill (conversation-triggered + user-invocable)
-
-- **Where**: `skills/<kebab-name>.md`
-- **Required frontmatter**: `name`, `description` — write description as `"<what it does>. Use when <user trigger phrasing>."` so Claude can match conversational intent
-- **Optional**: `argument-hint`, `allowed-tools`, `disable-model-invocation: true` (for workflows you want only triggered by `/name`, never by inference)
-- **Exemplar**: [`skills/commit.md`](skills/commit.md) — workflow skill with rich description, argument hint, and tight allowed-tools scope
-- **Don't**: use `when_to_use:` (non-canonical — merge into `description:`)
+- **Where**: `skills/<kebab-name>/SKILL.md` (nested layout — one directory per skill)
+- **Required frontmatter**: `name`, `description` — write description as `"<what it does>. Use when <user trigger phrasing>."` so Claude loads it from the conversation. Skills are matched on `description:`, not on file globs.
+- **Optional**: `argument-hint`, `allowed-tools`, `disable-model-invocation: true`, `user-invocable: false`, `model`, `effort`
+- **Exemplar**: [`skills/django-patterns/SKILL.md`](skills/django-patterns/SKILL.md)
+- **Don't**: use `when_to_use:`, `globs:`, or `paths:` (non-canonical for skills — merge intent into `description:`). Former workflow skills (`/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`) now live in `commands/` — see "Add a command" below.
 
 ### Add a command
 
@@ -342,7 +335,7 @@ When extending this repo (adding a new agent / skill / command / hook / template
 ### Add a hook
 
 - **Script location**: `scripts/hooks/<name>.sh` (set `chmod +x`, include `#!/usr/bin/env bash`)
-- **Wire-up — two files**: add the entry to **both** `settings.json` (under `hooks.<EventName>`) and `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper). Same shape in both. Use a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink -f ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` so it resolves in both plugin and symlink-global modes.
+- **Wire-up — two files**: add the entry to **both** `settings.json` (under `hooks.<EventName>`) and `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper). Same shape in both. Use a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` so it resolves in both plugin and symlink-global modes.
 - **Matcher rules**: most events support a `matcher` field — tool events filter on tool name (e.g. `"Bash"`, `"Edit|Write"`); other events filter on event-specific fields (e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `SubagentStop` on agent type). Events that **don't** support matchers and must omit the field: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, `CwdChanged`. See [hooks reference](https://code.claude.com/docs/en/hooks.md) for the full per-event schema.
 - **Exemplar wire-up**: any current entry in `settings.json` or `hooks/hooks.json` under `hooks.*`
 
