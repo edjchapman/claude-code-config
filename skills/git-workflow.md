@@ -23,15 +23,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 ### Types
 
-- `feat`: New feature or functionality
-- `fix`: Bug fix
-- `docs`: Documentation only
-- `style`: Formatting, missing semicolons (no code change)
-- `refactor`: Code restructuring (no feature/fix)
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks, dependencies
-- `ci`: CI/CD changes
-- `perf`: Performance improvements
+`feat` (feature), `fix` (bug fix), `docs`, `style` (formatting, no code change), `refactor`, `test`, `chore` (maintenance/deps), `ci`, `perf` (performance).
 
 ### Rules
 
