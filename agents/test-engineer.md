@@ -1,30 +1,9 @@
 ---
 name: test-engineer
-description: |
-  Use this agent when you need to create, modify, or debug unit tests and integration tests. This includes backend tests (API endpoints, models, services) and frontend tests (components, hooks, pages). The agent should be invoked after implementing new features, fixing bugs, or when specifically asked to write or review tests.
-
-  <example>
-  Context: The user has just implemented a new API endpoint.
-  user: "I just created a new UserViewSet with CRUD operations. Can you write tests for it?"
-  assistant: "I'll use the test-engineer agent to create comprehensive tests for your new UserViewSet."
-  </example>
-
-  <example>
-  Context: The user has created a new React component.
-  user: "I finished the ProjectDetails component. Please add tests."
-  assistant: "Let me use the test-engineer agent to write frontend tests for your ProjectDetails component."
-  </example>
-
-  <example>
-  Context: The user is debugging a failing test.
-  user: "My test_create_user_with_valid_data test is failing with a 403 error. Can you help?"
-  assistant: "I'll use the test-engineer agent to diagnose and fix the failing test."
-  </example>
-
-  <example>
-  Context: After implementing a feature, proactively suggest testing.
-  assistant: "I've completed the Payment model implementation. Now let me use the test-engineer agent to create comprehensive tests for this model."
-  </example>
+description: >-
+  Create, modify, or debug unit and integration tests — backend (API endpoints, models, services)
+  and frontend (components, hooks, pages). Use after implementing a feature or fixing a bug, or
+  when asked to write or review tests.
 model: sonnet
 color: blue
 ---

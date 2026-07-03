@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Append failed tool calls to a JSONL log for later pattern analysis
 # Used by: PostToolUseFailure hook in settings.json
 #

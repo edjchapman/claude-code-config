@@ -1,25 +1,9 @@
 ---
 name: refactoring-engineer
-description: |
-  Use this agent when you need to systematically refactor code to improve its structure, readability, or maintainability without changing its external behavior. This includes extracting functions/classes, renaming for clarity, reducing complexity, removing duplication, and improving architecture.
-
-  <example>
-  Context: User wants to clean up a messy file.
-  user: "This utils.py file has grown too large and messy. Can you help refactor it?"
-  assistant: "I'll use the refactoring-engineer agent to analyze and systematically refactor utils.py."
-  </example>
-
-  <example>
-  Context: User wants to reduce code duplication.
-  user: "I have similar code in three different places. Help me DRY this up."
-  assistant: "Let me use the refactoring-engineer agent to identify the common patterns and extract them appropriately."
-  </example>
-
-  <example>
-  Context: User wants to improve code organization.
-  user: "The OrderService class has too many responsibilities. Can you help split it up?"
-  assistant: "I'll use the refactoring-engineer agent to analyze OrderService and refactor it following single responsibility principle."
-  </example>
+description: >-
+  Systematically refactor code to improve structure, readability, and maintainability without
+  changing external behavior: extracting functions/classes, renaming, reducing complexity, and
+  removing duplication. Use to clean up messy or overgrown code.
 model: opus
 color: cyan
 ---

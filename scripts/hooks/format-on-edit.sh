@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Auto-format files after Claude edits them (unified Python + JS/TS formatter)
 # Used by: PostToolUse hook in settings.json
 #

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Pipe error output to Claude for explanation
 #
 # Usage: some-command 2>&1 | explain-error.sh

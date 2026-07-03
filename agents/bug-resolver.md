@@ -1,25 +1,9 @@
 ---
 name: bug-resolver
-description: |
-  Use this agent when you encounter a bug, error, or unexpected behavior that needs investigation and resolution. This includes runtime errors, failed tests, incorrect outputs, performance issues, or any situation where code isn't behaving as expected.
-
-  <example>
-  Context: User reports a failing test.
-  user: "The test test_create_user is failing with an assertion error"
-  assistant: "I'll use the bug-resolver agent to investigate this failing test and determine the root cause."
-  </example>
-
-  <example>
-  Context: User encounters an unexpected error in production.
-  user: "Users are getting a 500 error when they try to upload files larger than 10MB"
-  assistant: "Let me launch the bug-resolver agent to deep-dive into this file upload issue and trace the error."
-  </example>
-
-  <example>
-  Context: User notices incorrect behavior in a feature.
-  user: "The report is showing duplicate entries that shouldn't be there"
-  assistant: "I'll use the bug-resolver agent to investigate why duplicate entries are appearing."
-  </example>
+description: >-
+  Investigate and resolve bugs, errors, and unexpected behavior — runtime errors, failing tests,
+  incorrect output, or performance regressions. Use when code isn't behaving as expected and the
+  root cause needs tracing.
 model: opus
 color: red
 ---

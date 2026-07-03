@@ -1,25 +1,9 @@
 ---
 name: performance-engineer
-description: |
-  Use this agent when you need to analyze and optimize application performance. This includes profiling, identifying bottlenecks, database query optimization, memory/CPU analysis, caching strategies, and load testing guidance.
-
-  <example>
-  Context: User notices slow API responses.
-  user: "Our /api/reports endpoint is taking 10+ seconds. Can you help optimize it?"
-  assistant: "I'll use the performance-engineer agent to profile and optimize the slow reports endpoint."
-  </example>
-
-  <example>
-  Context: User wants to improve database performance.
-  user: "The database queries are getting slow as our data grows"
-  assistant: "Let me use the performance-engineer agent to analyze your queries and recommend optimizations."
-  </example>
-
-  <example>
-  Context: User is preparing for increased load.
-  user: "We're expecting 10x traffic next month. How do we prepare?"
-  assistant: "I'll use the performance-engineer agent to assess your system's scalability and recommend improvements."
-  </example>
+description: >-
+  Analyze and optimize application performance: profiling, bottleneck identification, slow database
+  query optimization, memory/CPU analysis, caching strategies, and load-testing guidance. Use for
+  slow endpoints or scalability planning.
 model: opus
 color: magenta
 ---

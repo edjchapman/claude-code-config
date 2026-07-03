@@ -1,25 +1,8 @@
 ---
 name: pr-review-bundler
-description: |
-  Use this agent when you need to prepare a comprehensive PR review bundle for analysis. This includes gathering PR metadata, reviews, inline comments, general comments, and the full diff into a single markdown file.
-
-  <example>
-  Context: User wants to review and address feedback on their pull request.
-  user: "I need to look at the feedback on PR #142 and address all the comments"
-  assistant: "I'll use the pr-review-bundler agent to gather all the PR review information into a structured bundle for analysis."
-  </example>
-
-  <example>
-  Context: User wants to see what reviewers said.
-  user: "Can you help me understand what changes are requested in PR 87?"
-  assistant: "Let me use the pr-review-bundler agent to create a comprehensive bundle of PR #87 including all review comments and the diff."
-  </example>
-
-  <example>
-  Context: User wants to export a PR review.
-  user: "Export all the review threads from pull request 256 in myorg/myrepo"
-  assistant: "I'll launch the pr-review-bundler agent to generate a complete markdown bundle of PR #256 from myorg/myrepo."
-  </example>
+description: >-
+  Gather a pull request's metadata, reviews, inline and general comments, and full diff into a
+  single structured markdown bundle for analysis. Use when addressing or exporting PR feedback.
 model: sonnet
 color: purple
 permissionMode: plan

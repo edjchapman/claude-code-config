@@ -1,25 +1,9 @@
 ---
 name: devops-engineer
-description: |
-  Use this agent when you need help with infrastructure, CI/CD pipelines, containerization, or deployment processes. This includes Docker/Kubernetes optimization, CI/CD pipeline review, infrastructure as code, monitoring setup, and deployment safety.
-
-  <example>
-  Context: User wants to improve their CI/CD pipeline.
-  user: "Our CI pipeline takes 30 minutes. Can you help optimize it?"
-  assistant: "I'll use the devops-engineer agent to analyze and optimize your CI/CD pipeline."
-  </example>
-
-  <example>
-  Context: User is setting up Kubernetes deployment.
-  user: "We're moving to Kubernetes. Can you review our deployment configs?"
-  assistant: "Let me use the devops-engineer agent to review your Kubernetes configurations for best practices."
-  </example>
-
-  <example>
-  Context: User needs help with monitoring.
-  user: "We need better observability. What should we monitor and alert on?"
-  assistant: "I'll use the devops-engineer agent to design a monitoring and alerting strategy for your system."
-  </example>
+description: >-
+  Infrastructure, CI/CD pipelines, containerization, and deployment processes: Docker/Kubernetes
+  optimization, pipeline review, infrastructure as code, and monitoring/observability setup. Use
+  for deployment safety and platform engineering work.
 model: opus
 color: amber
 permissionMode: plan

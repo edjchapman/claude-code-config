@@ -1,25 +1,9 @@
 ---
 name: ci-debugger
-description: |
-  Use this agent to investigate CI/CD pipeline failures, flaky tests, and environment-related build issues. This includes GitHub Actions, Jenkins, CircleCI, and other CI systems.
-
-  <example>
-  Context: User's CI pipeline is failing.
-  user: "Our GitHub Actions build has been failing for the last 3 runs. Can you investigate?"
-  assistant: "I'll use the ci-debugger agent to investigate the CI failures and identify the root cause."
-  </example>
-
-  <example>
-  Context: User has a flaky test.
-  user: "The test_payment_processing test passes locally but fails intermittently in CI"
-  assistant: "Let me launch the ci-debugger agent to investigate the flaky test and environment differences."
-  </example>
-
-  <example>
-  Context: User's build suddenly broke.
-  user: "Our build started failing after merging the auth PR but all tests pass locally"
-  assistant: "I'll use the ci-debugger agent to compare the CI environment with your local setup."
-  </example>
+description: >-
+  Investigate CI/CD pipeline failures, flaky tests, and environment-related build issues across
+  GitHub Actions, Jenkins, CircleCI, and similar systems. Use when a build fails in CI but passes
+  locally, or a test fails intermittently.
 model: sonnet
 color: red
 ---

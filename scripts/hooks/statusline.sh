@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Status line script for Claude Code
 # Shows git branch, dirty file count, and open PR status
 # Must execute fast (< 1s) — status line refreshes frequently

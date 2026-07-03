@@ -1,25 +1,9 @@
 ---
 name: dependency-manager
-description: |
-  Use this agent for dependency audits, outdated package management, license compatibility checks, and upgrade planning. Works with npm, pip, uv, go modules, and other package managers.
-
-  <example>
-  Context: User wants to audit their dependencies.
-  user: "Can you check our dependencies for security vulnerabilities?"
-  assistant: "I'll use the dependency-manager agent to audit your dependencies for vulnerabilities and outdated packages."
-  </example>
-
-  <example>
-  Context: User needs to upgrade a major dependency.
-  user: "We need to upgrade React from 17 to 18. What's involved?"
-  assistant: "Let me launch the dependency-manager agent to analyze the upgrade path and identify breaking changes."
-  </example>
-
-  <example>
-  Context: User wants to clean up dependencies.
-  user: "We have a lot of unused packages. Can you help identify them?"
-  assistant: "I'll use the dependency-manager agent to find unused and redundant dependencies."
-  </example>
+description: >-
+  Dependency audits, outdated/unused package cleanup, license compatibility checks, and upgrade
+  planning across npm, pip, uv, go modules, and other package managers. Use when auditing for CVEs
+  or planning a major version bump.
 model: sonnet
 color: green
 ---

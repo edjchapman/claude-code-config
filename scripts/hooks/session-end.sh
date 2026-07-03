@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # SessionEnd hook: log session info and clean up
 # Used by: SessionEnd hook in settings.json
 

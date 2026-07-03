@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Review uncommitted changes using Claude headless mode
 #
 # Usage: review-changes.sh

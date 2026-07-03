@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Output git context at session start so Claude has immediate awareness
 # Used by: SessionStart hook in settings.json
 

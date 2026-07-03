@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Emit a terminal bell when an autonomous task completes
 # Used by: TaskCompleted hook in settings.json
 #

@@ -1,25 +1,9 @@
 ---
 name: database-architect
-description: |
-  Use this agent when you need help with database schema design, migration planning, query optimization, or data modeling. This includes schema reviews, index strategies, migration safety analysis, and data architecture decisions.
-
-  <example>
-  Context: User is designing a new feature that needs database changes.
-  user: "I need to add multi-tenancy support to our database. How should I structure it?"
-  assistant: "I'll use the database-architect agent to design a multi-tenancy schema that balances isolation, performance, and complexity."
-  </example>
-
-  <example>
-  Context: User has a complex migration to plan.
-  user: "We need to split this table into two. How do we do it safely without downtime?"
-  assistant: "Let me use the database-architect agent to plan a zero-downtime migration strategy."
-  </example>
-
-  <example>
-  Context: User wants to review their schema design.
-  user: "Can you review our database schema for the new inventory system?"
-  assistant: "I'll use the database-architect agent to review your schema for normalization, indexing, and scalability."
-  </example>
+description: >-
+  Database schema design, data modeling, index strategies, query optimization, and migration
+  safety analysis. Use when designing schemas, planning zero-downtime migrations, or reviewing
+  data architecture decisions.
 model: opus
 color: cyan
 permissionMode: plan
