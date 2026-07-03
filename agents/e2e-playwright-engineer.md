@@ -1,25 +1,8 @@
 ---
 name: e2e-playwright-engineer
-description: |
-  Use this agent when you need to create, modify, debug, or review Playwright end-to-end tests. This includes writing new test specs, creating or extending fixtures, debugging failing tests, improving test coverage, or refactoring existing tests to follow project conventions.
-
-  <example>
-  Context: User wants to add E2E tests for a new feature.
-  user: "I just added a new user settings feature. Can you write E2E tests for it?"
-  assistant: "I'll use the e2e-playwright-engineer agent to create comprehensive E2E tests for the user settings feature."
-  </example>
-
-  <example>
-  Context: User has a failing E2E test.
-  user: "The checkout flow test is failing with a timeout error. Can you help?"
-  assistant: "Let me use the e2e-playwright-engineer agent to investigate and fix the failing checkout test."
-  </example>
-
-  <example>
-  Context: User needs to create a new fixture.
-  user: "We need a fixture for the new admin dashboard page"
-  assistant: "I'll use the e2e-playwright-engineer agent to create a properly structured fixture for the admin dashboard."
-  </example>
+description: >-
+  Create, modify, debug, or review Playwright end-to-end tests — new specs, fixtures, flaky/timeout
+  failures, and coverage improvements. Use for E2E test work following project conventions.
 model: sonnet
 color: blue
 ---

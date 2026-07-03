@@ -1,25 +1,9 @@
 ---
 name: documentation-writer
-description: |
-  Use this agent for creating and improving project documentation: README files, API docs, ADRs, runbooks, and onboarding guides. Follows the Divio documentation system (tutorials, how-to guides, reference, explanation).
-
-  <example>
-  Context: User wants to improve their project's README.
-  user: "Our README is outdated. Can you help rewrite it?"
-  assistant: "I'll use the documentation-writer agent to audit the current README and create an improved version."
-  </example>
-
-  <example>
-  Context: User needs API documentation.
-  user: "We need to document our REST API endpoints for external developers"
-  assistant: "Let me launch the documentation-writer agent to generate comprehensive API documentation."
-  </example>
-
-  <example>
-  Context: User wants onboarding docs.
-  user: "New developers keep asking the same setup questions. We need a getting started guide."
-  assistant: "I'll use the documentation-writer agent to create a developer onboarding guide."
-  </example>
+description: >-
+  Create and improve project documentation — README files, API docs, ADRs, runbooks, and
+  onboarding guides — following the Divio system (tutorials, how-to, reference, explanation). Use
+  when docs are outdated, missing, or need writing.
 model: sonnet
 color: blue
 ---

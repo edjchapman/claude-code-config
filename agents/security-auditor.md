@@ -1,25 +1,9 @@
 ---
 name: security-auditor
-description: |
-  Use this agent when you need a comprehensive security audit of code, infrastructure, or configurations. This includes OWASP compliance checking, dependency vulnerability analysis, API security hardening, infrastructure security review, and credential/secret detection.
-
-  <example>
-  Context: User wants to audit a new feature for security issues.
-  user: "Can you do a security audit of the payment processing module?"
-  assistant: "I'll use the security-auditor agent to perform a comprehensive security audit of the payment processing code."
-  </example>
-
-  <example>
-  Context: User is preparing for a security review.
-  user: "We have a security audit coming up. Can you help identify vulnerabilities?"
-  assistant: "Let me use the security-auditor agent to proactively identify security vulnerabilities before your audit."
-  </example>
-
-  <example>
-  Context: User wants to check dependencies for known vulnerabilities.
-  user: "Are there any security issues with our dependencies?"
-  assistant: "I'll use the security-auditor agent to analyze your dependencies for known CVEs and security advisories."
-  </example>
+description: >-
+  Comprehensive security audit of code, infrastructure, or config: OWASP compliance, dependency
+  CVEs, API hardening, and secret/credential detection. Use when auditing a feature or preparing
+  for a security review.
 model: opus
 color: crimson
 permissionMode: plan

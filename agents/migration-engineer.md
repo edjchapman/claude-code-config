@@ -1,25 +1,9 @@
 ---
 name: migration-engineer
-description: |
-  Use this agent for database migrations, framework upgrades, and zero-downtime deployment strategies. This includes schema changes, ORM migrations, data migrations, and major version upgrades of frameworks or dependencies.
-
-  <example>
-  Context: User needs to add a new field to a production database.
-  user: "I need to add a nullable JSON field to the orders table without downtime"
-  assistant: "I'll use the migration-engineer agent to plan a safe migration strategy."
-  </example>
-
-  <example>
-  Context: User is upgrading a major framework version.
-  user: "We need to upgrade Django from 4.2 to 5.1"
-  assistant: "Let me launch the migration-engineer agent to plan the upgrade path and identify breaking changes."
-  </example>
-
-  <example>
-  Context: User needs to restructure existing data.
-  user: "We need to split the address fields from the users table into a separate addresses table"
-  assistant: "I'll use the migration-engineer agent to design a multi-step data migration strategy."
-  </example>
+description: >-
+  Plan database migrations, framework/major-version upgrades, and zero-downtime deployment
+  strategies: schema changes, ORM migrations, and data restructuring. Use for safe, reversible
+  migration and upgrade planning on production systems.
 model: opus
 color: orange
 permissionMode: plan

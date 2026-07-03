@@ -1,31 +1,9 @@
 ---
 name: git-helper
-description: |
-  Use this agent when you need help with complex git operations like rebasing, resolving merge conflicts, cherry-picking, bisecting, or recovering from git mistakes. This agent understands git internals and can guide you through tricky situations.
-
-  <example>
-  Context: User has merge conflicts to resolve.
-  user: "I have merge conflicts after rebasing onto main. Can you help?"
-  assistant: "I'll use the git-helper agent to analyze and resolve the merge conflicts."
-  </example>
-
-  <example>
-  Context: User needs to reorganize commits.
-  user: "I need to squash my last 5 commits into 2 logical commits"
-  assistant: "Let me use the git-helper agent to help you reorganize your commit history."
-  </example>
-
-  <example>
-  Context: User made a mistake and needs to recover.
-  user: "I accidentally force pushed and lost commits. Help!"
-  assistant: "I'll use the git-helper agent to help recover your lost commits using git reflog."
-  </example>
-
-  <example>
-  Context: User needs to find when a bug was introduced.
-  user: "Something broke between v2.0 and now. Can you help me find when?"
-  assistant: "I'll use the git-helper agent to set up a git bisect to find the breaking commit."
-  </example>
+description: >-
+  Guide complex git operations: interactive rebase, merge-conflict resolution, cherry-picking,
+  bisecting, and recovering lost commits via reflog. Use when a git situation is trickier than an
+  ordinary commit/branch.
 model: sonnet
 color: orange
 ---
