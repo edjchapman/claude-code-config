@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Setup project-level Claude Code configuration
 #
 # Usage:

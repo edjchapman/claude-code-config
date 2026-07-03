@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Headless PR review
 #
 # Usage: review-pr.sh <pr-number>

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Summarize yesterday's git activity across all projects
 #
 # Usage: daily-report.sh

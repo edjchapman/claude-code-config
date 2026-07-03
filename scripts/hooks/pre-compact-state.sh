@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Preserve working state before context compaction
 # Used by: PreCompact hook in settings.json
 #

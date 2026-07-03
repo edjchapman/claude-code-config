@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Defense-in-depth: block dangerous command patterns before execution
 # Used by: PreToolUse (Bash) hook in settings.json
 #

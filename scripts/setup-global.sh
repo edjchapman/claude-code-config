@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Setup global Claude Code configuration on a new machine
 #
 # Usage:
