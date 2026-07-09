@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/edjchapman/claude-code-config/compare/1.8.0...1.8.1) (2026-07-09)
+
+
+### Bug Fixes
+
+* **skills:** retire the remaining --notion flags (status, pr, refinement) ([#54](https://github.com/edjchapman/claude-code-config/issues/54)) ([c441c2a](https://github.com/edjchapman/claude-code-config/commit/c441c2a58f00eaebb6802413da6702c8282db7e5))
+
 ## [1.8.0](https://github.com/edjchapman/claude-code-config/compare/1.7.0...1.8.0) (2026-07-09)
 
 
