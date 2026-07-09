@@ -224,7 +224,7 @@ Path-scoped style enforcement (`paths` frontmatter). Skills provide patterns; ru
 Run automatically at lifecycle events. Configured in `settings.json` (symlinked globally, so active in all projects); scripts live in `scripts/hooks/` and only run when their tools are present (e.g. `ruff`, `prettier`).
 
 <details>
-<summary><strong>7 configured hooks + 3 opt-in</strong> — click to expand</summary>
+<summary><strong>8 configured hooks + 2 opt-in</strong> — click to expand</summary>
 
 **Configured:**
 
@@ -232,18 +232,21 @@ Run automatically at lifecycle events. Configured in `settings.json` (symlinked 
 | ------------------------- | -------------------- | -------------------------------------------------------------- |
 | SessionStart              | New session          | Outputs git branch, recent commits, and dirty files            |
 | SessionEnd                | Session end          | Appends session summary to `./standups/YYYY-MM-DD-log.md`      |
-| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier)                |
+| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier), async         |
 | PostToolUseFailure        | After tool failure   | Logs failed tool calls to `~/.claude/logs/tool-failures.jsonl` |
 | PreToolUse (Bash)         | Before bash commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)             |
 | PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)     |
+| Stop                      | Turn about to end    | Prompt-type LLM gate: blocks "done" claims with skipped tests  |
 | TaskCompleted             | Autonomous task done | Emits a terminal bell                                          |
+
+The `Stop` gate is a native `type: "prompt"` hook (no script, evaluated by a fast
+model). Delete its entry from `settings.json` and `hooks/hooks.json` to opt out.
 
 **Opt-in** (each invokes an LLM on every fire — enable deliberately):
 
 | Hook             | Trigger                 | What It Would Do                                  |
 | ---------------- | ----------------------- | ------------------------------------------------- |
 | UserPromptSubmit | Before prompt sent      | LLM-evaluated check: is the prompt specific?      |
-| Stop             | Session end             | LLM-evaluated check: tests run? linters run?      |
 | SubagentStop     | Before subagent returns | LLM-evaluated check: did subagent complete fully? |
 
 </details>
