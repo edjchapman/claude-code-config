@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/edjchapman/claude-code-config/compare/1.7.0...1.8.0) (2026-07-09)
+
+
+### Features
+
+* modernization sweep — prompt hooks, skills migration, scheduled routines, agent memory ([#50](https://github.com/edjchapman/claude-code-config/issues/50)) ([95fda71](https://github.com/edjchapman/claude-code-config/commit/95fda71db9045eef3e30dbac5e60d4c610520f93))
+
 ## [1.7.0](https://github.com/edjchapman/claude-code-config/compare/1.6.0...1.7.0) (2026-06-26)
 
 
