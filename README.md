@@ -175,7 +175,7 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 | `/hotfix`     | Guided hotfix: branch from main, minimal fix, targeted tests, PR | you or Claude              |
 | `/tdd`        | TDD workflow: write failing test, implement, refactor            | you or Claude              |
 | `/adr`        | Create Architecture Decision Record (Nygard format)              | you or Claude              |
-| `/standup`    | Summarize last 24h across Git, GitHub, Jira, and Notion          | you, Claude, or a schedule |
+| `/standup`    | Summarize last 24h across Git, GitHub, and Jira                  | you, Claude, or a schedule |
 | `/eow-review` | Prepare end-of-week review notes                                 | you, Claude, or a schedule |
 | `/status`     | Quick status update appended to today's daily log                | you only                   |
 | `/refinement` | Prepare technical analysis for backlog refinement                | you only                   |
@@ -232,20 +232,18 @@ Run automatically at lifecycle events. Configured in `settings.json` (symlinked 
 | ------------------------- | -------------------- | -------------------------------------------------------------- |
 | SessionStart              | New session          | Outputs git branch, recent commits, and dirty files            |
 | SessionEnd                | Session end          | Appends session summary to `./standups/YYYY-MM-DD-log.md`      |
-| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier), async         |
+| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier)                |
 | PostToolUseFailure        | After tool failure   | Logs failed tool calls to `~/.claude/logs/tool-failures.jsonl` |
 | PreToolUse (Bash)         | Before bash commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)             |
 | PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)     |
-| Stop                      | Turn about to end    | Prompt-type LLM gate: blocks "done" claims with skipped tests  |
 | TaskCompleted             | Autonomous task done | Emits a terminal bell                                          |
 
-The `Stop` gate is a native `type: "prompt"` hook (no script, evaluated by a fast
-model). Delete its entry from `settings.json` and `hooks/hooks.json` to opt out.
-
-**Opt-in** (each invokes an LLM on every fire — enable deliberately):
+**Opt-in** (each invokes an LLM on every fire, so all ship disabled — enable
+deliberately; ready-to-paste snippets live in [`CLAUDE.md`](CLAUDE.md)'s Hooks section):
 
 | Hook             | Trigger                 | What It Would Do                                  |
 | ---------------- | ----------------------- | ------------------------------------------------- |
+| Stop             | Turn about to end       | LLM gate: blocks "done" claims with skipped tests |
 | UserPromptSubmit | Before prompt sent      | LLM-evaluated check: is the prompt specific?      |
 | SubagentStop     | Before subagent returns | LLM-evaluated check: did subagent complete fully? |
 
@@ -253,14 +251,7 @@ model). Delete its entry from `settings.json` and `hooks/hooks.json` to opt out.
 
 ### Scheduled Routines
 
-Time-based workflows run themselves — two cloud routines (created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills so nobody has to remember to:
-
-| Routine            | Schedule (UTC cron)            | What It Does                                                       |
-| ------------------ | ------------------------------ | ------------------------------------------------------------------ |
-| Daily standup prep | `30 7 * * 1-5` (~08:30 London) | Runs the `/standup` workflow against GitHub + Notion → Notion page |
-| End-of-week review | `0 15 * * 5` (~16:00 London)   | Runs the `/eow-review` workflow for the full week → Notion page    |
-
-Cloud routines can't see local files, so their prompts are self-contained and deliver to Notion. The full **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts) lives in [`CLAUDE.md`](CLAUDE.md).
+Time-based workflows run themselves — two cloud routines (a daily standup prep and a Friday end-of-week review, created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills and deliver each run as a comment on a pinned GitHub issue thread. Their schedules, delivery targets, and gotchas live in **one place** — [`CLAUDE.md`](CLAUDE.md)'s Automation section — alongside the **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts).
 
 ### Settings Templates
 
@@ -393,7 +384,7 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 | Analyze test coverage gaps      | `@test-engineer`                  | Auto-detects Django/Jest/Vitest, finds coverage gaps          |
 | Create a good commit message    | `/commit`                         | Analyzes staged changes, follows conventions                  |
 | Create a pull request           | `/pr`                             | Auto-generates PR description from commits                    |
-| Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, Jira, Notion                  |
+| Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, GitHub, and Jira              |
 | Weekly summary for manager      | `/eow-review`                     | Full week review across all sources                           |
 | Prepare for backlog refinement  | `/refinement`                     | Technical analysis of tickets with code context               |
 | Debug CI/CD failures            | `@ci-debugger`                    | Investigates pipeline failures, flaky tests                   |
@@ -471,7 +462,7 @@ review-pr.sh 142               # ...or headless: no interactive session
 
 ```
 /standup                       # Daily: last 24h activity
-/eow-review                    # Weekly: full week across Git, GitHub, Jira, Notion
+/eow-review                    # Weekly: full week across Git, GitHub, and Jira
 daily-report.sh                # Headless: auto-generate daily summary
 ```
 
