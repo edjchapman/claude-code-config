@@ -249,9 +249,11 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 - `name`: Agent identifier (used as `@agent-name`)
 - `description`: When Claude should invoke this agent (include examples)
 - `model`: `opus` for complex reasoning, `sonnet` for pattern-based, `haiku` for highly structured / data-plumbing
-- `tools` (optional): Restrict the agent to a specific tool subset
+- `tools` / `disallowedTools` (optional): Allowlist / denylist restricting the agent's tool pool
 - `color` (optional): UI hint for the agent's display colour
 - `permissionMode` (optional): Override the subagent's permission mode (e.g. `plan` starts the agent in plan mode for spec/review work that should not edit until approved)
+- `memory` (optional): Persistent cross-session memory scope (`user`, `project`, or `local`). Used by `bug-resolver`, `ci-debugger`, and `performance-engineer` (`project`) so diagnosed root causes, flaky-test signatures, and perf baselines compound across sessions — pair it with a body section telling the agent to read/update its memory
+- `isolation` (optional): `worktree` runs the agent in a temporary git worktree (auto-cleaned if it makes no changes)
 
 ### Skill Definitions
 
@@ -343,7 +345,7 @@ When extending this repo (adding a new agent / skill / command / hook / template
 
 - **Where**: `agents/<kebab-name>.md`
 - **Required frontmatter**: `name`, `description` (include `<example>` blocks for when to invoke)
-- **Optional**: `model` (`opus`/`sonnet`/`haiku`), `tools`, `color`, `permissionMode`
+- **Optional**: `model` (`opus`/`sonnet`/`haiku`), `tools`, `disallowedTools`, `color`, `permissionMode`, `memory` (`user`/`project`/`local` — cross-session learning), `isolation: worktree`
 - **Model heuristic**: `opus` for complex reasoning (bug-resolver, security-auditor), `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
 - **Exemplar**: [`agents/bug-resolver.md`](agents/bug-resolver.md) — opus, rich description with examples
 
