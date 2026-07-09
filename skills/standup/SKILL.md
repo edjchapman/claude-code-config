@@ -34,7 +34,6 @@ Check for today's daily log file at `./standups/YYYY-MM-DD-log.md` (where YYYY-M
 
 Store the extracted data to enrich later steps:
 
-- Status updates marked `[notion]` may indicate items already shared externally
 - Entries mentioning "blocked", "waiting", or "stuck" should surface as blockers
 - Timestamps help establish the narrative flow of the day
 
