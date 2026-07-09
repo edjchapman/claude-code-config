@@ -418,10 +418,16 @@ fi
   exit 1
 }
 
-# Remove existing symlinks if they exist. commands/ is included for cleanup
-# only: the repo's former commands/ layout was merged into skills/, so stale
-# .claude/commands symlinks from older installs are removed.
-for item in agents commands skills rules; do
+# Legacy cleanup: the repo's former commands/ layout was merged into skills/,
+# so remove a stale .claude/commands SYMLINK from older installs. Symlinks
+# only — a real .claude/commands directory (the project's own slash commands,
+# unrelated to this repo) must never be deleted.
+if [ -L .claude/commands ]; then
+  rm .claude/commands
+fi
+
+# Remove existing symlinks/directories if they exist (each is recreated below)
+for item in agents skills rules; do
   if [ -L .claude/$item ]; then
     rm .claude/$item
   elif [ -e .claude/$item ]; then
