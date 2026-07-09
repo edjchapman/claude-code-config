@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a configuration repository for Claude Code. It can be consumed two ways:
 
 1. **As a plugin** (recommended): install via `/plugin install claude-code-config` after adding the marketplace. The plugin loader sets `CLAUDE_PLUGIN_DIR` and the hook commands resolve relative to that.
-2. **As a symlinked global config** (legacy path, still supported): `scripts/setup-global.sh` symlinks `agents/`, `commands/`, `skills/`, `rules/`, and `settings.json` into `~/.claude/`. Per-project use is via `scripts/setup-project.sh`.
+2. **As a symlinked global config** (legacy path, still supported): `scripts/setup-global.sh` symlinks `agents/`, `skills/`, `rules/`, and `settings.json` into `~/.claude/`. Per-project use is via `scripts/setup-project.sh`.
 
 The two modes coexist — hook command paths in `settings.json` use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve in both modes without modification.
 
@@ -17,7 +17,7 @@ Substitute `<repo>` below with wherever you cloned this repo (commonly
 `~/.config/claude-code-config/` or `~/Development/claude-code-config/`).
 
 ```bash
-# Global setup (creates ~/.claude/agents, commands, skills, rules, and settings.json symlinks)
+# Global setup (creates ~/.claude/agents, skills, rules, and settings.json symlinks)
 <repo>/scripts/setup-global.sh
 
 # Project setup (run from target project directory)
@@ -50,7 +50,9 @@ Hooks are configured in **two places** so the repo works in both consumption mod
 
 #### Hook Format
 
-Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the [official hooks reference](https://code.claude.com/docs/en/hooks.md) for the full schema and the per-event matcher fields. Repo gotcha: most events support a matcher (filtering on an event-specific field — e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `PreCompact` on `manual`/`auto`, `SubagentStop` on agent type). The events that **do not** support a matcher and must omit it are: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, `CwdChanged`. Adding a `matcher` field to a no-matcher event is silently ignored per docs.
+Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the [official hooks reference](https://code.claude.com/docs/en/hooks.md) for the full schema and the per-event matcher fields.
+
+**Handler types**: a hook entry's `type` can be `command` (shell script), `prompt` (LLM-evaluated yes/no decision — fields: required `prompt` with `$ARGUMENTS` as the hook-input-JSON placeholder; optional `model` (defaults to a fast model), `timeout`, `statusMessage`, `if`, `continueOnBlock`), `agent` (subagent-based verification), `http`, or `mcp_tool`. Command hooks additionally accept `async: true` (run in the background without blocking the turn) and `asyncRewake: true` (background + wake Claude on exit code 2). Repo gotcha: most events support a matcher (filtering on an event-specific field — e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `PreCompact` on `manual`/`auto`, `SubagentStop` on agent type). The events that **do not** support a matcher and must omit it are: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, `CwdChanged`. Adding a `matcher` field to a no-matcher event is silently ignored per docs.
 
 #### Available hooks
 
@@ -58,47 +60,54 @@ Currently configured in `settings.json`:
 
 - **SessionStart** → `scripts/hooks/session-context.sh`: auto-loads git context (branch, recent commits, dirty files)
 - **SessionEnd** → `scripts/hooks/session-end.sh`: appends session summary to `./standups/YYYY-MM-DD-log.md` for later `/standup` consumption
-- **PostToolUse (Write|Edit)** → `scripts/hooks/format-on-edit.sh`: auto-formats Python files (ruff) and JS/TS files (prettier)
+- **PostToolUse (Write|Edit)** → `scripts/hooks/format-on-edit.sh`: auto-formats Python files (ruff) and JS/TS files (prettier). Deliberately **not** `async`: the formatter rewrites files in place, so running it in the background could race a subsequent Edit of the same file in the same turn.
 - **PostToolUseFailure** → `scripts/hooks/log-tool-failure.sh`: appends failed tool calls to `~/.claude/logs/tool-failures.jsonl` for later pattern analysis
 - **PreToolUse (Bash)** → `scripts/hooks/dangerous-cmd-check.sh`: blocks dangerous command patterns (defense-in-depth)
 - **PreCompact** → `scripts/hooks/pre-compact-state.sh`: preserves working state before context compaction
 - **TaskCompleted** → `scripts/hooks/task-completed-chime.sh`: emits a terminal bell when an autonomous task completes
 
-Available but **not configured by default** (opt-in by adding to `settings.json`):
+Available but **not configured by default** (opt-in by adding a prompt-type entry to **both** hook files):
 
+- **Stop**: LLM completeness gate — blocks stopping only when the turn claims implementation work is done while promised tests/linters were skipped or left failing. If you enable it, keep the `stop_hook_active` escape hatch in the prompt (see snippet): without it, an uncurable block condition re-fires the gate on every retry (the harness caps consecutive blocks at 8, but each one costs a model call and a forced continuation).
 - **UserPromptSubmit**: LLM-evaluated check that the user prompt is specific enough
-- **Stop**: LLM-evaluated completeness check (tests run? linters run? TODOs left?)
 - **SubagentStop**: LLM-evaluated check that a subagent completed its assigned task
 
-The three opt-in hooks invoke an LLM on every fire and incur token cost — enable
-deliberately, not by default.
+Opt-in snippet shape (adjust the event name and criteria):
 
-CI-only utility (not a runtime hook): `scripts/hooks/check-duplicates.sh` runs from `.github/workflows/validate-config.yml` to fail CI if two agents/skills/commands share a name.
+```json
+"Stop": [
+  { "hooks": [ { "type": "prompt", "prompt": "You are a completeness gate deciding whether the assistant may stop. Hook input: $ARGUMENTS. If stop_hook_active is true in the input, allow. Read last_assistant_message. Block stopping ONLY if it claims implementation work is complete while tests, linters, or type checks the same turn said it would run were skipped or left failing, or if it ends by promising immediate further work that was not done. Allow conversational replies, questions to the user, plans, research or analysis summaries, and honest reports of blockers, partial progress, or waiting on background work. When unsure, allow.", "statusMessage": "Checking turn completeness", "timeout": 30 } ] }
+]
+```
+
+Prompt-type hooks invoke a fast model on every fire and incur token cost. Because this config ships to plugin and symlink consumers alike, all three are opt-in (conservative defaults: cost-bearing behavior is explicit-on, never inherited from a `git pull`).
+
+CI-only utility (not a runtime hook): `scripts/hooks/check-duplicates.sh` runs from `.github/workflows/validate-config.yml` to fail CI if two agents/skills share a name.
 
 ### Settings Keys
 
 Beyond plugins and hooks, `settings.json` currently sets (listed in file order — keep this list in sync when reordering keys):
 
 - **`skillListingBudgetFraction`**: Share of the prompt budget reserved for the skills listing (`0.02` = 2%). In use here but absent from the public settings JSON schema and docs as of this writing — verify its semantics before relying on it.
-- **`model`**: Default model (e.g. `opus[1m]` for Opus with 1M context)
+- **`model`**: Default model alias (`fable`). Briefly removed in `cd66b43` as "deprecated", then restored after verifying the key is still canonical in the settings schema. Accepts aliases (`fable`, `opus`, `sonnet`, `haiku`), full model IDs, and 1M-context forms (e.g. `opus[1m]`).
 - **`attribution`**: Git commit/PR attribution text. Both fields are set to empty strings (`commit: ""`, `pr: ""`) to suppress the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line on commits **and** PRs — per the schema, the `commit` field covers trailers too, so one empty string handles both. Modern replacement for the deprecated `includeCoAuthoredBy` boolean.
 - **`hooks`**: Per-event hook configuration (see Hooks section above)
 - **`worktree`**: Worktree-session config. `baseRef: head` branches new worktrees from local HEAD (preserving unpushed commits) instead of `origin/<default>`; `bgIsolation: worktree` blocks Edit/Write in the main checkout until `EnterWorktree` is called.
 - **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
-- **`enabledPlugins`**: Plugin enablement map. The checked-in `settings.json` lists only **universal** plugins (no external accounts required). Personal opt-ins (Notion, Figma, frontend-design) live in `settings.personal.json.example`
+- **`enabledPlugins`**: Plugin enablement map. The checked-in `settings.json` lists only **universal** plugins (no external accounts required). Personal opt-ins (Figma, frontend-design) live in `settings.personal.json.example`
 - **`outputStyle`**: Output style for assistant responses (`Explanatory`; built-ins are `default`, `Explanatory`, `Learning`)
 - **`sandbox`**: Sandbox configuration with `enabled` and `autoAllowBashIfSandboxed`
 - **`effortLevel`**: Default effort level (e.g. `high`)
-- **`agentPushNotifEnabled`**: Push notifications for background agent activity
 - **`tui`**: TUI rendering mode (`fullscreen` = flicker-free alt-screen renderer with virtualized scrollback; `default` = classic renderer). Corresponds to the `/tui` command.
+- **`agentPushNotifEnabled`**: Push notifications for background agent activity
 
-Other documented keys that this repo does **not** currently set (available as opt-ins): `env`, `fileSuggestion`, `spinnerVerbs`, `skillOverrides`, `autoMode`, `alwaysThinkingEnabled`, `parentSettingsBehavior`, `autoMemoryDirectory` (custom auto-memory storage dir), `availableModels` / `enforceAvailableModels` (restrict selectable models), `axScreenReader` (screen-reader-friendly output).
+Other documented keys that this repo does **not** currently set (available as opt-ins): `env`, `fileSuggestion`, `spinnerVerbs`, `skillOverrides`, `autoMode`, `alwaysThinkingEnabled`, `parentSettingsBehavior`, `autoMemoryDirectory` (custom auto-memory storage dir), `autoMemoryEnabled` (auto-memory on/off, default `true`), `availableModels` / `enforceAvailableModels` (restrict selectable models), `axScreenReader` (screen-reader-friendly output), `fastMode` (faster Opus output, default `false`), `language` (response language preference), `cleanupPeriodDays` (session file retention, default 30), `disableBundledSkills` (hide bundled skills like `/code-review`, `/loop`).
 
 ### Skills
 
-Skills use the official nested layout: `skills/<name>/SKILL.md`. Keep frontmatter limited to skill fields such as `name` and `description`; Claude decides when to load a skill from the description, not from a `paths:` block.
+Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands were merged into skills upstream — a flat `commands/foo.md` still works but is the legacy form, so this repo keeps everything under `skills/` (the former `commands/` directory was migrated here). Two kinds live in `skills/`:
 
-Available skills:
+**Domain-knowledge skills** — Claude loads these automatically when the conversation matches their `description:`:
 
 - `git-workflow`: Conventional commits, branch naming, PR size, and release workflow guidance
 - `testing-patterns`: AAA pattern, factories, mocks, coverage, and test organization
@@ -109,17 +118,20 @@ Available skills:
 - `infrastructure`: Terraform modules, Kubernetes resources, Helm charts, and deployment configuration
 - `root-cause-analysis`: Guides incident and bug investigations toward root causes over symptom-level bandaids
 
-### Commands
+**Workflow skills** — invoked as `/<name>`; those with trigger-rich descriptions can also be auto-invoked by Claude when the conversation calls for them:
 
-Commands live as flat Markdown files in `commands/` and are user-invocable as `/<name>`. The five workflow commands below were previously skills; the personal/meta commands (`/standup`, `/status`, `/refinement`, `/eow-review`, `/later`) are documented in the table further down.
+- `commit` (`/commit`): Analyze staged changes and write a conventional commit message
+- `pr` (`/pr`): Create a pull request with a well-crafted description
+- `hotfix` (`/hotfix`): Create a hotfix branch with a minimal fix, targeted tests, and PR
+- `tdd` (`/tdd`): Guide a TDD workflow (Red-Green-Refactor) for a feature or change
+- `adr` (`/adr`): Create an Architecture Decision Record (Nygard format)
+- `standup` (`/standup`): Summarize recent work activity across Git, GitHub, and Jira — **schedulable** (see Automation)
+- `eow-review` (`/eow-review`): End-of-week review notes — **schedulable** (see Automation)
+- `status` (`/status`, user-only): Append a quick status update to today's daily log
+- `refinement` (`/refinement`, user-only): Technical analysis for backlog refinement meetings
+- `later` (`/later`, user-only): Create a Later backlog item (Learn/Research/Do/Read)
 
-Workflow commands:
-
-- `commit.md` (`/commit`): Analyze staged changes and write a conventional commit message
-- `pr.md` (`/pr`): Create a pull request with a well-crafted description
-- `hotfix.md` (`/hotfix`): Create a hotfix branch with a minimal fix, targeted tests, and PR
-- `tdd.md` (`/tdd`): Guide a TDD workflow (Red-Green-Refactor) for a feature or change
-- `adr.md` (`/adr`): Create an Architecture Decision Record (Nygard format)
+The three user-only skills set `disable-model-invocation: true`. **Scheduling constraint**: that flag also prevents a skill from running when a scheduled task fires with the skill as its prompt (v2.1.196+) — `/standup` and `/eow-review` deliberately omit it so scheduled routines can run them.
 
 ### Rules
 
@@ -140,7 +152,7 @@ This repo manages three distinct settings files:
 | `settings.personal.json.example` | Opt-in fragment for plugins requiring external accounts/auth        | **Copied** by hand into `~/.claude/settings.local.json` | Template in repo                  |
 | `settings.local.json`            | Bash permissions + any personal plugin opt-ins                      | **Generated** per-project + hand-edited globally        | Merged from `settings-templates/` |
 
-**Why split universal vs personal plugins?** The repo is consumable by anyone (via plugin install or symlink). Auto-enabling Notion/Figma/etc. for someone who has no account or doesn't use those tools is surprising. `settings.json` carries only plugins that work without external accounts (github, pr-review-toolkit, feature-dev, code-simplifier, playwright, pyright-lsp, typescript-lsp, document-skills). Personal opt-ins (`Notion`, `figma`, `frontend-design`) live in `settings.personal.json.example` and are merged into the maintainer's `~/.claude/settings.local.json` by hand.
+**Why split universal vs personal plugins?** The repo is consumable by anyone (via plugin install or symlink). Auto-enabling Notion/Figma/etc. for someone who has no account or doesn't use those tools is surprising. `settings.json` carries only plugins that work without external accounts (github, pr-review-toolkit, feature-dev, code-simplifier, playwright, pyright-lsp, typescript-lsp, document-skills). Personal opt-ins (`figma`, `frontend-design`) live in `settings.personal.json.example` and are merged into the maintainer's `~/.claude/settings.local.json` by hand.
 
 **Note on merge semantics**: Claude Code's documented behavior for `enabledPlugins` across settings layers is not explicitly spelled out in the docs (the example given covers scalars, where the higher-precedence layer wins). If you observe universal plugins being shadowed when the example is active, include the universal list alongside the personal entries in your local file. See [Claude Code settings docs](https://code.claude.com/docs/en/settings.md) for precedence rules.
 
@@ -211,6 +223,27 @@ Headless Claude Code scripts in `scripts/cli/` for automation:
 - `daily-report.sh`: Summarize last 24h of git activity
 - `review-pr.sh <number>`: Headless PR review
 
+### Automation: pick the right trigger
+
+The repo's philosophy is **automatic over explicit** — prefer a mechanism that fires itself over one you must remember to invoke. Decision table:
+
+| Mechanism                           | Fires on                                  | Runs where            | Use for                                                                         |
+| ----------------------------------- | ----------------------------------------- | --------------------- | ------------------------------------------------------------------------------- |
+| **Command hook**                    | Lifecycle event (tool use, session, stop) | Local, in-session     | Formatting, safety checks, context capture (see Hooks above)                    |
+| **Prompt hook** (`type: "prompt"`)  | Lifecycle event, LLM-judged               | Local, in-session     | Quality gates that need judgment (e.g. the opt-in `Stop` completeness gate)     |
+| **Scheduled routine** (`/schedule`) | Cron schedule / GitHub event / API call   | Anthropic cloud       | Time-based workflows; cloud sessions can't see local files                      |
+| **`/loop`**                         | Recurring interval inside an open session | Local, in-session     | Polling something during active work ("check the deploy every 5 min")           |
+| **Headless CLI script**             | Shell alias / OS cron / pipe              | Local, out-of-session | Shell-integrated one-shots (`scripts/cli/*`), local cron with local file access |
+
+Live routines — this section is the canonical home for their schedules and delivery targets; README links here rather than restating them (manage at <https://claude.ai/code/routines>):
+
+- **Daily standup prep** — weekdays 07:30 UTC (~08:30 London in summer), runs the `/standup` workflow against GitHub, delivers a comment on the pinned tracking issue [#51](https://github.com/edjchapman/claude-code-config/issues/51). Cloud sessions can't read local `./standups/` logs, so the routine prompt is self-contained.
+- **End-of-week review** — Fridays 15:00 UTC (~16:00 London in summer), same pattern via the `/eow-review` workflow, delivering to issue [#52](https://github.com/edjchapman/claude-code-config/issues/52).
+
+Delivery is a GitHub issue comment because GitHub is the one dependency the cloud sandbox already needs for activity gathering — no separate connector auth to go stale. Keep #51/#52 open — closing them orphans the routines' delivery target.
+
+Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum routine interval is 1 hour; and a skill with `disable-model-invocation: true` **cannot** be fired by a scheduled task — which is why `standup`/`eow-review` omit that flag.
+
 ### Agent Definitions
 
 Agents in `agents/` are Markdown files with YAML frontmatter:
@@ -218,39 +251,40 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 - `name`: Agent identifier (used as `@agent-name`)
 - `description`: When Claude should invoke this agent (include examples)
 - `model`: `opus` for complex reasoning, `sonnet` for pattern-based, `haiku` for highly structured / data-plumbing
-- `tools` (optional): Restrict the agent to a specific tool subset
+- `tools` / `disallowedTools` (optional): Allowlist / denylist restricting the agent's tool pool
 - `color` (optional): UI hint for the agent's display colour
 - `permissionMode` (optional): Override the subagent's permission mode (e.g. `plan` starts the agent in plan mode for spec/review work that should not edit until approved)
+- `memory` (optional): Persistent cross-session memory scope (`user`, `project`, or `local`). Used by `bug-resolver`, `ci-debugger`, and `performance-engineer` (`project`) so diagnosed root causes, flaky-test signatures, and perf baselines compound across sessions — pair it with a body section telling the agent to read/update its memory
+- `isolation` (optional): `worktree` runs the agent in a temporary git worktree (auto-cleaned if it makes no changes)
 
 ### Skill Definitions
 
 Skills use the official nested layout: each skill is a directory `skills/<name>/SKILL.md` with YAML frontmatter. **Canonical fields** (per the [Claude Code skills docs](https://code.claude.com/docs/en/skills)):
 
-- `name`: Skill identifier (used as `/skill-name`)
-- `description`: Rich description shown in the skill picker AND used by Claude to decide when to load the skill. Pattern: `"<what it does>. Use when <user trigger phrasing>."` — Claude matches this against the conversation, not against file globs.
+- `name` (optional): Display name in skill listings (defaults to the directory name; the `/name` you type comes from the directory)
+- `description`: Rich description shown in the skill picker AND used by Claude to decide when to load the skill. Pattern: `"<what it does>. Use when <user trigger phrasing>."` — Claude matches this against the conversation.
+- `when_to_use` (optional): Extra trigger context appended to `description` in the skill listing (the combined text is truncated at 1,536 chars — put the key use case first in `description`)
 - `argument-hint` (optional): Hint shown in autocomplete for `$ARGUMENTS`
-- `allowed-tools` (optional): Tools pre-approved while the skill is active (space/comma-separated or YAML list)
-- `disable-model-invocation` (optional): Set `true` for user-only invocation (Claude won't auto-fire)
+- `allowed-tools` / `disallowed-tools` (optional): Tools pre-approved / denied while the skill is active (space/comma-separated or YAML list)
+- `disable-model-invocation` (optional): Set `true` for user-only invocation. Claude won't auto-fire it, its description stays out of the session context, **and scheduled tasks can't run it** (v2.1.196+)
 - `user-invocable` (optional): Set `false` to hide from the `/` picker (background knowledge only)
-- `model`, `effort` (optional): Per-skill model/effort overrides
+- `model`, `effort` (optional): Per-skill model/effort overrides (apply for the rest of the turn)
+- `paths` (optional): Glob patterns limiting auto-load to work on matching files
+- `context: fork` + `agent` (optional): Run the skill in a forked subagent context
 
-**Do not use** `when_to_use:`, `globs:`, or `paths:` — these are non-canonical for skills and silently ignored. Skills are loaded from `description:`, not file globs; merge any "when to use" content into `description:`. (Path-scoped file matching lives in `rules/`, which do use `paths:`.)
+Historical note: `when_to_use:` and `paths:` were once non-canonical for skills; both are now official fields. This repo still prefers a rich `description:` as the primary trigger, and keeps path-scoped _style enforcement_ in `rules/` (which also use `paths:`).
 
-### Command Definitions
+## Skills and Agents — when to use each
 
-Per the official docs, custom commands and skills share the same frontmatter contract: `commands/foo.md` and `skills/foo/SKILL.md` both create `/foo`. We keep `commands/` for user-invocable workflows and personal/meta commands (`/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, plus `/standup`, `/status`, `/refinement`, `/eow-review`, `/later`), and `skills/` for domain knowledge Claude loads automatically from a skill's `description:`.
+Two primitives, three usage patterns; picking the right one keeps the skill picker uncluttered. (A former third primitive, `commands/`, was merged into skills — a "command" is now just a skill with `disable-model-invocation: true`.)
 
-## Commands, Agents, and Skills — when to use each
+| Use a...                                         | When                                                                                                                                                                                                                                                                       | Example in this repo                                                                                          |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Domain skill** (`skills/`, default invocation) | Domain knowledge you want Claude to load automatically based on the conversation (matched from the skill's `description:`)                                                                                                                                                 | `django-patterns` (loads when editing Django models/views), `security-review` (loads on auth/middleware work) |
+| **Workflow skill** (`skills/`)                   | A repeatable workflow invoked as `/<name>`. Leave auto-invocation on when Claude firing it from context is welcome (`/commit`, `/tdd`); add `disable-model-invocation: true` when only you should trigger it (`/later`, `/status`) or it has side effects you want to time | `/commit`, `/standup`, `/later`                                                                               |
+| **Agent** (`agents/`)                            | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation                                                                                                                                                | `@bug-resolver`, `@migration-engineer`, `@security-auditor`                                                   |
 
-The three primitives serve different purposes; picking the right one keeps the agent/skill picker uncluttered.
-
-| Use a...                  | When                                                                                                                        | Example in this repo                                                                                          |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **Skill** (`skills/`)     | Domain knowledge you want Claude to load automatically based on the conversation (matched from the skill's `description:`)  | `django-patterns` (loads when editing Django models/views), `security-review` (loads on auth/middleware work) |
-| **Command** (`commands/`) | Personal/meta workflow that should only fire when you explicitly ask                                                        | `/standup`, `/eow-review`, `/later`                                                                           |
-| **Agent** (`agents/`)     | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation | `@bug-resolver`, `@migration-engineer`, `@security-auditor`                                                   |
-
-Rule of thumb: if the action is **domain knowledge Claude should load automatically** (patterns for Django models, security-sensitive code), it wants to be a skill. If the action is a **user-invocable workflow or personal/meta task** ("commit my work", "open a PR", "give me a standup summary"), it wants to be a command. If the action is **scoped expertise that benefits from isolation** ("audit this for security"), it wants to be an agent.
+Rule of thumb: if the action is **domain knowledge Claude should load automatically**, it wants to be a domain skill. If it's a **repeatable workflow** ("commit my work", "give me a standup summary"), it wants to be a workflow skill — user-only via `disable-model-invocation: true` when timing or side effects matter. If it's **scoped expertise that benefits from isolation** ("audit this for security"), it wants to be an agent.
 
 ## Plugin vs custom — what stays in this repo
 
@@ -313,27 +347,21 @@ When extending this repo (adding a new agent / skill / command / hook / template
 
 - **Where**: `agents/<kebab-name>.md`
 - **Required frontmatter**: `name`, `description` (include `<example>` blocks for when to invoke)
-- **Optional**: `model` (`opus`/`sonnet`/`haiku`), `tools`, `color`, `permissionMode`
+- **Optional**: `model` (`opus`/`sonnet`/`haiku`), `tools`, `disallowedTools`, `color`, `permissionMode`, `memory` (`user`/`project`/`local` — cross-session learning), `isolation: worktree`
 - **Model heuristic**: `opus` for complex reasoning (bug-resolver, security-auditor), `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
 - **Exemplar**: [`agents/bug-resolver.md`](agents/bug-resolver.md) — opus, rich description with examples
 
-### Add a skill (domain knowledge, loaded by description)
+### Add a skill
 
-- **Where**: `skills/<kebab-name>/SKILL.md` (nested layout — one directory per skill)
-- **Required frontmatter**: `name`, `description` — write description as `"<what it does>. Use when <user trigger phrasing>."` so Claude loads it from the conversation. Skills are matched on `description:`, not on file globs.
-- **Optional**: `argument-hint`, `allowed-tools`, `disable-model-invocation: true`, `user-invocable: false`, `model`, `effort`
-- **Exemplar**: [`skills/django-patterns/SKILL.md`](skills/django-patterns/SKILL.md)
-- **Don't**: use `when_to_use:`, `globs:`, or `paths:` (non-canonical for skills — merge intent into `description:`). Former workflow skills (`/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`) now live in `commands/` — see "Add a command" below.
-
-### Add a command
-
-- **Where**: `commands/<kebab-name>.md`
-- **Required frontmatter**: `description` (and optionally `argument-hint`)
-- **When to choose this over a skill**: only for personal/meta workflows that you never want Claude to auto-invoke. For everything else, prefer a skill — they're a strict superset.
-- **Exemplar**: [`commands/eow-review.md`](commands/eow-review.md)
+- **Where**: `skills/<kebab-name>/SKILL.md` (nested layout — one directory per skill; the directory name is the `/name`)
+- **Required frontmatter**: `description` — write it as `"<what it does>. Use when <user trigger phrasing>."` so Claude loads it from the conversation
+- **Optional**: `argument-hint`, `allowed-tools`, `disallowed-tools`, `disable-model-invocation: true`, `user-invocable: false`, `model`, `effort`, `when_to_use`, `paths`, `context: fork`
+- **Domain-knowledge exemplar**: [`skills/django-patterns/SKILL.md`](skills/django-patterns/SKILL.md)
+- **Workflow exemplar (user-only)**: [`skills/later/SKILL.md`](skills/later/SKILL.md) — for workflows only you should trigger, add `disable-model-invocation: true`; remember that flag also blocks scheduled tasks from running the skill (which is why `standup`/`eow-review` omit it)
 
 ### Add a hook
 
+- **Prompt-type hooks need no script**: for LLM-evaluated gates, add a `{ "type": "prompt", "prompt": "..." }` entry directly to both hook files (exemplar: the opt-in `Stop` snippet in the Hooks section). The steps below cover command-type hooks.
 - **Script location**: `scripts/hooks/<name>.sh` (set `chmod +x`, include `#!/usr/bin/env bash`)
 - **Wire-up — two files**: add the entry to **both** `settings.json` (under `hooks.<EventName>`) and `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper). Same shape in both. Use a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` so it resolves in both plugin and symlink-global modes.
 - **Matcher rules**: most events support a `matcher` field — tool events filter on tool name (e.g. `"Bash"`, `"Edit|Write"`); other events filter on event-specific fields (e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `SubagentStop` on agent type). Events that **don't** support matchers and must omit the field: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, `CwdChanged`. See [hooks reference](https://code.claude.com/docs/en/hooks.md) for the full per-event schema.

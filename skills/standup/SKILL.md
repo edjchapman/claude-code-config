@@ -1,6 +1,6 @@
 ---
-description: Prepare a standup document summarizing recent work activity across Git, GitHub, Jira, and Notion.
-argument-hint: "[<period>] [--output <path>] [--team] [--notion] [--skip-jira|--skip-notion|--skip-slack]"
+description: Prepare a standup document summarizing recent work activity across Git, GitHub, and Jira.
+argument-hint: "[<period>] [--output <path>] [--team] [--skip-jira|--skip-calendar]"
 ---
 
 Prepare a standup document summarizing my recent work activity.
@@ -14,18 +14,14 @@ Prepare a standup document summarizing my recent work activity.
 - **Output**: `--output <path>` - Save to custom file path
   - Default: `./standups/YYYY-MM-DD-standup.md`
 - **Team**: `--team` - Include team activity overview (opt-in)
-- **Notion sync**: `--notion` - Sync the final standup to today's Notion standup page
-- **Skip sources**: `--skip-jira`, `--skip-notion`, `--skip-slack`
+- **Skip sources**: `--skip-jira`, `--skip-calendar`
 
 ## Step 1: Setup - Get User Identity
 
 **Jira Identity:**
 Use `atlassianUserInfo` tool to get the current user's account ID and display name.
 
-**Notion Identity:**
-Use `notion-get-users` tool to identify the current user.
-
-Store these identities for filtering activity in subsequent steps.
+Store this identity for filtering activity in subsequent steps.
 
 ## Step 1.5: Read Daily Log
 
@@ -94,46 +90,19 @@ Ask the user:
 > 2. What's the status of each?
 > 3. Any blockers?"
 
-## Step 4: Notion Activity
+## Step 4: Calendar / Meetings (skip if `--skip-calendar`)
 
-**If Notion MCP is available (`mcp__plugin_Notion_notion__*` tools):**
+**If Google Calendar MCP is available (`mcp__claude_ai_Google_Calendar__*` tools):**
 
-Use the following tools:
+1. Use `mcp__claude_ai_Google_Calendar__list_events` for the specified period
+2. Note meetings attended and any that suggest outcomes or action items worth reporting
 
-- `mcp__plugin_Notion_notion__notion-search` - Search for pages
-- `mcp__plugin_Notion_notion__notion-get-users` - Get user information
-- `mcp__plugin_Notion_notion__notion-create-pages` - Create new pages
-
-1. Use `mcp__plugin_Notion_notion__notion-search` to find pages edited by current user
-2. Filter results by `last_edited_time` within the specified period
-3. Categorize by type:
-   - Meeting notes
-   - Documentation updates
-   - Task databases
-   - Other pages
-
-**If Notion MCP is NOT available:**
+**If Google Calendar MCP is NOT available:**
 Ask the user:
 
-> "I don't have direct Notion access. Did you update any documentation or meeting notes? If so, briefly describe what."
+> "I don't have calendar access. Any meetings you attended in the period? Key outcomes or action items?"
 
-## Step 5: Slack & Google Calendar via Notion AI Search
-
-**Try Notion AI Search first:**
-Use `mcp__plugin_Notion_notion__notion-search` with `content_search_mode="ai_search"` to search connected Slack and Google Drive sources:
-
-- Query: "meetings discussions updates" for the specified period
-- This may surface Slack threads and calendar events indexed by Notion
-
-**Fallback prompt if no results or unavailable:**
-Ask the user:
-
-> "I couldn't find Slack/Calendar data through Notion. Please share:
->
-> 1. Any important Slack discussions or decisions from the period?
-> 2. Any meetings you attended? Key outcomes or action items?"
-
-## Step 6: Team Activity (only if `--team` flag is provided)
+## Step 5: Team Activity (only if `--team` flag is provided)
 
 **If `--team` flag is provided AND Jira MCP is available:**
 
@@ -152,7 +121,7 @@ Ask the user:
 **If `--team` flag is NOT provided:**
 Skip this step entirely.
 
-## Step 7: Generate Output
+## Step 6: Generate Output
 
 Create the standup document with all gathered information:
 
@@ -196,14 +165,6 @@ Create the standup document with all gathered information:
 | BIL-123 | Implement feature X | In Review | 3 |
 | BIL-456 | Fix bug Y | Done | 1 |
 
-**Notion/Documentation**:
-
-- [Page name] - [type of update]
-
-**Slack Highlights** (if available):
-
-- [Key discussion or decision]
-
 **Calendar/Meetings** (if available):
 
 - [Meeting name] - [outcome or action items]
@@ -218,7 +179,7 @@ Create the standup document with all gathered information:
 | [Name 2]    | BIL-ZZZ: [brief]                   |
 ```
 
-## Step 8: Save to File
+## Step 7: Save to File
 
 1. Parse `--output <path>` if provided, otherwise use default
 2. Create the `./standups/` directory if it doesn't exist:
@@ -231,18 +192,9 @@ Create the standup document with all gathered information:
 4. Write the standup document to the file using the Write tool
 5. Confirm to user: "Standup saved to `./standups/YYYY-MM-DD-standup.md`"
 
-**Notion sync (only if `--notion` flag is provided):**
-
-If Notion MCP is available (`mcp__plugin_Notion_notion__*` tools):
-
-1. Use `mcp__plugin_Notion_notion__notion-search` to find today's existing standup page
-   - Search for today's date in page titles (e.g., "11 Feb 2026" or "2026-02-11")
-   - Look for pages with "standup" or "daily" in the title
-2. If a page is found, use `mcp__plugin_Notion_notion__notion-update-page` to update it with the full standup content
-3. If no page is found, use `mcp__plugin_Notion_notion__notion-create-pages` to create a new standup page
-4. Confirm: "Standup synced to Notion: [page title]"
-
-If `--notion` flag is NOT provided, skip Notion sync entirely (do not prompt).
+> Scheduled cloud runs deliver differently: the daily routine posts the standup
+> as a comment on the pinned tracking issue (see CLAUDE.md's Automation
+> section), since cloud sessions can't write local files.
 
 ## Guidelines
 

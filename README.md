@@ -6,9 +6,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-config-d97757.svg)](https://claude.ai/code)
 
-**A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, commands, hooks, and permission templates that propagate to every project and machine.**
+**A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `8 skills` · `10 commands` · `14 permission templates` · `7 MCP templates` · `7 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`14 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `8 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 <br/>
 
@@ -51,7 +51,7 @@ flowchart LR
   repo["claude-code-config<br/>(one canonical repo)"]
   subgraph Global["~/.claude — global"]
     direction TB
-    a["agents · skills<br/>commands · rules"]
+    a["agents · skills · rules"]
     set["settings.json"]
   end
   subgraph Proj[".claude — per-project"]
@@ -99,7 +99,7 @@ git clone https://github.com/edjchapman/claude-code-config.git ~/claude-code-con
 cd ~/my-django-project
 ~/Development/claude-code-config/scripts/setup-project.sh django
 
-# 4. Start Claude Code — agents and commands are now available
+# 4. Start Claude Code — agents and skills are now available
 claude
 ```
 
@@ -107,10 +107,10 @@ claude
 
 ### Fork or Clone?
 
-| Approach  | When to use                                     |
-| --------- | ----------------------------------------------- |
-| **Clone** | Use as-is, or contribute improvements back      |
-| **Fork**  | Customize agents/commands for your own workflow |
+| Approach  | When to use                                   |
+| --------- | --------------------------------------------- |
+| **Clone** | Use as-is, or contribute improvements back    |
+| **Fork**  | Customize agents/skills for your own workflow |
 
 Forks can still pull upstream updates:
 
@@ -125,11 +125,11 @@ git fetch upstream && git merge upstream/main
 
 Everything falls into two modes — tools you **invoke** and tools that **auto-activate**:
 
-|             | Active (you invoke)                           | Passive (auto-activates)                                                     |
-| ----------- | --------------------------------------------- | ---------------------------------------------------------------------------- |
-| **What**    | Specialist agents, commands, CLI scripts      | Skills, rules, hooks                                                         |
-| **How**     | `@name`, `/name`, or shell command            | Skills load by description; rules/hooks by file patterns or lifecycle events |
-| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh` | `testing-patterns` loads when you write tests                                |
+|             | Active (you invoke)                             | Passive (auto-activates)                                                     |
+| ----------- | ----------------------------------------------- | ---------------------------------------------------------------------------- |
+| **What**    | Specialist agents, workflow skills, CLI scripts | Domain skills, rules, hooks                                                  |
+| **How**     | `@name`, `/name`, or shell command              | Skills load by description; rules/hooks by file patterns or lifecycle events |
+| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh`   | `testing-patterns` loads when you write tests                                |
 
 > Some capabilities are now handled by **bundled plugins** rather than custom artifacts: `/review` + `pr-review-toolkit:review-pr` (code review), `feature-dev:code-architect` (implementation blueprints), `/security-review` (security audits).
 
@@ -161,36 +161,36 @@ Invoke with `@agent-name`. **Opus** = complex reasoning (higher cost); **Sonnet*
 
 </details>
 
-### Commands
+### Workflow Skills
 
-Invoke with `/<name>`. Commands live as flat Markdown files in `commands/`. The workflow commands (`/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`) carry a "Use when…" clause so Claude can also auto-invoke them from plain English (e.g. "commit my staged work" → `/commit`); the personal/meta commands are user-invoke only.
+Invoke with `/<name>`. Custom commands were merged into skills upstream, so these live in `skills/<name>/SKILL.md` alongside the domain skills (this repo's former `commands/` directory was migrated accordingly). Skills with a "Use when…" clause can also be auto-invoked by Claude from plain English (e.g. "commit my staged work" → `/commit`); user-only ones set `disable-model-invocation: true`. `/standup` and `/eow-review` can additionally be fired by a scheduled routine.
 
 <details>
-<summary><strong>10 commands</strong> — click to expand</summary>
+<summary><strong>10 workflow skills</strong> — click to expand</summary>
 
-| Slash         | What It Does                                                     | Delegates To      |
-| ------------- | ---------------------------------------------------------------- | ----------------- |
-| `/commit`     | Analyze staged changes, generate commit message                  | --                |
-| `/pr`         | Create PR with auto-generated description                        | --                |
-| `/hotfix`     | Guided hotfix: branch from main, minimal fix, targeted tests, PR | --                |
-| `/tdd`        | TDD workflow: write failing test, implement, refactor            | --                |
-| `/adr`        | Create Architecture Decision Record (Nygard format)              | --                |
-| `/standup`    | Summarize last 24h across Git, GitHub, Jira, and Notion          | --                |
-| `/status`     | Quick status update appended to today's daily log                | --                |
-| `/refinement` | Prepare technical analysis for backlog refinement                | Explore sub-agent |
-| `/eow-review` | Prepare end-of-week review notes                                 | --                |
-| `/later`      | Create a personal backlog item (learn, research, do, read)       | --                |
+| Slash         | What It Does                                                     | Who Can Invoke             |
+| ------------- | ---------------------------------------------------------------- | -------------------------- |
+| `/commit`     | Analyze staged changes, generate commit message                  | you or Claude              |
+| `/pr`         | Create PR with auto-generated description                        | you or Claude              |
+| `/hotfix`     | Guided hotfix: branch from main, minimal fix, targeted tests, PR | you or Claude              |
+| `/tdd`        | TDD workflow: write failing test, implement, refactor            | you or Claude              |
+| `/adr`        | Create Architecture Decision Record (Nygard format)              | you or Claude              |
+| `/standup`    | Summarize last 24h across Git, GitHub, and Jira                  | you, Claude, or a schedule |
+| `/eow-review` | Prepare end-of-week review notes                                 | you, Claude, or a schedule |
+| `/status`     | Quick status update appended to today's daily log                | you only                   |
+| `/refinement` | Prepare technical analysis for backlog refinement                | you only                   |
+| `/later`      | Create a personal backlog item (learn, research, do, read)       | you only                   |
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`.
 
 </details>
 
-### Skills
+### Domain Skills
 
 Domain knowledge Claude loads automatically based on the conversation — matched from each skill's `description:`, no explicit invocation needed. Skills use the nested layout `skills/<name>/SKILL.md`.
 
 <details>
-<summary><strong>8 skills</strong> — click to expand</summary>
+<summary><strong>8 domain skills</strong> — click to expand</summary>
 
 | Skill                 | Loads When You…                                       | What It Covers                                    |
 | --------------------- | ----------------------------------------------------- | ------------------------------------------------- |
@@ -224,7 +224,7 @@ Path-scoped style enforcement (`paths` frontmatter). Skills provide patterns; ru
 Run automatically at lifecycle events. Configured in `settings.json` (symlinked globally, so active in all projects); scripts live in `scripts/hooks/` and only run when their tools are present (e.g. `ruff`, `prettier`).
 
 <details>
-<summary><strong>7 configured hooks + 3 opt-in</strong> — click to expand</summary>
+<summary><strong>8 configured hooks + 2 opt-in</strong> — click to expand</summary>
 
 **Configured:**
 
@@ -238,15 +238,20 @@ Run automatically at lifecycle events. Configured in `settings.json` (symlinked 
 | PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)     |
 | TaskCompleted             | Autonomous task done | Emits a terminal bell                                          |
 
-**Opt-in** (each invokes an LLM on every fire — enable deliberately):
+**Opt-in** (each invokes an LLM on every fire, so all ship disabled — enable
+deliberately; ready-to-paste snippets live in [`CLAUDE.md`](CLAUDE.md)'s Hooks section):
 
 | Hook             | Trigger                 | What It Would Do                                  |
 | ---------------- | ----------------------- | ------------------------------------------------- |
+| Stop             | Turn about to end       | LLM gate: blocks "done" claims with skipped tests |
 | UserPromptSubmit | Before prompt sent      | LLM-evaluated check: is the prompt specific?      |
-| Stop             | Session end             | LLM-evaluated check: tests run? linters run?      |
 | SubagentStop     | Before subagent returns | LLM-evaluated check: did subagent complete fully? |
 
 </details>
+
+### Scheduled Routines
+
+Time-based workflows run themselves — two cloud routines (a daily standup prep and a Friday end-of-week review, created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills and deliver each run as a comment on a pinned GitHub issue thread. Their schedules, delivery targets, and gotchas live in **one place** — [`CLAUDE.md`](CLAUDE.md)'s Automation section — alongside the **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts).
 
 ### Settings Templates
 
@@ -379,7 +384,7 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 | Analyze test coverage gaps      | `@test-engineer`                  | Auto-detects Django/Jest/Vitest, finds coverage gaps          |
 | Create a good commit message    | `/commit`                         | Analyzes staged changes, follows conventions                  |
 | Create a pull request           | `/pr`                             | Auto-generates PR description from commits                    |
-| Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, Jira, Notion                  |
+| Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, GitHub, and Jira              |
 | Weekly summary for manager      | `/eow-review`                     | Full week review across all sources                           |
 | Prepare for backlog refinement  | `/refinement`                     | Technical analysis of tickets with code context               |
 | Debug CI/CD failures            | `@ci-debugger`                    | Investigates pipeline failures, flaky tests                   |
@@ -457,7 +462,7 @@ review-pr.sh 142               # ...or headless: no interactive session
 
 ```
 /standup                       # Daily: last 24h activity
-/eow-review                    # Weekly: full week across Git, GitHub, Jira, Notion
+/eow-review                    # Weekly: full week across Git, GitHub, and Jira
 daily-report.sh                # Headless: auto-generate daily summary
 ```
 
@@ -474,7 +479,6 @@ daily-report.sh                # Headless: auto-generate daily summary
 ```
 ~/.claude/
 ├── agents          -> claude-code-config/agents
-├── commands        -> claude-code-config/commands
 ├── skills          -> claude-code-config/skills
 ├── rules           -> claude-code-config/rules
 └── settings.json   -> claude-code-config/settings.json
@@ -487,7 +491,6 @@ your-project/
 ├── .mcp.json                  # MCP server config (if applicable)
 └── .claude/
     ├── agents              -> claude-code-config/agents
-    ├── commands            -> claude-code-config/commands
     ├── skills              -> claude-code-config/skills
     ├── rules               -> claude-code-config/rules
     └── settings.local.json    # generated from templates
@@ -532,8 +535,7 @@ The payload lives in [`tooling/`](tooling/); [`scripts/install-tooling.sh`](scri
 ```
 claude-code-config/
 ├── agents/                  # Agent definitions (markdown)
-├── commands/                # Slash commands (markdown)
-├── skills/                  # Auto-activating domain knowledge (markdown)
+├── skills/                  # Domain knowledge + /workflow skills (markdown)
 ├── rules/                   # Path-scoped code style rules (markdown)
 ├── settings-templates/      # Permission templates (JSON)
 ├── mcp-templates/           # MCP server templates (JSON)
@@ -589,10 +591,10 @@ model: opus
 Your detailed agent instructions here...
 ```
 
-**Adding a skill, command, or template** — the canonical recipes (with exemplar pointers) live in the **Self-Extension Guide** in [`CLAUDE.md`](CLAUDE.md). In short:
+**Adding a skill or template** — the canonical recipes (with exemplar pointers) live in the **Self-Extension Guide** in [`CLAUDE.md`](CLAUDE.md). In short:
 
-- Domain-knowledge skill → `skills/<name>/SKILL.md` with `description: "<what>. Use when <trigger>."` (loaded by description, not file globs)
-- User-invocable or personal command → `commands/<name>.md` with `description:` (+ optional `argument-hint:`)
+- Domain-knowledge skill → `skills/<name>/SKILL.md` with `description: "<what>. Use when <trigger>."` (loaded by description)
+- User-only workflow skill → same layout, plus `disable-model-invocation: true` (+ optional `argument-hint:`)
 - Permission template → `settings-templates/<stack>.json` (`_source`, `_version`, `permissions.allow/deny`), then `setup-project.sh <stack>`
 
 ### Git setup for projects
@@ -602,7 +604,6 @@ Add the personal symlinks to your project's `.gitignore`:
 ```gitignore
 # Claude Code symlinks (personal config)
 .claude/agents
-.claude/commands
 .claude/skills
 .claude/rules
 .claude/settings.json
@@ -616,10 +617,10 @@ Add the personal symlinks to your project's `.gitignore`:
 <summary><strong>Remove symlinks / move the repo</strong></summary>
 
 ```bash
-# Remove global symlinks
-rm ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/rules ~/.claude/settings.json
+# Remove global symlinks (~/.claude/commands only exists on older installs)
+rm -f ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/rules ~/.claude/settings.json
 
-# Remove from a project
+# Remove from a project (.claude/commands only exists on older installs)
 rm -rf .claude/agents .claude/commands .claude/skills .claude/rules .claude/settings.json
 rm .claude/settings.local.json   # optionally, generated permissions too
 

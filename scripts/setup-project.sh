@@ -18,7 +18,7 @@
 #   ./setup-project.sh --dry-run django     # Preview what would be created
 #
 # This script creates a .claude/ directory in your current project with:
-#   - Symlinks to shared agents and commands
+#   - Symlinks to shared agents, skills, and rules
 #   - Generated settings.local.json from merged templates
 
 set -e
@@ -108,7 +108,6 @@ show_help() {
   echo "This creates in your project:"
   echo "  .claude/"
   echo "  ├── agents              -> (symlink to repo agents)"
-  echo "  ├── commands            -> (symlink to repo commands)"
   echo "  ├── skills              -> (symlink to repo skills)"
   echo "  ├── rules               -> (symlink to repo rules)"
   echo "  ├── settings.local.json (merged from base + your templates - permissions)"
@@ -163,7 +162,7 @@ if [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
   echo ""
 
   # Check directory symlinks
-  for item in agents commands skills rules; do
+  for item in agents skills rules; do
     if [ -L .claude/$item ]; then
       target=$(readlink .claude/$item)
       if [ -d .claude/$item ]; then
@@ -231,7 +230,7 @@ if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
   echo ""
 
   # Check symlinks
-  for item in agents commands skills rules; do
+  for item in agents skills rules; do
     if [ -L .claude/$item ]; then
       target=$(readlink .claude/$item)
       if [ -d .claude/$item ]; then
@@ -331,7 +330,7 @@ for type in "${TYPES[@]}"; do
 done
 
 # Validate repo structure
-for item in agents commands skills rules; do
+for item in agents skills rules; do
   if [ ! -d "$REPO_ROOT/$item" ]; then
     echo "Error: $REPO_ROOT/$item does not exist"
     echo "The repository structure appears incomplete."
@@ -357,7 +356,6 @@ if [ "$DRY_RUN" = true ]; then
   echo "Would create:"
   echo "  .claude/"
   echo "  ├── agents              -> $REPO_ROOT/agents"
-  echo "  ├── commands            -> $REPO_ROOT/commands"
   echo "  ├── skills              -> $REPO_ROOT/skills"
   echo "  ├── rules               -> $REPO_ROOT/rules"
   echo "  ├── settings.local.json"
@@ -420,8 +418,16 @@ fi
   exit 1
 }
 
-# Remove existing symlinks if they exist
-for item in agents commands skills rules; do
+# Legacy cleanup: the repo's former commands/ layout was merged into skills/,
+# so remove a stale .claude/commands SYMLINK from older installs. Symlinks
+# only — a real .claude/commands directory (the project's own slash commands,
+# unrelated to this repo) must never be deleted.
+if [ -L .claude/commands ]; then
+  rm .claude/commands
+fi
+
+# Remove existing symlinks/directories if they exist (each is recreated below)
+for item in agents skills rules; do
   if [ -L .claude/$item ]; then
     rm .claude/$item
   elif [ -e .claude/$item ]; then
@@ -431,7 +437,6 @@ done
 
 # Create symlinks to shared resources
 ln -s "$REPO_ROOT/agents" .claude/agents
-ln -s "$REPO_ROOT/commands" .claude/commands
 ln -s "$REPO_ROOT/skills" .claude/skills
 ln -s "$REPO_ROOT/rules" .claude/rules
 
@@ -478,7 +483,6 @@ echo ""
 echo "Project Claude Code config created!"
 echo ""
 echo "  .claude/agents              -> $REPO_ROOT/agents"
-echo "  .claude/commands            -> $REPO_ROOT/commands"
 echo "  .claude/skills              -> $REPO_ROOT/skills"
 echo "  .claude/rules               -> $REPO_ROOT/rules"
 echo "  .claude/settings.local.json (base + ${TYPES[*]})"

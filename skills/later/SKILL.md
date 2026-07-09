@@ -1,6 +1,7 @@
 ---
 description: Create a new "Later" backlog item (Learn / Research / Do / Read) from a configurable template.
 argument-hint: "<title> [--category <name>] [--priority <level>]"
+disable-model-invocation: true
 ---
 
 Create a new "Later" item — a personal backlog entry for things to learn, research, do, or read.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Check for duplicate names across agents/, commands/, and skills/ directories
+# Check for duplicate names across agents/ and skills/ directories
 # Prevents naming conflicts when loading configurations
 # Compatible with bash 3.2+ (macOS default)
 
@@ -10,7 +10,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-echo "Checking for duplicate names in agents, commands, and skills..."
+echo "Checking for duplicate names in agents and skills..."
 
 # Create temporary file to store all names
 tmpfile=$(mktemp)
@@ -40,7 +40,6 @@ find_skill_names() {
 }
 
 find_names "agents"
-find_names "commands"
 find_skill_names
 
 # Check for duplicates using sort and uniq
@@ -67,9 +66,9 @@ done < <(sort -u -k1,1 "$tmpfile")
 
 if [ "$duplicates_found" -eq 1 ]; then
   echo ""
-  echo -e "${RED}✗ Each agent/command/skill must have a unique name.${NC}"
+  echo -e "${RED}✗ Each agent/skill must have a unique name.${NC}"
   exit 1
 else
-  echo -e "${GREEN}✓ No duplicate names found across agents, commands, and skills.${NC}"
+  echo -e "${GREEN}✓ No duplicate names found across agents and skills.${NC}"
   exit 0
 fi
