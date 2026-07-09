@@ -1,5 +1,5 @@
 ---
-description: Prepare end-of-week review notes summarizing the full week's work activity across all sources (Git, GitHub, Jira, Notion).
+description: Prepare end-of-week review notes summarizing the full week's work activity across all sources (Git, GitHub, Jira).
 ---
 
 Prepare end-of-week review notes summarizing the full week's work activity across all sources.
@@ -11,7 +11,7 @@ Prepare end-of-week review notes summarizing the full week's work activity acros
 Parse the arguments as follows:
 
 1. Extract `--output <path>` if present (default: `./eow-review-YYYY-MM-DD.md`)
-2. Extract `--skip-jira`, `--skip-notion`, `--skip-github` flags if present
+2. Extract `--skip-jira`, `--skip-calendar`, `--skip-github` flags if present
 3. Remaining text is the **period** specification (default: `7 days` / current week Mon-Fri)
 
 **Compute `START_DATE` and `END_DATE`** from the period:
@@ -23,7 +23,7 @@ Parse the arguments as follows:
 
 Use `START_DATE` and `END_DATE` consistently in **all** subsequent steps.
 
-Examples: `/eow-review`, `/eow-review since Monday`, `/eow-review 2 weeks`, `/eow-review --skip-notion`
+Examples: `/eow-review`, `/eow-review since Monday`, `/eow-review 2 weeks`, `/eow-review --skip-calendar`
 
 ## Step 1: Setup - Get User Identity
 
@@ -37,9 +37,6 @@ git config user.email && git config user.name
 
 **Jira Identity:**
 Use `mcp__plugin_atlassian_atlassian__atlassianUserInfo` tool to get the current user's account ID and display name.
-
-**Notion Identity:**
-Use `mcp__plugin_Notion_notion__notion-get-users` with `user_id: "self"` to get the current user's ID and name.
 
 Store these identities for filtering activity in subsequent steps.
 
@@ -106,44 +103,15 @@ For each ticket, extract:
 **If Jira MCP is NOT available:**
 Ask the user to provide their ticket activity.
 
-## Step 5: Notion Activity
+## Step 5: Calendar / Meetings (skip if `--skip-calendar`)
 
-**If Notion MCP is available (`mcp__plugin_Notion_notion__*` tools):**
+**If Google Calendar MCP is available (`mcp__claude_ai_Google_Calendar__*` tools):**
 
-Run two searches in parallel:
+1. Use `mcp__claude_ai_Google_Calendar__list_events` for `$START_DATE` through `$END_DATE`
+2. Group meetings by day for a daily schedule overview
+3. Note recurring themes (planning, reviews, 1:1s) and any meetings that produced decisions or action items
 
-1. **Meeting notes and calendar events:**
-   Use `mcp__plugin_Notion_notion__notion-search` with:
-
-   ```
-   query: "meeting notes"
-   query_type: "internal"
-   filters:
-     created_date_range:
-       start_date: "$START_DATE"
-       end_date: "$END_DATE"
-   ```
-
-2. **General work activity:**
-   Use `mcp__plugin_Notion_notion__notion-search` with:
-
-   ```
-   query: "work updates"
-   query_type: "internal"
-   filters:
-     created_date_range:
-       start_date: "$START_DATE"
-       end_date: "$END_DATE"
-   ```
-
-From the results:
-
-- Extract this week's calendar/meetings (verify dates fall within the period)
-- Group meetings by day for a daily schedule overview
-- Note any documentation or spec pages updated
-- Capture any Slack discussion notes that were recorded
-
-**If Notion MCP is NOT available:**
+**If Google Calendar MCP is NOT available:**
 Ask the user about meetings and documentation updates.
 
 ## Error Handling
@@ -221,12 +189,6 @@ Create the end-of-week review document with all gathered information. Use this s
 | Thu  | [meetings] |
 | Fri  | [meetings] |
 
-## Notion Activity
-
-- [List of documentation, specs, meeting notes updated]
-
----
-
 ## Blockers / Risks
 
 - [Any open blockers, PRs awaiting review, unresolved issues]
@@ -254,5 +216,5 @@ Create the end-of-week review document with all gathered information. Use this s
 - Link ticket references using the Jira base URL discovered from the API `self` field (e.g., `[PROJ-123](https://yourorg.atlassian.net/browse/PROJ-123)`)
 - Include the "Next Week" section with planned work inferred from open tickets and upcoming calendar
 - Keep the summary concise enough to present verbally in 2-3 minutes
-- Google Workspace data (calendar) is accessed via Notion Calendar integration - no separate Google API needed
-- Slack data is accessed via Notion AI search (connected sources) - no separate Slack API needed
+- Calendar data comes from the Google Calendar MCP connector; if it is not connected, ask rather than skip silently
+- Scheduled cloud runs deliver as a comment on the pinned tracking issue (see CLAUDE.md's Automation section) instead of a local file
