@@ -2,7 +2,7 @@
 # check-docs-drift.sh
 #
 # Fail CI if a primitive on disk isn't mentioned in CLAUDE.md or README.md.
-# Catches the kind of drift where someone adds a new skill / agent / command /
+# Catches the kind of drift where someone adds a new skill / agent /
 # hook but forgets to document it. Both docs are searched together — either is
 # sufficient mention; we only fail if neither references the file.
 #
@@ -46,7 +46,6 @@ check_skills() {
 
 check_dir agents          md "agent"
 check_skills
-check_dir commands        md "command"
 check_dir scripts/hooks   sh "hook script"
 check_dir settings-templates json "settings template"
 check_dir mcp-templates   json "MCP template"

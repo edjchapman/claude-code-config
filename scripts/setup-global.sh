@@ -6,7 +6,7 @@
 #   ./setup-global.sh /custom/path # Use custom path to repo
 #
 # This script creates symlinks in ~/.claude/ pointing to this repo's
-# agents and commands directories.
+# agents, skills, and rules directories.
 
 set -e
 
@@ -20,15 +20,9 @@ if [ ! -d "$REPO_ROOT/agents" ]; then
   echo "Expected directory structure:"
   echo "  $REPO_ROOT/"
   echo "  ├── agents/"
-  echo "  ├── commands/"
   echo "  ├── skills/"
   echo "  ├── rules/"
   echo "  └── scripts/setup-global.sh (this script)"
-  exit 1
-fi
-
-if [ ! -d "$REPO_ROOT/commands" ]; then
-  echo "Error: commands/ directory not found at: $REPO_ROOT"
   exit 1
 fi
 
@@ -61,7 +55,9 @@ echo ""
 # Create ~/.claude if it doesn't exist
 mkdir -p ~/.claude
 
-# Remove existing symlinks/directories if they exist
+# Remove existing symlinks/directories if they exist. commands/ is included
+# for cleanup only: the repo's former commands/ layout was merged into
+# skills/, so stale ~/.claude/commands symlinks from older installs are removed.
 for item in agents commands skills rules; do
   if [ -L ~/.claude/$item ]; then
     echo "Removing existing symlink: ~/.claude/$item"
@@ -74,7 +70,6 @@ done
 
 # Create symlinks
 ln -s "$REPO_ROOT/agents" ~/.claude/agents
-ln -s "$REPO_ROOT/commands" ~/.claude/commands
 ln -s "$REPO_ROOT/skills" ~/.claude/skills
 ln -s "$REPO_ROOT/rules" ~/.claude/rules
 
@@ -106,7 +101,6 @@ echo ""
 echo "Global Claude Code config set up successfully!"
 echo ""
 echo "  ~/.claude/agents          -> $REPO_ROOT/agents"
-echo "  ~/.claude/commands        -> $REPO_ROOT/commands"
 echo "  ~/.claude/skills          -> $REPO_ROOT/skills"
 echo "  ~/.claude/rules           -> $REPO_ROOT/rules"
 echo "  ~/.claude/settings.json   -> $REPO_ROOT/settings.json"

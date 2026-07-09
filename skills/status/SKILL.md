@@ -1,6 +1,7 @@
 ---
 description: Capture a quick status update and append it to today's daily log.
 argument-hint: "<message> [--notion]"
+disable-model-invocation: true
 ---
 
 Capture a quick status update and append it to today's daily log.
