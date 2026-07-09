@@ -17,8 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/format-on-edit.sh",
-            "async": true
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/format-on-edit.sh"
           }
         ]
       }
@@ -50,18 +49,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/pre-compact-state.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "You are a completeness gate deciding whether the assistant may stop. Hook input: $ARGUMENTS. Read last_assistant_message. Block stopping ONLY if the message claims implementation work is complete while tests, linters, or type checks that the same turn said it would run were skipped or left failing, or if it ends by promising immediate further work (e.g. 'now I'll run the tests') that was not done. Allow stopping for conversational replies, questions to the user, plans, research or analysis summaries, and honest reports of blockers or partial progress. When unsure, allow.",
-            "statusMessage": "Checking turn completeness",
-            "timeout": 30
           }
         ]
       }
