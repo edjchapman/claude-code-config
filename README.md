@@ -251,6 +251,17 @@ model). Delete its entry from `settings.json` and `hooks/hooks.json` to opt out.
 
 </details>
 
+### Scheduled Routines
+
+Time-based workflows run themselves — two cloud routines (created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills so nobody has to remember to:
+
+| Routine            | Schedule (UTC cron)            | What It Does                                                       |
+| ------------------ | ------------------------------ | ------------------------------------------------------------------ |
+| Daily standup prep | `30 7 * * 1-5` (~08:30 London) | Runs the `/standup` workflow against GitHub + Notion → Notion page |
+| End-of-week review | `0 15 * * 5` (~16:00 London)   | Runs the `/eow-review` workflow for the full week → Notion page    |
+
+Cloud routines can't see local files, so their prompts are self-contained and deliver to Notion. The full **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts) lives in [`CLAUDE.md`](CLAUDE.md).
+
 ### Settings Templates
 
 Composable permission sets merged into `settings.local.json`. `base` is always included; `deny` beats `allow` during merge.

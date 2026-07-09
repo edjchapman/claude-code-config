@@ -223,6 +223,25 @@ Headless Claude Code scripts in `scripts/cli/` for automation:
 - `daily-report.sh`: Summarize last 24h of git activity
 - `review-pr.sh <number>`: Headless PR review
 
+### Automation: pick the right trigger
+
+The repo's philosophy is **automatic over explicit** — prefer a mechanism that fires itself over one you must remember to invoke. Decision table:
+
+| Mechanism                           | Fires on                                  | Runs where            | Use for                                                                         |
+| ----------------------------------- | ----------------------------------------- | --------------------- | ------------------------------------------------------------------------------- |
+| **Command hook**                    | Lifecycle event (tool use, session, stop) | Local, in-session     | Formatting, safety checks, context capture (see Hooks above)                    |
+| **Prompt hook** (`type: "prompt"`)  | Lifecycle event, LLM-judged               | Local, in-session     | Quality gates that need judgment (the configured `Stop` completeness gate)      |
+| **Scheduled routine** (`/schedule`) | Cron schedule / GitHub event / API call   | Anthropic cloud       | Time-based workflows; cloud sessions can't see local files                      |
+| **`/loop`**                         | Recurring interval inside an open session | Local, in-session     | Polling something during active work ("check the deploy every 5 min")           |
+| **Headless CLI script**             | Shell alias / OS cron / pipe              | Local, out-of-session | Shell-integrated one-shots (`scripts/cli/*`), local cron with local file access |
+
+Live routines (manage at <https://claude.ai/code/routines>):
+
+- **Daily standup prep** — weekdays 07:30 UTC (~08:30 London in summer), runs the `/standup` workflow against GitHub + Notion, delivers a Notion page. Cloud sessions can't read local `./standups/` logs, so the routine prompt is self-contained.
+- **End-of-week review** — Fridays 15:00 UTC (~16:00 London in summer), same pattern via the `/eow-review` workflow.
+
+Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum routine interval is 1 hour; and a skill with `disable-model-invocation: true` **cannot** be fired by a scheduled task — which is why `standup`/`eow-review` omit that flag.
+
 ### Agent Definitions
 
 Agents in `agents/` are Markdown files with YAML frontmatter:
