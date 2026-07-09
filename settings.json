@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "skillListingBudgetFraction": 0.02,
+  "model": "fable",
   "attribution": {
     "commit": "",
     "pr": ""
