@@ -1,7 +1,7 @@
 ---
 name: pr
 description: Create a pull request with a well-crafted description. Use when the user finished work on a branch and wants to open a PR, or asks to create a pull request.
-argument-hint: "[--draft] [--base <branch>] [--notion]"
+argument-hint: "[--draft] [--base <branch>]"
 ---
 
 Help me create a pull request with a well-crafted description.
@@ -12,8 +12,7 @@ Help me create a pull request with a well-crafted description.
 
 - `--draft` or `-d`: Create as draft PR
 - `--base <branch>`: Specify base branch (default: main)
-- `--notion`: Save PR details to Notion after creation
-- Examples: `/pr --draft`, `/pr --base develop`, `/pr --notion`
+- Examples: `/pr --draft`, `/pr --base develop`
 
 ## Jira Configuration
 
@@ -125,22 +124,7 @@ Search for PR templates in order:
 gh pr create --title "<title>" --body "<body>"
 ```
 
-### Step 9: Save to Notion (if `--notion` flag)
-
-**If Notion MCP is available (`mcp__plugin_Notion_notion__notion-create-pages`):**
-
-- Create a new page with PR details:
-  - **Title**: PR title
-  - **Properties**: Status (Open), Created date, PR URL
-  - **Content**: Summary, changes, testing notes, related Jira tickets
-- Return the Notion page URL alongside PR URL
-
-**If Notion MCP is NOT available:**
-
-- Skip Notion save
-- Inform user: "Notion MCP not available - PR created but not saved to Notion"
-
 ## Output
 
 Present the PR title and description for review, then create when approved.
-Return the PR URL when complete (and Notion URL if `--notion` used).
+Return the PR URL when complete.
