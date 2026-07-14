@@ -2,6 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "skillListingBudgetFraction": 0.02,
   "model": "opus",
+  "fallbackModel": ["sonnet"],
   "attribution": {
     "commit": "",
     "pr": ""
@@ -103,7 +104,7 @@
     "enabled": false,
     "autoAllowBashIfSandboxed": false
   },
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "tui": "fullscreen",
   "agentPushNotifEnabled": true
 }
