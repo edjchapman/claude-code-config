@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `19 skills` · `14 permission templates` · `7 MCP templates` · `8 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`14 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `8 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 <br/>
 
@@ -191,18 +191,19 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 Domain knowledge Claude loads automatically based on the conversation — matched from each skill's `description:`, no explicit invocation needed. Skills use the nested layout `skills/<name>/SKILL.md`.
 
 <details>
-<summary><strong>8 domain skills</strong> — click to expand</summary>
+<summary><strong>9 domain skills</strong> — click to expand</summary>
 
-| Skill                 | Loads When You…                                       | What It Covers                                    |
-| --------------------- | ----------------------------------------------------- | ------------------------------------------------- |
-| `git-workflow`        | Work with branches, commits, PRs, or releases         | Conventional commits, branch naming, PR size      |
-| `testing-patterns`    | Write or review tests, fixtures, mocks, coverage      | AAA pattern, factories, coverage                  |
-| `security-review`     | Touch auth, middleware, routes, or input validation   | Input validation, JWT, CSRF, secrets              |
-| `api-design`          | Design or review REST APIs, endpoints, or serializers | REST conventions, status codes, pagination        |
-| `django-patterns`     | Edit Django models, views, managers, or signals       | Fat models, managers, query optimization, signals |
-| `docker-patterns`     | Edit Dockerfiles, Compose files, or build contexts    | Multi-stage builds, layer caching, security       |
-| `infrastructure`      | Edit Terraform, Kubernetes manifests, or Helm charts  | Terraform modules, K8s resources, Helm charts     |
-| `root-cause-analysis` | Investigate incidents, regressions, or recurring bugs | Root causes over symptom-level bandaids           |
+| Skill                 | Loads When You…                                         | What It Covers                                                                   |
+| --------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `git-workflow`        | Work with branches, commits, PRs, or releases           | Conventional commits, branch naming, PR size                                     |
+| `testing-patterns`    | Write or review tests, fixtures, mocks, coverage        | AAA pattern, factories, coverage                                                 |
+| `security-review`     | Touch auth, middleware, routes, or input validation     | Input validation, JWT, CSRF, secrets                                             |
+| `api-design`          | Design or review REST APIs, endpoints, or serializers   | REST conventions, status codes, pagination                                       |
+| `django-patterns`     | Edit Django models, views, managers, or signals         | Fat models, managers, query optimization, signals                                |
+| `docker-patterns`     | Edit Dockerfiles, Compose files, or build contexts      | Multi-stage builds, layer caching, security                                      |
+| `infrastructure`      | Edit Terraform, Kubernetes manifests, or Helm charts    | Terraform modules, K8s resources, Helm charts                                    |
+| `root-cause-analysis` | Investigate incidents, regressions, or recurring bugs   | Root causes over symptom-level bandaids                                          |
+| `project-setup`       | Set up this config in a project or bootstrap a new repo | `setup-project.sh`, `install-tooling.sh`, the `--hooks` caveat, new-repo runbook |
 
 </details>
 
@@ -240,7 +241,7 @@ Run automatically at lifecycle events. Configured in `settings.json` (symlinked 
 | TaskCompleted             | Autonomous task done | Emits a terminal bell                                          |
 
 **Opt-in** (each invokes an LLM on every fire, so all ship disabled — enable
-deliberately; ready-to-paste snippets live in [`CLAUDE.md`](CLAUDE.md)'s Hooks section):
+deliberately; ready-to-paste snippets live in [`docs/architecture.md`](docs/architecture.md)'s Hooks section):
 
 | Hook             | Trigger                 | What It Would Do                                  |
 | ---------------- | ----------------------- | ------------------------------------------------- |
@@ -252,7 +253,7 @@ deliberately; ready-to-paste snippets live in [`CLAUDE.md`](CLAUDE.md)'s Hooks s
 
 ### Scheduled Routines
 
-Time-based workflows run themselves — two cloud routines (a daily standup prep and a Friday end-of-week review, created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills and deliver each run as a comment on a pinned GitHub issue thread. Their schedules, delivery targets, and gotchas live in **one place** — [`CLAUDE.md`](CLAUDE.md)'s Automation section — alongside the **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts).
+Time-based workflows run themselves — two cloud routines (a daily standup prep and a Friday end-of-week review, created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills and deliver each run as a comment on a pinned GitHub issue thread. Their schedules, delivery targets, and gotchas live in **one place** — [`docs/architecture.md`](docs/architecture.md)'s Automation section — alongside the **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts).
 
 ### Settings Templates
 
@@ -592,7 +593,7 @@ model: opus
 Your detailed agent instructions here...
 ```
 
-**Adding a skill or template** — the canonical recipes (with exemplar pointers) live in the **Self-Extension Guide** in [`CLAUDE.md`](CLAUDE.md). In short:
+**Adding a skill or template** — the canonical recipes (with exemplar pointers) live in the **Self-Extension Guide** in [`docs/extending.md`](docs/extending.md). In short:
 
 - Domain-knowledge skill → `skills/<name>/SKILL.md` with `description: "<what>. Use when <trigger>."` (loaded by description)
 - User-only workflow skill → same layout, plus `disable-model-invocation: true` (+ optional `argument-hint:`)
