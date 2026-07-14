@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/edjchapman/claude-code-config/compare/1.8.1...1.9.0) (2026-07-14)
+
+
+### Features
+
+* **tooling:** add shared MkDocs style layer + /mkdocs-style skill ([#57](https://github.com/edjchapman/claude-code-config/issues/57)) ([7acd8e0](https://github.com/edjchapman/claude-code-config/commit/7acd8e0a202912c0ee89322faa295420c3e073fe))
+
 ## [1.8.1](https://github.com/edjchapman/claude-code-config/compare/1.8.0...1.8.1) (2026-07-09)
 
 
