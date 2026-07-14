@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `8 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`14 specialist agents` · `19 skills` · `14 permission templates` · `7 MCP templates` · `8 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 <br/>
 
@@ -166,20 +166,21 @@ Invoke with `@agent-name`. **Opus** = complex reasoning (higher cost); **Sonnet*
 Invoke with `/<name>`. Custom commands were merged into skills upstream, so these live in `skills/<name>/SKILL.md` alongside the domain skills (this repo's former `commands/` directory was migrated accordingly). Skills with a "Use when…" clause can also be auto-invoked by Claude from plain English (e.g. "commit my staged work" → `/commit`); user-only ones set `disable-model-invocation: true`. `/standup` and `/eow-review` can additionally be fired by a scheduled routine.
 
 <details>
-<summary><strong>10 workflow skills</strong> — click to expand</summary>
+<summary><strong>11 workflow skills</strong> — click to expand</summary>
 
-| Slash         | What It Does                                                     | Who Can Invoke             |
-| ------------- | ---------------------------------------------------------------- | -------------------------- |
-| `/commit`     | Analyze staged changes, generate commit message                  | you or Claude              |
-| `/pr`         | Create PR with auto-generated description                        | you or Claude              |
-| `/hotfix`     | Guided hotfix: branch from main, minimal fix, targeted tests, PR | you or Claude              |
-| `/tdd`        | TDD workflow: write failing test, implement, refactor            | you or Claude              |
-| `/adr`        | Create Architecture Decision Record (Nygard format)              | you or Claude              |
-| `/standup`    | Summarize last 24h across Git, GitHub, and Jira                  | you, Claude, or a schedule |
-| `/eow-review` | Prepare end-of-week review notes                                 | you, Claude, or a schedule |
-| `/status`     | Quick status update appended to today's daily log                | you only                   |
-| `/refinement` | Prepare technical analysis for backlog refinement                | you only                   |
-| `/later`      | Create a personal backlog item (learn, research, do, read)       | you only                   |
+| Slash           | What It Does                                                                                   | Who Can Invoke             |
+| --------------- | ---------------------------------------------------------------------------------------------- | -------------------------- |
+| `/commit`       | Analyze staged changes, generate commit message                                                | you or Claude              |
+| `/pr`           | Create PR with auto-generated description                                                      | you or Claude              |
+| `/hotfix`       | Guided hotfix: branch from main, minimal fix, targeted tests, PR                               | you or Claude              |
+| `/tdd`          | TDD workflow: write failing test, implement, refactor                                          | you or Claude              |
+| `/adr`          | Create Architecture Decision Record (Nygard format)                                            | you or Claude              |
+| `/standup`      | Summarize last 24h across Git, GitHub, and Jira                                                | you, Claude, or a schedule |
+| `/eow-review`   | Prepare end-of-week review notes                                                               | you, Claude, or a schedule |
+| `/status`       | Quick status update appended to today's daily log                                              | you only                   |
+| `/refinement`   | Prepare technical analysis for backlog refinement                                              | you only                   |
+| `/later`        | Create a personal backlog item (learn, research, do, read)                                     | you only                   |
+| `/mkdocs-style` | Install/update the shared MkDocs style layer (`tooling/mkdocs/` via `install-mkdocs-style.sh`) | you or Claude              |
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`.
 

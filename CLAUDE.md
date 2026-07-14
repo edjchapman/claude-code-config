@@ -32,6 +32,14 @@ Substitute `<repo>` below with wherever you cloned this repo (commonly
 # Run by `setup-project.sh --tooling`; also works standalone.
 <repo>/scripts/install-tooling.sh --hooks [--target DIR] [--dry-run]
 
+# Vendor the shared MkDocs Material style layer ("Ink & Indigo on warm paper",
+# payload in tooling/mkdocs/) into an MkDocs project. Unlike install-tooling.sh,
+# the two style-owned files (mkdocs.style.yml + custom.css) are ALWAYS
+# OVERWRITTEN — re-running is the update mechanism. Wired via MkDocs `INHERIT:`
+# config inheritance; the /mkdocs-style skill wraps this and cleans up the
+# project's mkdocs.yml afterwards.
+<repo>/scripts/install-mkdocs-style.sh [--target DIR] [--css-dest REL] [--dry-run]
+
 # Merge templates (used internally by setup-project.sh)
 python3 <repo>/scripts/merge-settings.py <templates-dir> base <type1> [type2...]
 python3 <repo>/scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]

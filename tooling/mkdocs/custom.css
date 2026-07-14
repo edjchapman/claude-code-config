@@ -1,0 +1,503 @@
+/* mkdocs-style v1 — managed by claude-code-config (tooling/mkdocs/).
+   Do not edit in consuming repos; re-run scripts/install-mkdocs-style.sh to update. */
+
+/* Ink & Indigo on warm paper — shared MkDocs Material stylesheet */
+
+/* ============================================
+   Palette — "Ink & Indigo"
+   Modern-minimalist custom Material scheme.
+   Requires `primary: custom` + `accent: custom` in mkdocs.yml.
+   Near-monochrome chrome (warm paper / near-black) + a single indigo accent.
+   ============================================ */
+
+/* Light: warm "paper" surfaces (softer than white-on-black for daytime
+   reading), warm-grey ink (hue #2e2921), indigo accent */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #faf8f3;
+  --md-primary-fg-color--light: #f2efe7;
+  --md-primary-fg-color--dark: #e8e4da;
+  --md-primary-bg-color: #2e2921;
+  --md-primary-bg-color--light: rgba(46, 41, 33, 0.7);
+
+  --md-accent-fg-color: #4f46e5;
+  --md-accent-fg-color--transparent: rgba(79, 70, 229, 0.1);
+
+  --md-typeset-a-color: #4338ca;
+
+  --md-default-bg-color: #faf8f3;
+  --md-default-fg-color: rgba(46, 41, 33, 0.87);
+  --md-default-fg-color--light: rgba(46, 41, 33, 0.6);
+  --md-default-fg-color--lighter: rgba(46, 41, 33, 0.32);
+  --md-default-fg-color--lightest: rgba(46, 41, 33, 0.09);
+
+  /* A shade deeper than the page so code blocks still read as inset */
+  --md-code-bg-color: #f2efe7;
+}
+
+/* Dark: near-black header/tabs, soft ink, lighter indigo accent */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0d0d0f;
+  --md-primary-fg-color--light: #1a1a1f;
+  --md-primary-fg-color--dark: #050506;
+  --md-primary-bg-color: #e8e8ea;
+  --md-primary-bg-color--light: rgba(232, 232, 234, 0.7);
+
+  --md-accent-fg-color: #a5a5fb;
+  --md-accent-fg-color--transparent: rgba(165, 165, 251, 0.12);
+
+  --md-typeset-a-color: #a5a5fb;
+
+  --md-default-bg-color: #0f0f11;
+}
+
+/* ============================================
+   Cards and Grid Layout
+   ============================================ */
+
+.grid.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.grid.cards > * {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* Flat, calm hover: subtle indigo tint + border, no lift/shadow */
+.grid.cards > *:hover {
+  border-color: var(--md-accent-fg-color);
+  background-color: var(--md-accent-fg-color--transparent);
+}
+
+/* ============================================
+   Enhanced Admonitions
+   ============================================ */
+
+.admonition {
+  margin: 1.5em 0;
+}
+
+.admonition.tip {
+  border-left: 3px solid var(--md-accent-fg-color);
+}
+
+.admonition.info {
+  border-left: 3px solid #00b0ff;
+}
+
+.admonition.warning {
+  border-left: 3px solid #ff9100;
+}
+
+.admonition.danger {
+  border-left: 3px solid #ff5252;
+}
+
+.admonition.quote {
+  border-left: 3px solid #9c27b0;
+  font-style: italic;
+}
+
+/* ============================================
+   Code Blocks
+   ============================================ */
+
+.highlight {
+  border-radius: 0.5rem;
+  margin: 1.5em 0;
+}
+
+.highlight pre {
+  padding: 1rem;
+}
+
+code {
+  background-color: var(--md-code-bg-color);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.3em;
+  font-size: 0.9em;
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+
+table {
+  margin: 1.5em 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table th {
+  background-color: var(--md-default-fg-color--lightest);
+  font-weight: 600;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+table tr:hover {
+  background-color: var(--md-default-fg-color--lightest);
+}
+
+/* ============================================
+   Task Lists
+   ============================================ */
+
+.task-list-item {
+  list-style: none;
+  margin-left: 0;
+}
+
+.task-list-control {
+  margin-right: 0.5em;
+}
+
+/* ============================================
+   Tags
+   ============================================ */
+
+.tag {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  margin: 0.2em;
+  border-radius: 0.25rem;
+  background-color: var(--md-accent-fg-color--transparent);
+  color: var(--md-accent-fg-color);
+  font-size: 0.85em;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.tag:hover {
+  background-color: var(--md-accent-fg-color);
+  color: white;
+}
+
+/* ============================================
+   Navigation Enhancements
+   ============================================ */
+
+.md-nav__item--active > .md-nav__link {
+  font-weight: 600;
+}
+
+/* ============================================
+   Content Width
+   ============================================ */
+
+.md-content {
+  max-width: 47.5rem; /* ~760px — comfortable reading measure */
+}
+
+/* ============================================
+   Search Enhancements
+   ============================================ */
+
+.md-search__input {
+  border-radius: 0.5rem;
+}
+
+/* ============================================
+   Mermaid Diagrams
+   ============================================ */
+
+.mermaid {
+  text-align: center;
+  margin: 2em 0;
+}
+
+/* ============================================
+   Footnotes
+   ============================================ */
+
+.footnote {
+  font-size: 0.9em;
+}
+
+/* ============================================
+   Link Styling
+   ============================================ */
+
+a.external::after {
+  content: " ↗";
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+/* Internal wiki-style links */
+a[href^="/"]:not([href*="://"]) {
+  color: var(--md-typeset-a-color);
+  text-decoration: underline;
+  text-decoration-color: var(--md-accent-fg-color--transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+a[href^="/"]:not([href*="://"]):hover {
+  text-decoration-color: var(--md-accent-fg-color);
+}
+
+/* ============================================
+   Blockquotes
+   ============================================ */
+
+blockquote {
+  border-left: 4px solid var(--md-default-fg-color--light);
+  padding-left: 1rem;
+  margin-left: 0;
+  font-style: italic;
+  color: var(--md-default-fg-color--light);
+}
+
+/* ============================================
+   Horizontal Rules
+   ============================================ */
+
+hr {
+  border: none;
+  border-top: 2px solid var(--md-default-fg-color--lightest);
+  margin: 2em 0;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+  .md-header,
+  .md-tabs,
+  .md-footer,
+  .md-sidebar {
+    display: none;
+  }
+
+  .md-content {
+    max-width: 100%;
+  }
+}
+
+/* ============================================
+   Dark Mode Adjustments
+   ============================================ */
+
+[data-md-color-scheme="slate"] {
+  --md-code-bg-color: #17171a;
+}
+
+[data-md-color-scheme="slate"] .grid.cards > * {
+  background-color: var(--md-default-bg-color);
+}
+
+[data-md-color-scheme="slate"] table th {
+  background-color: var(--md-default-bg-color);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media screen and (max-width: 768px) {
+  .grid.cards {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    font-size: 0.9em;
+  }
+
+  .md-content {
+    padding: 1rem;
+  }
+}
+
+/* ============================================
+   Icons in Content
+   ============================================ */
+
+.lg.middle {
+  font-size: 2em;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+/* ============================================
+   Status Badges
+   ============================================ */
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25em 0.75em;
+  border-radius: 1em;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-planning {
+  background-color: #2196f3;
+  color: white;
+}
+
+.status-on-hold {
+  background-color: #ff9800;
+  color: white;
+}
+
+.status-completed {
+  background-color: #9e9e9e;
+  color: white;
+}
+
+/* ============================================
+   Custom Content Boxes
+   ============================================ */
+
+.info-box {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  background-color: var(--md-default-fg-color--lightest);
+}
+
+.highlight-box {
+  background-color: var(--md-accent-fg-color--transparent);
+  border-left: 4px solid var(--md-accent-fg-color);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+/* ============================================
+   Emoji Support
+   ============================================ */
+
+.emoji {
+  vertical-align: middle;
+}
+
+/* Better focus indicators for accessibility (all viewports) */
+.md-nav__link:focus,
+.md-button:focus {
+  outline: 2px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Mobile & tablet reading (Material `lg` breakpoint)
+   Consolidated: tap targets, readable type, safe tables, iOS zoom fix.
+   ============================================ */
+
+@media screen and (max-width: 76.1875em) {
+  /* Comfortable reading type */
+  .md-typeset {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .md-typeset p {
+    margin-bottom: 1rem;
+  }
+
+  .md-typeset h1 {
+    font-size: 1.8rem;
+  }
+
+  .md-typeset h2 {
+    font-size: 1.4rem;
+  }
+
+  .md-typeset h3 {
+    font-size: 1.2rem;
+  }
+
+  /* Larger tap targets for navigation */
+  .md-nav__link {
+    padding: 0.8rem 0.6rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .md-button {
+    min-height: 44px;
+    padding: 0.8rem 1.2rem;
+  }
+
+  /* Roomier lists */
+  .md-typeset ul,
+  .md-typeset ol {
+    padding-left: 1.5rem;
+  }
+
+  .md-typeset li {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Tables scroll horizontally instead of overflowing */
+  .md-typeset table:not([class]) {
+    font-size: 0.85rem;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .md-typeset__scrollwrap {
+    margin: 1em -0.8rem;
+  }
+
+  .md-typeset__table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Readable code + tappable admonition toggles */
+  .md-typeset pre > code {
+    font-size: 0.8rem;
+  }
+
+  .md-typeset details.admonition {
+    margin: 1.5em 0;
+  }
+
+  .md-typeset summary {
+    padding: 0.8rem;
+    cursor: pointer;
+  }
+
+  /* 16px search input prevents iOS zoom-on-focus */
+  .md-search__input {
+    height: 48px;
+    font-size: 16px;
+  }
+
+  /* Comfortable back-to-top button */
+  .md-top {
+    background-color: var(--md-accent-fg-color);
+    color: #ffffff;
+    opacity: 0.9;
+    width: 48px;
+    height: 48px;
+  }
+
+  .md-top:hover,
+  .md-top:focus {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}

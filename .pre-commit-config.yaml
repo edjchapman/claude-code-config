@@ -23,6 +23,9 @@ repos:
         exclude: \.md$
       - id: end-of-file-fixer
       - id: check-yaml
+        # mkdocs.style.yml uses `!!python/name:` tags (loaded by mkdocs' full
+        # YAML loader); check-yaml's safe loader can't parse them.
+        exclude: ^tooling/mkdocs/mkdocs\.style\.yml$
       - id: check-json
       - id: check-merge-conflict
       - id: check-added-large-files

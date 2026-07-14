@@ -1,0 +1,107 @@
+# mkdocs-style v1 — managed by claude-code-config (tooling/mkdocs/).
+# Do not edit in consuming repos; re-run scripts/install-mkdocs-style.sh to update.
+#
+# Shared MkDocs Material theme layer: "Ink & Indigo on warm paper".
+# Consumed via `INHERIT: mkdocs.style.yml` at the top of a project's mkdocs.yml.
+# MkDocs deep-merges mappings (child wins) but REPLACES lists wholesale — so a
+# consuming project must NOT redefine theme.features, theme.palette,
+# markdown_extensions, or extra_css unless it means to own the entire list.
+# Per-project branding (theme.favicon, theme.logo, theme.icon.logo) merges
+# safely from the child config.
+
+theme:
+  name: material
+  features:
+  - navigation.footer
+  - navigation.indexes
+  - navigation.instant
+  - navigation.instant.progress
+  - navigation.instant.prefetch
+  - navigation.instant.preview
+  - navigation.path
+  - navigation.prune
+  - navigation.sections
+  - navigation.tabs
+  - navigation.tabs.sticky
+  - navigation.top
+  - navigation.tracking
+  - search.highlight
+  - search.share
+  - search.suggest
+  - toc.follow
+  - content.code.copy
+  - content.code.annotate
+  - content.code.select
+  - content.tabs.link
+  - content.tooltips
+  - content.action.view
+  - content.action.edit
+  palette:
+  - media: '(prefers-color-scheme: light)'
+    scheme: default
+    primary: custom
+    accent: custom
+    toggle:
+      icon: material/brightness-7
+      name: Switch to dark mode
+  - media: '(prefers-color-scheme: dark)'
+    scheme: slate
+    primary: custom
+    accent: custom
+    toggle:
+      icon: material/brightness-4
+      name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+- abbr
+- admonition
+- attr_list
+- def_list
+- footnotes
+- md_in_html
+- tables
+- toc:
+    permalink: true
+    title: On this page
+    toc_depth: 3
+- pymdownx.arithmatex:
+    generic: true
+- pymdownx.betterem:
+    smart_enable: all
+- pymdownx.caret
+- pymdownx.critic:
+    mode: view
+- pymdownx.details
+- pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
+- pymdownx.highlight:
+    anchor_linenums: true
+    line_spans: __span
+    pygments_lang_class: true
+    linenums: false
+    linenums_style: pymdownx-inline
+- pymdownx.inlinehilite
+- pymdownx.keys
+- pymdownx.magiclink:
+    repo_url_shorthand: true
+- pymdownx.mark
+- pymdownx.smartsymbols
+- pymdownx.snippets
+- pymdownx.superfences
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.tasklist:
+    custom_checkbox: true
+- pymdownx.tilde
+
+extra_css:
+- stylesheets/custom.css
+
+extra:
+  generator: false
