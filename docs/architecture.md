@@ -117,6 +117,7 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `docker-patterns`: Multi-stage builds, layer caching, Compose files, and container security
 - `infrastructure`: Terraform modules, Kubernetes resources, Helm charts, and deployment configuration
 - `root-cause-analysis`: Guides incident and bug investigations toward root causes over symptom-level bandaids
+- `project-setup`: Applying this config's tooling to a project — `setup-project.sh`, `install-tooling.sh`, the `--hooks`/`--tooling` caveat, and the new-repo bootstrap runbook
 
 **Workflow skills** — invoked as `/<name>`; those with trigger-rich descriptions can also be auto-invoked by Claude when the conversation calls for them:
 
