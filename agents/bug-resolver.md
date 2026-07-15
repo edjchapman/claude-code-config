@@ -4,7 +4,6 @@ description: >-
   Investigate and resolve bugs, errors, and unexpected behavior — runtime errors, failing tests,
   incorrect output, or performance regressions. Use when code isn't behaving as expected and the
   root cause needs tracing.
-model: opus
 color: red
 memory: project
 ---

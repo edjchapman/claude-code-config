@@ -4,7 +4,6 @@ description: >-
   Infrastructure, CI/CD pipelines, containerization, and deployment processes: Docker/Kubernetes
   optimization, pipeline review, infrastructure as code, and monitoring/observability setup. Use
   for deployment safety and platform engineering work.
-model: opus
 color: amber
 permissionMode: plan
 ---

@@ -5,7 +5,6 @@ description: >-
   safety analysis: schema changes, ORM migrations, and data restructuring. Use when designing
   schemas, planning zero-downtime or expand-contract migrations, or reviewing data architecture
   decisions.
-model: opus
 color: cyan
 permissionMode: plan
 ---
