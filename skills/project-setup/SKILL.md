@@ -6,8 +6,9 @@ description: Set up or bootstrap a project with the claude-code-config tooling â
 # Project Setup
 
 How to apply this repo's tooling to a project. Substitute `<repo>` with wherever
-`claude-code-config` is cloned (commonly `~/.config/claude-code-config/` or
-`~/Development/claude-code-config/`). Full reference for every script and flag is
+`claude-code-config` is cloned (commonly `~/Development/claude-code-config/` â€” keep a
+single clone; the global symlinks and any dev work should point at the same one).
+Full reference for every script and flag is
 in [`docs/architecture.md`](../../docs/architecture.md) ("Key Scripts").
 
 ## Apply the config to an existing project

@@ -5,7 +5,9 @@ Full Claude-facing reference for this repo's moving parts — scripts, hooks, se
 ## Key Scripts
 
 Substitute `<repo>` below with wherever you cloned this repo (commonly
-`~/.config/claude-code-config/` or `~/Development/claude-code-config/`).
+`~/Development/claude-code-config/`). Keep a **single clone**: `setup-global.sh`
+symlinks `~/.claude/` at the clone that runs it, so a second clone (e.g. an old
+`~/.config/claude-code-config/`) silently drifts from the one you develop in.
 
 ```bash
 # Global setup (creates ~/.claude/agents, skills, rules, and settings.json symlinks)
