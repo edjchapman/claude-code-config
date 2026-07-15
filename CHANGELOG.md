@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.0](https://github.com/edjchapman/claude-code-config/compare/1.9.0...1.10.0) (2026-07-15)
+
+
+### Features
+
+* **hooks:** desktop notification when Claude needs attention ([#66](https://github.com/edjchapman/claude-code-config/issues/66)) ([1919b09](https://github.com/edjchapman/claude-code-config/commit/1919b09a00b5b123b30b7064f5e673fc8e68dd7d))
+
+
+### Bug Fixes
+
+* **scripts:** dedupe git-context and merge helpers, harden hooks, tighten validators ([#65](https://github.com/edjchapman/claude-code-config/issues/65)) ([a349653](https://github.com/edjchapman/claude-code-config/commit/a349653642222a99fa2e1f315484ff4b82bc94cb))
+
 ## [1.9.0](https://github.com/edjchapman/claude-code-config/compare/1.8.1...1.9.0) (2026-07-14)
 
 
