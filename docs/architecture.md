@@ -70,6 +70,7 @@ Currently configured in `settings.json`:
 - **PreToolUse (Bash)** → `scripts/hooks/dangerous-cmd-check.sh`: blocks dangerous command patterns (defense-in-depth)
 - **PreCompact** → `scripts/hooks/pre-compact-state.sh`: preserves working state before context compaction
 - **TaskCompleted** → `scripts/hooks/task-completed-chime.sh`: emits a terminal bell when an autonomous task completes
+- **Notification** → `scripts/hooks/notify-attention.sh`: desktop notification when Claude is blocked on you (permission request or idle wait) — osascript on macOS, notify-send on Linux, terminal bell fallback
 
 Available but **not configured by default** (opt-in by adding a prompt-type entry to **both** hook files):
 

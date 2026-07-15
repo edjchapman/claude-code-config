@@ -69,6 +69,16 @@
         ]
       }
     ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/notify-attention.sh"
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
