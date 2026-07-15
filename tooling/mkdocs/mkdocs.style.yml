@@ -1,4 +1,4 @@
-# mkdocs-style v1 — managed by claude-code-config (tooling/mkdocs/).
+# mkdocs-style v2 — managed by claude-code-config (tooling/mkdocs/).
 # Do not edit in consuming repos; re-run scripts/install-mkdocs-style.sh to update.
 #
 # Shared MkDocs Material theme layer: "Ink & Indigo on warm paper".
@@ -32,6 +32,7 @@ theme:
   - content.code.copy
   - content.code.annotate
   - content.code.select
+  - content.footnote.tooltips
   - content.tabs.link
   - content.tooltips
   - content.action.view

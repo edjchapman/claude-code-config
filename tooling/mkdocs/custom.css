@@ -1,4 +1,4 @@
-/* mkdocs-style v1 — managed by claude-code-config (tooling/mkdocs/).
+/* mkdocs-style v2 — managed by claude-code-config (tooling/mkdocs/).
    Do not edit in consuming repos; re-run scripts/install-mkdocs-style.sh to update. */
 
 /* Ink & Indigo on warm paper — shared MkDocs Material stylesheet */
@@ -26,28 +26,56 @@
 
   --md-default-bg-color: #faf8f3;
   --md-default-fg-color: rgba(46, 41, 33, 0.87);
-  --md-default-fg-color--light: rgba(46, 41, 33, 0.6);
+  /* 0.66 keeps secondary text (blockquotes) above the 4.5:1 AA floor */
+  --md-default-fg-color--light: rgba(46, 41, 33, 0.66);
   --md-default-fg-color--lighter: rgba(46, 41, 33, 0.32);
   --md-default-fg-color--lightest: rgba(46, 41, 33, 0.09);
 
   /* A shade deeper than the page so code blocks still read as inset */
   --md-code-bg-color: #f2efe7;
+
+  /* Warm amber highlight replaces Material's neon yellow; ink reads ≥8:1 on it */
+  --md-typeset-mark-color: rgba(255, 213, 79, 0.5);
+
+  --ink-strong: #2e2921;
+  --ink-stripe: rgba(46, 41, 33, 0.045);
+  --ink-adm-info: #0288d1;
+  --ink-adm-warning: #c2410c;
+  --ink-adm-danger: #c62828;
+  --ink-adm-quote: #9c27b0;
 }
 
-/* Dark: near-black header/tabs, soft ink, lighter indigo accent */
+/* Dark: near-black header/tabs, warm off-white ink, lighter indigo accent.
+   --md-hue: 30 warms every slate-derived colour (fg tiers, code fg, kbd,
+   table rules, footer) from Material's bluish 225 to match the warm ink. */
 [data-md-color-scheme="slate"] {
+  --md-hue: 30;
+
   --md-primary-fg-color: #0d0d0f;
   --md-primary-fg-color--light: #1a1a1f;
   --md-primary-fg-color--dark: #050506;
-  --md-primary-bg-color: #e8e8ea;
-  --md-primary-bg-color--light: rgba(232, 232, 234, 0.7);
+  --md-primary-bg-color: #e9e6e2;
+  --md-primary-bg-color--light: rgba(233, 230, 226, 0.7);
 
   --md-accent-fg-color: #a5a5fb;
   --md-accent-fg-color--transparent: rgba(165, 165, 251, 0.12);
 
   --md-typeset-a-color: #a5a5fb;
 
-  --md-default-bg-color: #0f0f11;
+  /* Above the #121212 halation floor; the #0d0d0f header stays visibly darker */
+  --md-default-bg-color: #141416;
+
+  /* A shade lighter than the page so code blocks still read as inset */
+  --md-code-bg-color: #1d1d21;
+
+  --md-typeset-mark-color: rgba(251, 192, 45, 0.22);
+
+  --ink-strong: #e8e4de;
+  --ink-stripe: rgba(232, 228, 222, 0.045);
+  --ink-adm-info: #00b0ff;
+  --ink-adm-warning: #ff9100;
+  --ink-adm-danger: #ff5252;
+  --ink-adm-quote: #ba68c8;
 }
 
 /* ============================================
@@ -88,20 +116,21 @@
   border-left: 3px solid var(--md-accent-fg-color);
 }
 
+/* Per-scheme border colours: each needs ≥3:1 against its page background */
 .admonition.info {
-  border-left: 3px solid #00b0ff;
+  border-left: 3px solid var(--ink-adm-info);
 }
 
 .admonition.warning {
-  border-left: 3px solid #ff9100;
+  border-left: 3px solid var(--ink-adm-warning);
 }
 
 .admonition.danger {
-  border-left: 3px solid #ff5252;
+  border-left: 3px solid var(--ink-adm-danger);
 }
 
 .admonition.quote {
-  border-left: 3px solid #9c27b0;
+  border-left: 3px solid var(--ink-adm-quote);
   font-style: italic;
 }
 
@@ -147,7 +176,13 @@ table td {
   border-bottom: 1px solid var(--md-default-fg-color--lightest);
 }
 
-table tr:hover {
+/* Zebra stripes keep the eye on-row across wide dashboard tables */
+table tbody tr:nth-child(even) {
+  background-color: var(--ink-stripe);
+}
+
+/* Scoped to tbody so the header row doesn't highlight; stronger than the stripe */
+table tbody tr:hover {
   background-color: var(--md-default-fg-color--lightest);
 }
 
@@ -162,6 +197,16 @@ table tr:hover {
 
 .task-list-control {
   margin-right: 0.5em;
+}
+
+/* Checked items read as "done": dimmed text, indigo indicator instead of
+   Material's green. :has() degrades harmlessly in older browsers. */
+.md-typeset .task-list-item:has(input:checked) {
+  color: var(--md-default-fg-color--light);
+}
+
+.md-typeset [type="checkbox"]:checked + .task-list-indicator::before {
+  background-color: var(--md-accent-fg-color);
 }
 
 /* ============================================
@@ -182,7 +227,8 @@ table tr:hover {
 
 .tag:hover {
   background-color: var(--md-accent-fg-color);
-  color: white;
+  /* Page-bg text passes AA on the indigo fill in both schemes (white fails in dark) */
+  color: var(--md-default-bg-color);
 }
 
 /* ============================================
@@ -198,7 +244,90 @@ table tr:hover {
    ============================================ */
 
 .md-content {
-  max-width: 47.5rem; /* ~760px — comfortable reading measure */
+  max-width: 47.5rem; /* 950px container cap; prose measure is set separately below */
+}
+
+/* ============================================
+   Long-form reading typography
+   ============================================ */
+
+/* Desktop reading type: 18px/1.65 harmonises with the mobile 19px/1.7 bump */
+@media screen and (min-width: 76.25em) {
+  .md-typeset {
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+}
+
+/* Cap prose at ~75ch while tables, code, grids and admonitions keep the
+   full container width */
+.md-typeset > p,
+.md-typeset > ul,
+.md-typeset > ol,
+.md-typeset > dl,
+.md-typeset > blockquote {
+  max-width: 42em;
+}
+
+/* Heading hierarchy for scanning. Material defaults h1/h2 to weight 300 —
+   thin weights blur on dark backgrounds, and Google Fonts serves Inter at
+   300/400/700 only, so 700 with size/tracking compensation. */
+.md-typeset h1 {
+  font-weight: 700;
+  font-size: 1.9em;
+  letter-spacing: -0.015em;
+}
+
+.md-typeset h2 {
+  font-weight: 700;
+  font-size: 1.45em;
+  letter-spacing: -0.01em;
+  margin-top: 2em;
+}
+
+.md-typeset h3 {
+  font-weight: 700;
+  font-size: 1.15em;
+  letter-spacing: -0.005em;
+}
+
+.md-typeset h4 {
+  font-weight: 700;
+  font-size: 1em;
+}
+
+/* Full-strength ink so bold-lead bullets pop against body text */
+.md-typeset strong {
+  color: var(--ink-strong);
+}
+
+/* ==highlights== are the memorisation primitive; colour set per scheme */
+.md-typeset mark {
+  padding: 0.05em 0.2em;
+  border-radius: 0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* details/summary as self-quiz affordance: obvious click target */
+.md-typeset summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.md-typeset summary:hover {
+  background-color: var(--md-accent-fg-color--transparent);
+}
+
+/* Definition lists as flashcards: bold term, railed definition */
+.md-typeset dl dt {
+  font-weight: 700;
+}
+
+.md-typeset dl dd {
+  margin: 0.25em 0 1em 0;
+  padding-left: 0.75em;
+  border-left: 2px solid var(--md-default-fg-color--lightest);
 }
 
 /* ============================================
@@ -292,15 +421,7 @@ hr {
    Dark Mode Adjustments
    ============================================ */
 
-[data-md-color-scheme="slate"] {
-  --md-code-bg-color: #17171a;
-}
-
 [data-md-color-scheme="slate"] .grid.cards > * {
-  background-color: var(--md-default-bg-color);
-}
-
-[data-md-color-scheme="slate"] table th {
   background-color: var(--md-default-bg-color);
 }
 
@@ -346,23 +467,25 @@ hr {
   letter-spacing: 0.5px;
 }
 
+/* Fills darkened so white text passes AA (≥5:1); self-contained pairs
+   work on both schemes and glare less in dark mode */
 .status-active {
-  background-color: #4caf50;
+  background-color: #2e7d32;
   color: white;
 }
 
 .status-planning {
-  background-color: #2196f3;
+  background-color: #1565c0;
   color: white;
 }
 
 .status-on-hold {
-  background-color: #ff9800;
+  background-color: #b45309;
   color: white;
 }
 
 .status-completed {
-  background-color: #9e9e9e;
+  background-color: #616161;
   color: white;
 }
 
@@ -427,6 +550,10 @@ hr {
     font-size: 1.2rem;
   }
 
+  .md-typeset h4 {
+    font-size: 1.05rem;
+  }
+
   /* Larger tap targets for navigation */
   .md-nav__link {
     padding: 0.8rem 0.6rem;
@@ -454,6 +581,11 @@ hr {
     font-size: 0.85rem;
     display: block;
     overflow-x: auto;
+  }
+
+  /* Link-dense dashboard cells wrap instead of forcing a wide scroll */
+  .md-typeset table:not([class]) td {
+    overflow-wrap: anywhere;
   }
 
   .md-typeset__scrollwrap {
