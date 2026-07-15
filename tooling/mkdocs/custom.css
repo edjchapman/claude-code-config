@@ -1,4 +1,4 @@
-/* mkdocs-style v2 — managed by claude-code-config (tooling/mkdocs/).
+/* mkdocs-style v3 — managed by claude-code-config (tooling/mkdocs/).
    Do not edit in consuming repos; re-run scripts/install-mkdocs-style.sh to update. */
 
 /* Ink & Indigo on warm paper — shared MkDocs Material stylesheet */
@@ -45,15 +45,16 @@
   --ink-adm-quote: #9c27b0;
 }
 
-/* Dark: near-black header/tabs, warm off-white ink, lighter indigo accent.
+/* Dark: warm-espresso surfaces — the same paper brand with the lights off.
    --md-hue: 30 warms every slate-derived colour (fg tiers, code fg, kbd,
-   table rules, footer) from Material's bluish 225 to match the warm ink. */
+   table rules, footer) from Material's bluish 225 to match the warm ink;
+   surfaces share that temperature so nothing on the page reads cool. */
 [data-md-color-scheme="slate"] {
   --md-hue: 30;
 
-  --md-primary-fg-color: #0d0d0f;
-  --md-primary-fg-color--light: #1a1a1f;
-  --md-primary-fg-color--dark: #050506;
+  --md-primary-fg-color: #0f0e0d;
+  --md-primary-fg-color--light: #1c1a18;
+  --md-primary-fg-color--dark: #060505;
   --md-primary-bg-color: #e9e6e2;
   --md-primary-bg-color--light: rgba(233, 230, 226, 0.7);
 
@@ -62,11 +63,11 @@
 
   --md-typeset-a-color: #a5a5fb;
 
-  /* Above the #121212 halation floor; the #0d0d0f header stays visibly darker */
-  --md-default-bg-color: #141416;
+  /* Above the #121212 halation floor; the #0f0e0d header stays visibly darker */
+  --md-default-bg-color: #171514;
 
   /* A shade lighter than the page so code blocks still read as inset */
-  --md-code-bg-color: #1d1d21;
+  --md-code-bg-color: #201d1b;
 
   --md-typeset-mark-color: rgba(251, 192, 45, 0.22);
 
@@ -430,16 +431,9 @@ hr {
    ============================================ */
 
 @media screen and (max-width: 768px) {
+  /* auto-fit minmax(250px, 1fr) would still squeeze two columns on phablets */
   .grid.cards {
     grid-template-columns: 1fr;
-  }
-
-  table {
-    font-size: 0.9em;
-  }
-
-  .md-content {
-    padding: 1rem;
   }
 }
 
@@ -524,112 +518,51 @@ hr {
 
 /* ============================================
    Mobile & tablet reading (Material `lg` breakpoint)
-   Consolidated: tap targets, readable type, safe tables, iOS zoom fix.
+   Material 9 is mobile-first — only content-level tweaks belong here.
+   Everything else (search input, back-to-top, buttons, table scrolling,
+   heading scale) is already handled by the theme.
    ============================================ */
 
-@media screen and (max-width: 76.1875em) {
-  /* Comfortable reading type */
+@media screen and (max-width: 76.234375em) {
+  /* Comfortable reading type (drawer nav keeps Material's own scale) */
   .md-typeset {
     font-size: 0.95rem;
     line-height: 1.7;
   }
 
-  .md-typeset p {
-    margin-bottom: 1rem;
+  /* Material indents lists twice (ul margin + li margin); drop the outer one
+     so markers hang near the content edge. The [dir] prefix out-cascades
+     Material's equal-specificity rule. Nested lists still step in. */
+  [dir="ltr"] .md-typeset ul,
+  [dir="ltr"] .md-typeset ol {
+    margin-left: 0;
   }
 
-  .md-typeset h1 {
-    font-size: 1.8rem;
+  /* ~46px drawer tap targets; Material's type scale + depth indents kept */
+  .md-nav--primary .md-nav__link {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
   }
 
-  .md-typeset h2 {
-    font-size: 1.4rem;
-  }
-
-  .md-typeset h3 {
-    font-size: 1.2rem;
-  }
-
-  .md-typeset h4 {
-    font-size: 1.05rem;
-  }
-
-  /* Larger tap targets for navigation */
-  .md-nav__link {
-    padding: 0.8rem 0.6rem;
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-
-  .md-button {
-    min-height: 44px;
-    padding: 0.8rem 1.2rem;
-  }
-
-  /* Roomier lists */
-  .md-typeset ul,
-  .md-typeset ol {
-    padding-left: 1.5rem;
-  }
-
-  .md-typeset li {
-    margin-bottom: 0.5rem;
-  }
-
-  /* Tables scroll horizontally instead of overflowing */
+  /* Readable table type (Material's mobile default is 12.8px); wrap
+     link-dense cells instead of forcing a wide scroll */
   .md-typeset table:not([class]) {
     font-size: 0.85rem;
-    display: block;
-    overflow-x: auto;
   }
 
-  /* Link-dense dashboard cells wrap instead of forcing a wide scroll */
   .md-typeset table:not([class]) td {
     overflow-wrap: anywhere;
   }
 
-  .md-typeset__scrollwrap {
-    margin: 1em -0.8rem;
-  }
-
-  .md-typeset__table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Readable code + tappable admonition toggles */
-  .md-typeset pre > code {
-    font-size: 0.8rem;
-  }
-
-  .md-typeset details.admonition {
-    margin: 1.5em 0;
-  }
-
+  /* ≥44px summary tap height without killing Material's 2rem icon gutter;
+     icon/chevron realigned to the new padding (0.6rem ÷ 0.64rem font) */
   .md-typeset summary {
-    padding: 0.8rem;
-    cursor: pointer;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
   }
 
-  /* 16px search input prevents iOS zoom-on-focus */
-  .md-search__input {
-    height: 48px;
-    font-size: 16px;
-  }
-
-  /* Comfortable back-to-top button */
-  .md-top {
-    background-color: var(--md-accent-fg-color);
-    color: #ffffff;
-    opacity: 0.9;
-    width: 48px;
-    height: 48px;
-  }
-
-  .md-top:hover,
-  .md-top:focus {
-    opacity: 1;
-    transform: scale(1.1);
+  .md-typeset summary::before,
+  .md-typeset summary::after {
+    top: 0.9375em;
   }
 }
