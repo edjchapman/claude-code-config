@@ -20,15 +20,16 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 if [ -n "$PAYLOAD" ]; then
   # Wrap the payload with our timestamp. Use python for safe JSON merge if available.
   if command -v python3 > /dev/null 2>&1; then
-    printf '%s' "$PAYLOAD" | python3 -c "
-import json, sys, os
+    printf '%s' "$PAYLOAD" | TS="$TIMESTAMP" python3 -c "
+import json, os, sys
+raw = sys.stdin.read()
 try:
-    data = json.loads(sys.stdin.read())
+    data = json.loads(raw)
 except Exception:
-    data = {'raw': sys.stdin.read() if False else ''}
+    data = {'raw': raw}
 data['_logged_at'] = os.environ.get('TS', '')
 print(json.dumps(data, separators=(',', ':')))
-" TS="$TIMESTAMP" >> "$LOG_FILE" 2> /dev/null || \
+" >> "$LOG_FILE" 2> /dev/null || \
       printf '{"_logged_at":"%s","raw":%s}\n' "$TIMESTAMP" "$(printf '%s' "$PAYLOAD" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')" >> "$LOG_FILE"
   else
     # No python: log timestamp + raw payload as a single line (escape newlines)

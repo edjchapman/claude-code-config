@@ -5,6 +5,8 @@
 # Expects the command to check via $CLAUDE_TOOL_INPUT or stdin
 # Exit 0 = allow, Exit 2 = block
 
+set -u
+
 CMD="${CLAUDE_TOOL_INPUT:-$(cat)}"
 
 # Literal patterns matched with grep -qF (fixed string)

@@ -16,6 +16,14 @@ cd "$REPO_ROOT"
 docs=(CLAUDE.md README.md)
 fail=0
 
+# Whole-name match: the name must not be embedded in a longer identifier.
+# Substring matching let short names like 'pr' or 'later' pass via
+# coincidental words ("approach", "translate"); require a non-name character
+# (anything outside [A-Za-z0-9_-]) or line edge on both sides.
+mentioned() {
+    grep -q -E "(^|[^A-Za-z0-9_-])$1([^A-Za-z0-9_-]|$)" "${docs[@]}"
+}
+
 check_dir() {
     local dir="$1" ext="$2" label="$3"
     [ -d "$dir" ] || return 0
@@ -23,7 +31,7 @@ check_dir() {
         [ -e "$f" ] || continue
         local name
         name="$(basename "$f" ."$ext")"
-        if ! grep -q -F "$name" "${docs[@]}"; then
+        if ! mentioned "$name"; then
             echo "DRIFT: $label '$name' (from $f) is not mentioned in CLAUDE.md or README.md"
             fail=1
         fi
@@ -37,7 +45,7 @@ check_skills() {
         [ -e "$f" ] || continue
         local name
         name="$(basename "$(dirname "$f")")"
-        if ! grep -q -F "$name" "${docs[@]}"; then
+        if ! mentioned "$name"; then
             echo "DRIFT: skill '$name' (from $f) is not mentioned in CLAUDE.md or README.md"
             fail=1
         fi

@@ -18,42 +18,7 @@ import json
 import sys
 from pathlib import Path
 
-MIN_PYTHON_VERSION = (3, 8)
-
-
-def check_python_version():
-    """Ensure we're running on a supported Python version."""
-    if sys.version_info < MIN_PYTHON_VERSION:
-        print(
-            f"Error: Python {MIN_PYTHON_VERSION[0]}.{MIN_PYTHON_VERSION[1]}+ required, "
-            f"but running {sys.version_info.major}.{sys.version_info.minor}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-
-def load_template(templates_dir: Path, template_name: str) -> dict:
-    """Load a template file and return its contents."""
-    template_path = templates_dir / f"{template_name}.json"
-    if not template_path.exists():
-        print(f"Error: Template not found: {template_path}", file=sys.stderr)
-        print(f"Hint: Run 'ls {templates_dir}' to see available templates", file=sys.stderr)
-        sys.exit(1)
-
-    try:
-        with open(template_path) as f:
-            content = f.read()
-            if not content.strip():
-                print(f"Error: Template file is empty: {template_path}", file=sys.stderr)
-                sys.exit(1)
-            return json.loads(content)
-    except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in {template_path}", file=sys.stderr)
-        print(f"  Line {e.lineno}, column {e.colno}: {e.msg}", file=sys.stderr)
-        sys.exit(1)
-    except PermissionError:
-        print(f"Error: Permission denied reading {template_path}", file=sys.stderr)
-        sys.exit(1)
+from lib.config_common import check_python_version, load_template, validate_merged_output
 
 
 def validate_template(template: dict, template_name: str) -> None:
@@ -70,25 +35,40 @@ def validate_template(template: dict, template_name: str) -> None:
         sys.exit(1)
 
 
-def merge_mcp_servers(templates: list) -> dict:
-    """Merge multiple MCP templates into one."""
+def resolve_fragment(templates_dir: Path, server: dict) -> dict:
+    """Resolve a {"$fragment": "<name>"} server entry from templates_dir/fragments/.
+
+    Shared server definitions (e.g. the postgres block used by django, fastapi,
+    and nextjs) live once under fragments/ instead of being copy-pasted into
+    every template. Plain server objects pass through unchanged.
+    """
+    if set(server.keys()) != {"$fragment"}:
+        return server
+
+    fragment_path = templates_dir / "fragments" / f"{server['$fragment']}.json"
+    if not fragment_path.exists():
+        print(f"Error: Fragment not found: {fragment_path}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        with open(fragment_path) as f:
+            return json.loads(f.read())
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON in {fragment_path}", file=sys.stderr)
+        print(f"  Line {e.lineno}, column {e.colno}: {e.msg}", file=sys.stderr)
+        sys.exit(1)
+
+
+def merge_mcp_servers(templates_dir: Path, templates: list) -> dict:
+    """Merge multiple MCP templates into one, resolving shared fragments."""
     merged_servers = {}
 
     for template in templates:
         servers = template.get("mcpServers", {})
-        merged_servers.update(servers)
+        for name, server in servers.items():
+            merged_servers[name] = resolve_fragment(templates_dir, server)
 
     return {"mcpServers": merged_servers}
-
-
-def validate_merged_output(merged: dict) -> None:
-    """Validate the merged output is valid JSON and well-formed."""
-    try:
-        json_str = json.dumps(merged, indent=2)
-        json.loads(json_str)
-    except (TypeError, ValueError) as e:
-        print(f"Error: Generated invalid JSON: {e}", file=sys.stderr)
-        sys.exit(1)
 
 
 def main():
@@ -115,7 +95,7 @@ def main():
         validate_template(template, name)
         templates.append(template)
 
-    merged = merge_mcp_servers(templates)
+    merged = merge_mcp_servers(templates_dir, templates)
     validate_merged_output(merged)
     print(json.dumps(merged, indent=2))
 

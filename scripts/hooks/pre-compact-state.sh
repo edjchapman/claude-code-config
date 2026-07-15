@@ -4,8 +4,14 @@
 #
 # Outputs key state information so Claude retains it after compaction
 
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/git-context.sh
+. "$SCRIPT_DIR/lib/git-context.sh"
+
 # Only run in a git repository
-if ! git rev-parse --is-inside-work-tree &> /dev/null; then
+if ! in_git_work_tree; then
   exit 0
 fi
 
@@ -13,7 +19,7 @@ echo "=== Pre-Compact State Snapshot ==="
 echo ""
 
 # Current branch
-echo "Branch: $(git branch --show-current 2> /dev/null || echo 'detached HEAD')"
+echo "Branch: $(git_branch)"
 echo ""
 
 # Staged files

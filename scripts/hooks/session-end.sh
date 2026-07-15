@@ -2,6 +2,12 @@
 # SessionEnd hook: log session info and clean up
 # Used by: SessionEnd hook in settings.json
 
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/git-context.sh
+. "$SCRIPT_DIR/lib/git-context.sh"
+
 LOG_DIR="${HOME}/.claude/debug"
 LOG_FILE="${LOG_DIR}/session-log.csv"
 CACHE_DIR="${HOME}/.claude/cache"
@@ -17,7 +23,7 @@ fi
 # Gather session info
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 WORKING_DIR=$(pwd)
-BRANCH=$(git symbolic-ref --short HEAD 2> /dev/null || echo "n/a")
+BRANCH=$(git_branch "n/a")
 SESSION_ID="${CLAUDE_SESSION_ID:-unknown}"
 
 # Log session
@@ -25,7 +31,7 @@ echo "\"${TIMESTAMP}\",\"${WORKING_DIR}\",\"${BRANCH}\",\"${SESSION_ID}\"" >> "$
 
 # --- Daily log: append git session summary ---
 # Only runs if inside a git repo with recent commits
-if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+if in_git_work_tree; then
   GIT_USER=$(git config user.name 2> /dev/null)
   if [ -n "$GIT_USER" ]; then
     # macOS date uses -v, GNU date uses -d
