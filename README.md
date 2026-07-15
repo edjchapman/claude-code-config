@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, hooks, and permission templates that propagate to every project and machine.**
 
-`14 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `8 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`8 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `8 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 <br/>
 
@@ -138,26 +138,20 @@ Everything falls into two modes — tools you **invoke** and tools that **auto-a
 Invoke with `@agent-name`. **Opus** = complex reasoning (higher cost); **Sonnet** = pattern-based, faster.
 
 <details>
-<summary><strong>14 specialist agents</strong> — click to expand</summary>
+<summary><strong>8 specialist agents</strong> — click to expand</summary>
 
-| Agent                      | What It Does                                           | Model  |
-| -------------------------- | ------------------------------------------------------ | ------ |
-| `@bug-resolver`            | Systematic debugging, root cause analysis              | opus   |
-| `@ci-debugger`             | CI/CD failure investigation, flaky tests               | sonnet |
-| `@database-architect`      | Schema design, migration planning, query optimization  | opus   |
-| `@dependency-manager`      | Dependency audit, outdated packages, license checks    | sonnet |
-| `@devops-engineer`         | Infrastructure, CI/CD pipelines, containers            | opus   |
-| `@documentation-writer`    | README, API docs, ADRs, onboarding guides              | sonnet |
-| `@e2e-playwright-engineer` | Create and debug Playwright E2E tests                  | sonnet |
-| `@git-helper`              | Complex git: rebase, conflicts, recovery               | sonnet |
-| `@migration-engineer`      | Database migrations, framework upgrades, zero-downtime | opus   |
-| `@performance-engineer`    | Profiling, bottleneck analysis, optimization           | opus   |
-| `@pr-review-bundler`       | Bundle PR reviews into markdown                        | sonnet |
-| `@refactoring-engineer`    | Systematic, safe refactoring                           | opus   |
-| `@security-auditor`        | Security audit, OWASP, dependency vulnerabilities      | opus   |
-| `@test-engineer`           | Create unit and integration tests                      | sonnet |
+| Agent                   | What It Does                                                 | Model  |
+| ----------------------- | ------------------------------------------------------------ | ------ |
+| `@bug-resolver`         | Systematic debugging, root cause analysis                    | opus   |
+| `@ci-debugger`          | CI/CD failure investigation, flaky tests                     | sonnet |
+| `@database-architect`   | Schema design, zero-downtime migrations, query optimization  | opus   |
+| `@dependency-manager`   | Dependency audit, license checks, framework/version upgrades | sonnet |
+| `@devops-engineer`      | Infrastructure, CI/CD pipelines, containers                  | opus   |
+| `@documentation-writer` | README, API docs, ADRs, onboarding guides                    | sonnet |
+| `@performance-engineer` | Profiling, bottleneck analysis, optimization                 | opus   |
+| `@test-engineer`        | Unit, integration, and Playwright E2E tests                  | sonnet |
 
-> **Provided by enabled plugins instead:** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture (`feature-dev:code-architect`), simplification (`code-simplifier`). Custom versions were retired in favour of these.
+> **Provided by enabled plugins or bundled commands instead:** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture (`feature-dev:code-architect`), simplification (`code-simplifier`), PR review bundling (`pr-review-toolkit:review-pr`), security audits (bundled `/security-review`), complex git operations (`git-workflow` skill). Custom versions were retired in favour of these — see [docs/extending.md](docs/extending.md) for the full retirement table.
 
 </details>
 
@@ -195,9 +189,9 @@ Domain knowledge Claude loads automatically based on the conversation — matche
 
 | Skill                 | Loads When You…                                         | What It Covers                                                                   |
 | --------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `git-workflow`        | Work with branches, commits, PRs, or releases           | Conventional commits, branch naming, PR size                                     |
+| `git-workflow`        | Work with branches, commits, PRs, or releases           | Conventional commits, branch naming, PR size, rebase/bisect/reflog recovery      |
 | `testing-patterns`    | Write or review tests, fixtures, mocks, coverage        | AAA pattern, factories, coverage                                                 |
-| `security-review`     | Touch auth, middleware, routes, or input validation     | Input validation, JWT, CSRF, secrets                                             |
+| `security-patterns`   | Touch auth, middleware, routes, or input validation     | Input validation, JWT, CSRF, secrets                                             |
 | `api-design`          | Design or review REST APIs, endpoints, or serializers   | REST conventions, status codes, pagination                                       |
 | `django-patterns`     | Edit Django models, views, managers, or signals         | Fat models, managers, query optimization, signals                                |
 | `docker-patterns`     | Edit Dockerfiles, Compose files, or build contexts      | Multi-stage builds, layer caching, security                                      |
@@ -373,28 +367,27 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 <details>
 <summary><strong>Task → tool cheat sheet</strong> — click to expand</summary>
 
-| I want to...                    | Use                               | Why                                                           |
-| ------------------------------- | --------------------------------- | ------------------------------------------------------------- |
-| Quick review before committing  | `/review` (bundled)               | Fast diff review, no agent overhead                           |
-| Deep code review                | `pr-review-toolkit:code-reviewer` | Thorough pre-merge audit via plugin                           |
-| Inline code review              | `feature-dev:code-reviewer`       | Confidence-filtered high-priority issues                      |
-| Bundle PR comments for analysis | `@pr-review-bundler`              | Gathers PR metadata, reviews, comments into one markdown file |
-| Write or fix tests              | `@test-engineer`                  | Creates unit and integration tests                            |
-| Run a security audit            | `/security-review` (bundled)      | Security review of pending changes                            |
-| Deeper security audit           | `@security-auditor`               | OWASP, dependency vulnerabilities, secrets                    |
-| Plan a feature before coding    | `feature-dev:code-architect`      | Implementation blueprint via plugin                           |
-| Analyze test coverage gaps      | `@test-engineer`                  | Auto-detects Django/Jest/Vitest, finds coverage gaps          |
-| Create a good commit message    | `/commit`                         | Analyzes staged changes, follows conventions                  |
-| Create a pull request           | `/pr`                             | Auto-generates PR description from commits                    |
-| Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, GitHub, and Jira              |
-| Weekly summary for manager      | `/eow-review`                     | Full week review across all sources                           |
-| Prepare for backlog refinement  | `/refinement`                     | Technical analysis of tickets with code context               |
-| Debug CI/CD failures            | `@ci-debugger`                    | Investigates pipeline failures, flaky tests                   |
-| Optimize slow queries/endpoints | `@performance-engineer`           | Profiling, bottleneck analysis, optimization                  |
-| Plan a database migration       | `@migration-engineer`             | Zero-downtime migration strategies                            |
-| Review dependencies             | `@dependency-manager`             | Auto-detects npm/pip/uv/poetry/go/cargo; audits & upgrades    |
-| Write documentation             | `@documentation-writer`           | README, API docs, ADRs, onboarding guides                     |
-| Headless review (no session)    | `review-changes.sh`               | Runs in CI or as a shell alias                                |
+| I want to...                    | Use                               | Why                                                        |
+| ------------------------------- | --------------------------------- | ---------------------------------------------------------- |
+| Quick review before committing  | `/review` (bundled)               | Fast diff review, no agent overhead                        |
+| Deep code review                | `pr-review-toolkit:code-reviewer` | Thorough pre-merge audit via plugin                        |
+| Inline code review              | `feature-dev:code-reviewer`       | Confidence-filtered high-priority issues                   |
+| Bundle PR comments for analysis | `pr-review-toolkit:review-pr`     | Gathers PR metadata, reviews, comments via plugin          |
+| Write or fix tests              | `@test-engineer`                  | Creates unit, integration, and Playwright E2E tests        |
+| Run a security audit            | `/security-review` (bundled)      | Security review of pending changes                         |
+| Plan a feature before coding    | `feature-dev:code-architect`      | Implementation blueprint via plugin                        |
+| Analyze test coverage gaps      | `@test-engineer`                  | Auto-detects Django/Jest/Vitest, finds coverage gaps       |
+| Create a good commit message    | `/commit`                         | Analyzes staged changes, follows conventions               |
+| Create a pull request           | `/pr`                             | Auto-generates PR description from commits                 |
+| Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, GitHub, and Jira           |
+| Weekly summary for manager      | `/eow-review`                     | Full week review across all sources                        |
+| Prepare for backlog refinement  | `/refinement`                     | Technical analysis of tickets with code context            |
+| Debug CI/CD failures            | `@ci-debugger`                    | Investigates pipeline failures, flaky tests                |
+| Optimize slow queries/endpoints | `@performance-engineer`           | Profiling, bottleneck analysis, optimization               |
+| Plan a database migration       | `@database-architect`             | Zero-downtime and expand-contract migration strategies     |
+| Review dependencies             | `@dependency-manager`             | Auto-detects npm/pip/uv/poetry/go/cargo; audits & upgrades |
+| Write documentation             | `@documentation-writer`           | README, API docs, ADRs, onboarding guides                  |
+| Headless review (no session)    | `review-changes.sh`               | Runs in CI or as a shell alias                             |
 
 </details>
 

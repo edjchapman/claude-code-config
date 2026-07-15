@@ -2,8 +2,8 @@
 name: dependency-manager
 description: >-
   Dependency audits, outdated/unused package cleanup, license compatibility checks, and upgrade
-  planning across npm, pip, uv, go modules, and other package managers. Use when auditing for CVEs
-  or planning a major version bump.
+  planning across npm, pip, uv, go modules, and other package managers. Use when auditing for
+  CVEs, planning a major version bump, or planning a framework upgrade.
 model: sonnet
 color: green
 ---
@@ -87,6 +87,17 @@ Handle individually with:
 3. Make changes in a separate branch
 4. Run full test suite
 5. Document any API changes
+
+### Framework Upgrades
+
+For framework/major-version upgrades (Django, React, Rails, etc.):
+
+1. **Audit**: Read changelog and migration guide for every version between current and target
+2. **Dependencies**: Check if all dependencies support the target version
+3. **Deprecations**: Find and fix all deprecation warnings first
+4. **Step-by-Step**: Upgrade one minor version at a time when possible
+5. **Test**: Run full test suite at each step
+6. **Document**: Record every change made during upgrade
 
 ### Dependency Pinning Policy
 
