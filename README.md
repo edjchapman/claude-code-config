@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, hooks, and permission templates that propagate to every project and machine.**
 
-`8 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `8 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`8 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `9 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 <br/>
 
@@ -220,19 +220,20 @@ Path-scoped style enforcement (`paths` frontmatter). Skills provide patterns; ru
 Run automatically at lifecycle events. Configured in `settings.json` (symlinked globally, so active in all projects); scripts live in `scripts/hooks/` and only run when their tools are present (e.g. `ruff`, `prettier`).
 
 <details>
-<summary><strong>8 configured hooks + 2 opt-in</strong> — click to expand</summary>
+<summary><strong>8 configured hooks + 3 opt-in</strong> — click to expand</summary>
 
 **Configured:**
 
-| Hook                      | Trigger              | What It Does                                                   |
-| ------------------------- | -------------------- | -------------------------------------------------------------- |
-| SessionStart              | New session          | Outputs git branch, recent commits, and dirty files            |
-| SessionEnd                | Session end          | Appends session summary to `./standups/YYYY-MM-DD-log.md`      |
-| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier)                |
-| PostToolUseFailure        | After tool failure   | Logs failed tool calls to `~/.claude/logs/tool-failures.jsonl` |
-| PreToolUse (Bash)         | Before bash commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)             |
-| PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)     |
-| TaskCompleted             | Autonomous task done | Emits a terminal bell                                          |
+| Hook                      | Trigger              | What It Does                                                                                   |
+| ------------------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
+| SessionStart              | New session          | Outputs git branch, recent commits, and dirty files                                            |
+| SessionEnd                | Session end          | Appends session summary to `./standups/YYYY-MM-DD-log.md`                                      |
+| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier)                                                |
+| PostToolUseFailure        | After tool failure   | Logs failed tool calls to `~/.claude/logs/tool-failures.jsonl`                                 |
+| PreToolUse (Bash)         | Before bash commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)                                             |
+| PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)                                     |
+| TaskCompleted             | Autonomous task done | Emits a terminal bell                                                                          |
+| Notification              | Claude needs you     | `notify-attention` — desktop notification (macOS/Linux) for permission requests and idle waits |
 
 **Opt-in** (each invokes an LLM on every fire, so all ship disabled — enable
 deliberately; ready-to-paste snippets live in [`docs/architecture.md`](docs/architecture.md)'s Hooks section):
