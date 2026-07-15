@@ -53,7 +53,7 @@ When extending this repo (adding a new agent / skill / command / hook / template
 - **Where**: `agents/<kebab-name>.md`
 - **Required frontmatter**: `name`, `description` (include `<example>` blocks for when to invoke)
 - **Optional**: `model` (`opus`/`sonnet`/`haiku`), `tools`, `disallowedTools`, `color`, `permissionMode`, `memory` (`user`/`project`/`local` — cross-session learning), `isolation: worktree`
-- **Model heuristic**: `opus` for complex reasoning (bug-resolver, database-architect), `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
+- **Model heuristic**: omit `model` so the agent **inherits** the session model — the right default for deep-reasoning agents (bug-resolver, database-architect). Pin only for deliberate cost routing: `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
 - **Exemplar**: [`agents/bug-resolver.md`](../agents/bug-resolver.md) — opus, rich description with examples
 
 ### Add a skill

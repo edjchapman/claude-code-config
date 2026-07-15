@@ -4,7 +4,6 @@ description: >-
   Analyze and optimize application performance: profiling, bottleneck identification, slow database
   query optimization, memory/CPU analysis, caching strategies, and load-testing guidance. Use for
   slow endpoints or scalability planning.
-model: opus
 color: magenta
 memory: project
 ---

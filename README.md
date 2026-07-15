@@ -135,21 +135,21 @@ Everything falls into two modes — tools you **invoke** and tools that **auto-a
 
 ### Agents
 
-Invoke with `@agent-name`. **Opus** = complex reasoning (higher cost); **Sonnet** = pattern-based, faster.
+Invoke with `@agent-name`. **inherit** = follows your session model (deep-reasoning agents deserve whatever you're running); **sonnet** = deliberately pinned for pattern-based mechanical work (cost routing).
 
 <details>
 <summary><strong>8 specialist agents</strong> — click to expand</summary>
 
-| Agent                   | What It Does                                                 | Model  |
-| ----------------------- | ------------------------------------------------------------ | ------ |
-| `@bug-resolver`         | Systematic debugging, root cause analysis                    | opus   |
-| `@ci-debugger`          | CI/CD failure investigation, flaky tests                     | sonnet |
-| `@database-architect`   | Schema design, zero-downtime migrations, query optimization  | opus   |
-| `@dependency-manager`   | Dependency audit, license checks, framework/version upgrades | sonnet |
-| `@devops-engineer`      | Infrastructure, CI/CD pipelines, containers                  | opus   |
-| `@documentation-writer` | README, API docs, ADRs, onboarding guides                    | sonnet |
-| `@performance-engineer` | Profiling, bottleneck analysis, optimization                 | opus   |
-| `@test-engineer`        | Unit, integration, and Playwright E2E tests                  | sonnet |
+| Agent                   | What It Does                                                 | Model   |
+| ----------------------- | ------------------------------------------------------------ | ------- |
+| `@bug-resolver`         | Systematic debugging, root cause analysis                    | inherit |
+| `@ci-debugger`          | CI/CD failure investigation, flaky tests                     | sonnet  |
+| `@database-architect`   | Schema design, zero-downtime migrations, query optimization  | inherit |
+| `@dependency-manager`   | Dependency audit, license checks, framework/version upgrades | sonnet  |
+| `@devops-engineer`      | Infrastructure, CI/CD pipelines, containers                  | inherit |
+| `@documentation-writer` | README, API docs, ADRs, onboarding guides                    | sonnet  |
+| `@performance-engineer` | Profiling, bottleneck analysis, optimization                 | inherit |
+| `@test-engineer`        | Unit, integration, and Playwright E2E tests                  | sonnet  |
 
 > **Provided by enabled plugins or bundled commands instead:** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture (`feature-dev:code-architect`), simplification (`code-simplifier`), PR review bundling (`pr-review-toolkit:review-pr`), security audits (bundled `/security-review`), complex git operations (`git-workflow` skill). Custom versions were retired in favour of these — see [docs/extending.md](docs/extending.md) for the full retirement table.
 
