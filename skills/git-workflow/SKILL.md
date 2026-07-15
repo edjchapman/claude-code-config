@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: Use when working with Git repositories, branches, commits, pull requests, release workflows, or files under .git.
+description: Use when working with Git repositories, branches, commits, pull requests, release workflows, or files under .git — including complex operations like interactive rebase, merge-conflict resolution, cherry-picking, bisecting, or recovering lost commits via reflog.
 ---
 
 # Git Workflow
@@ -73,3 +73,43 @@ Examples:
 - No TODO/FIXME without linked tickets
 - Migration safety considered (for DB changes)
 - Backwards compatibility assessed
+
+## Complex Operations
+
+Approach: understand the current state (`git status`, `git log`), assess what could be lost, create a safety net, then execute step by step.
+
+### Safety Net Before Dangerous Operations
+
+- Create a backup branch: `git branch backup-before-<operation>`
+- Note current HEAD: `git rev-parse HEAD`
+- Stash uncommitted changes: `git stash`
+- If it goes wrong: `git rebase --abort` / `git merge --abort` / `git cherry-pick --abort`, or `git reset --hard <backup>`
+
+### Recovering Lost Commits
+
+```bash
+git reflog                     # all recent HEAD positions - your safety net
+git branch recovery <hash>     # create branch at a lost commit
+git cherry-pick <hash>         # apply a lost commit to current branch
+git checkout <commit> -- <file>  # restore one file from a commit
+```
+
+### Bisecting a Regression
+
+```bash
+git bisect start
+git bisect bad HEAD
+git bisect good <known-good>
+git bisect run <test-command>  # exits 0 for good, non-zero for bad
+git bisect reset               # when done
+```
+
+### Resolving Merge Conflicts
+
+Resolve `<<<<<<<` markers per file, `git add` each, then `git rebase --continue` / `git merge --continue`. Keep one side wholesale with `git checkout --ours <file>` or `--theirs <file>`.
+
+### Red Flags — Proceed with Caution
+
+- `--force` push (prefer `--force-with-lease`), `reset --hard`
+- Rebasing already-pushed commits
+- Operating on shared branches (main, develop)

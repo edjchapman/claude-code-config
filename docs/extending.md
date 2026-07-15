@@ -6,11 +6,11 @@ How to choose between a skill and an agent, what stays custom vs delegated to a 
 
 Two primitives, three usage patterns; picking the right one keeps the skill picker uncluttered. (A former third primitive, `commands/`, was merged into skills — a "command" is now just a skill with `disable-model-invocation: true`.)
 
-| Use a...                                         | When                                                                                                                                                                                                                                                                       | Example in this repo                                                                                          |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **Domain skill** (`skills/`, default invocation) | Domain knowledge you want Claude to load automatically based on the conversation (matched from the skill's `description:`)                                                                                                                                                 | `django-patterns` (loads when editing Django models/views), `security-review` (loads on auth/middleware work) |
-| **Workflow skill** (`skills/`)                   | A repeatable workflow invoked as `/<name>`. Leave auto-invocation on when Claude firing it from context is welcome (`/commit`, `/tdd`); add `disable-model-invocation: true` when only you should trigger it (`/later`, `/status`) or it has side effects you want to time | `/commit`, `/standup`, `/later`                                                                               |
-| **Agent** (`agents/`)                            | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation                                                                                                                                                | `@bug-resolver`, `@migration-engineer`, `@security-auditor`                                                   |
+| Use a...                                         | When                                                                                                                                                                                                                                                                       | Example in this repo                                                                                            |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Domain skill** (`skills/`, default invocation) | Domain knowledge you want Claude to load automatically based on the conversation (matched from the skill's `description:`)                                                                                                                                                 | `django-patterns` (loads when editing Django models/views), `security-patterns` (loads on auth/middleware work) |
+| **Workflow skill** (`skills/`)                   | A repeatable workflow invoked as `/<name>`. Leave auto-invocation on when Claude firing it from context is welcome (`/commit`, `/tdd`); add `disable-model-invocation: true` when only you should trigger it (`/later`, `/status`) or it has side effects you want to time | `/commit`, `/standup`, `/later`                                                                                 |
+| **Agent** (`agents/`)                            | Specialist `@agent-name` task with a forked context — deep, single-domain work that shouldn't pollute the main conversation                                                                                                                                                | `@bug-resolver`, `@database-architect`, `@performance-engineer`                                                 |
 
 Rule of thumb: if the action is **domain knowledge Claude should load automatically**, it wants to be a domain skill. If it's a **repeatable workflow** ("commit my work", "give me a standup summary"), it wants to be a workflow skill — user-only via `disable-model-invocation: true` when timing or side effects matter. If it's **scoped expertise that benefits from isolation** ("audit this for security"), it wants to be an agent.
 
@@ -22,18 +22,24 @@ Several enabled plugins (visible in `settings.json`'s `enabledPlugins`) overlap 
 
 Currently retired in favor of plugins:
 
-| Retired                                            | Replaced by                                                                                   |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `agents/code-reviewer.md`                          | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered) |
-| `agents/spec-writer.md`                            | `feature-dev:code-architect`                                                                  |
-| `commands/review.md`                               | bundled `/review`                                                                             |
-| `commands/security-scan.md`                        | bundled `/security-review`                                                                    |
-| `commands/deps.md` (delegation wrapper)            | `@dependency-manager` (the agent auto-detects npm/pip/uv/poetry/go/cargo)                     |
-| `commands/coverage-report.md` (delegation wrapper) | `@test-engineer` (the agent auto-detects Django/Jest/Vitest and analyzes coverage gaps)       |
+| Retired                                            | Replaced by                                                                                            |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `agents/code-reviewer.md`                          | `pr-review-toolkit:code-reviewer` (depth) + `feature-dev:code-reviewer` (confidence-filtered)          |
+| `agents/spec-writer.md`                            | `feature-dev:code-architect`                                                                           |
+| `commands/review.md`                               | bundled `/review`                                                                                      |
+| `commands/security-scan.md`                        | bundled `/security-review`                                                                             |
+| `commands/deps.md` (delegation wrapper)            | `@dependency-manager` (the agent auto-detects npm/pip/uv/poetry/go/cargo)                              |
+| `commands/coverage-report.md` (delegation wrapper) | `@test-engineer` (the agent auto-detects Django/Jest/Vitest and analyzes coverage gaps)                |
+| `agents/pr-review-bundler.md`                      | `pr-review-toolkit:review-pr`                                                                          |
+| `agents/refactoring-engineer.md`                   | `code-simplifier` plugin + bundled `/simplify`                                                         |
+| `agents/security-auditor.md`                       | bundled `/security-review` + `skills/security-patterns` (domain knowledge)                             |
+| `agents/e2e-playwright-engineer.md`                | `@test-engineer` (absorbed the E2E/Playwright conventions) + `playwright` plugin (MCP tools)           |
+| `agents/git-helper.md`                             | `git-workflow` skill (absorbed the recovery/rebase/bisect content)                                     |
+| `agents/migration-engineer.md`                     | `@database-architect` (expand-contract, migration sizing) + `@dependency-manager` (framework upgrades) |
 
 Kept custom because no enabled plugin fully covers them:
 
-- `@bug-resolver`, `@ci-debugger`, `@database-architect`, `@dependency-manager`, `@devops-engineer`, `@documentation-writer`, `@e2e-playwright-engineer`, `@git-helper`, `@migration-engineer`, `@performance-engineer`, `@pr-review-bundler`, `@refactoring-engineer`, `@security-auditor`, `@test-engineer`
+- `@bug-resolver`, `@ci-debugger`, `@database-architect`, `@dependency-manager`, `@devops-engineer`, `@documentation-writer`, `@performance-engineer`, `@test-engineer`
 - `/commit`, `/pr`, `/hotfix`, `/tdd`, `/adr`, `/standup`, `/status`, `/refinement`, `/eow-review`, `/later`
 
 If you enable a new plugin and it overlaps with one of the kept-custom items, re-apply the rule.
@@ -47,7 +53,7 @@ When extending this repo (adding a new agent / skill / command / hook / template
 - **Where**: `agents/<kebab-name>.md`
 - **Required frontmatter**: `name`, `description` (include `<example>` blocks for when to invoke)
 - **Optional**: `model` (`opus`/`sonnet`/`haiku`), `tools`, `disallowedTools`, `color`, `permissionMode`, `memory` (`user`/`project`/`local` — cross-session learning), `isolation: worktree`
-- **Model heuristic**: `opus` for complex reasoning (bug-resolver, security-auditor), `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
+- **Model heuristic**: `opus` for complex reasoning (bug-resolver, database-architect), `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
 - **Exemplar**: [`agents/bug-resolver.md`](../agents/bug-resolver.md) — opus, rich description with examples
 
 ### Add a skill

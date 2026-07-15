@@ -109,9 +109,9 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 
 **Domain-knowledge skills** — Claude loads these automatically when the conversation matches their `description:`:
 
-- `git-workflow`: Conventional commits, branch naming, PR size, and release workflow guidance
+- `git-workflow`: Conventional commits, branch naming, PR size, release workflow guidance, and complex operations (rebase, bisect, reflog recovery)
 - `testing-patterns`: AAA pattern, factories, mocks, coverage, and test organization
-- `security-review`: Input validation, JWT, CSRF, auth, secrets, and security-sensitive routes
+- `security-patterns`: Input validation, JWT, CSRF, auth, secrets, and security-sensitive routes
 - `api-design`: REST conventions, status codes, pagination, schemas, and error formats
 - `django-patterns`: Fat models, managers, query optimization, signals, migrations, and admin patterns
 - `docker-patterns`: Multi-stage builds, layer caching, Compose files, and container security

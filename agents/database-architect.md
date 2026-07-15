@@ -2,8 +2,9 @@
 name: database-architect
 description: >-
   Database schema design, data modeling, index strategies, query optimization, and migration
-  safety analysis. Use when designing schemas, planning zero-downtime migrations, or reviewing
-  data architecture decisions.
+  safety analysis: schema changes, ORM migrations, and data restructuring. Use when designing
+  schemas, planning zero-downtime or expand-contract migrations, or reviewing data architecture
+  decisions.
 model: opus
 color: cyan
 permissionMode: plan
@@ -205,6 +206,23 @@ CREATE TABLE tenant_abc123.orders (...);
 - Best for large enterprise tenants
 
 ## Migration Safety
+
+### Core Principles
+
+- Every migration must be reversible (provide rollback steps)
+- Never drop columns in the same deploy that stops writing to them
+- Keep migrations small and focused (one logical change per migration)
+- Separate schema changes from data migrations; large backfills belong in management commands, not migrations
+
+### Expand-Contract Pattern
+
+For breaking changes, use this sequence:
+
+1. **Expand**: Add new column/table alongside old one
+2. **Migrate Code**: Update application to write to both old and new
+3. **Backfill**: Copy historical data to new structure (in batches)
+4. **Cutover**: Switch reads to new structure
+5. **Contract**: Remove old column/table (separate deploy)
 
 ### Zero-Downtime Migration Patterns
 

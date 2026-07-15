@@ -1,9 +1,10 @@
 ---
 name: test-engineer
 description: >-
-  Create, modify, or debug unit and integration tests — backend (API endpoints, models, services)
-  and frontend (components, hooks, pages). Use after implementing a feature or fixing a bug, or
-  when asked to write or review tests.
+  Create, modify, or debug tests at any level — backend unit/integration (API endpoints, models,
+  services), frontend (components, hooks, pages), and Playwright end-to-end specs, fixtures, and
+  flaky-test debugging. Use after implementing a feature or fixing a bug, or when asked to write
+  or review tests.
 model: sonnet
 color: blue
 ---
@@ -174,6 +175,41 @@ describe('UserProfile', () => {
 - Test user behavior, not implementation details
 - Test loading, error, and empty states
 - Mock API calls and external dependencies
+
+## E2E Testing (Playwright)
+
+### Conventions
+
+- Import `test` and `expect` from the project's fixture file, NOT directly from `@playwright/test`
+- Extend existing fixtures; create new ones in the `fixtures/` directory and export them from the central fixture index
+- Follow the Page Object pattern: getters for locators, methods encapsulating complex interactions
+- Name files `<feature>.spec.ts`; group authenticated tests separately from unauthenticated ones
+
+### Locator Strategies (Priority Order)
+
+1. `getByRole()` - accessibility-focused, most stable
+2. `getByTestId()` - for elements without good accessible names
+3. `getByText()` - for text content
+4. `getByLabel()` - for form fields
+5. CSS selectors - LAST RESORT only
+
+### E2E Quality
+
+- Prefer user-visible assertions: `toBeVisible()`, `toHaveText()`, `toContainText()`
+- Let Playwright's auto-retry handle timing; avoid explicit waits when possible
+- Use `test.step()` for complex flows to improve trace readability
+- When debugging flaky tests: check timing issues, locator robustness, and test isolation; suggest `--debug` or `--ui` mode
+
+### Common Commands
+
+```bash
+npx playwright test                              # Run all
+npx playwright test <path>                       # Run specific file
+npx playwright test -g "test name"               # Run by name
+npx playwright test --ui                         # UI mode
+npx playwright test --debug                      # Debug mode
+npx playwright show-report                       # View report
+```
 
 ## Mocking Patterns
 
