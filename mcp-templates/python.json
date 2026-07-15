@@ -2,10 +2,6 @@
   "_source": "python",
   "_version": 1,
   "mcpServers": {
-    "sqlite": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "mcp-server-sqlite-npx", "${SQLITE_DB_PATH:-./dev.db}"]
-    }
+    "sqlite": { "$fragment": "sqlite" }
   }
 }

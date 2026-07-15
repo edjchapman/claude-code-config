@@ -5,7 +5,9 @@
 # Expects $CLAUDE_FILE_PATH to be set by the hook system
 # Only runs if the relevant formatter is available
 
-FILE_PATH="${CLAUDE_FILE_PATH:-$1}"
+set -u
+
+FILE_PATH="${CLAUDE_FILE_PATH:-${1:-}}"
 
 # Only run if file exists
 [ -f "$FILE_PATH" ] || exit 0

@@ -2,8 +2,14 @@
 # Output git context at session start so Claude has immediate awareness
 # Used by: SessionStart hook in settings.json
 
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/git-context.sh
+. "$SCRIPT_DIR/lib/git-context.sh"
+
 # Only run in a git repository
-if ! git rev-parse --is-inside-work-tree &> /dev/null; then
+if ! in_git_work_tree; then
   exit 0
 fi
 
@@ -11,7 +17,7 @@ echo "=== Session Context ==="
 echo ""
 
 # Current branch
-echo "Branch: $(git branch --show-current 2> /dev/null || echo 'detached HEAD')"
+echo "Branch: $(git_branch)"
 echo ""
 
 # Recent commits (last 5)

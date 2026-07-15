@@ -1,4 +1,5 @@
 ---
+name: mkdocs-style
 description: Install or update the shared MkDocs Material style layer (Ink & Indigo on warm paper) in the current project.
 argument-hint: "[--css-dest <path>] [--check]"
 ---

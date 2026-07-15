@@ -22,22 +22,10 @@ import json
 import sys
 from pathlib import Path
 
-# Minimum Python version required
-MIN_PYTHON_VERSION = (3, 8)
+from lib.config_common import check_python_version
 
 # Repo root = parent of the scripts/ directory this file lives in.
 REPO_ROOT = Path(__file__).resolve().parent.parent
-
-
-def check_python_version() -> None:
-    """Ensure we're running on a supported Python version."""
-    if sys.version_info < MIN_PYTHON_VERSION:
-        print(
-            f"Error: Python {MIN_PYTHON_VERSION[0]}.{MIN_PYTHON_VERSION[1]}+ required, "
-            f"but running {sys.version_info.major}.{sys.version_info.minor}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
 
 
 def load_hooks(path: Path) -> dict:

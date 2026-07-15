@@ -3,11 +3,14 @@
 # Shows git branch, dirty file count, and open PR status
 # Must execute fast (< 1s) — status line refreshes frequently
 
-# Git branch
-BRANCH=$(git symbolic-ref --short HEAD 2> /dev/null || git rev-parse --short HEAD 2> /dev/null || echo "no-git")
+set -u
 
-# Dirty file count
-DIRTY=$(git status --porcelain 2> /dev/null | wc -l | tr -d ' ')
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/git-context.sh
+. "$SCRIPT_DIR/lib/git-context.sh"
+
+BRANCH=$(git_branch "no-git")
+DIRTY=$(git_dirty_count)
 
 # Build status parts
 STATUS="$BRANCH"
@@ -25,6 +28,7 @@ else
 fi
 CACHE_FILE="${CACHE_DIR}/pr-status-${CACHE_HASH}"
 CACHE_TTL=60
+PR_STATUS=""
 
 if [ -f "$CACHE_FILE" ]; then
   CACHE_AGE=$(($(date +%s) - $(stat -f%m "$CACHE_FILE" 2> /dev/null || stat -c%Y "$CACHE_FILE" 2> /dev/null || echo 0)))

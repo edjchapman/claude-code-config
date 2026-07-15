@@ -1,4 +1,5 @@
 ---
+name: refinement
 description: Prepare technical analysis for backlog refinement meetings.
 argument-hint: "<ticket-ids...> [--jql <query>] [--output <dir>] [--explore <depth>]"
 disable-model-invocation: true
