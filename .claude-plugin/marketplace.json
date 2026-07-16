@@ -1,0 +1,17 @@
+{
+  "name": "claude-code-config",
+  "description": "Marketplace for Ed Chapman's claude-code-config plugin",
+  "owner": {
+    "name": "Ed Chapman",
+    "email": "edchapman88@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "claude-code-config",
+      "source": "./",
+      "description": "Ed Chapman's personal Claude Code configuration: specialist agents, workflow skills, settings & MCP templates, hooks, and code-style rules.",
+      "category": "development",
+      "homepage": "https://github.com/edjchapman/claude-code-config"
+    }
+  ]
+}
