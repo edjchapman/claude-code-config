@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a configuration repository for Claude Code. It can be consumed two ways:
 
-1. **As a plugin** (recommended): install via `/plugin install claude-code-config` after adding the marketplace. The plugin loader sets `CLAUDE_PLUGIN_DIR` and the hook commands resolve relative to that.
+1. **As a plugin** (recommended): `/plugin marketplace add edjchapman/claude-code-config`, then `/plugin install claude-code-config`. The plugin name resolves only against marketplaces you have added — there is no global registry — so this can only install from this repo. If another added marketplace also defines a `claude-code-config` plugin, disambiguate with `/plugin install claude-code-config@claude-code-config` (`plugin@marketplace`). The plugin loader sets `CLAUDE_PLUGIN_DIR` and the hook commands resolve relative to that.
 2. **As a symlinked global config** (legacy path, still supported): `scripts/setup-global.sh` symlinks `agents/`, `skills/`, `rules/`, and `settings.json` into `~/.claude/`. Per-project use is via `scripts/setup-project.sh`.
 
 The two modes coexist — hook command paths in `settings.json` use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve in both modes without modification.

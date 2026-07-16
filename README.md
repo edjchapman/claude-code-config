@@ -79,6 +79,8 @@ There are two ways to consume this repo: as a **plugin** (recommended) or as a *
 /plugin install claude-code-config
 ```
 
+> **How the name resolves:** there is no global plugin registry — `/plugin install` looks the name up only in marketplaces you have added, so after the `marketplace add` above it can only install from this repo. In the unlikely case another added marketplace also defines a `claude-code-config` plugin, use the scoped form: `/plugin install claude-code-config@claude-code-config` (`plugin@marketplace`).
+
 Then add per-project permissions only:
 
 ```bash
