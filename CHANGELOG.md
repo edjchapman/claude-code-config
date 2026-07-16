@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.11.0](https://github.com/edjchapman/claude-code-config/compare/1.10.0...1.11.0) (2026-07-16)
+
+
+### Features
+
+* **mkdocs:** style layer v2 — dark-palette warm rewrite, WCAG fixes, reading polish ([#69](https://github.com/edjchapman/claude-code-config/issues/69)) ([630df3e](https://github.com/edjchapman/claude-code-config/commit/630df3e20fa6e606db4b2b10a5743eb621f5b762))
+
+
+### Bug Fixes
+
+* **mkdocs:** style layer v3 — repair mobile block against Material defaults + espresso dark surfaces ([#71](https://github.com/edjchapman/claude-code-config/issues/71)) ([6969dae](https://github.com/edjchapman/claude-code-config/commit/6969dae3816175c258f7738a75fad2d56bef66db))
+* **plugin:** add marketplace manifest so /plugin marketplace add resolves ([#72](https://github.com/edjchapman/claude-code-config/issues/72)) ([d5ed8ed](https://github.com/edjchapman/claude-code-config/commit/d5ed8ede425a9541b01702b286341f162acb81af))
+* **scripts:** enumerate primitives via git ls-files in docs-drift check ([#74](https://github.com/edjchapman/claude-code-config/issues/74)) ([7ac0325](https://github.com/edjchapman/claude-code-config/commit/7ac032532c521ebba5cc88cbb2afc252cdf3e7fb))
+
 ## [1.10.0](https://github.com/edjchapman/claude-code-config/compare/1.9.0...1.10.0) (2026-07-15)
 
 
