@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 # check-docs-drift.sh
 #
-# Fail CI if a primitive on disk isn't mentioned in CLAUDE.md or README.md.
+# Fail CI if a git-tracked primitive isn't mentioned in CLAUDE.md or README.md.
 # Catches the kind of drift where someone adds a new skill / agent /
 # hook but forgets to document it. Both docs are searched together — either is
 # sufficient mention; we only fail if neither references the file.
+#
+# Primitives are enumerated via `git ls-files` (not a directory scan) so the
+# check matches what CI sees: untracked local-only extras — e.g. personal
+# skills installed into a live-config clone and excluded via .git/info/exclude
+# — never trip it.
 #
 # Run from repo root: scripts/check-docs-drift.sh
 
@@ -26,30 +31,25 @@ mentioned() {
 
 check_dir() {
     local dir="$1" ext="$2" label="$3"
-    [ -d "$dir" ] || return 0
-    for f in "$dir"/*."$ext"; do
-        [ -e "$f" ] || continue
-        local name
+    local f name
+    while IFS= read -r f; do
         name="$(basename "$f" ."$ext")"
         if ! mentioned "$name"; then
             echo "DRIFT: $label '$name' (from $f) is not mentioned in CLAUDE.md or README.md"
             fail=1
         fi
-    done
+    done < <(git ls-files -- "$dir" | grep -E "^$dir/[^/]+\.$ext\$" || true)
 }
 
 check_skills() {
-    local dir="skills"
-    [ -d "$dir" ] || return 0
-    for f in "$dir"/*/SKILL.md; do
-        [ -e "$f" ] || continue
-        local name
+    local f name
+    while IFS= read -r f; do
         name="$(basename "$(dirname "$f")")"
         if ! mentioned "$name"; then
             echo "DRIFT: skill '$name' (from $f) is not mentioned in CLAUDE.md or README.md"
             fail=1
         fi
-    done
+    done < <(git ls-files -- skills | grep -E '^skills/[^/]+/SKILL\.md$' || true)
 }
 
 check_dir agents          md "agent"
