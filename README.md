@@ -10,6 +10,8 @@
 
 `8 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `9 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
+[**📖 Case study →**](https://edwardchapman.co.uk/projects/claude-code-config)
+
 <br/>
 
 ![Composing Django + React permissions into one project with a single command](docs/demo.gif)
