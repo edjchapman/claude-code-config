@@ -1,11 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "opus",
-  "fallbackModel": ["sonnet", "haiku"],
   "attribution": {
     "commit": "",
     "pr": ""
   },
+  "model": "claude-fable-5[1m]",
+  "fallbackModel": ["sonnet", "haiku"],
   "hooks": {
     "SessionStart": [
       {
@@ -113,7 +113,7 @@
     "enabled": false,
     "autoAllowBashIfSandboxed": false
   },
-  "effortLevel": "medium",
   "tui": "fullscreen",
+  "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true
 }
