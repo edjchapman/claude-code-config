@@ -353,7 +353,8 @@
       "Bash(git commit -m 'fix\\(skills\\): retire Notion from standup and eow-review workflows *)",
       "Bash(git commit -m 'feat\\(ci\\): enforce the scheduling invariant on skill frontmatter *)",
       "Bash(git commit -m 'docs: align CLAUDE.md and README with review fixes *)",
-      "Bash(git commit -m 'chore\\(permissions\\): prune one-off session approvals from tracked allowlist *)"
+      "Bash(git commit -m 'chore\\(permissions\\): prune one-off session approvals from tracked allowlist *)",
+      "Bash(scripts/check-docs-drift.sh)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
