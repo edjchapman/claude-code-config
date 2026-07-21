@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/edjchapman/claude-code-config/compare/1.11.0...1.11.1) (2026-07-21)
+
+
+### Bug Fixes
+
+* **scripts:** filter check-mode MCP comparison to existing templates ([#77](https://github.com/edjchapman/claude-code-config/issues/77)) ([8dee2a2](https://github.com/edjchapman/claude-code-config/commit/8dee2a2e0f82dec746d25e03350cd98021cb2a81))
+
 ## [1.11.0](https://github.com/edjchapman/claude-code-config/compare/1.10.0...1.11.0) (2026-07-16)
 
 
