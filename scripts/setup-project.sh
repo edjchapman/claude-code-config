@@ -274,12 +274,27 @@ if [ "$1" = "--check" ] || [ "$1" = "-c" ]; then
   if [ -d "$MCP_TEMPLATES_PATH" ]; then
     echo ""
     if [ -f .mcp.json ]; then
-      MCP_EXPECTED=$(python3 "$SCRIPT_DIR/merge-mcp.py" "$MCP_TEMPLATES_PATH" base "$@" 2> /dev/null)
-      MCP_CURRENT=$(cat .mcp.json)
-      if [ "$MCP_EXPECTED" = "$MCP_CURRENT" ]; then
-        echo "✓ .mcp.json matches MCP templates (base $*)"
+      # Mirror the generation filter: only types that actually have MCP
+      # templates (permission templates and MCP templates are separate sets —
+      # e.g. `docker` has permissions but no MCP template). Without the filter,
+      # merge-mcp.py fails on the missing template and `set -e` kills check
+      # mode with a bare exit 1 before any verdict prints.
+      MCP_TYPES=("base")
+      for type in "$@"; do
+        if [ -f "$MCP_TEMPLATES_PATH/$type.json" ]; then
+          MCP_TYPES+=("$type")
+        fi
+      done
+      if MCP_EXPECTED=$(python3 "$SCRIPT_DIR/merge-mcp.py" "$MCP_TEMPLATES_PATH" "${MCP_TYPES[@]}" 2> /dev/null); then
+        MCP_CURRENT=$(cat .mcp.json)
+        if [ "$MCP_EXPECTED" = "$MCP_CURRENT" ]; then
+          echo "✓ .mcp.json matches MCP templates (${MCP_TYPES[*]})"
+        else
+          echo "✗ .mcp.json has drifted from MCP templates"
+          HAS_ISSUES=true
+        fi
       else
-        echo "✗ .mcp.json has drifted from MCP templates"
+        echo "✗ merge-mcp.py failed computing expected .mcp.json (${MCP_TYPES[*]})"
         HAS_ISSUES=true
       fi
     else
