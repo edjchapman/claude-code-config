@@ -4,7 +4,7 @@
     "commit": "",
     "pr": ""
   },
-  "model": "claude-fable-5[1m]",
+  "model": "opus",
   "fallbackModel": ["sonnet", "haiku"],
   "hooks": {
     "SessionStart": [
