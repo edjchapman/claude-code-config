@@ -264,7 +264,7 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 - `name`: Agent identifier (used as `@agent-name`)
 - `description`: When Claude should invoke this agent (include examples)
 - `model` (optional): omit to **inherit** the session model (the default, right for deep-reasoning agents); pin `sonnet` for pattern-based cost routing or `haiku` for highly structured / data-plumbing
-- `tools` / `disallowedTools` (optional): Allowlist / denylist restricting the agent's tool pool
+- `tools` / `disallowedTools` (optional): Allowlist / denylist restricting the agent's tool pool. Used by the two `permissionMode: plan` advisors (`database-architect`, `devops-engineer`) with a read-only pool (`Read, Glob, Grep, Bash, WebFetch, WebSearch`) — they analyse and design; the main session implements
 - `color` (optional): UI hint for the agent's display colour
 - `permissionMode` (optional): Override the subagent's permission mode (e.g. `plan` starts the agent in plan mode for spec/review work that should not edit until approved)
 - `memory` (optional): Persistent cross-session memory scope (`user`, `project`, or `local`). Used by `bug-resolver`, `ci-debugger`, and `performance-engineer` (`project`) so diagnosed root causes, flaky-test signatures, and perf baselines compound across sessions — pair it with a body section telling the agent to read/update its memory
