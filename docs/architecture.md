@@ -181,6 +181,8 @@ Available templates (14 total):
 - **Frontend stacks**: `nextjs.json`, `react.json`
 - **Platform / infra**: `aws.json`, `docker.json`, `kubernetes.json`, `terraform.json`
 
+This repo's own `.claude/settings.local.json` is generated from every template **except `aws`** (see its `_generated_from`) — deliberate selection, not drift: the repo has no AWS surface, so AWS CLI allows would be dead weight here.
+
 Template structure:
 
 ```json

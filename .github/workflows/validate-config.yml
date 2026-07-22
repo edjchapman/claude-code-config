@@ -27,6 +27,31 @@ jobs:
       - name: Validate settings.personal.json.example
         run: python -m json.tool settings.personal.json.example > /dev/null
 
+      - name: Universal and personal plugin lists must not overlap
+        # settings.json carries universal plugins; settings.personal.json.example
+        # carries personal opt-ins. A plugin listed in both means one file is
+        # stale (this drift shipped once: frontend-design after PR #80).
+        run: |
+          python3 <<'PY'
+          import json
+          import sys
+
+          with open('settings.json') as f:
+              universal = set(json.load(f).get('enabledPlugins', {}))
+          with open('settings.personal.json.example') as f:
+              personal = set(json.load(f).get('enabledPlugins', {}))
+
+          overlap = sorted(universal & personal)
+          if overlap:
+              print('Plugins listed in BOTH settings.json and settings.personal.json.example:')
+              for name in overlap:
+                  print(f'  {name}')
+              print('Remove them from one file: universal plugins live in settings.json only,')
+              print('personal opt-ins in settings.personal.json.example only.')
+              sys.exit(1)
+          print('Universal/personal plugin split is clean.')
+          PY
+
       - name: Validate all settings templates
         run: |
           for f in settings-templates/*.json; do
@@ -67,6 +92,28 @@ jobs:
               python scripts/merge-mcp.py mcp-templates base "$name" > /dev/null
             fi
           done
+
+  ruff:
+    name: Lint Python scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install ruff
+        # Pin to the same version as .pre-commit-config.yaml so local hooks
+        # and CI can't disagree; bump both together.
+        run: pip install ruff==0.7.4
+
+      - name: Run ruff check
+        run: ruff check scripts/
+
+      - name: Run ruff format check
+        run: ruff format --check scripts/
 
   shellcheck:
     name: Lint shell scripts
