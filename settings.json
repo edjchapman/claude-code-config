@@ -106,7 +106,8 @@
     "playwright@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "document-skills@anthropic-agent-skills": true
+    "document-skills@anthropic-agent-skills": true,
+    "frontend-design@claude-plugins-official": true
   },
   "outputStyle": "Explanatory",
   "sandbox": {
