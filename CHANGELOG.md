@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.12.0](https://github.com/edjchapman/claude-code-config/compare/1.11.1...1.12.0) (2026-07-22)
+
+
+### Features
+
+* **agents:** read-only tool pool for plan-mode advisors ([#85](https://github.com/edjchapman/claude-code-config/issues/85)) ([fce5ac2](https://github.com/edjchapman/claude-code-config/commit/fce5ac2e3404745ded844120571be2ca7fd4a89d))
+* **settings:** move personal model pin to the personal layer ([#84](https://github.com/edjchapman/claude-code-config/issues/84)) ([bc8d263](https://github.com/edjchapman/claude-code-config/commit/bc8d263d1c047ce880d7b73826744b0003b237f9))
+
 ## [1.11.1](https://github.com/edjchapman/claude-code-config/compare/1.11.0...1.11.1) (2026-07-21)
 
 
