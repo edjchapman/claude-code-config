@@ -37,4 +37,4 @@ paths:
 
 - All public function signatures must have type hints
 - Use `from __future__ import annotations` for forward references
-- Use `Optional[X]` explicitly instead of `X | None` for Python < 3.10
+- Prefer `X | None` union syntax (the norm on Python 3.10+); use `Optional[X]` only in legacy codebases pinned below 3.10
