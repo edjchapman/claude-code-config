@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "_note": "Personal plugin opt-ins not included in the universal settings.json. Copy this file's enabledPlugins block into ~/.claude/settings.local.json (or merge with any existing enabledPlugins there) to enable services requiring external accounts or that you want gated to your own machine. Settings layers may shallow-replace this object rather than deep-merge — if you observe plugins from settings.json being disabled after activating this file, include the universal entries here too (see settings.json for the canonical list).",
+  "_note": "Personal opt-ins not included in the universal settings.json. Copy the keys you want into ~/.claude/settings.local.json (or merge with existing entries there). enabledPlugins: services requiring external accounts or gated to your own machine — settings layers may shallow-replace this object rather than deep-merge; if you observe plugins from settings.json being disabled after activating this file, include the universal entries here too (see settings.json for the canonical list). model: entitlement-gated model pins live here, not in settings.json — fallbackModel only covers overload/unavailability, so an unentitled pin in the universal file breaks consumers outright.",
+  "model": "claude-fable-5[1m]",
   "enabledPlugins": {
     "figma@claude-plugins-official": true
   }
