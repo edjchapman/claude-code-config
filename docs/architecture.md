@@ -146,6 +146,8 @@ The three user-only skills set `disable-model-invocation: true`. **Scheduling co
 
 Rules are path-scoped code style enforcement files in `rules/`. They use `paths` frontmatter for granular file matching.
 
+**Symlink-mode only.** Rules are not a supported plugin component — the official plugin layout ships skills, agents, hooks, MCP/LSP servers, and settings, but has no rules directory or manifest field (verified against the plugin docs, 2026-07-22; rules exist only at user level `~/.claude/rules/` and project level `.claude/rules/`). Consumers installing this repo as a plugin therefore don't get `rules/`; only the `setup-global.sh` symlink path (`rules/` → `~/.claude/rules`) delivers them. If plugin support for rules lands upstream, wire it here and drop this note.
+
 Available rules:
 
 - `python-style.md`: Naming, error handling, imports, type hints (`**/*.py`)
