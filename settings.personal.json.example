@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "_note": "Personal plugin opt-ins not included in the universal settings.json. Copy this file's enabledPlugins block into ~/.claude/settings.local.json (or merge with any existing enabledPlugins there) to enable services requiring external accounts or that you want gated to your own machine. Settings layers may shallow-replace this object rather than deep-merge — if you observe plugins from settings.json being disabled after activating this file, include the universal entries here too (see settings.json for the canonical list).",
   "enabledPlugins": {
-    "figma@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true
+    "figma@claude-plugins-official": true
   }
 }
