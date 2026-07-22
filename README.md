@@ -139,7 +139,7 @@ Everything falls into two modes — tools you **invoke** and tools that **auto-a
 
 ### Agents
 
-Invoke with `@agent-name`. **inherit** = follows your session model (deep-reasoning agents deserve whatever you're running); **sonnet** = deliberately pinned for pattern-based mechanical work (cost routing).
+Invoke with `@agent-name`. **inherit** = follows your session model (deep-reasoning agents deserve whatever you're running); **sonnet** = deliberately pinned for pattern-based mechanical work (cost routing). `@database-architect` and `@devops-engineer` are plan-mode advisors with a read-only tool pool — they analyse and design; your main session implements.
 
 <details>
 <summary><strong>8 specialist agents</strong> — click to expand</summary>
