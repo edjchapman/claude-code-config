@@ -1,6 +1,6 @@
 ---
 name: standup
-description: Prepare a standup document summarizing recent work activity across Git, GitHub, and Jira.
+description: Prepare a standup document summarizing recent work activity across Git, GitHub, and Jira. Use when you want a standup summary or someone asks what you worked on recently.
 argument-hint: "[<period>] [--output <path>] [--team] [--skip-jira|--skip-calendar]"
 ---
 

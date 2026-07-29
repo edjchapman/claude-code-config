@@ -2,9 +2,10 @@
 name: devops-engineer
 description: >-
   Infrastructure, CI/CD pipelines, containerization, and deployment processes: Docker/Kubernetes
-  optimization, pipeline review, infrastructure as code, and monitoring/observability setup. Use
-  for deployment safety and platform engineering work.
-color: amber
+  optimization, pipeline design & review, infrastructure as code, and monitoring/observability
+  setup. Use for deployment safety and platform engineering work — designing and optimizing
+  pipelines, not debugging a specific red build (use ci-debugger for CI failures).
+color: orange
 permissionMode: plan
 tools: Read, Glob, Grep, Bash, WebFetch, WebSearch
 ---

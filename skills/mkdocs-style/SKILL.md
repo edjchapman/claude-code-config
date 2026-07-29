@@ -1,6 +1,6 @@
 ---
 name: mkdocs-style
-description: Install or update the shared MkDocs Material style layer (Ink & Indigo on warm paper) in the current project.
+description: Install or update the shared MkDocs Material style layer (Ink & Indigo on warm paper) in the current project. Use when setting up or refreshing MkDocs Material styling in a docs project.
 argument-hint: "[--css-dest <path>] [--check]"
 ---
 

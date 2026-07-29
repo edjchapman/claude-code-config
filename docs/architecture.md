@@ -283,7 +283,7 @@ Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum rou
 Agents in `agents/` are Markdown files with YAML frontmatter:
 
 - `name`: Agent identifier (used as `@agent-name`)
-- `description`: When Claude should invoke this agent (include examples)
+- `description`: When Claude should invoke this agent — a rich `"… Use when <trigger>"` phrasing (this repo's convention; the agents use trigger prose rather than `<example>` blocks)
 - `model` (optional): omit to **inherit** the session model (the default, right for deep-reasoning agents); pin `sonnet` for pattern-based cost routing or `haiku` for highly structured / data-plumbing
 - `tools` / `disallowedTools` (optional): Allowlist / denylist restricting the agent's tool pool. Used by the two `permissionMode: plan` advisors (`database-architect`, `devops-engineer`) with a read-only pool (`Read, Glob, Grep, Bash, WebFetch, WebSearch`) — they analyse and design; the main session implements
 - `color` (optional): UI hint for the agent's display colour
