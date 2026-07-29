@@ -58,6 +58,16 @@
         ]
       }
     ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/post-compact-restore.sh"
+          }
+        ]
+      }
+    ],
     "TaskCompleted": [
       {
         "hooks": [
