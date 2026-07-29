@@ -7,6 +7,8 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/git-context.sh
 . "$SCRIPT_DIR/lib/git-context.sh"
+# shellcheck source=lib/hook-input.sh
+. "$SCRIPT_DIR/lib/hook-input.sh"
 
 # The harness passes the hook payload as JSON on stdin (.session_id, .reason...).
 PAYLOAD=$(cat 2> /dev/null || true)
@@ -27,16 +29,7 @@ fi
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 WORKING_DIR=$(pwd)
 BRANCH=$(git_branch "n/a")
-SESSION_ID=""
-if [ -n "$PAYLOAD" ] && command -v python3 > /dev/null 2>&1; then
-  SESSION_ID=$(printf '%s' "$PAYLOAD" | python3 -c '
-import json, sys
-try:
-    print(json.load(sys.stdin).get("session_id") or "")
-except Exception:
-    pass
-' 2> /dev/null)
-fi
+SESSION_ID=$(hook_field "$PAYLOAD" session_id)
 SESSION_ID="${SESSION_ID:-${CLAUDE_SESSION_ID:-unknown}}"
 
 # Log session
