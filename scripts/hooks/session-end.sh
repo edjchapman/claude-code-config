@@ -8,6 +8,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/git-context.sh
 . "$SCRIPT_DIR/lib/git-context.sh"
 
+# The harness passes the hook payload as JSON on stdin (.session_id, .reason...).
+PAYLOAD=$(cat 2> /dev/null || true)
+
 LOG_DIR="${HOME}/.claude/debug"
 LOG_FILE="${LOG_DIR}/session-log.csv"
 CACHE_DIR="${HOME}/.claude/cache"
@@ -24,7 +27,17 @@ fi
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 WORKING_DIR=$(pwd)
 BRANCH=$(git_branch "n/a")
-SESSION_ID="${CLAUDE_SESSION_ID:-unknown}"
+SESSION_ID=""
+if [ -n "$PAYLOAD" ] && command -v python3 > /dev/null 2>&1; then
+  SESSION_ID=$(printf '%s' "$PAYLOAD" | python3 -c '
+import json, sys
+try:
+    print(json.load(sys.stdin).get("session_id") or "")
+except Exception:
+    pass
+' 2> /dev/null)
+fi
+SESSION_ID="${SESSION_ID:-${CLAUDE_SESSION_ID:-unknown}}"
 
 # Log session
 echo "\"${TIMESTAMP}\",\"${WORKING_DIR}\",\"${BRANCH}\",\"${SESSION_ID}\"" >> "$LOG_FILE"
@@ -42,13 +55,13 @@ if in_git_work_tree; then
     fi
 
     COMMITS=$(git log --since="$SINCE" --author="$GIT_USER" --oneline 2> /dev/null)
-    if [ -n "$COMMITS" ]; then
+    # Opt-in only: append to a repo that already has a standups/ directory, so
+    # ending a session in an unrelated repo doesn't scatter standups/ dirs.
+    if [ -n "$COMMITS" ] && [ -d "./standups" ]; then
       STANDUPS_DIR="./standups"
       TODAY=$(date +"%Y-%m-%d")
       DAILY_LOG="${STANDUPS_DIR}/${TODAY}-log.md"
       SESSION_TIME=$(date +"%H:%M")
-
-      mkdir -p "$STANDUPS_DIR"
 
       # Create log file with header if it doesn't exist
       if [ ! -f "$DAILY_LOG" ]; then

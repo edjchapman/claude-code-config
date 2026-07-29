@@ -2,12 +2,30 @@
 # Auto-format files after Claude edits them (unified Python + JS/TS formatter)
 # Used by: PostToolUse hook in settings.json
 #
-# Expects $CLAUDE_FILE_PATH to be set by the hook system
-# Only runs if the relevant formatter is available
+# The harness passes the hook payload as JSON on stdin; the edited file path is
+# at .tool_input.file_path. (The older $CLAUDE_FILE_PATH env var is NOT set by
+# the harness — relying on it made this hook a silent no-op.) A positional arg
+# is still honoured as a fallback for manual runs and tests.
+# Only runs if the relevant formatter is available.
 
 set -u
 
-FILE_PATH="${CLAUDE_FILE_PATH:-${1:-}}"
+PAYLOAD=$(cat 2> /dev/null || true)
+
+FILE_PATH=""
+if [ -n "$PAYLOAD" ] && command -v python3 > /dev/null 2>&1; then
+  FILE_PATH=$(printf '%s' "$PAYLOAD" | python3 -c '
+import json, sys
+try:
+    data = json.load(sys.stdin)
+except Exception:
+    sys.exit(0)
+ti = data.get("tool_input") or {}
+print(ti.get("file_path") or "")
+' 2> /dev/null)
+fi
+# Fallbacks: legacy env var, then positional arg (manual runs / tests).
+FILE_PATH="${FILE_PATH:-${CLAUDE_FILE_PATH:-${1:-}}}"
 
 # Only run if file exists
 [ -f "$FILE_PATH" ] || exit 0
