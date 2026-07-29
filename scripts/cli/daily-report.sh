@@ -13,5 +13,5 @@ if ! command -v claude &> /dev/null; then
 fi
 
 claude -p "Summarize my git activity from the last 24 hours. List commits, files changed, and any open PRs." \
-  --allowedTools "Bash(git log *),Bash(gh pr list *)" \
+  --allowedTools "Bash(git log:*),Bash(gh pr list:*)" \
   --max-turns 5

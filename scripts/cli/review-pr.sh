@@ -15,5 +15,5 @@ if ! command -v claude &> /dev/null; then
 fi
 
 claude -p "Review PR #$PR_NUM. Focus on bugs, security, and test coverage." \
-  --allowedTools "Bash(gh pr *),Bash(gh api *),Read" \
+  --allowedTools "Bash(gh pr:*),Bash(gh api:*),Read" \
   --max-turns 10
