@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.13.0](https://github.com/edjchapman/claude-code-config/compare/1.12.0...1.13.0) (2026-07-29)
+
+
+### Features
+
+* **hooks:** make compaction state survive via a PostCompact restore hook ([#95](https://github.com/edjchapman/claude-code-config/issues/95)) ([7c4255a](https://github.com/edjchapman/claude-code-config/commit/7c4255afd13778f9f149b3687071336292efcbd8))
+
+
+### Bug Fixes
+
+* **agents,skills:** polish frontmatter, descriptions, and exemplar docs ([#93](https://github.com/edjchapman/claude-code-config/issues/93)) ([c922054](https://github.com/edjchapman/claude-code-config/commit/c92205491230d2ac03af3bb12daf6204102c7878))
+* **cli,scripts:** canonical allowedTools + repo-relative aliases + flag deprecated postgres MCP ([#96](https://github.com/edjchapman/claude-code-config/issues/96)) ([97f4a6c](https://github.com/edjchapman/claude-code-config/commit/97f4a6c6f66ad926302736ecc29e44a91754a66c))
+* **hooks:** block wiping a system dir in dangerous-cmd-check (follow-up to [#89](https://github.com/edjchapman/claude-code-config/issues/89)) ([#98](https://github.com/edjchapman/claude-code-config/issues/98)) ([f963159](https://github.com/edjchapman/claude-code-config/commit/f96315982d2772b056d9947590db913ba68541f1))
+* **hooks:** bound the failure log + timeout-guard the status line ([#94](https://github.com/edjchapman/claude-code-config/issues/94)) ([f266712](https://github.com/edjchapman/claude-code-config/commit/f266712362c2667d7bfa84c411f1e5c98db09bf1))
+* **hooks:** read tool payloads from stdin, not unset CLAUDE_* env vars ([#89](https://github.com/edjchapman/claude-code-config/issues/89)) ([b455f23](https://github.com/edjchapman/claude-code-config/commit/b455f23373e6532b329a7740e01080f6d9c553da))
+* **hooks:** sweep orphaned pre-compact snapshots in session-end cleanup ([#100](https://github.com/edjchapman/claude-code-config/issues/100)) ([3984efc](https://github.com/edjchapman/claude-code-config/commit/3984efce34b29cee9ff54bef5be1e0396108ca09))
+* **settings:** harden template merge + tighten base.json permissions ([#91](https://github.com/edjchapman/claude-code-config/issues/91)) ([6dbee1f](https://github.com/edjchapman/claude-code-config/commit/6dbee1f091f5d86ef28ab8d917695f2d257c6bf7))
+
 ## [1.12.0](https://github.com/edjchapman/claude-code-config/compare/1.11.1...1.12.0) (2026-07-22)
 
 
