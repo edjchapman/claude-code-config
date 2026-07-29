@@ -14,22 +14,13 @@
 
 set -u
 
-PAYLOAD=$(cat 2> /dev/null || true)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/hook-input.sh
+. "$SCRIPT_DIR/lib/hook-input.sh"
 
-# Extract the actual command string from the JSON payload.
-CMD=""
-if [ -n "$PAYLOAD" ] && command -v python3 > /dev/null 2>&1; then
-  CMD=$(printf '%s' "$PAYLOAD" | python3 -c '
-import json, sys
-try:
-    data = json.load(sys.stdin)
-except Exception:
-    sys.exit(0)
-ti = data.get("tool_input") or {}
-print(ti.get("command") or "")
-' 2> /dev/null)
-fi
-# Fallbacks: legacy env var, or treat raw stdin as the command.
+PAYLOAD=$(cat 2> /dev/null || true)
+# Extract the command string; fall back to the legacy env var or raw stdin.
+CMD=$(hook_field "$PAYLOAD" tool_input.command)
 CMD="${CMD:-${CLAUDE_TOOL_INPUT:-$PAYLOAD}}"
 [ -n "$CMD" ] || exit 0
 
