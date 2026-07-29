@@ -4,7 +4,7 @@ description: >-
   Analyze and optimize application performance: profiling, bottleneck identification, slow database
   query optimization, memory/CPU analysis, caching strategies, and load-testing guidance. Use for
   slow endpoints or scalability planning.
-color: magenta
+color: pink
 memory: project
 ---
 
@@ -91,7 +91,7 @@ EXPLAIN ANALYZE SELECT ...
 
 - Chrome DevTools Performance tab
 - Lighthouse audits
-- Web Vitals (LCP, FID, CLS)
+- Web Vitals (LCP, INP, CLS) — INP replaced FID as a Core Web Vital in 2024
 - Bundle analysis (webpack-bundle-analyzer)
 
 ### 2. Common Bottleneck Patterns

@@ -1,6 +1,6 @@
 ---
 name: eow-review
-description: Prepare end-of-week review notes summarizing the full week's work activity across all sources (Git, GitHub, Jira).
+description: Prepare end-of-week review notes summarizing the full week's work activity across all sources (Git, GitHub, Jira). Use when wrapping up the week or preparing a weekly summary.
 argument-hint: "[<period>] [--output <path>] [--skip-jira|--skip-calendar|--skip-github]"
 ---
 

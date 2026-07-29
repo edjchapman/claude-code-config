@@ -18,7 +18,7 @@ Analyze my staged changes and help me write a good commit message.
 
 Read Jira config from the project's `CLAUDE.md` if present (look for a
 `## Jira` section with `Base URL` and `Ticket Pattern`). If absent, prefer
-the `mcp__claude_ai_Atlassian__*` tools, or skip linking and use a bare
+the `mcp__plugin_atlassian_atlassian__*` tools (dormant unless the atlassian plugin is enabled), or skip linking and use a bare
 ticket reference.
 
 - **Common ticket patterns**: `[A-Z]+-\d+` (e.g. `ABC-123`, `PROJ-456`)

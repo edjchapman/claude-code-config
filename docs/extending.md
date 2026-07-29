@@ -51,10 +51,10 @@ When extending this repo (adding a new agent / skill / command / hook / template
 ### Add an agent
 
 - **Where**: `agents/<kebab-name>.md`
-- **Required frontmatter**: `name`, `description` (include `<example>` blocks for when to invoke)
+- **Required frontmatter**: `name`, `description` — a rich `"<what it does>. Use when <trigger>"` phrasing (this repo's convention; no agent uses `<example>` blocks and they trigger fine on the prose)
 - **Optional**: `model` (`opus`/`sonnet`/`haiku`), `tools`, `disallowedTools`, `color`, `permissionMode`, `memory` (`user`/`project`/`local` — cross-session learning), `isolation: worktree`
 - **Model heuristic**: omit `model` so the agent **inherits** the session model — the right default for deep-reasoning agents (bug-resolver, database-architect). Pin only for deliberate cost routing: `sonnet` for pattern-based work (test-engineer, documentation-writer), `haiku` for highly-structured data-plumbing
-- **Exemplar**: [`agents/bug-resolver.md`](../agents/bug-resolver.md) — opus, rich description with examples
+- **Exemplar**: [`agents/bug-resolver.md`](../agents/bug-resolver.md) — inherits the session model (no `model:` pin), with a rich `description` + `Use when` trigger
 
 ### Add a skill
 
