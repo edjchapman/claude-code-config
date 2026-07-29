@@ -347,7 +347,10 @@
       "Bash(git check-ignore *)",
       "Skill(schedule)",
       "Skill(code-review)",
-      "Bash(scripts/check-docs-drift.sh)"
+      "Bash(scripts/check-docs-drift.sh)",
+      "Bash(python3 scripts/check-hooks-sync.py)",
+      "Bash(gh pr *)",
+      "Bash(git worktree *)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
