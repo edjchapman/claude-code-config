@@ -1,7 +1,5 @@
 {
   "_source": "nextjs",
-  "_version": 1,
-  "mcpServers": {
-    "postgres": { "$fragment": "postgres" }
-  }
+  "_version": 2,
+  "mcpServers": {}
 }
