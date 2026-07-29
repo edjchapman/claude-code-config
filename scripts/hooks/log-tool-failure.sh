@@ -18,7 +18,10 @@ MAX_LINES=2000
 if [ -f "$LOG_FILE" ]; then
   LINE_COUNT=$(wc -l < "$LOG_FILE" 2> /dev/null || echo 0)
   if [ "$LINE_COUNT" -gt "$MAX_LINES" ]; then
-    tail -n $((MAX_LINES / 2)) "$LOG_FILE" > "${LOG_FILE}.tmp" 2> /dev/null && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+    # PID-suffixed temp so concurrent PostToolUseFailure hooks (parallel tool
+    # calls can fail at once) don't clobber a shared temp; clean up on failure.
+    TMP_FILE="${LOG_FILE}.$$.tmp"
+    tail -n $((MAX_LINES / 2)) "$LOG_FILE" > "$TMP_FILE" 2> /dev/null && mv "$TMP_FILE" "$LOG_FILE" || rm -f "$TMP_FILE" 2> /dev/null
   fi
 fi
 
