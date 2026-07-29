@@ -43,9 +43,11 @@ block() {
 check() { printf '%s' "$NORM" | grep -Eiq "$1" && block "$2"; }
 
 # Extended-regex patterns, matched case-insensitively against the normalised
-# command. Root/home deletes are ANCHORED so legitimate sub-path deletes such as
-# "rm -rf /tmp/build" or "rm -rf ~/project/dist" are NOT blocked.
+# command. Root/home/system-dir deletes are ANCHORED so legitimate sub-path
+# deletes ("rm -rf /tmp/build", "rm -rf /var/tmp/x", "rm -rf ~/project/dist")
+# are NOT blocked, while wiping a system dir itself (or its glob) IS.
 check 'rm +-[a-z]*r[a-z]* +/( |$|\*)'                'rm -rf /'
+check 'rm +-[a-z]*r[a-z]* +/(etc|usr|bin|sbin|lib64|lib|var|boot|sys|proc|dev|root|opt)($| |/\*?$)' 'rm -rf a system dir'
 check 'rm +-[a-z]*r[a-z]* +(~|\$\{?HOME\}?)( |/?$)'  'rm -rf $HOME'
 check 'rm +.*--no-preserve-root'                     'rm --no-preserve-root'
 check 'dd +if=/dev/'                                 'dd if=/dev/...'
