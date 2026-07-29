@@ -39,7 +39,16 @@ fi
 
 if [ -z "$PR_STATUS" ]; then
   if command -v gh &> /dev/null; then
-    PR_STATUS=$(gh pr view --json state,number --jq '"PR #\(.number) \(.state)"' 2> /dev/null || echo "no PR")
+    # Guard the network call so a slow gh can't stall the status line (< 1s goal).
+    if command -v timeout &> /dev/null; then
+      GH_TIMEOUT="timeout 2"
+    elif command -v gtimeout &> /dev/null; then
+      GH_TIMEOUT="gtimeout 2"
+    else
+      GH_TIMEOUT=""
+    fi
+    # shellcheck disable=SC2086  # word-splitting of $GH_TIMEOUT is intentional
+    PR_STATUS=$($GH_TIMEOUT gh pr view --json state,number --jq '"PR #\(.number) \(.state)"' 2> /dev/null || echo "no PR")
     mkdir -p "$CACHE_DIR"
     echo "$PR_STATUS" > "$CACHE_FILE" 2> /dev/null
   else

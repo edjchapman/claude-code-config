@@ -12,6 +12,16 @@ LOG_FILE="${LOG_DIR}/tool-failures.jsonl"
 
 mkdir -p "$LOG_DIR" 2> /dev/null || exit 0
 
+# Keep the log bounded — entries can be large (full command output / PR bodies),
+# and nothing prunes it otherwise. Rotate to the most recent half over the cap.
+MAX_LINES=2000
+if [ -f "$LOG_FILE" ]; then
+  LINE_COUNT=$(wc -l < "$LOG_FILE" 2> /dev/null || echo 0)
+  if [ "$LINE_COUNT" -gt "$MAX_LINES" ]; then
+    tail -n $((MAX_LINES / 2)) "$LOG_FILE" > "${LOG_FILE}.tmp" 2> /dev/null && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+  fi
+fi
+
 # Read the hook payload from stdin (the harness passes a JSON object).
 # If stdin is empty or non-JSON, fall back to recording just a timestamp.
 PAYLOAD=$(cat 2> /dev/null || true)
