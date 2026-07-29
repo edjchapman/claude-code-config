@@ -42,6 +42,7 @@ Shared internals (not run directly):
 
 - `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, and `check-hooks-sync.py` (Python version gate, template loading, output validation)
 - `scripts/hooks/lib/git-context.sh` — git helpers (`in_git_work_tree`, `git_branch`, `git_dirty_count`) sourced by the hook scripts; not a hook itself
+- `scripts/hooks/lib/hook-input.sh` — `hook_field <payload> <dotted.key>` helper for reading a field from the hook's stdin JSON payload; sourced by the hooks that parse stdin (format-on-edit, dangerous-cmd-check, session-end, pre/post-compact); not a hook itself
 - `mcp-templates/fragments/` — shared MCP server definitions (`postgres.json`, `sqlite.json`); templates reference them as `{"$fragment": "<name>"}` and `merge-mcp.py` inlines them at merge time
 
 ## Architecture

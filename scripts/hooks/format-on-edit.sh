@@ -10,20 +10,12 @@
 
 set -u
 
-PAYLOAD=$(cat 2> /dev/null || true)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/hook-input.sh
+. "$SCRIPT_DIR/lib/hook-input.sh"
 
-FILE_PATH=""
-if [ -n "$PAYLOAD" ] && command -v python3 > /dev/null 2>&1; then
-  FILE_PATH=$(printf '%s' "$PAYLOAD" | python3 -c '
-import json, sys
-try:
-    data = json.load(sys.stdin)
-except Exception:
-    sys.exit(0)
-ti = data.get("tool_input") or {}
-print(ti.get("file_path") or "")
-' 2> /dev/null)
-fi
+PAYLOAD=$(cat 2> /dev/null || true)
+FILE_PATH=$(hook_field "$PAYLOAD" tool_input.file_path)
 # Fallbacks: legacy env var, then positional arg (manual runs / tests).
 FILE_PATH="${FILE_PATH:-${CLAUDE_FILE_PATH:-${1:-}}}"
 

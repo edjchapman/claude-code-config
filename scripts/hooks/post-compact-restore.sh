@@ -10,16 +10,14 @@
 
 set -u
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/hook-input.sh
+. "$SCRIPT_DIR/lib/hook-input.sh"
+
 PAYLOAD=$(cat 2> /dev/null || true)
 command -v python3 > /dev/null 2>&1 || exit 0
 
-SESSION_ID=$(printf '%s' "$PAYLOAD" | python3 -c '
-import json, sys
-try:
-    print(json.load(sys.stdin).get("session_id") or "")
-except Exception:
-    pass
-' 2> /dev/null)
+SESSION_ID=$(hook_field "$PAYLOAD" session_id)
 SESSION_ID="${SESSION_ID:-default}"
 
 STATE_FILE="${HOME}/.claude/cache/precompact-${SESSION_ID}.md"
