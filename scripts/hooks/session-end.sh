@@ -89,7 +89,8 @@ fi
 # orphaned pre-compact snapshots (post-compact-restore.sh normally deletes those,
 # but a crashed or interrupted compaction can leave one behind).
 if [ -d "$CACHE_DIR" ]; then
-  find "$CACHE_DIR" \( -name "pr-status-*" -o -name "precompact-*" \) -mmin +60 -delete 2> /dev/null
+  find "$CACHE_DIR" -name "pr-status-*" -mmin +60 -delete 2> /dev/null
+  find "$CACHE_DIR" -name "precompact-*" -mmin +60 -delete 2> /dev/null
 fi
 
 exit 0
