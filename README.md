@@ -297,9 +297,9 @@ MCP server configs generated alongside `settings.local.json` when a matching tem
 | Template  | MCP Servers                                          |
 | --------- | ---------------------------------------------------- |
 | `base`    | None (MCP is opt-in)                                 |
-| `django`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
-| `nextjs`  | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
-| `fastapi` | PostgreSQL (`@modelcontextprotocol/server-postgres`) |
+| `django`  | None by default (opt-in — postgres fragment dropped) |
+| `nextjs`  | None by default (opt-in — postgres fragment dropped) |
+| `fastapi` | None by default (opt-in — postgres fragment dropped) |
 | `python`  | SQLite (`mcp-server-sqlite-npx`)                     |
 | `node`    | SQLite (`mcp-server-sqlite-npx`)                     |
 | `aws`     | AWS IaC (`awslabs.aws-iac-mcp-server`, via `uvx`)    |

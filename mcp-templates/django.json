@@ -1,7 +1,5 @@
 {
   "_source": "django",
-  "_version": 2,
-  "mcpServers": {
-    "postgres": { "$fragment": "postgres" }
-  }
+  "_version": 3,
+  "mcpServers": {}
 }

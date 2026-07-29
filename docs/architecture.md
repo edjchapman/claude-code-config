@@ -43,7 +43,7 @@ Shared internals (not run directly):
 - `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, and `check-hooks-sync.py` (Python version gate, template loading, output validation)
 - `scripts/hooks/lib/git-context.sh` — git helpers (`in_git_work_tree`, `git_branch`, `git_dirty_count`) sourced by the hook scripts; not a hook itself
 - `scripts/hooks/lib/hook-input.sh` — `hook_field <payload> <dotted.key>` helper for reading a field from the hook's stdin JSON payload; sourced by the hooks that parse stdin (format-on-edit, dangerous-cmd-check, session-end, pre/post-compact); not a hook itself
-- `mcp-templates/fragments/` — shared MCP server definitions (`postgres.json`, `sqlite.json`); templates reference them as `{"$fragment": "<name>"}` and `merge-mcp.py` inlines them at merge time
+- `mcp-templates/fragments/` — shared MCP server definitions (`sqlite.json`); templates reference them as `{"$fragment": "<name>"}` and `merge-mcp.py` inlines them at merge time
 
 ## Architecture
 
@@ -234,14 +234,12 @@ MCP templates in `mcp-templates/` define MCP server configurations per project t
 Available MCP templates:
 
 - `base.json`: Empty (MCP servers are opt-in)
-- `django.json` (`_version: 2`): PostgreSQL MCP server (`@modelcontextprotocol/server-postgres`)
-- `nextjs.json`: PostgreSQL MCP server
-- `fastapi.json`: PostgreSQL MCP server
+- `django.json` (`_version: 3`), `nextjs.json` (`_version: 2`), `fastapi.json` (`_version: 2`): **no MCP server by default** (empty `mcpServers`). They previously shipped the archived `@modelcontextprotocol/server-postgres`; it was dropped (deprecated, a known SQL-injection vuln, and no maintained `npx` drop-in exists) — wire a PostgreSQL MCP server per-project when needed (e.g. Crystal DBA's `uvx postgres-mcp`)
 - `python.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Python local dev
 - `node.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Node local dev
 - `aws.json` (`_version: 1`): AWS Infrastructure-as-Code MCP server (`awslabs.aws-iac-mcp-server`) for CloudFormation/CDK validation, `cfn-guard` compliance, and deployment troubleshooting. Runs via `uvx` (Python/PyPI), not `npx` — needs the `uv` package manager plus AWS credentials (`AWS_PROFILE`/`AWS_REGION`). The deprecated `awslabs.terraform-mcp-server` is deliberately excluded; HashiCorp's official Terraform MCP server has superseded it.
 
-Stacks without an MCP template (Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); add MCP servers manually in the project's generated `.mcp.json` when needed. The frameworks with web/DB context default to PostgreSQL; generic Python/Node templates use SQLite because there's no shared external DB assumption. The `aws` template is the lone infra MCP server — it's `uvx`-based rather than `npx`-based, so verify against PyPI (confirmed `awslabs.aws-iac-mcp-server` published at template creation time) rather than the npm registry. Verify each template's package before relying on it — versions move (npm search confirmed `mcp-server-sqlite-npx@0.8.0` exists at template creation time). **Note (2026-07-29):** `@modelcontextprotocol/server-postgres` (the `postgres` fragment used by `django` / `nextjs` / `fastapi`) is now **deprecated** upstream ("Package no longer supported"); it still installs via `npx -y` today but should be swapped for a maintained PostgreSQL MCP server when convenient.
+Stacks without an MCP template (Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); Django/Next.js/FastAPI keep templates but now ship **no default MCP server** (empty `mcpServers`). Add MCP servers manually in the project's generated `.mcp.json` when needed. Generic Python/Node templates use SQLite because there's no shared external DB assumption. The `aws` template is the lone infra MCP server — it's `uvx`-based rather than `npx`-based, so verify against PyPI (confirmed `awslabs.aws-iac-mcp-server` published at template creation time) rather than the npm registry. Verify each template's package before relying on it — versions move (npm search confirmed `mcp-server-sqlite-npx@0.8.0` exists at template creation time). **Postgres note (2026-07-29):** the shared `postgres` fragment (`@modelcontextprotocol/server-postgres`) was **removed** — it's archived/deprecated with a known SQL-injection vuln, and the `npx` "replacements" are unmaintained or npm security-stub names; the one maintained option is Python-only (`uvx postgres-mcp`, Crystal DBA), so DB MCP is left to deliberate per-project opt-in.
 
 Playwright is now provided as a first-class plugin (`playwright@claude-plugins-official`,
 enabled in `settings.json`), not via an MCP template, so React projects do not
