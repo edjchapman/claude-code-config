@@ -498,7 +498,7 @@ your-project/
 
 ### Settings files
 
-- **`settings.json`** (global): plugin enablement, hooks, model selection — applies everywhere via the `~/.claude/` symlink. `setup-project.sh` does **not** create a per-project copy. A project may still commit its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
+- **`settings.json`** (global): plugin enablement, hooks, status line, output style — applies everywhere via the `~/.claude/` symlink. It deliberately pins **no** `model` (consumers get their account default; see [`docs/architecture.md`](docs/architecture.md)). `setup-project.sh` does **not** create a per-project copy. A project may still commit its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
 - **`settings.local.json`** (generated): permissions — which bash commands and tools Claude can use in your project.
 
 ### Project tooling (`--tooling`)
