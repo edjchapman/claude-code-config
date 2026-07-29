@@ -70,7 +70,8 @@ Currently configured in `settings.json`:
 - **PostToolUse (Write|Edit)** → `scripts/hooks/format-on-edit.sh`: auto-formats Python files (ruff) and JS/TS files (prettier). Deliberately **not** `async`: the formatter rewrites files in place, so running it in the background could race a subsequent Edit of the same file in the same turn.
 - **PostToolUseFailure** → `scripts/hooks/log-tool-failure.sh`: appends failed tool calls to `~/.claude/logs/tool-failures.jsonl` for later pattern analysis
 - **PreToolUse (Bash)** → `scripts/hooks/dangerous-cmd-check.sh`: blocks dangerous command patterns (defense-in-depth)
-- **PreCompact** → `scripts/hooks/pre-compact-state.sh`: preserves working state before context compaction
+- **PreCompact** → `scripts/hooks/pre-compact-state.sh`: writes a working-state snapshot to a session-keyed file before compaction (its stdout is _not_ injected — PreCompact is not a stdout-injecting event)
+- **PostCompact** → `scripts/hooks/post-compact-restore.sh`: after compaction, re-injects that snapshot via `hookSpecificOutput.additionalContext` and deletes the one-shot file — the half of the loop that actually restores state
 - **TaskCompleted** → `scripts/hooks/task-completed-chime.sh`: emits a terminal bell when an autonomous task completes
 - **Notification** → `scripts/hooks/notify-attention.sh`: desktop notification when Claude is blocked on you (permission request or idle wait) — osascript on macOS, notify-send on Linux, terminal bell fallback
 

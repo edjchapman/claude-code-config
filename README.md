@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, hooks, and permission templates that propagate to every project and machine.**
 
-`8 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `9 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`8 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `10 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 [**📖 Case study →**](https://edwardchapman.co.uk/projects/claude-code-config)
 
@@ -554,6 +554,7 @@ claude-code-config/
     │   ├── log-tool-failure.sh       # PostToolUseFailure
     │   ├── dangerous-cmd-check.sh    # PreToolUse (Bash)
     │   ├── pre-compact-state.sh      # PreCompact
+    │   ├── post-compact-restore.sh   # PostCompact
     │   ├── task-completed-chime.sh   # TaskCompleted
     │   ├── statusline.sh             # settings.json statusLine.command
     │   └── check-duplicates.sh       # CI-only (validate-config.yml)

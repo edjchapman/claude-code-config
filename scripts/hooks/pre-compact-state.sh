@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
-# Preserve working state before context compaction
+# Preserve working state before context compaction.
 # Used by: PreCompact hook in settings.json
 #
-# Outputs key state information so Claude retains it after compaction
+# A hook's plain stdout is NOT added to context for PreCompact (only
+# UserPromptSubmit / UserPromptExpansion / SessionStart inject stdout — see the
+# hooks docs). So instead of echoing the snapshot into the void of the debug
+# log, we write it to a session-keyed file that post-compact-restore.sh reads
+# and re-injects via hookSpecificOutput.additionalContext once compaction
+# completes.
 
 set -u
 
@@ -15,40 +20,56 @@ if ! in_git_work_tree; then
   exit 0
 fi
 
-echo "=== Pre-Compact State Snapshot ==="
-echo ""
-
-# Current branch
-echo "Branch: $(git_branch)"
-echo ""
-
-# Staged files
-STAGED=$(git diff --cached --name-only 2> /dev/null)
-if [ -n "$STAGED" ]; then
-  echo "Staged files:"
-  echo "$STAGED"
-  echo ""
+# Session id from the stdin payload keys the state file so the matching
+# PostCompact restore picks up this session's snapshot (not another session's).
+PAYLOAD=$(cat 2> /dev/null || true)
+SESSION_ID=""
+if [ -n "$PAYLOAD" ] && command -v python3 > /dev/null 2>&1; then
+  SESSION_ID=$(printf '%s' "$PAYLOAD" | python3 -c '
+import json, sys
+try:
+    print(json.load(sys.stdin).get("session_id") or "")
+except Exception:
+    pass
+' 2> /dev/null)
 fi
+SESSION_ID="${SESSION_ID:-default}"
 
-# Modified files
-MODIFIED=$(git diff --name-only 2> /dev/null)
-if [ -n "$MODIFIED" ]; then
-  echo "Modified (unstaged) files:"
-  echo "$MODIFIED"
+CACHE_DIR="${HOME}/.claude/cache"
+mkdir -p "$CACHE_DIR" 2> /dev/null || exit 0
+STATE_FILE="${CACHE_DIR}/precompact-${SESSION_ID}.md"
+
+{
+  echo "=== Pre-Compact State Snapshot ==="
   echo ""
-fi
-
-# Untracked files
-UNTRACKED=$(git ls-files --others --exclude-standard 2> /dev/null | head -10)
-if [ -n "$UNTRACKED" ]; then
-  echo "Untracked files (first 10):"
-  echo "$UNTRACKED"
+  echo "Branch: $(git_branch)"
   echo ""
-fi
 
-# Recent commits on this branch
-echo "Recent commits (last 5):"
-git log --oneline -5 2> /dev/null
-echo ""
+  STAGED=$(git diff --cached --name-only 2> /dev/null)
+  if [ -n "$STAGED" ]; then
+    echo "Staged files:"
+    echo "$STAGED"
+    echo ""
+  fi
 
-echo "=== End State Snapshot ==="
+  MODIFIED=$(git diff --name-only 2> /dev/null)
+  if [ -n "$MODIFIED" ]; then
+    echo "Modified (unstaged) files:"
+    echo "$MODIFIED"
+    echo ""
+  fi
+
+  UNTRACKED=$(git ls-files --others --exclude-standard 2> /dev/null | head -10)
+  if [ -n "$UNTRACKED" ]; then
+    echo "Untracked files (first 10):"
+    echo "$UNTRACKED"
+    echo ""
+  fi
+
+  echo "Recent commits (last 5):"
+  git log --oneline -5 2> /dev/null
+  echo ""
+  echo "=== End State Snapshot ==="
+} > "$STATE_FILE" 2> /dev/null
+
+exit 0
