@@ -89,10 +89,20 @@ def merge_permissions(templates: list[dict]) -> dict:
     # For exact matches; pattern matching would require more complex logic
     filtered_allow = [item for item in all_allow if item not in all_deny]
 
+    # Preserve any permission keys beyond allow/deny/ask (e.g. defaultMode,
+    # additionalDirectories) instead of silently dropping them; later templates
+    # override earlier ones for the same key.
+    extra_perms: dict = {}
+    for template in templates:
+        for key, value in template.get("permissions", {}).items():
+            if key not in ("allow", "deny", "ask"):
+                extra_perms[key] = value
+
     merged = {
         "_version": max_version,
         "_generated_from": [t.get("_source", "unknown") for t in templates if "_source" in t],
         "permissions": {
+            **extra_perms,
             "allow": filtered_allow,
             "deny": sorted(all_deny),
             "ask": all_ask,
