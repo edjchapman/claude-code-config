@@ -1,8 +1,7 @@
 {
   "_source": "base",
-  "_version": 1,
+  "_version": 2,
   "permissions": {
-    "defaultMode": "acceptEdits",
     "allow": [
       "WebSearch",
       "WebFetch(domain:github.com)",
@@ -50,9 +49,7 @@
       "Bash(date:*)",
       "Bash(whoami:*)",
       "Bash(uname:*)",
-      "Bash(which:*)",
-      "Bash(env:*)",
-      "Bash(printenv:*)"
+      "Bash(which:*)"
     ],
     "deny": [
       "Bash(rm -rf /*)",
@@ -67,6 +64,6 @@
       "Bash(> /dev/sda:*)",
       "Bash(dd if=:*)"
     ],
-    "ask": []
+    "ask": ["Bash(env:*)", "Bash(printenv:*)"]
   }
 }
