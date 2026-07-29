@@ -90,6 +90,25 @@ Opt-in snippet shape (adjust the event name and criteria):
 
 Prompt-type hooks invoke a fast model on every fire and incur token cost. Because this config ships to plugin and symlink consumers alike, all three are opt-in (conservative defaults: cost-bearing behavior is explicit-on, never inherited from a `git pull`).
 
+#### Full platform event catalog (reference)
+
+Claude Code documents **30** hook events (verified against the [hooks reference](https://code.claude.com/docs/en/hooks.md), 2026-07-29); this repo wires 8 of them above. The events not yet used here, with their matcher field where confirmed against the docs on that date:
+
+| Event                | Fires when                                              | Matcher field                                       |
+| -------------------- | ------------------------------------------------------- | --------------------------------------------------- |
+| `Setup`              | started with `--init` / `--init-only` / `--maintenance` | CLI flag (`init` / `maintenance`)                   |
+| `PermissionRequest`  | a tool call needs a permission decision                 | tool name                                           |
+| `PermissionDenied`   | a tool call is denied by the auto-mode classifier       | tool name                                           |
+| `SubagentStart`      | a subagent is spawned                                   | agent type                                          |
+| `StopFailure`        | the turn ends due to an API error                       | error type (`rate_limit`, `overloaded`, …)          |
+| `InstructionsLoaded` | a `CLAUDE.md` / `.claude/rules/*.md` loads into context | load reason (`session_start`, `path_glob_match`, …) |
+| `FileChanged`        | a watched file changes on disk                          | filename(s) to watch                                |
+| `PostCompact`        | after context compaction completes                      | none (no-matcher)                                   |
+
+Also available (matcher fields not re-verified here — consult the hooks reference before wiring): `UserPromptExpansion`, `ConfigChange`, `Elicitation`, `ElicitationResult`.
+
+Most useful to adopt here: **`PostCompact`** closes the compaction loop the repo half-implements — `PreCompact` (`pre-compact-state.sh`) preserves working state _before_ compaction, and a `PostCompact` hook can re-inject it _after_. **`PermissionRequest` / `PermissionDenied`** could feed a permission-tuning workflow, and **`StopFailure`** matched on `rate_limit` / `overloaded` complements the `fallbackModel` chain.
+
 CI-only utility (not a runtime hook): `scripts/hooks/check-duplicates.sh` runs from `.github/workflows/validate-config.yml` to fail CI if two agents/skills share a name.
 
 ### Settings Keys
