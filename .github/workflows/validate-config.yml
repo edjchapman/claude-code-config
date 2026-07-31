@@ -214,6 +214,23 @@ jobs:
       - name: Run check-docs-drift.sh
         run: bash scripts/check-docs-drift.sh
 
+  check-context-budget:
+    name: Check always-loaded context stays within budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.11"
+
+      - name: Run check-context-budget.py
+        # Sums home/CLAUDE.md + every skill/agent frontmatter description —
+        # the surface every session pays for — and fails over the byte
+        # budget. See "What earns always-loaded context" in docs/extending.md.
+        run: python3 scripts/check-context-budget.py
+
   markdownlint:
     name: Lint Markdown
     runs-on: ubuntu-latest

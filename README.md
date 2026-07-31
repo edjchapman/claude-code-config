@@ -8,7 +8,7 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, hooks, and permission templates that propagate to every project and machine.**
 
-`8 specialist agents` · `20 skills` · `14 permission templates` · `7 MCP templates` · `10 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `10 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 [**📖 Case study →**](https://edwardchapman.co.uk/projects/claude-code-config)
 
@@ -164,14 +164,13 @@ Invoke with `@agent-name`. **inherit** = follows your session model (deep-reason
 Invoke with `/<name>`. Custom commands were merged into skills upstream, so these live in `skills/<name>/SKILL.md` alongside the domain skills (this repo's former `commands/` directory was migrated accordingly). Skills with a "Use when…" clause can also be auto-invoked by Claude from plain English (e.g. "commit my staged work" → `/commit`); user-only ones set `disable-model-invocation: true`. `/standup` and `/eow-review` can additionally be fired by a scheduled routine.
 
 <details>
-<summary><strong>11 workflow skills</strong> — click to expand</summary>
+<summary><strong>10 workflow skills</strong> — click to expand</summary>
 
 | Slash           | What It Does                                                                                   | Who Can Invoke             |
 | --------------- | ---------------------------------------------------------------------------------------------- | -------------------------- |
 | `/commit`       | Analyze staged changes, generate commit message                                                | you or Claude              |
 | `/pr`           | Create PR with auto-generated description                                                      | you or Claude              |
 | `/hotfix`       | Guided hotfix: branch from main, minimal fix, targeted tests, PR                               | you or Claude              |
-| `/tdd`          | TDD workflow: write failing test, implement, refactor                                          | you or Claude              |
 | `/adr`          | Create Architecture Decision Record (Nygard format)                                            | you or Claude              |
 | `/standup`      | Summarize last 24h across Git, GitHub, and Jira                                                | you, Claude, or a schedule |
 | `/eow-review`   | Prepare end-of-week review notes                                                               | you, Claude, or a schedule |
@@ -189,19 +188,18 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 Domain knowledge Claude loads automatically based on the conversation — matched from each skill's `description:`, no explicit invocation needed. Skills use the nested layout `skills/<name>/SKILL.md`.
 
 <details>
-<summary><strong>9 domain skills</strong> — click to expand</summary>
+<summary><strong>8 domain skills</strong> — click to expand</summary>
 
-| Skill                 | Loads When You…                                         | What It Covers                                                                   |
-| --------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `git-workflow`        | Work with branches, commits, PRs, or releases           | Conventional commits, branch naming, PR size, rebase/bisect/reflog recovery      |
-| `testing-patterns`    | Write or review tests, fixtures, mocks, coverage        | AAA pattern, factories, coverage                                                 |
-| `security-patterns`   | Touch auth, middleware, routes, or input validation     | Input validation, JWT, CSRF, secrets                                             |
-| `api-design`          | Design or review REST APIs, endpoints, or serializers   | REST conventions, status codes, pagination                                       |
-| `django-patterns`     | Edit Django models, views, managers, or signals         | Fat models, managers, query optimization, signals                                |
-| `docker-patterns`     | Edit Dockerfiles, Compose files, or build contexts      | Multi-stage builds, layer caching, security                                      |
-| `infrastructure`      | Edit Terraform, Kubernetes manifests, or Helm charts    | Terraform modules, K8s resources, Helm charts                                    |
-| `root-cause-analysis` | Investigate incidents, regressions, or recurring bugs   | Root causes over symptom-level bandaids                                          |
-| `project-setup`       | Set up this config in a project or bootstrap a new repo | `setup-project.sh`, `install-tooling.sh`, the `--hooks` caveat, new-repo runbook |
+| Skill               | Loads When You…                                         | What It Covers                                                                   |
+| ------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `git-workflow`      | Work with branches, commits, PRs, or releases           | Conventional commits, branch naming, PR size, rebase/bisect/reflog recovery      |
+| `testing-patterns`  | Write or review tests, fixtures, mocks, coverage        | AAA pattern, factories, coverage                                                 |
+| `security-patterns` | Touch auth, middleware, routes, or input validation     | Input validation, JWT, CSRF, secrets                                             |
+| `api-design`        | Design or review REST APIs, endpoints, or serializers   | REST conventions, status codes, pagination                                       |
+| `django-patterns`   | Edit Django models, views, managers, or signals         | Fat models, managers, query optimization, signals                                |
+| `docker-patterns`   | Edit Dockerfiles, Compose files, or build contexts      | Multi-stage builds, layer caching, security                                      |
+| `infrastructure`    | Edit Terraform, Kubernetes manifests, or Helm charts    | Terraform modules, K8s resources, Helm charts                                    |
+| `project-setup`     | Set up this config in a project or bootstrap a new repo | `setup-project.sh`, `install-tooling.sh`, the `--hooks` caveat, new-repo runbook |
 
 </details>
 
@@ -547,6 +545,9 @@ claude-code-config/
     ├── install-tooling.sh   # Vendors tooling/ into a project (--tooling)
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
+    ├── check-hooks-sync.py  # CI: settings.json hooks ≡ hooks/hooks.json
+    ├── check-docs-drift.sh  # CI: every primitive documented
+    ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
     ├── hooks/               # Hook scripts referenced by settings.json
     │   ├── session-context.sh        # SessionStart
     │   ├── session-end.sh            # SessionEnd
