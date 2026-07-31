@@ -123,7 +123,7 @@ Beyond plugins and hooks, `settings.json` currently sets (listed in file order �
 - **`hooks`**: Per-event hook configuration (see Hooks section above)
 - **`worktree`**: Worktree-session config. `baseRef: head` branches new worktrees from local HEAD (preserving unpushed commits) instead of `origin/<default>`; `bgIsolation: worktree` blocks Edit/Write in the main checkout until `EnterWorktree` is called.
 - **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
-- **`enabledPlugins`**: Plugin enablement map. The checked-in `settings.json` lists only **universal** plugins (no external accounts required). Personal opt-ins (Figma) live in `settings.personal.json.example`
+- **`enabledPlugins`**: Plugin enablement map. The checked-in `settings.json` lists only **universal** plugins (no external accounts required), but not all are enabled: entries set to `false` are deliberate default-offs — heavy plugins whose skill/agent/command descriptions would load into every session (see the "What earns always-loaded context" ladder in [`extending.md`](extending.md)). Re-enable one per-machine via `~/.claude/settings.local.json`. Personal opt-ins (Figma) live in `settings.personal.json.example`
 - **`outputStyle`**: Output style for assistant responses (`Explanatory`; built-ins are `default`, `Explanatory`, `Learning`)
 - **`sandbox`**: Sandbox configuration with `enabled` and `autoAllowBashIfSandboxed`
 - **`tui`**: TUI rendering mode (`fullscreen` = flicker-free alt-screen renderer with virtualized scrollback; `default` = classic renderer). Corresponds to the `/tui` command.
@@ -145,7 +145,6 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `django-patterns`: Fat models, managers, query optimization, signals, migrations, and admin patterns
 - `docker-patterns`: Multi-stage builds, layer caching, Compose files, and container security
 - `infrastructure`: Terraform modules, Kubernetes resources, Helm charts, and deployment configuration
-- `root-cause-analysis`: Guides incident and bug investigations toward root causes over symptom-level bandaids
 - `project-setup`: Applying this config's tooling to a project — `setup-project.sh`, `install-tooling.sh`, the `--hooks`/`--tooling` caveat, and the new-repo bootstrap runbook
 
 **Workflow skills** — invoked as `/<name>`; those with trigger-rich descriptions can also be auto-invoked by Claude when the conversation calls for them:
@@ -153,7 +152,6 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `commit` (`/commit`): Analyze staged changes and write a conventional commit message
 - `pr` (`/pr`): Create a pull request with a well-crafted description
 - `hotfix` (`/hotfix`): Create a hotfix branch with a minimal fix, targeted tests, and PR
-- `tdd` (`/tdd`): Guide a TDD workflow (Red-Green-Refactor) for a feature or change
 - `adr` (`/adr`): Create an Architecture Decision Record (Nygard format)
 - `standup` (`/standup`): Summarize recent work activity across Git, GitHub, and Jira — **schedulable** (see Automation)
 - `eow-review` (`/eow-review`): End-of-week review notes — **schedulable** (see Automation)
@@ -184,7 +182,7 @@ This repo manages three distinct settings files:
 | `settings.personal.json.example` | Opt-in fragment: plugins needing external accounts + personal model pin | **Copied** by hand into `~/.claude/settings.local.json` | Template in repo                  |
 | `settings.local.json`            | Bash permissions + any personal plugin opt-ins                          | **Generated** per-project + hand-edited globally        | Merged from `settings-templates/` |
 
-**Why split universal vs personal plugins?** The repo is consumable by anyone (via plugin install or symlink). Auto-enabling Notion/Figma/etc. for someone who has no account or doesn't use those tools is surprising. `settings.json` carries only plugins that work without external accounts (github, pr-review-toolkit, feature-dev, code-simplifier, playwright, pyright-lsp, typescript-lsp, document-skills, frontend-design). Personal opt-ins (`figma`) live in `settings.personal.json.example` and are merged into the maintainer's `~/.claude/settings.local.json` by hand. The same file carries the maintainer's model pin (`claude-fable-5[1m]`) — entitlement-gated models must not ship in the universal file (see the _No universal `model` pin_ note above).
+**Why split universal vs personal plugins?** The repo is consumable by anyone (via plugin install or symlink). Auto-enabling Notion/Figma/etc. for someone who has no account or doesn't use those tools is surprising. `settings.json` carries only plugins that work without external accounts. Of those, `github`, `playwright`, `pyright-lsp`, `typescript-lsp`, and `mattpocock-skills` are enabled by default; `pr-review-toolkit`, `feature-dev`, `code-simplifier`, `document-skills`, and `frontend-design` are listed but set `false` — a deliberate default-off (2026-07-31 token-efficiency review): each enabled plugin ships all its skill/agent/command descriptions into every session, and these five weren't earning that fixed cost in most sessions. Flip one to `true` in `~/.claude/settings.local.json` when a machine or project needs it. Personal opt-ins (`figma`) live in `settings.personal.json.example` and are merged into the maintainer's `~/.claude/settings.local.json` by hand. The same file carries the maintainer's model pin (`claude-fable-5[1m]`) — entitlement-gated models must not ship in the universal file (see the _No universal `model` pin_ note above).
 
 **Note on merge semantics**: Claude Code's documented behavior for `enabledPlugins` across settings layers is not explicitly spelled out in the docs (the example given covers scalars, where the higher-precedence layer wins). If you observe universal plugins being shadowed when the example is active, include the universal list alongside the personal entries in your local file. See [Claude Code settings docs](https://code.claude.com/docs/en/settings.md) for precedence rules.
 
