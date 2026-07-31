@@ -34,6 +34,7 @@ python3 -m json.tool settings.json > /dev/null   # JSON sanity
 scripts/hooks/check-duplicates.sh                # No agent/skill/command name collisions
 python3 scripts/check-hooks-sync.py              # settings.json hooks == hooks/hooks.json hooks
 scripts/check-docs-drift.sh                      # Every primitive is documented
+python3 scripts/check-context-budget.py          # Always-loaded context within byte budget
 ```
 
 ## Scope and Implementation Philosophy
