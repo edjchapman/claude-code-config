@@ -109,14 +109,14 @@
   },
   "enabledPlugins": {
     "github@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": false,
+    "pr-review-toolkit@claude-plugins-official": false,
+    "feature-dev@claude-plugins-official": false,
     "playwright@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "document-skills@anthropic-agent-skills": true,
-    "frontend-design@claude-plugins-official": true,
+    "document-skills@anthropic-agent-skills": false,
+    "frontend-design@claude-plugins-official": false,
     "mattpocock-skills@mattpocock": true
   },
   "extraKnownMarketplaces": {
@@ -134,5 +134,6 @@
   },
   "tui": "fullscreen",
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "autoMemoryEnabled": false
 }
