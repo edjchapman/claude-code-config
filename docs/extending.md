@@ -44,6 +44,8 @@ Kept custom because no enabled plugin fully covers them:
 
 If you enable a new plugin and it overlaps with one of the kept-custom items, re-apply the rule.
 
+Rule re-applied for `mattpocock-skills@mattpocock` (enabled 2026-07-31, via the `mattpocock` marketplace in `extraKnownMarketplaces`): its `tdd`, `code-review`, `research`, and `diagnosing-bugs` skills overlap with custom `/tdd`, the bundled `/code-review`, `/deep-research`, and the `root-cause-analysis` skill respectively — all judged borderline, not fully subsumed, so the customs stay. The plugin's additive value is the grilling suite (`grilling`, `grill-me`, `grill-with-docs`), the spec→ticket pipeline (`to-spec`, `to-tickets`, `triage`, `wayfinder`, `implement` — run its `setup-matt-pocock-skills` once per repo first), the design-vocabulary skills (`codebase-design`, `domain-modeling`), and productivity extras (`handoff`, `teach`, `writing-great-skills`, `prototype`).
+
 ## Self-Extension Guide
 
 When extending this repo (adding a new agent / skill / command / hook / template), copy the most-similar exemplar rather than writing frontmatter from scratch. The exemplars below have been verified against the canonical Claude Code docs.
