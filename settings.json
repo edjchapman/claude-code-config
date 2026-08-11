@@ -134,7 +134,7 @@
     "autoAllowBashIfSandboxed": false
   },
   "tui": "fullscreen",
+  "autoMemoryEnabled": false,
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true,
-  "autoMemoryEnabled": false
+  "agentPushNotifEnabled": true
 }
