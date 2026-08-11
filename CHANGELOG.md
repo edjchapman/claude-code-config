@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/edjchapman/claude-code-config/compare/1.13.0...1.14.0) (2026-08-11)
+
+
+### Features
+
+* **settings:** disable session-URL attribution on commits and PRs ([#107](https://github.com/edjchapman/claude-code-config/issues/107)) ([0b7ba28](https://github.com/edjchapman/claude-code-config/commit/0b7ba28f556985385823e5f1e21c6850831c7292))
+
 ## [1.13.0](https://github.com/edjchapman/claude-code-config/compare/1.12.0...1.13.0) (2026-07-29)
 
 
