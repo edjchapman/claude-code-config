@@ -259,6 +259,25 @@ class ReadmeCatalogs(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("agents", result.stderr)
 
+    def test_scheduled_skill_disabling_model_invocation_is_an_error(self) -> None:
+        (self.root / "skills" / "standup" / "SKILL.md").write_text(
+            "---\nname: standup\ndescription: Prepare a standup summary.\n"
+            "disable-model-invocation: true\n---\nbody\n"
+        )
+        result = run_generate(self.root, "--check", "--only", "readme")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("scheduling invariant", result.stderr)
+        self.assertIn("standup", result.stderr)
+
+    def test_unrecognised_invocation_flag_is_an_error(self) -> None:
+        (self.root / "skills" / "solo-skill" / "SKILL.md").write_text(
+            "---\nname: solo-skill\ndescription: Solo only.\n"
+            "disable-model-invocation: yes\n---\nbody\n"
+        )
+        result = run_generate(self.root, "--only", "readme")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("disable-model-invocation", result.stderr)
+
     def test_template_without_description_is_an_error(self) -> None:
         (self.root / "settings-templates" / "base.json").write_text(
             canonical({"_source": "base", "permissions": {}})

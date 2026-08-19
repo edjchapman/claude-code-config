@@ -4,8 +4,10 @@ Each builder renders one README generated region from the primitives on
 disk, so the catalogs cannot disagree with what ships: descriptions render
 verbatim from their canonical source (skill/agent frontmatter, hook and CLI
 script header comments, template `_description` keys), and derived columns
-(who-can-invoke, the workflow/domain split, MCP server lists, counts, the
-directory tree) are computed, never hand-written.
+(who-can-invoke, the workflow/domain split, MCP server lists, counts) are
+computed, never hand-written. The repository tree's hook and CLI branches
+are enumerated from disk; its fixed skeleton is curated in _TREE below —
+this module is that region's source, so skeleton edits belong here.
 
 Every region is wrapped in prettier-ignore fences: prettier re-pads
 markdown tables, and the generator — not prettier — owns region formatting
@@ -21,8 +23,9 @@ from lib.config_common import GenerationError, load_json, parse_frontmatter
 
 # Skills fired by the scheduled cloud routines — daily standup (issue #51)
 # and end-of-week review (issue #52). No frontmatter key records scheduling,
-# so the routine->skill mapping is declared here; it feeds the
-# who-can-invoke column.
+# so the routine->skill mapping is declared here. It feeds the
+# who-can-invoke column, and _skills enforces the scheduling invariant
+# (CONTEXT.md): a scheduled skill must stay model-invocable.
 SCHEDULED_SKILLS = frozenset({"standup", "eow-review"})
 
 # scripts/hooks/ entries whose purpose no hooks.json event explains.
@@ -86,7 +89,8 @@ def _table(headers: list[str], rows: list[list[str]]) -> str:
     return "\n".join([render(grid[0]), separator] + [render(row) for row in grid[1:]])
 
 
-def _details(summary: str, body: str) -> str:
+def _details_body(summary: str, body: str) -> str:
+    """Inner content of a <details> element; the tag itself is hand-written."""
     return f"<summary>{summary} — click to expand</summary>\n\n{body}"
 
 
@@ -136,7 +140,15 @@ def _skills(root: Path) -> list[dict]:
     for path in sorted((root / "skills").glob("*/SKILL.md")):
         meta = _read_meta(path)
         name = path.parent.name
-        user_only = meta.get("disable-model-invocation") == "true"
+        flag = meta.get("disable-model-invocation")
+        if flag not in (None, "true", "false"):
+            raise GenerationError(f"unrecognised disable-model-invocation value {flag!r} in {path}")
+        user_only = flag == "true"
+        if user_only and name in SCHEDULED_SKILLS:
+            raise GenerationError(
+                f"scheduling invariant: skill '{name}' is fired by a scheduled cloud "
+                f"routine (see SCHEDULED_SKILLS) but sets disable-model-invocation: true"
+            )
         if user_only:
             invoke = "you only"
         elif name in SCHEDULED_SKILLS:
@@ -246,72 +258,58 @@ def _tree(root: Path, hook_notes: dict[str, str]) -> str:
     )
 
 
+def _catalog_tables(root: Path, skills: list[dict]) -> dict[str, tuple[str, list, list]]:
+    """{region name: (count label, headers, rows)} for the plain table regions."""
+    workflow = [[f"`/{s['name']}`", s["description"], s["invoke"]] for s in skills if s["workflow"]]
+    domain = [[f"`{s['name']}`", s["description"]] for s in skills if not s["workflow"]]
+    return {
+        "agents": ("specialist agents", ["Agent", "Description", "Model"], _agents(root)),
+        "workflow-skills": (
+            "workflow skills",
+            ["Skill", "Description", "Who Can Invoke"],
+            workflow,
+        ),
+        "domain-skills": ("domain skills", ["Skill", "Description"], domain),
+        "rules": ("style rules", ["Rule", "Applies To", "Covers"], _rules(root)),
+        "settings-templates": (
+            "permission templates",
+            ["Template", "What It Allows"],
+            _settings_templates(root),
+        ),
+        "mcp-templates": ("MCP templates", ["Template", "MCP Servers"], _mcp_templates(root)),
+        "cli-scripts": ("CLI scripts", ["Script", "Usage", "What It Does"], _cli_scripts(root)),
+    }
+
+
+def _counts_line(tables: dict[str, tuple[str, list, list]], hook_count: int) -> str:
+    n = {name: len(rows) for name, (_, _, rows) in tables.items()}
+    parts = [
+        f"{n['agents']} specialist agents",
+        f"{n['workflow-skills'] + n['domain-skills']} skills",
+        f"{n['settings-templates']} permission templates",
+        f"{n['mcp-templates']} MCP templates",
+        f"{hook_count} lifecycle hooks",
+        f"{n['rules']} style rules",
+        f"{n['cli-scripts']} CLI scripts",
+    ]
+    return " · ".join(f"`{part}`" for part in parts)
+
+
 def build_regions(root: Path) -> tuple[dict[str, str], list[str]]:
     """Render every README region; returns ({region name: content}, skill names)."""
-    agents = _agents(root)
     skills = _skills(root)
-    workflow = [s for s in skills if s["workflow"]]
-    domain = [s for s in skills if not s["workflow"]]
     hook_rows, hook_notes = _hooks(root)
-    rules = _rules(root)
-    settings_templates = _settings_templates(root)
-    mcp_templates = _mcp_templates(root)
-    cli = _cli_scripts(root)
-
-    counts = " · ".join(
-        [
-            f"`{len(agents)} specialist agents`",
-            f"`{len(skills)} skills`",
-            f"`{len(settings_templates)} permission templates`",
-            f"`{len(mcp_templates)} MCP templates`",
-            f"`{len(hook_rows)} lifecycle hooks`",
-            f"`{len(rules)} style rules`",
-            f"`{len(cli)} CLI scripts`",
-        ]
-    )
-
+    tables = _catalog_tables(root, skills)
     regions = {
-        "counts": counts,
-        "agents": _details(
-            f"<strong>{len(agents)} specialist agents</strong>",
-            _table(["Agent", "Description", "Model"], agents),
-        ),
-        "workflow-skills": _details(
-            f"<strong>{len(workflow)} workflow skills</strong>",
-            _table(
-                ["Skill", "Description", "Who Can Invoke"],
-                [[f"`/{s['name']}`", s["description"], s["invoke"]] for s in workflow],
-            ),
-        ),
-        "domain-skills": _details(
-            f"<strong>{len(domain)} domain skills</strong>",
-            _table(
-                ["Skill", "Description"],
-                [[f"`{s['name']}`", s["description"]] for s in domain],
-            ),
-        ),
-        "rules": _details(
-            f"<strong>{len(rules)} style rules</strong>",
-            _table(["Rule", "Applies To", "Covers"], rules),
-        ),
-        "hooks": _details(
-            f"<strong>{len(hook_rows)} configured hooks</strong> + opt-in",
-            "**Configured:**\n\n" + _table(["Hook", "Script", "What It Does"], hook_rows),
-        ),
-        "settings-templates": _details(
-            f"<strong>{len(settings_templates)} permission templates</strong>",
-            _table(["Template", "What It Allows"], settings_templates),
-        ),
-        "mcp-templates": _details(
-            f"<strong>{len(mcp_templates)} MCP templates</strong>",
-            _table(["Template", "MCP Servers"], mcp_templates),
-        ),
-        "cli-scripts": _details(
-            f"<strong>{len(cli)} CLI scripts</strong>",
-            _table(["Script", "Usage", "What It Does"], cli),
-        ),
-        "repo-tree": "```\n" + _tree(root, hook_notes) + "\n```",
+        name: _details_body(f"<strong>{len(rows)} {label}</strong>", _table(headers, rows))
+        for name, (label, headers, rows) in tables.items()
     }
+    regions["hooks"] = _details_body(
+        f"<strong>{len(hook_rows)} configured hooks</strong> + opt-in",
+        "**Configured:**\n\n" + _table(["Hook", "Script", "What It Does"], hook_rows),
+    )
+    regions["counts"] = _counts_line(tables, len(hook_rows))
+    regions["repo-tree"] = "```\n" + _tree(root, hook_notes) + "\n```"
     regions = {name: _fence(content) for name, content in regions.items()}
     return regions, [s["name"] for s in skills]
 
