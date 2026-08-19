@@ -10,7 +10,9 @@ region's source. Targets registered here:
                   definitions (docs/adr/0001-hooks-json-is-the-source-of-truth.md).
 
 Destinations are re-serialized canonically (json.dumps, indent=2, trailing
-newline); keys outside the generated region are preserved verbatim.
+newline): every key outside the generated region keeps its value, but the
+file's *formatting* is owned by this generator, not by hand edits or prettier
+(settings.json is prettier-ignored for exactly this reason).
 
 Usage: generate.py [--check] [--only TARGET] [--root PATH]
 
@@ -82,26 +84,29 @@ TARGETS: dict[str, Callable[[Path], dict[Path, str]]] = {
 }
 
 
+def _sync_path(name: str, path: Path, content: str, check: bool) -> bool:
+    """Bring one destination up to date (or just report it); True if it was stale."""
+    current = path.read_text() if path.is_file() else None
+    if current == content:
+        return False
+    if check:
+        print(f"stale: {path} (target '{name}' — run scripts/generate.py)")
+    else:
+        path.write_text(content)
+        print(f"regenerated: {path} (target '{name}')")
+    return True
+
+
 def run(root: Path, check: bool, only: str | None) -> int:
     """Generate (or verify) every selected target; return the exit code."""
     names = [only] if only else list(TARGETS)
-    stale: list[Path] = []
+    stale = False
     for name in names:
         for path, content in TARGETS[name](root).items():
-            current = path.read_text() if path.is_file() else None
-            if current == content:
-                continue
-            stale.append(path)
-            if check:
-                print(f"stale: {path} (target '{name}' — run scripts/generate.py)")
-            else:
-                path.write_text(content)
-                print(f"regenerated: {path} (target '{name}')")
-    if check and stale:
-        return 1
+            stale = _sync_path(name, path, content, check) or stale
     if not stale:
         print("all generated regions up to date")
-    return 0
+    return 1 if (check and stale) else 0
 
 
 def main() -> None:
