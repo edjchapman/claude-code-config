@@ -51,6 +51,19 @@ repos:
         args: ["--fix"]
       - id: ruff-format
 
+  # ---- Generated regions (ADR-0001) ----------------------------------
+  # Regenerates destinations from their sources (hooks/hooks.json ->
+  # settings.json hooks key). Like the formatters above, a run that
+  # modifies files fails the commit once with the fix already applied.
+  - repo: local
+    hooks:
+      - id: generate-regions
+        name: regenerate generated regions
+        entry: python3 scripts/generate.py
+        language: system
+        files: ^(hooks/hooks\.json|settings\.json|scripts/generate\.py)$
+        pass_filenames: false
+
   # ---- Prettier (Markdown, JSON, YAML) -------------------------------
   # rbubley/mirrors-prettier is the actively-maintained mirror after
   # pre-commit/mirrors-prettier went unmaintained.

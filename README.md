@@ -71,7 +71,7 @@ One repo links into every machine (global symlinks) and composes per-project per
 
 ## 🚀 Quick Start
 
-There are two ways to consume this repo: as a **plugin** (recommended) or as a **symlinked global config** (legacy, still supported). Both modes coexist — hook paths use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve either way.
+There are two ways to consume this repo: as a **plugin** (recommended) or as a **symlinked global config** (legacy, still supported). Both modes coexist — hook paths use `${CLAUDE_PLUGIN_ROOT:-<readlink fallback>}`, so they resolve either way.
 
 ### Option A — Plugin install (recommended)
 
@@ -545,7 +545,7 @@ claude-code-config/
     ├── install-tooling.sh   # Vendors tooling/ into a project (--tooling)
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
-    ├── check-hooks-sync.py  # CI: settings.json hooks ≡ hooks/hooks.json
+    ├── generate.py          # Regenerates generated regions (ADR-0001)
     ├── check-docs-drift.sh  # CI: every primitive documented
     ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
     ├── hooks/               # Hook scripts referenced by settings.json

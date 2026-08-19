@@ -20,8 +20,9 @@ so neither can be produced at install time only.
   purpose-shaped module (hooks and nothing else) and matches the external contract
   of the plugin loader.
 - `settings.json`'s `hooks` key is a **generated region**, produced by the repo's
-  generator module (`scripts/generate.py`), which preserves every other key of
-  `settings.json` untouched.
+  generator module (`scripts/generate.py`), which preserves every other key's
+  value. The file is re-serialized canonically, so the generator — not prettier,
+  not hand edits — owns its formatting.
 - Pre-commit regenerates (repo convention: hooks may mutate commits, as the
   formatters already do); CI runs `generate.py --check` as the backstop.
   `check-hooks-sync.py` is deleted.

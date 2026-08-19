@@ -6,10 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a configuration repository for Claude Code. It can be consumed two ways:
 
-1. **As a plugin** (recommended): `/plugin marketplace add edjchapman/claude-code-config`, then `/plugin install claude-code-config`. The plugin name resolves only against marketplaces you have added — there is no global registry — so this can only install from this repo. If another added marketplace also defines a `claude-code-config` plugin, disambiguate with `/plugin install claude-code-config@claude-code-config` (`plugin@marketplace`). The plugin loader sets `CLAUDE_PLUGIN_DIR` and the hook commands resolve relative to that.
+1. **As a plugin** (recommended): `/plugin marketplace add edjchapman/claude-code-config`, then `/plugin install claude-code-config`. The plugin name resolves only against marketplaces you have added — there is no global registry — so this can only install from this repo. If another added marketplace also defines a `claude-code-config` plugin, disambiguate with `/plugin install claude-code-config@claude-code-config` (`plugin@marketplace`). The plugin loader sets `CLAUDE_PLUGIN_ROOT` and the hook commands resolve relative to that.
 2. **As a symlinked global config** (legacy path, still supported): `scripts/setup-global.sh` symlinks `agents/`, `skills/`, `rules/`, and `settings.json` into `~/.claude/`. Per-project use is via `scripts/setup-project.sh`.
 
-The two modes coexist — hook command paths in `settings.json` use `${CLAUDE_PLUGIN_DIR:-<readlink fallback>}`, so they resolve in both modes without modification.
+The two modes coexist — hook command paths use `${CLAUDE_PLUGIN_ROOT:-<readlink fallback>}`, so they resolve in both modes without modification.
 
 ## Where the reference lives
 
@@ -23,7 +23,7 @@ This file is loaded into **every session**, so it carries only the behavioural r
 
 These are the rules that are easy to get wrong — keep them in mind whenever you touch this config:
 
-- **Hooks live in two files.** Every hook must be defined identically in **both** `settings.json` (the `hooks` key, read in symlink-global mode) and `hooks/hooks.json` (read in plugin mode). Editing one without the other silently diverges the two install paths. `scripts/check-hooks-sync.py` enforces this in CI. See [`docs/architecture.md`](docs/architecture.md) for the hook formats and the current catalog.
+- **Hooks are edited in one place.** `hooks/hooks.json` is the source of truth for hook definitions (ADR-0001); `settings.json`'s `hooks` key is a **generated region** produced by `scripts/generate.py`. Never hand-edit the generated block — edit `hooks/hooks.json` and let pre-commit regenerate (or run `python3 scripts/generate.py`). CI enforces freshness via `generate.py --check`. Both files stay committed: each install mode reads its file directly. See [`docs/architecture.md`](docs/architecture.md) for the hook formats and the current catalog.
 - **No-matcher events.** These events must omit the `matcher` field (adding one is silently ignored per the docs): `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, `CwdChanged`.
 - **Every primitive must be named in `CLAUDE.md` or `README.md`.** `scripts/check-docs-drift.sh` fails CI if an agent / skill / hook / template on disk is documented in neither. README carries the catalogs, so new primitives go **there** (not into this file).
 - **Keep issues [#51](https://github.com/edjchapman/claude-code-config/issues/51) and [#52](https://github.com/edjchapman/claude-code-config/issues/52) open** — they are the delivery targets for the daily-standup and end-of-week cloud routines; closing one orphans its routine.
@@ -32,7 +32,7 @@ These are the rules that are easy to get wrong — keep them in mind whenever yo
 ```bash
 python3 -m json.tool settings.json > /dev/null   # JSON sanity
 scripts/hooks/check-duplicates.sh                # No agent/skill/command name collisions
-python3 scripts/check-hooks-sync.py              # settings.json hooks == hooks/hooks.json hooks
+python3 scripts/generate.py --check              # Generated regions fresh (settings.json hooks key)
 scripts/check-docs-drift.sh                      # Every primitive is documented
 python3 scripts/check-context-budget.py          # Always-loaded context within byte budget
 ```

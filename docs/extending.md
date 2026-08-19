@@ -84,7 +84,7 @@ When extending this repo (adding a new agent / skill / command / hook / template
 
 - **Prompt-type hooks need no script**: for LLM-evaluated gates, add a `{ "type": "prompt", "prompt": "..." }` entry directly to both hook files (exemplar: the opt-in `Stop` snippet in the Hooks section). The steps below cover command-type hooks.
 - **Script location**: `scripts/hooks/<name>.sh` (set `chmod +x`, include `#!/usr/bin/env bash`)
-- **Wire-up — two files**: add the entry to **both** `settings.json` (under `hooks.<EventName>`) and `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper). Same shape in both. Use a `command` value of `"${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` so it resolves in both plugin and symlink-global modes.
+- **Wire-up — one file**: add the entry to `hooks/hooks.json` (under `hooks.<EventName>` inside the top-level `{"hooks": {...}}` wrapper); pre-commit regenerates `settings.json`'s hooks block from it (ADR-0001), or run `python3 scripts/generate.py`. Use a `command` value of `"${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/settings.json | xargs dirname)}/scripts/hooks/<name>.sh"` so it resolves in both plugin and symlink-global modes.
 - **Matcher rules**: most events support a `matcher` field — tool events filter on tool name (e.g. `"Bash"`, `"Edit|Write"`); other events filter on event-specific fields (e.g. `SessionStart` on start reason, `SessionEnd` on exit reason, `SubagentStop` on agent type). Events that **don't** support matchers and must omit the field: `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, `CwdChanged`. See [hooks reference](https://code.claude.com/docs/en/hooks.md) for the full per-event schema.
 - **Exemplar wire-up**: any current entry in `settings.json` or `hooks/hooks.json` under `hooks.*`
 
@@ -102,7 +102,7 @@ Run the validation suite locally before pushing:
 ```bash
 python -m json.tool settings.json > /dev/null   # JSON sanity
 scripts/hooks/check-duplicates.sh               # No agent/skill/command name collisions
-python3 scripts/check-hooks-sync.py             # settings.json hooks == hooks/hooks.json hooks
+python3 scripts/generate.py --check             # Generated regions fresh (settings.json hooks key)
 ```
 
 CI (`.github/workflows/validate-config.yml`) runs the same checks.

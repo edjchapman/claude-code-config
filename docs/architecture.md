@@ -40,7 +40,7 @@ python3 <repo>/scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]
 
 Shared internals (not run directly):
 
-- `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, and `check-hooks-sync.py` (Python version gate, template loading, output validation)
+- `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, and `generate.py` (Python version gate, template loading, output validation)
 - `scripts/hooks/lib/git-context.sh` — git helpers (`in_git_work_tree`, `git_branch`, `git_dirty_count`) sourced by the hook scripts; not a hook itself
 - `scripts/hooks/lib/hook-input.sh` — `hook_field <payload> <dotted.key>` helper for reading a field from the hook's stdin JSON payload; sourced by the hooks that parse stdin (format-on-edit, dangerous-cmd-check, session-end, pre/post-compact); not a hook itself
 - `mcp-templates/fragments/` — shared MCP server definitions (`sqlite.json`); templates reference them as `{"$fragment": "<name>"}` and `merge-mcp.py` inlines them at merge time
@@ -54,7 +54,7 @@ Hooks are configured in **two places** so the repo works in both consumption mod
 - `settings.json` (`hooks` key) — read by the symlink-global install path. Since `settings.json` is symlinked into `~/.claude/`, hooks are available in all projects.
 - `hooks/hooks.json` at the repo root — read by the plugin install path (per [plugin docs](https://code.claude.com/docs/en/plugins.md)). Same shape as `settings.json`'s `hooks` object, wrapped as `{ "hooks": { ... } }`.
 
-**Keep both files in sync** whenever you add or change a hook. Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
+**Edit hooks in `hooks/hooks.json` only** — `settings.json`'s hooks block is regenerated from it (ADR-0001). Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
 
 #### Hook Format
 
