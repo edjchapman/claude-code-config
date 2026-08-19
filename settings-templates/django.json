@@ -1,6 +1,7 @@
 {
   "_source": "django",
   "_version": 1,
+  "_description": "Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright)",
   "_note": "Includes both python3 manage.py (direct) and uv run manage.py (uv-based) patterns for flexibility",
   "permissions": {
     "allow": [

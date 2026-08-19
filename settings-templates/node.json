@@ -1,6 +1,7 @@
 {
   "_source": "node",
   "_version": 1,
+  "_description": "npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun",
   "permissions": {
     "allow": [
       "Bash(node:*)",

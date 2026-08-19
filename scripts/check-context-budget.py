@@ -22,6 +22,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from lib.config_common import parse_frontmatter
+
 TOTAL_BUDGET_BYTES = 10_240
 WARN_ITEM_BYTES = 350
 
@@ -46,34 +48,11 @@ def tracked_files(pattern: str) -> list[Path]:
 def frontmatter_description(path: Path) -> str:
     """Extract the `description:` value from YAML frontmatter.
 
-    Handles the two styles used in this repo: a plain single-line scalar,
-    and block scalars (`>-`, `>`, `|`, `|-`) whose value is the following
-    indented lines. Avoids a PyYAML dependency so CI needs no installs.
+    The parser lives in lib/config_common.py (shared with generate.py's
+    catalog targets). Avoids a PyYAML dependency so CI needs no installs.
     """
-    lines = path.read_text().splitlines()
-    if not lines or lines[0].strip() != "---":
-        return ""
-    try:
-        end = next(i for i, line in enumerate(lines[1:], start=1) if line.strip() == "---")
-    except StopIteration:
-        return ""
-    block = lines[1:end]
-    for i, line in enumerate(block):
-        if not line.startswith("description:"):
-            continue
-        value = line.split(":", 1)[1].strip()
-        if value not in {">", ">-", "|", "|-"}:
-            return value
-        collected = []
-        for cont in block[i + 1 :]:
-            if cont.startswith((" ", "\t")):
-                collected.append(cont.strip())
-            elif cont.strip() == "":
-                collected.append("")
-            else:
-                break
-        return " ".join(collected).strip()
-    return ""
+    value = parse_frontmatter(path).get("description", "")
+    return value if isinstance(value, str) else ""
 
 
 def main() -> int:

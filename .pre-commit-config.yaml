@@ -51,17 +51,19 @@ repos:
         args: ["--fix"]
       - id: ruff-format
 
-  # ---- Generated regions (ADR-0001) ----------------------------------
+  # ---- Generated regions (ADR-0001, issue #112) ----------------------
   # Regenerates destinations from their sources (hooks/hooks.json ->
-  # settings.json hooks key). Like the formatters above, a run that
-  # modifies files fails the commit once with the fix already applied.
+  # settings.json hooks key; primitives on disk -> README catalogs).
+  # Like the formatters above, a run that modifies files fails the
+  # commit once with the fix already applied.
   - repo: local
     hooks:
       - id: generate-regions
         name: regenerate generated regions
         entry: python3 scripts/generate.py
         language: system
-        files: ^(hooks/hooks\.json|settings\.json|scripts/generate\.py)$
+        files: >-
+          ^(hooks/hooks\.json|settings\.json|README\.md|scripts/generate\.py|scripts/lib/.*\.py|agents/.*\.md|skills/.*/SKILL\.md|rules/.*\.md|settings-templates/.*\.json|mcp-templates/.*\.json|scripts/hooks/.*|scripts/cli/.*)$
         pass_filenames: false
 
   # ---- Prettier (Markdown, JSON, YAML) -------------------------------

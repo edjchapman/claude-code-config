@@ -1,6 +1,7 @@
 {
   "_source": "java",
   "_version": 1,
+  "_description": "Gradle, Maven, Java compilation (javac, jar)",
   "_note": "Java, Gradle, and Maven commands for JVM development",
   "permissions": {
     "allow": [

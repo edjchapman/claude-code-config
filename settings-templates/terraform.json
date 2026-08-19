@@ -1,6 +1,7 @@
 {
   "_source": "terraform",
   "_version": 1,
+  "_description": "terraform fmt/validate/plan/init",
   "permissions": {
     "allow": [
       "Bash(terraform fmt:*)",

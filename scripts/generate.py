@@ -8,19 +8,24 @@ region's source. Targets registered here:
   settings-hooks  hooks/hooks.json 'hooks' -> settings.json 'hooks' key.
                   hooks/hooks.json is the source of truth for hook
                   definitions (docs/adr/0001-hooks-json-is-the-source-of-truth.md).
+  readme          The README's catalog regions (tables, counts, directory
+                  tree), rendered from the primitives on disk by
+                  lib/readme_catalogs.py (issue #112). Skills the hand-written
+                  "I want to…" cheat-sheet never mentions get a soft warning
+                  on stderr — never a failure.
 
-Destinations are re-serialized canonically (json.dumps, indent=2, trailing
+settings.json is re-serialized canonically (json.dumps, indent=2, trailing
 newline): every key outside the generated region keeps its value, but the
 file's *formatting* is owned by this generator, not by hand edits or prettier
-(settings.json is prettier-ignored for exactly this reason).
+(settings.json is prettier-ignored for exactly this reason). README regions
+are marker-fenced spans replaced in place — every hand-written byte outside
+them is preserved — and carry prettier-ignore fences so prettier cannot
+re-pad the generated tables.
 
 Usage: generate.py [--check] [--only TARGET] [--root PATH]
 
 Write mode rewrites stale destinations. --check rewrites nothing and exits 1
 if any destination is stale (wired into CI; pre-commit runs write mode).
-
-Markdown targets (T2/T4 of the catalog-generation spec, issue #110) will fence
-their regions with the markers below; replace_generated_region is their engine.
 """
 
 from __future__ import annotations
@@ -31,16 +36,13 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from lib.config_common import check_python_version
+from lib import readme_catalogs
+from lib.config_common import GenerationError, check_python_version, load_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 MARKER_BEGIN = "<!-- BEGIN GENERATED: {name} -->"
 MARKER_END = "<!-- END GENERATED: {name} -->"
-
-
-class GenerationError(Exception):
-    """A target's sources are missing or malformed."""
 
 
 def replace_generated_region(text: str, name: str, content: str) -> str:
@@ -55,32 +57,38 @@ def replace_generated_region(text: str, name: str, content: str) -> str:
     return f"{head}{begin}\n{content}\n{end}{tail}"
 
 
-def _load_json(path: Path) -> dict:
-    if not path.is_file():
-        raise GenerationError(f"source not found: {path}")
-    try:
-        return json.loads(path.read_text())
-    except json.JSONDecodeError as exc:
-        raise GenerationError(f"invalid JSON in {path}: {exc}") from exc
-
-
 def _canonical_json(obj: dict) -> str:
     return json.dumps(obj, indent=2, ensure_ascii=False) + "\n"
 
 
 def _generate_settings_hooks(root: Path) -> dict[Path, str]:
     """Splice hooks/hooks.json's 'hooks' into settings.json, preserving all else."""
-    source = _load_json(root / "hooks" / "hooks.json")
+    source = load_json(root / "hooks" / "hooks.json")
     if "hooks" not in source:
         raise GenerationError(f"no 'hooks' key in {root / 'hooks' / 'hooks.json'}")
     destination = root / "settings.json"
-    settings = _load_json(destination)
+    settings = load_json(destination)
     settings["hooks"] = source["hooks"]
     return {destination: _canonical_json(settings)}
 
 
+def _generate_readme(root: Path) -> dict[Path, str]:
+    """Replace every catalog region in README.md; all other bytes survive."""
+    destination = root / "README.md"
+    if not destination.is_file():
+        raise GenerationError(f"destination not found: {destination}")
+    text = destination.read_text()
+    regions, skill_names = readme_catalogs.build_regions(root)
+    for name, content in regions.items():
+        text = replace_generated_region(text, name, content)
+    for warning in readme_catalogs.uncurated_skills(text, skill_names):
+        print(f"warning: {warning}", file=sys.stderr)
+    return {destination: text}
+
+
 TARGETS: dict[str, Callable[[Path], dict[Path, str]]] = {
     "settings-hooks": _generate_settings_hooks,
+    "readme": _generate_readme,
 }
 
 

@@ -1,6 +1,7 @@
 {
   "_source": "base",
   "_version": 2,
+  "_description": "Git, GitHub CLI, file operations, WebSearch (always included)",
   "permissions": {
     "allow": [
       "WebSearch",

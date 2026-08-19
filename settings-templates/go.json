@@ -1,6 +1,7 @@
 {
   "_source": "go",
   "_version": 1,
+  "_description": "go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire",
   "permissions": {
     "allow": [
       "Bash(go build:*)",

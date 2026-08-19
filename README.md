@@ -8,7 +8,12 @@
 
 **A single source of truth for [Claude Code](https://claude.ai/code) — reusable agents, skills, hooks, and permission templates that propagate to every project and machine.**
 
-`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `10 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+<!-- BEGIN GENERATED: counts -->
+
+<!-- prettier-ignore-start -->
+`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `9 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: counts -->
 
 [**📖 Case study →**](https://edwardchapman.co.uk/projects/claude-code-config)
 
@@ -142,18 +147,23 @@ Everything falls into two modes — tools you **invoke** and tools that **auto-a
 Invoke with `@agent-name`. **inherit** = follows your session model (deep-reasoning agents deserve whatever you're running); **sonnet** = deliberately pinned for pattern-based mechanical work (cost routing). `@database-architect` and `@devops-engineer` are plan-mode advisors with a read-only tool pool — they analyse and design; your main session implements.
 
 <details>
+<!-- BEGIN GENERATED: agents -->
+
+<!-- prettier-ignore-start -->
 <summary><strong>8 specialist agents</strong> — click to expand</summary>
 
-| Agent                   | What It Does                                                 | Model   |
-| ----------------------- | ------------------------------------------------------------ | ------- |
-| `@bug-resolver`         | Systematic debugging, root cause analysis                    | inherit |
-| `@ci-debugger`          | CI/CD failure investigation, flaky tests                     | sonnet  |
-| `@database-architect`   | Schema design, zero-downtime migrations, query optimization  | inherit |
-| `@dependency-manager`   | Dependency audit, license checks, framework/version upgrades | sonnet  |
-| `@devops-engineer`      | Infrastructure, CI/CD pipelines, containers                  | inherit |
-| `@documentation-writer` | README, API docs, ADRs, onboarding guides                    | sonnet  |
-| `@performance-engineer` | Profiling, bottleneck analysis, optimization                 | inherit |
-| `@test-engineer`        | Unit, integration, and Playwright E2E tests                  | sonnet  |
+| Agent                   | Description                                                                                                                                                                                                                                                                                                                                                            | Model     |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `@bug-resolver`         | Investigate and resolve bugs, errors, and unexpected behavior — runtime errors, failing tests, incorrect output, or performance regressions. Use when code isn't behaving as expected and the root cause needs tracing.                                                                                                                                                | `inherit` |
+| `@ci-debugger`          | Investigate CI/CD pipeline failures, flaky tests, and environment-related build issues across GitHub Actions, Jenkins, CircleCI, and similar systems. Use when a build fails in CI but passes locally, or a test fails intermittently.                                                                                                                                 | `sonnet`  |
+| `@database-architect`   | Database schema design, data modeling, index strategies, query optimization, and migration safety analysis: schema changes, ORM migrations, and data restructuring. Use when designing schemas, planning zero-downtime or expand-contract migrations, or reviewing data architecture decisions.                                                                        | `inherit` |
+| `@dependency-manager`   | Dependency audits, outdated/unused package cleanup, license compatibility checks, and upgrade planning across npm, pip, uv, go modules, and other package managers. Use when auditing for CVEs, planning a major version bump, or planning a framework upgrade.                                                                                                        | `sonnet`  |
+| `@devops-engineer`      | Infrastructure, CI/CD pipelines, containerization, and deployment processes: Docker/Kubernetes optimization, pipeline design & review, infrastructure as code, and monitoring/observability setup. Use for deployment safety and platform engineering work — designing and optimizing pipelines, not debugging a specific red build (use ci-debugger for CI failures). | `inherit` |
+| `@documentation-writer` | Create and improve project documentation — README files, API docs, ADRs, runbooks, and onboarding guides — following the Divio system (tutorials, how-to, reference, explanation). Use when docs are outdated, missing, or need writing.                                                                                                                               | `sonnet`  |
+| `@performance-engineer` | Analyze and optimize application performance: profiling, bottleneck identification, slow database query optimization, memory/CPU analysis, caching strategies, and load-testing guidance. Use for slow endpoints or scalability planning.                                                                                                                              | `inherit` |
+| `@test-engineer`        | Create, modify, or debug tests at any level — backend unit/integration (API endpoints, models, services), frontend (components, hooks, pages), and Playwright end-to-end specs, fixtures, and flaky-test debugging. Use after implementing a feature or fixing a bug, or when asked to write or review tests.                                                          | `sonnet`  |
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: agents -->
 
 > **Provided by enabled plugins or bundled commands instead:** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture (`feature-dev:code-architect`), simplification (`code-simplifier`), PR review bundling (`pr-review-toolkit:review-pr`), security audits (bundled `/security-review`), complex git operations (`git-workflow` skill). Custom versions were retired in favour of these — see [docs/extending.md](docs/extending.md) for the full retirement table.
 
@@ -164,20 +174,25 @@ Invoke with `@agent-name`. **inherit** = follows your session model (deep-reason
 Invoke with `/<name>`. Custom commands were merged into skills upstream, so these live in `skills/<name>/SKILL.md` alongside the domain skills (this repo's former `commands/` directory was migrated accordingly). Skills with a "Use when…" clause can also be auto-invoked by Claude from plain English (e.g. "commit my staged work" → `/commit`); user-only ones set `disable-model-invocation: true`. `/standup` and `/eow-review` can additionally be fired by a scheduled routine.
 
 <details>
+<!-- BEGIN GENERATED: workflow-skills -->
+
+<!-- prettier-ignore-start -->
 <summary><strong>10 workflow skills</strong> — click to expand</summary>
 
-| Slash           | What It Does                                                                                   | Who Can Invoke             |
-| --------------- | ---------------------------------------------------------------------------------------------- | -------------------------- |
-| `/commit`       | Analyze staged changes, generate commit message                                                | you or Claude              |
-| `/pr`           | Create PR with auto-generated description                                                      | you or Claude              |
-| `/hotfix`       | Guided hotfix: branch from main, minimal fix, targeted tests, PR                               | you or Claude              |
-| `/adr`          | Create Architecture Decision Record (Nygard format)                                            | you or Claude              |
-| `/standup`      | Summarize last 24h across Git, GitHub, and Jira                                                | you, Claude, or a schedule |
-| `/eow-review`   | Prepare end-of-week review notes                                                               | you, Claude, or a schedule |
-| `/status`       | Quick status update appended to today's daily log                                              | you only                   |
-| `/refinement`   | Prepare technical analysis for backlog refinement                                              | you only                   |
-| `/later`        | Create a personal backlog item (learn, research, do, read)                                     | you only                   |
-| `/mkdocs-style` | Install/update the shared MkDocs style layer (`tooling/mkdocs/` via `install-mkdocs-style.sh`) | you or Claude              |
+| Skill           | Description                                                                                                                                                                                                                                                                                                          | Who Can Invoke             |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `/adr`          | Create an Architecture Decision Record (Nygard format) documenting a technical decision. Use when the user is deciding between multiple technical approaches, evaluating trade-offs for a framework/library/database choice, planning a schema migration or multi-component refactor, or explicitly asks for an ADR. | you or Claude              |
+| `/commit`       | Analyze staged changes and write a conventional commit message. Use when the user has staged git changes and asks to commit, or wants help writing a commit message.                                                                                                                                                 | you or Claude              |
+| `/eow-review`   | Prepare end-of-week review notes summarizing the full week's work activity across all sources (Git, GitHub, Jira). Use when wrapping up the week or preparing a weekly summary.                                                                                                                                      | you, Claude, or a schedule |
+| `/hotfix`       | Create a hotfix branch with a minimal fix, targeted tests, and PR. Use when the user describes an urgent production bug, says "hotfix", or asks for a quick fix to ship to main.                                                                                                                                     | you or Claude              |
+| `/later`        | Create a new "Later" backlog item (Learn / Research / Do / Read) from a configurable template.                                                                                                                                                                                                                       | you only                   |
+| `/mkdocs-style` | Install or update the shared MkDocs Material style layer (Ink & Indigo on warm paper) in the current project. Use when setting up or refreshing MkDocs Material styling in a docs project.                                                                                                                           | you or Claude              |
+| `/pr`           | Create a pull request with a well-crafted description. Use when the user finished work on a branch and wants to open a PR, or asks to create a pull request.                                                                                                                                                         | you or Claude              |
+| `/refinement`   | Prepare technical analysis for backlog refinement meetings.                                                                                                                                                                                                                                                          | you only                   |
+| `/standup`      | Prepare a standup document summarizing recent work activity across Git, GitHub, and Jira. Use when you want a standup summary or someone asks what you worked on recently.                                                                                                                                           | you, Claude, or a schedule |
+| `/status`       | Capture a quick status update and append it to today's daily log.                                                                                                                                                                                                                                                    | you only                   |
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: workflow-skills -->
 
 > **Provided by the harness (not in this repo):** `/review`, `/security-review`, `/init`, `/ultrareview`, `/less-permission-prompts`.
 
@@ -188,18 +203,23 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 Domain knowledge Claude loads automatically based on the conversation — matched from each skill's `description:`, no explicit invocation needed. Skills use the nested layout `skills/<name>/SKILL.md`.
 
 <details>
+<!-- BEGIN GENERATED: domain-skills -->
+
+<!-- prettier-ignore-start -->
 <summary><strong>8 domain skills</strong> — click to expand</summary>
 
-| Skill               | Loads When You…                                         | What It Covers                                                                   |
-| ------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `git-workflow`      | Work with branches, commits, PRs, or releases           | Conventional commits, branch naming, PR size, rebase/bisect/reflog recovery      |
-| `testing-patterns`  | Write or review tests, fixtures, mocks, coverage        | AAA pattern, factories, coverage                                                 |
-| `security-patterns` | Touch auth, middleware, routes, or input validation     | Input validation, JWT, CSRF, secrets                                             |
-| `api-design`        | Design or review REST APIs, endpoints, or serializers   | REST conventions, status codes, pagination                                       |
-| `django-patterns`   | Edit Django models, views, managers, or signals         | Fat models, managers, query optimization, signals                                |
-| `docker-patterns`   | Edit Dockerfiles, Compose files, or build contexts      | Multi-stage builds, layer caching, security                                      |
-| `infrastructure`    | Edit Terraform, Kubernetes manifests, or Helm charts    | Terraform modules, K8s resources, Helm charts                                    |
-| `project-setup`     | Set up this config in a project or bootstrap a new repo | `setup-project.sh`, `install-tooling.sh`, the `--hooks` caveat, new-repo runbook |
+| Skill               | Description                                                                                                                                                                                                                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `api-design`        | Use when designing or reviewing REST APIs, including views, routes, controllers, endpoints, serializers, schemas, status codes, pagination, and error response formats.                                                                                                                                |
+| `django-patterns`   | Use when editing Django models, views, serializers, admin, managers, signals, migrations, querysets, or database access patterns.                                                                                                                                                                      |
+| `docker-patterns`   | Use when editing Dockerfiles, Docker Compose files, container build contexts, .dockerignore files, or container security and caching patterns.                                                                                                                                                         |
+| `git-workflow`      | Use when working with Git repositories, branches, commits, pull requests, release workflows, or files under .git — including complex operations like interactive rebase, merge-conflict resolution, cherry-picking, bisecting, or recovering lost commits via reflog.                                  |
+| `infrastructure`    | Use when editing Terraform, Kubernetes manifests, Helm charts, infrastructure modules, or deployment configuration.                                                                                                                                                                                    |
+| `project-setup`     | Set up or bootstrap a project with the claude-code-config tooling — setup-project.sh, install-tooling.sh, the layered hooks setup, and the new-repo runbook. Use when installing this config into a repo, running the setup scripts, vendoring the make-check tooling, or bootstrapping a new project. |
+| `security-patterns` | Use when writing or reviewing authentication, authorization, middleware, routes, input validation, secrets handling, JWT, CSRF, CORS, or security-sensitive code paths. For a full audit of pending changes, use the bundled /security-review command instead.                                         |
+| `testing-patterns`  | Use when writing or reviewing tests, fixtures, factories, mocks, test coverage, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.                                                                                                                                                          |
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: domain-skills -->
 
 </details>
 
@@ -208,34 +228,45 @@ Domain knowledge Claude loads automatically based on the conversation — matche
 Path-scoped style enforcement (`paths` frontmatter). Skills provide patterns; rules enforce style.
 
 <details>
+<!-- BEGIN GENERATED: rules -->
+
+<!-- prettier-ignore-start -->
 <summary><strong>2 style rules</strong> — click to expand</summary>
 
-| Rule               | Applies To            | What It Enforces                                                         |
-| ------------------ | --------------------- | ------------------------------------------------------------------------ |
-| `python-style`     | `**/*.py`             | Naming, error handling, imports, type hints                              |
-| `typescript-style` | `**/*.ts`, `**/*.tsx` | Naming, error handling, type usage, plus React-specific rules for `.tsx` |
+| Rule               | Applies To            | Covers                                                       |
+| ------------------ | --------------------- | ------------------------------------------------------------ |
+| `python-style`     | `**/*.py`             | General, Naming, Error Handling, Imports, Type Hints         |
+| `typescript-style` | `**/*.ts`, `**/*.tsx` | General, Naming, Error Handling, Types, React (`.tsx` files) |
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: rules -->
 
 </details>
 
 ### Hooks
 
-Run automatically at lifecycle events. Configured in `settings.json` (symlinked globally, so active in all projects); scripts live in `scripts/hooks/` and only run when their tools are present (e.g. `ruff`, `prettier`).
+Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the source of truth ([ADR-0001](docs/adr/0001-hooks-json-is-the-source-of-truth.md)), spliced into `settings.json` for symlink-global mode. Scripts live in `scripts/hooks/` and only run when their tools are present (e.g. `ruff`, `prettier`).
 
 <details>
-<summary><strong>8 configured hooks + 3 opt-in</strong> — click to expand</summary>
+<!-- BEGIN GENERATED: hooks -->
+
+<!-- prettier-ignore-start -->
+<summary><strong>9 configured hooks</strong> + opt-in — click to expand</summary>
 
 **Configured:**
 
-| Hook                      | Trigger              | What It Does                                                                                   |
-| ------------------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
-| SessionStart              | New session          | Outputs git branch, recent commits, and dirty files                                            |
-| SessionEnd                | Session end          | Appends session summary to `./standups/YYYY-MM-DD-log.md`                                      |
-| PostToolUse (Write\|Edit) | After file edits     | Auto-formats Python (ruff) and JS/TS (prettier)                                                |
-| PostToolUseFailure        | After tool failure   | Logs failed tool calls to `~/.claude/logs/tool-failures.jsonl`                                 |
-| PreToolUse (Bash)         | Before bash commands | Blocks dangerous patterns (`rm -rf /`, `dd`, etc.)                                             |
-| PreCompact                | Before compaction    | Saves working state (branch, staged files, recent commits)                                     |
-| TaskCompleted             | Autonomous task done | Emits a terminal bell                                                                          |
-| Notification              | Claude needs you     | `notify-attention` — desktop notification (macOS/Linux) for permission requests and idle waits |
+| Hook                        | Script                    | What It Does                                                                     |
+| --------------------------- | ------------------------- | -------------------------------------------------------------------------------- |
+| `SessionStart`              | `session-context.sh`      | Output git context at session start so Claude has immediate awareness            |
+| `PostToolUse (Write\|Edit)` | `format-on-edit.sh`       | Auto-format files after Claude edits them (unified Python + JS/TS formatter)     |
+| `PostToolUseFailure`        | `log-tool-failure.sh`     | Append failed tool calls to a JSONL log for later pattern analysis               |
+| `PreToolUse (Bash)`         | `dangerous-cmd-check.sh`  | Defense-in-depth: block obviously catastrophic command patterns before they run. |
+| `PreCompact`                | `pre-compact-state.sh`    | Preserve working state before context compaction.                                |
+| `PostCompact`               | `post-compact-restore.sh` | Re-inject the pre-compaction state snapshot after context compaction completes.  |
+| `TaskCompleted`             | `task-completed-chime.sh` | Emit a terminal bell when an autonomous task completes                           |
+| `Notification`              | `notify-attention.sh`     | Desktop notification when Claude needs your attention                            |
+| `SessionEnd`                | `session-end.sh`          | SessionEnd hook: log session info and clean up                                   |
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: hooks -->
 
 **Opt-in** (each invokes an LLM on every fire, so all ship disabled — enable
 deliberately; ready-to-paste snippets live in [`docs/architecture.md`](docs/architecture.md)'s Hooks section):
@@ -257,31 +288,35 @@ Time-based workflows run themselves — two cloud routines (a daily standup prep
 Composable permission sets merged into `settings.local.json`. `base` is always included; `deny` beats `allow` during merge.
 
 <details>
+<!-- BEGIN GENERATED: settings-templates -->
+
+<!-- prettier-ignore-start -->
 <summary><strong>14 permission templates</strong> — click to expand</summary>
+
+| Template     | What It Allows                                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `aws`        | AWS CLI describe/validate (read-only), cfn-lint, cfn-guard, cdk synth/diff (deletion & deploy denied)              |
+| `base`       | Git, GitHub CLI, file operations, WebSearch (always included)                                                      |
+| `django`     | Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright) |
+| `docker`     | Docker build, compose, buildx, system commands                                                                     |
+| `fastapi`    | uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose                                                   |
+| `go`         | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire                                                  |
+| `java`       | Gradle, Maven, Java compilation (javac, jar)                                                                       |
+| `kubernetes` | kubectl, helm, kustomize, kubectx, stern                                                                           |
+| `nextjs`     | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright                                              |
+| `node`       | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun                                                   |
+| `python`     | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry                              |
+| `react`      | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier                                                  |
+| `rust`       | cargo, rustc, rustup, rustfmt, clippy                                                                              |
+| `terraform`  | terraform fmt/validate/plan/init                                                                                   |
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: settings-templates -->
 
 ```bash
 setup-project.sh python          # Python project
 setup-project.sh django react    # Full-stack (combine multiple)
-setup-project.sh all             # ALL templates
+setup-project.sh all             # ALL templates combined
 ```
-
-| Template     | What It Allows                                                                                                     |
-| ------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `all`        | All templates below combined                                                                                       |
-| `base`       | Git, GitHub CLI, file operations, WebSearch _(always included)_                                                    |
-| `python`     | pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry                              |
-| `django`     | Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright) |
-| `react`      | npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier                                                  |
-| `node`       | npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun                                                   |
-| `nextjs`     | Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright                                              |
-| `fastapi`    | uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose                                                   |
-| `go`         | go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire                                                  |
-| `docker`     | Docker build, compose, buildx, system commands                                                                     |
-| `java`       | Gradle, Maven, Java compilation (javac, jar)                                                                       |
-| `kubernetes` | kubectl, helm, kustomize, kubectx, stern                                                                           |
-| `rust`       | cargo, rustc, rustup, rustfmt, clippy                                                                              |
-| `terraform`  | terraform fmt/validate/plan/init                                                                                   |
-| `aws`        | AWS CLI describe/validate (read-only), cfn-lint, cfn-guard, cdk synth/diff (deletion & deploy denied)              |
 
 </details>
 
@@ -290,17 +325,22 @@ setup-project.sh all             # ALL templates
 MCP server configs generated alongside `settings.local.json` when a matching template exists.
 
 <details>
-<summary><strong>MCP server templates</strong> — click to expand</summary>
+<!-- BEGIN GENERATED: mcp-templates -->
 
-| Template  | MCP Servers                                          |
-| --------- | ---------------------------------------------------- |
-| `base`    | None (MCP is opt-in)                                 |
-| `django`  | None by default (opt-in — postgres fragment dropped) |
-| `nextjs`  | None by default (opt-in — postgres fragment dropped) |
-| `fastapi` | None by default (opt-in — postgres fragment dropped) |
-| `python`  | SQLite (`mcp-server-sqlite-npx`)                     |
-| `node`    | SQLite (`mcp-server-sqlite-npx`)                     |
-| `aws`     | AWS IaC (`awslabs.aws-iac-mcp-server`, via `uvx`)    |
+<!-- prettier-ignore-start -->
+<summary><strong>7 MCP templates</strong> — click to expand</summary>
+
+| Template  | MCP Servers   |
+| --------- | ------------- |
+| `aws`     | `aws-iac`     |
+| `base`    | None (opt-in) |
+| `django`  | None (opt-in) |
+| `fastapi` | None (opt-in) |
+| `nextjs`  | None (opt-in) |
+| `node`    | `sqlite`      |
+| `python`  | `sqlite`      |
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: mcp-templates -->
 
 Web/DB frameworks (`django`, `nextjs`, `fastapi`) default to PostgreSQL; generic `python` and `node` use SQLite, since there's no shared external DB to assume. The remaining stacks (`go`, `rust`, `java`, `kubernetes`, `terraform`) fall through to `base.json` — add servers manually in the project's `.mcp.json` when needed. Playwright is a first-class plugin (`playwright@claude-plugins-official`), not an MCP template.
 
@@ -311,7 +351,19 @@ Web/DB frameworks (`django`, `nextjs`, `fastapi`) default to PostgreSQL; generic
 Headless Claude Code scripts for automation — no interactive session needed.
 
 <details>
+<!-- BEGIN GENERATED: cli-scripts -->
+
+<!-- prettier-ignore-start -->
 <summary><strong>4 CLI scripts</strong> — click to expand</summary>
+
+| Script              | Usage                                   | What It Does                                           |
+| ------------------- | --------------------------------------- | ------------------------------------------------------ |
+| `daily-report.sh`   | `daily-report.sh`                       | Summarize yesterday's git activity across all projects |
+| `explain-error.sh`  | `some-command 2>&1 \| explain-error.sh` | Pipe error output to Claude for explanation            |
+| `review-changes.sh` | `review-changes.sh`                     | Review uncommitted changes using Claude headless mode  |
+| `review-pr.sh`      | `review-pr.sh <pr-number>`              | Headless PR review                                     |
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: cli-scripts -->
 
 Add aliases for quick access:
 
@@ -321,13 +373,6 @@ alias cpr='~/Development/claude-code-config/scripts/cli/review-pr.sh'
 alias cdr='~/Development/claude-code-config/scripts/cli/daily-report.sh'
 alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
 ```
-
-| Script              | Usage             | What It Does                                                |
-| ------------------- | ----------------- | ----------------------------------------------------------- |
-| `review-changes.sh` | `cr`              | Review uncommitted changes for bugs, security, code quality |
-| `explain-error.sh`  | `cmd 2>&1 \| cee` | Pipe error output to Claude for explanation                 |
-| `daily-report.sh`   | `cdr`             | Summarize last 24h of git activity                          |
-| `review-pr.sh`      | `cpr 123`         | Headless PR review                                          |
 
 </details>
 
@@ -530,41 +575,52 @@ The payload lives in [`tooling/`](tooling/); [`scripts/install-tooling.sh`](scri
 <details>
 <summary><strong>Repository layout</strong></summary>
 
+<!-- BEGIN GENERATED: repo-tree -->
+
+<!-- prettier-ignore-start -->
 ```
 claude-code-config/
 ├── agents/                  # Agent definitions (markdown)
-├── skills/                  # Domain knowledge + /workflow skills (markdown)
+├── skills/                  # Domain + workflow skills (skills/<name>/SKILL.md)
 ├── rules/                   # Path-scoped code style rules (markdown)
 ├── settings-templates/      # Permission templates (JSON)
 ├── mcp-templates/           # MCP server templates (JSON)
-├── settings.json            # Plugin config + hooks (symlinked globally)
+├── hooks/
+│   └── hooks.json           # Hook definitions — source of truth (ADR-0001)
+├── settings.json            # Plugin config; 'hooks' key generated from hooks/hooks.json
 ├── tooling/                 # Vendored project hard-tooling payload (--tooling)
 └── scripts/
     ├── setup-global.sh      # One-time machine setup
     ├── setup-project.sh     # Per-project setup (+ --tooling)
     ├── install-tooling.sh   # Vendors tooling/ into a project (--tooling)
+    ├── install-mkdocs-style.sh  # Installs/updates the shared MkDocs style layer
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
     ├── generate.py          # Regenerates generated regions (ADR-0001)
     ├── check-docs-drift.sh  # CI: every primitive documented
     ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
-    ├── hooks/               # Hook scripts referenced by settings.json
-    │   ├── session-context.sh        # SessionStart
-    │   ├── session-end.sh            # SessionEnd
-    │   ├── format-on-edit.sh         # PostToolUse (Write|Edit)
-    │   ├── log-tool-failure.sh       # PostToolUseFailure
-    │   ├── dangerous-cmd-check.sh    # PreToolUse (Bash)
-    │   ├── pre-compact-state.sh      # PreCompact
-    │   ├── post-compact-restore.sh   # PostCompact
-    │   ├── task-completed-chime.sh   # TaskCompleted
-    │   ├── statusline.sh             # settings.json statusLine.command
-    │   └── check-duplicates.sh       # CI-only (validate-config.yml)
+    ├── lib/                 # Shared Python helpers (config_common, readme_catalogs)
+    ├── hooks/               # Hook scripts (annotated with their trigger)
+    │   ├── check-duplicates.sh      # CI-only (validate-config.yml)
+    │   ├── dangerous-cmd-check.sh   # PreToolUse (Bash)
+    │   ├── format-on-edit.sh        # PostToolUse (Write|Edit)
+    │   ├── log-tool-failure.sh      # PostToolUseFailure
+    │   ├── notify-attention.sh      # Notification
+    │   ├── post-compact-restore.sh  # PostCompact
+    │   ├── pre-compact-state.sh     # PreCompact
+    │   ├── session-context.sh       # SessionStart
+    │   ├── session-end.sh           # SessionEnd
+    │   ├── statusline.sh            # settings.json statusLine.command
+    │   ├── task-completed-chime.sh  # TaskCompleted
+    │   └── lib/                     # shared helpers sourced by the hook scripts
     └── cli/                 # Headless CLI automation scripts
-        ├── review-changes.sh
-        ├── explain-error.sh
         ├── daily-report.sh
+        ├── explain-error.sh
+        ├── review-changes.sh
         └── review-pr.sh
 ```
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: repo-tree -->
 
 </details>
 

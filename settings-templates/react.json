@@ -1,6 +1,7 @@
 {
   "_source": "react",
   "_version": 1,
+  "_description": "npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier",
   "permissions": {
     "allow": [
       "Bash(npm run:*)",
