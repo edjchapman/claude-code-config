@@ -102,7 +102,7 @@ Run the validation suite locally before pushing:
 ```bash
 python -m json.tool settings.json > /dev/null   # JSON sanity
 scripts/hooks/check-duplicates.sh               # No agent/skill/command name collisions
-python3 scripts/check-hooks-sync.py             # settings.json hooks == hooks/hooks.json hooks
+python3 scripts/generate.py --check             # Generated regions fresh (settings.json hooks key)
 ```
 
 CI (`.github/workflows/validate-config.yml`) runs the same checks.

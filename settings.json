@@ -5,7 +5,10 @@
     "pr": "",
     "sessionUrl": false
   },
-  "fallbackModel": ["sonnet", "haiku"],
+  "fallbackModel": [
+    "sonnet",
+    "haiku"
+  ],
   "hooks": {
     "SessionStart": [
       {

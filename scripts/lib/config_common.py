@@ -1,7 +1,7 @@
 """Shared helpers for the config scripts in scripts/.
 
 Importable because Python puts a script's own directory on sys.path, so the
-sibling scripts (merge-settings.py, merge-mcp.py, check-hooks-sync.py) can do:
+sibling scripts (merge-settings.py, merge-mcp.py, generate.py) can do:
 
     from lib.config_common import check_python_version, load_template
 """

@@ -10,6 +10,10 @@ settings.local.json
 CHANGELOG.md
 .release-please-manifest.json
 
+# Generated destination of scripts/generate.py (ADR-0001) — the generator
+# owns its formatting; prettier's array collapsing fights `--check`
+settings.json
+
 # Lockfiles / vendor
 node_modules/
 .venv/

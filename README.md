@@ -545,7 +545,7 @@ claude-code-config/
     ├── install-tooling.sh   # Vendors tooling/ into a project (--tooling)
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
-    ├── check-hooks-sync.py  # CI: settings.json hooks ≡ hooks/hooks.json
+    ├── generate.py          # Regenerates generated regions (ADR-0001)
     ├── check-docs-drift.sh  # CI: every primitive documented
     ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
     ├── hooks/               # Hook scripts referenced by settings.json
