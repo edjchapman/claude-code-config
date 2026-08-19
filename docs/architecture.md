@@ -54,7 +54,7 @@ Hooks are configured in **two places** so the repo works in both consumption mod
 - `settings.json` (`hooks` key) — read by the symlink-global install path. Since `settings.json` is symlinked into `~/.claude/`, hooks are available in all projects.
 - `hooks/hooks.json` at the repo root — read by the plugin install path (per [plugin docs](https://code.claude.com/docs/en/plugins.md)). Same shape as `settings.json`'s `hooks` object, wrapped as `{ "hooks": { ... } }`.
 
-**Keep both files in sync** whenever you add or change a hook. Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
+**Edit hooks in `hooks/hooks.json` only** — `settings.json`'s hooks block is regenerated from it (ADR-0001). Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
 
 #### Hook Format
 
