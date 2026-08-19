@@ -1,6 +1,7 @@
 {
   "_source": "docker",
   "_version": 1,
+  "_description": "Docker build, compose, buildx, system commands",
   "_note": "Docker and Docker Compose commands for containerized development",
   "permissions": {
     "allow": [

@@ -1,6 +1,7 @@
 {
   "_source": "rust",
   "_version": 1,
+  "_description": "cargo, rustc, rustup, rustfmt, clippy",
   "_note": "Rust and Cargo commands for Rust development",
   "permissions": {
     "allow": [

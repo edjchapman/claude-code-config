@@ -1,6 +1,7 @@
 {
   "_source": "kubernetes",
   "_version": 1,
+  "_description": "kubectl, helm, kustomize, kubectx, stern",
   "_note": "Kubernetes, Helm, and Kustomize commands for container orchestration",
   "permissions": {
     "allow": [

@@ -1,6 +1,7 @@
 {
   "_source": "python",
   "_version": 1,
+  "_description": "pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry",
   "permissions": {
     "allow": [
       "Bash(python:*)",

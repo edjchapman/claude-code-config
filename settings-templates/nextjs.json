@@ -1,6 +1,7 @@
 {
   "_source": "nextjs",
   "_version": 1,
+  "_description": "Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright",
   "permissions": {
     "allow": [
       "Bash(npm run:*)",

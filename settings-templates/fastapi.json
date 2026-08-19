@@ -1,6 +1,7 @@
 {
   "_source": "fastapi",
   "_version": 1,
+  "_description": "uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose",
   "permissions": {
     "allow": [
       "Bash(uvicorn:*)",

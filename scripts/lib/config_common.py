@@ -9,11 +9,93 @@ sibling scripts (merge-settings.py, merge-mcp.py, generate.py) can do:
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
 # Minimum Python version required by the config scripts
 MIN_PYTHON_VERSION = (3, 8)
+
+
+class GenerationError(Exception):
+    """A generator target's sources are missing or malformed (see generate.py)."""
+
+
+def load_json(path: Path) -> dict:
+    """Load a JSON source for a generator target; raises GenerationError."""
+    if not path.is_file():
+        raise GenerationError(f"source not found: {path}")
+    try:
+        return json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        raise GenerationError(f"invalid JSON in {path}: {exc}") from exc
+
+
+def parse_frontmatter(path: Path) -> dict:
+    """Parse simple YAML frontmatter into {key: str | list[str]}.
+
+    Handles the styles used in this repo without a PyYAML dependency: plain
+    single-line scalars, block scalars (`>-`, `>`, `|`, `|-`) whose value is
+    the following indented lines joined with spaces, and simple string lists
+    (`- item` lines under a bare key). Derived from the description parser
+    that previously lived in check-context-budget.py, which now consumes this.
+    """
+    result: dict = {}
+    block = _frontmatter_block(path)
+    i = 0
+    while i < len(block):
+        match = re.match(r"^([A-Za-z][A-Za-z0-9_-]*):(.*)$", block[i])
+        if not match:
+            i += 1
+            continue
+        key, value = match.group(1), match.group(2).strip()
+        if value in {">", ">-", "|", "|-"}:
+            result[key], i = _block_scalar(block, i + 1)
+        elif value == "":
+            items, i = _list_items(block, i + 1)
+            result[key] = items if items else ""
+        else:
+            result[key] = _unquote(value)
+            i += 1
+    return result
+
+
+def _frontmatter_block(path: Path) -> list[str]:
+    """The lines between the opening and closing `---`, or [] if absent."""
+    lines = path.read_text().splitlines()
+    if not lines or lines[0].strip() != "---":
+        return []
+    try:
+        end = next(i for i, line in enumerate(lines[1:], start=1) if line.strip() == "---")
+    except StopIteration:
+        return []
+    return lines[1:end]
+
+
+def _block_scalar(block: list[str], start: int) -> tuple[str, int]:
+    """Consume a block scalar's indented continuation lines from `start`."""
+    collected = []
+    i = start
+    while i < len(block) and (block[i].startswith((" ", "\t")) or block[i].strip() == ""):
+        collected.append(block[i].strip())
+        i += 1
+    return " ".join(collected).strip(), i
+
+
+def _list_items(block: list[str], start: int) -> tuple[list[str], int]:
+    """Consume `- item` lines from `start`; ([], start) when there are none."""
+    items = []
+    i = start
+    while i < len(block) and block[i].lstrip().startswith("- "):
+        items.append(_unquote(block[i].lstrip()[2:].strip()))
+        i += 1
+    return items, i if items else start
+
+
+def _unquote(value: str) -> str:
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        return value[1:-1]
+    return value
 
 
 def check_python_version() -> None:

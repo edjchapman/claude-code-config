@@ -25,14 +25,14 @@ These are the rules that are easy to get wrong — keep them in mind whenever yo
 
 - **Hooks are edited in one place.** `hooks/hooks.json` is the source of truth for hook definitions (ADR-0001); `settings.json`'s `hooks` key is a **generated region** produced by `scripts/generate.py`. Never hand-edit the generated block — edit `hooks/hooks.json` and let pre-commit regenerate (or run `python3 scripts/generate.py`). CI enforces freshness via `generate.py --check`. Both files stay committed: each install mode reads its file directly. See [`docs/architecture.md`](docs/architecture.md) for the hook formats and the current catalog.
 - **No-matcher events.** These events must omit the `matcher` field (adding one is silently ignored per the docs): `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, `CwdChanged`.
-- **Every primitive must be named in `CLAUDE.md` or `README.md`.** `scripts/check-docs-drift.sh` fails CI if an agent / skill / hook / template on disk is documented in neither. README carries the catalogs, so new primitives go **there** (not into this file).
+- **Every primitive must be named in `CLAUDE.md` or `README.md`.** `scripts/check-docs-drift.sh` fails CI if an agent / skill / hook / template on disk is documented in neither. README's catalogs are **generated regions** (issue #112), so a new primitive appears there by regeneration — provided it carries the description its catalog renders (frontmatter `description:`, a hook/CLI script header comment, or a settings-template `_description` key).
 - **Keep issues [#51](https://github.com/edjchapman/claude-code-config/issues/51) and [#52](https://github.com/edjchapman/claude-code-config/issues/52) open** — they are the delivery targets for the daily-standup and end-of-week cloud routines; closing one orphans its routine.
 - **Run the validation suite before pushing** (CI runs the same checks):
 
 ```bash
 python3 -m json.tool settings.json > /dev/null   # JSON sanity
 scripts/hooks/check-duplicates.sh                # No agent/skill/command name collisions
-python3 scripts/generate.py --check              # Generated regions fresh (settings.json hooks key)
+python3 scripts/generate.py --check              # Generated regions fresh (settings.json hooks key, README catalogs)
 scripts/check-docs-drift.sh                      # Every primitive is documented
 python3 scripts/check-context-budget.py          # Always-loaded context within byte budget
 ```
