@@ -436,6 +436,19 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 | Review dependencies             | `@dependency-manager`             | Auto-detects npm/pip/uv/poetry/go/cargo; audits & upgrades |
 | Write documentation             | `@documentation-writer`           | README, API docs, ADRs, onboarding guides                  |
 | Headless review (no session)    | `review-changes.sh`               | Runs in CI or as a shell alias                             |
+| Record an architecture decision | `/adr`                            | Nygard-format ADR capturing context and consequences       |
+| Ship an urgent production fix   | `/hotfix`                         | Minimal-fix branch with targeted tests and PR              |
+| Capture a follow-up for later   | `/later`                          | Files a backlog item under Learn/Do/Research/Read          |
+| Log a quick status update       | `/status`                         | Appends the note to today's daily log                      |
+| Style an MkDocs site            | `/mkdocs-style`                   | Installs the shared Ink & Indigo Material layer            |
+| Install this config in a repo   | `project-setup` (auto)            | Setup scripts, tooling vendoring, new-repo runbook         |
+| Design or review a REST API     | `api-design` (auto)               | Endpoint, serializer, pagination, error-format conventions |
+| Work on Django code             | `django-patterns` (auto)          | Model, view, migration, and queryset conventions           |
+| Write Dockerfiles or compose    | `docker-patterns` (auto)          | Build-context, caching, and container security patterns    |
+| Untangle a git mess             | `git-workflow` (auto)             | Rebase, cherry-pick, bisect, and reflog recovery           |
+| Edit Terraform, K8s, or Helm    | `infrastructure` (auto)           | IaC modules, manifests, deployment configuration           |
+| Write security-sensitive code   | `security-patterns` (auto)        | Auth, validation, secrets, JWT/CSRF/CORS patterns          |
+| Follow the repo's test idioms   | `testing-patterns` (auto)         | Fixtures, factories, mocks, and coverage conventions       |
 
 </details>
 

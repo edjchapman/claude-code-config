@@ -3,7 +3,8 @@
 Each builder renders one README generated region from the primitives on
 disk, so the catalogs cannot disagree with what ships: descriptions render
 verbatim from their canonical source (skill/agent frontmatter, hook and CLI
-script header comments, template `_description` keys), and derived columns
+script header comments, template `_description` keys — byte-for-byte except
+for the markdown escaping _escape documents), and derived columns
 (who-can-invoke, the workflow/domain split, MCP server lists, counts) are
 computed, never hand-written. The repository tree's hook and CLI branches
 are enumerated from disk; its fixed skeleton is curated in _TREE below —
@@ -18,8 +19,25 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import NamedTuple
 
 from lib.config_common import GenerationError, load_json, parse_frontmatter
+
+
+class Catalog(NamedTuple):
+    """One plain table region: its badge-count label, headers, and rows."""
+
+    label: str
+    headers: list[str]
+    rows: list[list[str]]
+
+
+class Skill(NamedTuple):
+    name: str
+    description: str
+    workflow: bool
+    invoke: str
+
 
 # Skills fired by the scheduled cloud routines — daily standup (issue #51)
 # and end-of-week review (issue #52). No frontmatter key records scheduling,
@@ -135,8 +153,16 @@ def _agents(root: Path) -> list[list[str]]:
     return rows
 
 
-def _skills(root: Path) -> list[dict]:
-    entries = []
+def _invoke_column(name: str, user_only: bool) -> str:
+    if user_only:
+        return "you only"
+    if name in SCHEDULED_SKILLS:
+        return "you, Claude, or a schedule"
+    return "you or Claude"
+
+
+def _skills(root: Path) -> list[Skill]:
+    skills = []
     for path in sorted((root / "skills").glob("*/SKILL.md")):
         meta = _read_meta(path)
         name = path.parent.name
@@ -149,24 +175,12 @@ def _skills(root: Path) -> list[dict]:
                 f"scheduling invariant: skill '{name}' is fired by a scheduled cloud "
                 f"routine (see SCHEDULED_SKILLS) but sets disable-model-invocation: true"
             )
-        if user_only:
-            invoke = "you only"
-        elif name in SCHEDULED_SKILLS:
-            invoke = "you, Claude, or a schedule"
-        else:
-            invoke = "you or Claude"
-        entries.append(
-            {
-                "name": name,
-                "description": meta["description"],
-                # Workflow skills are the explicitly-invoked ones; on disk
-                # that is exactly the set carrying an argument-hint or a
-                # disable-model-invocation key. Domain skills carry neither.
-                "workflow": user_only or "argument-hint" in meta,
-                "invoke": invoke,
-            }
-        )
-    return entries
+        # Workflow skills are the explicitly-invoked ones; on disk that is
+        # exactly the set carrying an argument-hint or a
+        # disable-model-invocation key. Domain skills carry neither.
+        workflow = user_only or "argument-hint" in meta
+        skills.append(Skill(name, meta["description"], workflow, _invoke_column(name, user_only)))
+    return skills
 
 
 def _rules(root: Path) -> list[list[str]]:
@@ -181,23 +195,24 @@ def _rules(root: Path) -> list[list[str]]:
 
 
 def _hooks(root: Path) -> tuple[list[list[str]], dict[str, str]]:
-    """Rows for the hooks table, plus {script name: trigger} for the tree."""
+    """Rows for the hooks table, plus {script name: trigger(s)} for the tree."""
     source = root / "hooks" / "hooks.json"
     hooks = load_json(source).get("hooks")
     if not hooks:
         raise GenerationError(f"no 'hooks' key in {source}")
+    flat = [(event, entry) for event, entries in hooks.items() for entry in entries]
     rows: list[list[str]] = []
-    notes: dict[str, str] = {}
-    for event, entries in hooks.items():
-        for entry in entries:
-            matcher = entry.get("matcher")
-            label = f"{event} ({matcher})" if matcher else event
-            for hook in entry.get("hooks", []):
-                script = hook.get("command", "").rsplit("/", 1)[-1]
-                notes.setdefault(script, label)
-                summary = _script_summary(root / "scripts" / "hooks" / script)
-                rows.append([f"`{label}`", f"`{script}`", summary])
-    return rows, notes
+    triggers: dict[str, list[str]] = {}
+    for event, entry in flat:
+        matcher = entry.get("matcher")
+        label = f"{event} ({matcher})" if matcher else event
+        for hook in entry.get("hooks", []):
+            script = hook.get("command", "").rsplit("/", 1)[-1]
+            triggers.setdefault(script, []).append(label)
+            summary = _script_summary(root / "scripts" / "hooks" / script)
+            rows.append([f"`{label}`", f"`{script}`", summary])
+    # A script wired to several events lists every trigger in its tree note.
+    return rows, {script: ", ".join(dict.fromkeys(labels)) for script, labels in triggers.items()}
 
 
 def _settings_templates(root: Path) -> list[list[str]]:
@@ -258,31 +273,35 @@ def _tree(root: Path, hook_notes: dict[str, str]) -> str:
     )
 
 
-def _catalog_tables(root: Path, skills: list[dict]) -> dict[str, tuple[str, list, list]]:
-    """{region name: (count label, headers, rows)} for the plain table regions."""
-    workflow = [[f"`/{s['name']}`", s["description"], s["invoke"]] for s in skills if s["workflow"]]
-    domain = [[f"`{s['name']}`", s["description"]] for s in skills if not s["workflow"]]
+def _catalog_tables(root: Path, skills: list[Skill]) -> dict[str, Catalog]:
+    """{region name: Catalog} for the plain table regions."""
+    workflow = [[f"`/{s.name}`", s.description, s.invoke] for s in skills if s.workflow]
+    domain = [[f"`{s.name}`", s.description] for s in skills if not s.workflow]
     return {
-        "agents": ("specialist agents", ["Agent", "Description", "Model"], _agents(root)),
-        "workflow-skills": (
+        "agents": Catalog("specialist agents", ["Agent", "Description", "Model"], _agents(root)),
+        "workflow-skills": Catalog(
             "workflow skills",
             ["Skill", "Description", "Who Can Invoke"],
             workflow,
         ),
-        "domain-skills": ("domain skills", ["Skill", "Description"], domain),
-        "rules": ("style rules", ["Rule", "Applies To", "Covers"], _rules(root)),
-        "settings-templates": (
+        "domain-skills": Catalog("domain skills", ["Skill", "Description"], domain),
+        "rules": Catalog("style rules", ["Rule", "Applies To", "Covers"], _rules(root)),
+        "settings-templates": Catalog(
             "permission templates",
             ["Template", "What It Allows"],
             _settings_templates(root),
         ),
-        "mcp-templates": ("MCP templates", ["Template", "MCP Servers"], _mcp_templates(root)),
-        "cli-scripts": ("CLI scripts", ["Script", "Usage", "What It Does"], _cli_scripts(root)),
+        "mcp-templates": Catalog(
+            "MCP templates", ["Template", "MCP Servers"], _mcp_templates(root)
+        ),
+        "cli-scripts": Catalog(
+            "CLI scripts", ["Script", "Usage", "What It Does"], _cli_scripts(root)
+        ),
     }
 
 
-def _counts_line(tables: dict[str, tuple[str, list, list]], hook_count: int) -> str:
-    n = {name: len(rows) for name, (_, _, rows) in tables.items()}
+def _counts_line(tables: dict[str, Catalog], hook_count: int) -> str:
+    n = {name: len(catalog.rows) for name, catalog in tables.items()}
     parts = [
         f"{n['agents']} specialist agents",
         f"{n['workflow-skills'] + n['domain-skills']} skills",
@@ -301,8 +320,11 @@ def build_regions(root: Path) -> tuple[dict[str, str], list[str]]:
     hook_rows, hook_notes = _hooks(root)
     tables = _catalog_tables(root, skills)
     regions = {
-        name: _details_body(f"<strong>{len(rows)} {label}</strong>", _table(headers, rows))
-        for name, (label, headers, rows) in tables.items()
+        name: _details_body(
+            f"<strong>{len(catalog.rows)} {catalog.label}</strong>",
+            _table(catalog.headers, catalog.rows),
+        )
+        for name, catalog in tables.items()
     }
     regions["hooks"] = _details_body(
         f"<strong>{len(hook_rows)} configured hooks</strong> + opt-in",
@@ -311,7 +333,7 @@ def build_regions(root: Path) -> tuple[dict[str, str], list[str]]:
     regions["counts"] = _counts_line(tables, len(hook_rows))
     regions["repo-tree"] = "```\n" + _tree(root, hook_notes) + "\n```"
     regions = {name: _fence(content) for name, content in regions.items()}
-    return regions, [s["name"] for s in skills]
+    return regions, [s.name for s in skills]
 
 
 def uncurated_skills(readme_text: str, skill_names: list[str]) -> list[str]:
