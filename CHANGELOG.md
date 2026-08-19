@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/edjchapman/claude-code-config/compare/1.15.0...1.16.0) (2026-08-19)
+
+
+### Features
+
+* **scripts:** render README catalogs as generated regions ([#110](https://github.com/edjchapman/claude-code-config/issues/110)) ([#112](https://github.com/edjchapman/claude-code-config/issues/112)) ([#119](https://github.com/edjchapman/claude-code-config/issues/119)) ([3e3c687](https://github.com/edjchapman/claude-code-config/commit/3e3c6877230ce9ef61e98e3af974646d296b84dd))
+
 ## [1.15.0](https://github.com/edjchapman/claude-code-config/compare/1.14.0...1.15.0) (2026-08-19)
 
 
