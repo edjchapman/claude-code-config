@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/edjchapman/claude-code-config/compare/1.14.0...1.15.0) (2026-08-19)
+
+
+### Features
+
+* **scripts:** hooks/hooks.json becomes the single source of truth ([#111](https://github.com/edjchapman/claude-code-config/issues/111)) ([#117](https://github.com/edjchapman/claude-code-config/issues/117)) ([0ad4a4f](https://github.com/edjchapman/claude-code-config/commit/0ad4a4fe0bdfc096af6f2bab872e78a403f2b728))
+
 ## [1.14.0](https://github.com/edjchapman/claude-code-config/compare/1.13.0...1.14.0) (2026-08-11)
 
 
