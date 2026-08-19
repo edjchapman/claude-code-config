@@ -350,7 +350,9 @@
       "Bash(scripts/check-docs-drift.sh)",
       "Bash(python3 scripts/check-hooks-sync.py)",
       "Bash(gh pr *)",
-      "Bash(git worktree *)"
+      "Bash(git worktree *)",
+      "Read(//Users/ed/.claude/plugins/cache/mattpocock/mattpocock-skills/1.2.0/**)",
+      "Bash(gh label *)"
     ],
     "deny": [
       "Bash(> /dev/sda:*)",
