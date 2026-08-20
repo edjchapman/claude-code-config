@@ -9,17 +9,27 @@ escaping and fencing rules are decided once.
 from __future__ import annotations
 
 
-def escape(cell: str) -> str:
-    """Escape table/emphasis metacharacters so verbatim text renders verbatim.
+def escape_inline(text: str) -> str:
+    """Escape emphasis metacharacters so verbatim text renders verbatim.
 
     `_` and `*` are escaped only outside code spans (backslashes would be
     literal inside backticks); escaping keeps glob-like prose such as
-    `test_*` from being parsed — and reformatted — as emphasis.
+    `test_*` from being parsed as emphasis — GitHub would otherwise
+    italicise `*.test.*` and swallow the asterisks the reader needs.
+
+    Apply this to any string that arrives verbatim from disk (a
+    description, a script summary), never to markdown a builder composed
+    itself — that `**bold**` is meant to be bold.
     """
-    parts = cell.replace("|", "\\|").split("`")
+    parts = text.split("`")
     for i in range(0, len(parts), 2):
         parts[i] = parts[i].replace("_", "\\_").replace("*", "\\*")
     return "`".join(parts)
+
+
+def escape(cell: str) -> str:
+    """`escape_inline`, plus the pipe escaping a table cell also needs."""
+    return escape_inline(cell.replace("|", "\\|"))
 
 
 def table(headers: list[str], rows: list[list[str]]) -> str:

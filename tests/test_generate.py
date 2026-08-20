@@ -222,6 +222,12 @@ class ArchitectureReference(unittest.TestCase):
         self.assertNotIn("`autoMemoryEnabled`", extract_region(text, "arch-unset-settings-keys"))
         self.assertIn("`fastMode`", extract_region(text, "arch-unset-settings-keys"))
 
+    def test_verbatim_globs_survive_into_the_bullet_lists(self) -> None:
+        """Unescaped `*` would render as emphasis and eat the glob."""
+        run_generate(self.root, "--only", "architecture")
+        skills = extract_region(self.architecture(), "arch-skills")
+        self.assertIn("test\\_\\*, \\*.spec.\\*", skills)
+
     def test_settings_key_without_a_gloss_is_an_error(self) -> None:
         settings = json.loads((self.root / "settings.json").read_text())
         settings["someInventedKey"] = True

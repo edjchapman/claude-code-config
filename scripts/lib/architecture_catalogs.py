@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 from lib import primitives
-from lib.catalog_render import bullets, fence, table
+from lib.catalog_render import bullets, escape_inline, fence, table
 from lib.config_common import GenerationError, load_json
 
 # Hook events Claude Code documents, verified against the hooks reference
@@ -162,8 +162,8 @@ def _hooks(root: Path) -> str:
     for binding in bindings:
         # Script summaries are written as headline comments; some end in a
         # full stop and some don't, and the bullet needs exactly one.
-        summary = binding.summary.rstrip(".")
-        note = f" _Why:_ {binding.why}" if binding.why else ""
+        summary = escape_inline(binding.summary.rstrip("."))
+        note = f" _Why:_ {escape_inline(binding.why)}" if binding.why else ""
         items.append(f"**{binding.label}** → `scripts/hooks/{binding.script}`: {summary}.{note}")
     lead = (
         f"Wired in [`hooks/hooks.json`](../hooks/hooks.json) — "
@@ -241,13 +241,13 @@ def _skills(root: Path) -> str:
             mark = " **User-only.**"
         elif skill.scheduled:
             mark = f" **Schedulable** — fired by {primitives.SCHEDULED_SKILLS[skill.name]}."
-        return f"`/{skill.name}`: {skill.description}{mark}"
+        return f"`/{skill.name}`: {escape_inline(skill.description)}{mark}"
 
     return "\n\n".join(
         [
             "**Domain-knowledge skills** — Claude loads these automatically when the "
             "conversation matches their `description:`:",
-            bullets([f"`{s.name}`: {s.description}" for s in domain]),
+            bullets([f"`{s.name}`: {escape_inline(s.description)}" for s in domain]),
             "**Workflow skills** — invoked as `/<name>`; those without "
             "`disable-model-invocation` can also be auto-invoked by Claude:",
             bullets([workflow_item(s) for s in workflow]),
@@ -267,7 +267,9 @@ def _rules(root: Path) -> str:
 def _settings_templates(root: Path) -> str:
     templates = primitives.settings_templates(root)
     lead = f"Available templates ({len(templates)}):"
-    return lead + "\n\n" + bullets([f"`{t.name}`: {t.description}" for t in templates])
+    return (
+        lead + "\n\n" + bullets([f"`{t.name}`: {escape_inline(t.description)}" for t in templates])
+    )
 
 
 def _mcp_templates(root: Path) -> str:
@@ -283,7 +285,7 @@ def _cli_scripts(root: Path) -> str:
         # Only worth showing the invocation when it is not just the filename
         # (explain-error.sh is meant to be piped into, and reads oddly bare).
         call = f" — invoke as `{script.usage}`" if script.usage != script.name else ""
-        return f"`{script.name}`: {script.summary}{call}"
+        return f"`{script.name}`: {escape_inline(script.summary)}{call}"
 
     return bullets([item(script) for script in primitives.cli_scripts(root)])
 

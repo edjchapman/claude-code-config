@@ -85,7 +85,7 @@ Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 9 bindings across 9 event
 - **PostCompact** → `scripts/hooks/post-compact-restore.sh`: Re-inject the pre-compaction state snapshot after context compaction completes. _Why:_ this is the half of the compaction loop that actually restores state — it reads the session-keyed snapshot pre-compact-state.sh wrote, emits it via hookSpecificOutput.additionalContext, and deletes the one-shot file.
 - **TaskCompleted** → `scripts/hooks/task-completed-chime.sh`: Emit a terminal bell when an autonomous task completes. _Why:_ surfaces completion of long autonomous runs without polling. The bell is non-intrusive (terminals can mute it) and needs no platform-specific notification daemon.
 - **Notification** → `scripts/hooks/notify-attention.sh`: Desktop notification when Claude is blocked on you (permission request or idle wait). _Why:_ the Notification event fires exactly when Claude needs you, and you should not have to watch the terminal to notice. macOS uses osascript (with sound), Linux notify-send, with a terminal bell fallback everywhere; always exits 0.
-- **SessionEnd** → `scripts/hooks/session-end.sh`: Append a session summary to ./standups/YYYY-MM-DD-log.md for later /standup use.
+- **SessionEnd** → `scripts/hooks/session-end.sh`: Record each session end — always a CSV row, plus a git summary in ./standups/. _Why:_ the CSV row (~/.claude/debug/session-log.csv) is unconditional; the ./standups/YYYY-MM-DD-log.md append that /standup later reads is opt-in on that directory already existing, so ending a session in an unrelated repo does not scatter standups/ dirs across the filesystem.
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-hooks -->
@@ -131,7 +131,7 @@ Most useful to adopt here: **`PermissionRequest`** / **`PermissionDenied`** coul
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-unwired-events -->
 
-CI-only utility (not a runtime hook): `scripts/hooks/check-duplicates.sh` runs from `.github/workflows/validate-config.yml` to fail CI if two agents/skills share a name.
+Not a runtime hook: `scripts/hooks/check-duplicates.sh` lives alongside the hooks but is a validator, run by pre-commit and by `.github/workflows/validate-config.yml`, failing if two agents/skills share a name.
 
 ### Settings Keys
 
@@ -193,7 +193,7 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `infrastructure`: Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.
 - `project-setup`: Install this config into a repo or bootstrap a new one — setup-project.sh, install-tooling.sh, the layered hooks setup, the new-repo runbook. Use when running the setup scripts or vendoring the tooling.
 - `security-patterns`: Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.
-- `testing-patterns`: Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test_*, *_test, *.test.*, or *.spec.*.
+- `testing-patterns`: Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.
 
 **Workflow skills** — invoked as `/<name>`; those without `disable-model-invocation` can also be auto-invoked by Claude:
 

@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# Append a session summary to ./standups/YYYY-MM-DD-log.md for later /standup use
+# Record each session end — always a CSV row, plus a git summary in ./standups/
+#
+# Why: the CSV row (~/.claude/debug/session-log.csv) is unconditional; the
+# ./standups/YYYY-MM-DD-log.md append that /standup later reads is opt-in on
+# that directory already existing, so ending a session in an unrelated repo
+# does not scatter standups/ dirs across the filesystem.
 
 set -u
 

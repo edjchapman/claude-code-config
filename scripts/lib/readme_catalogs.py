@@ -37,7 +37,7 @@ class Catalog(NamedTuple):
 # scripts/hooks/ entries whose purpose no hooks.json event explains.
 EXTRA_HOOK_NOTES = {
     "statusline.sh": "settings.json statusLine.command",
-    "check-duplicates.sh": "CI-only (validate-config.yml)",
+    "check-duplicates.sh": "pre-commit + CI (not a runtime hook)",
     "lib": "shared helpers sourced by the hook scripts",
 }
 
@@ -62,8 +62,8 @@ claude-code-config/
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
     ├── generate.py          # Regenerates generated regions (ADR-0001)
-    ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
-    ├── check-agent-frontmatter.py  # CI: agent frontmatter contract holds
+    ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
+    ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)

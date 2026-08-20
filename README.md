@@ -275,7 +275,7 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 | `PostCompact`               | `post-compact-restore.sh` | Re-inject the pre-compaction state snapshot after context compaction completes       |
 | `TaskCompleted`             | `task-completed-chime.sh` | Emit a terminal bell when an autonomous task completes                               |
 | `Notification`              | `notify-attention.sh`     | Desktop notification when Claude is blocked on you (permission request or idle wait) |
-| `SessionEnd`                | `session-end.sh`          | Append a session summary to ./standups/YYYY-MM-DD-log.md for later /standup use      |
+| `SessionEnd`                | `session-end.sh`          | Record each session end — always a CSV row, plus a git summary in ./standups/        |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: hooks -->
@@ -629,12 +629,12 @@ claude-code-config/
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
     ├── generate.py          # Regenerates generated regions (ADR-0001)
-    ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
-    ├── check-agent-frontmatter.py  # CI: agent frontmatter contract holds
+    ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
+    ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
-    │   ├── check-duplicates.sh      # CI-only (validate-config.yml)
+    │   ├── check-duplicates.sh      # pre-commit + CI (not a runtime hook)
     │   ├── dangerous-cmd-check.sh   # PreToolUse (Bash)
     │   ├── format-on-edit.sh        # PostToolUse (Write|Edit)
     │   ├── log-tool-failure.sh      # PostToolUseFailure

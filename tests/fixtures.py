@@ -87,7 +87,12 @@ def _write_agents(root: Path) -> None:
 
 def _write_skills(root: Path) -> None:
     skills = {
-        "dom-skill": "---\nname: dom-skill\ndescription: Use when editing dom things.\n---\n",
+        # The glob in this description is deliberate: verbatim frontmatter
+        # must survive into both docs unparsed as emphasis.
+        "dom-skill": (
+            "---\nname: dom-skill\n"
+            "description: Use when editing files named test_*, *.spec.*.\n---\n"
+        ),
         "flow-skill": (
             '---\nname: flow-skill\ndescription: Flow the flow.\nargument-hint: "<what>"\n---\n'
         ),
