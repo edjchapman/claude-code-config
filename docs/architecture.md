@@ -58,6 +58,11 @@ Hooks are configured in **two places** so the repo works in both consumption mod
 
 **Edit hooks in `hooks/hooks.json` only** — `settings.json`'s hooks block is regenerated from it (ADR-0001). Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
 
+Two small discrepancies between this repo and the docs, verified 2026-08-20 and left as-is:
+
+- `hooks/hooks.json` carries a `$schema` pointing at the **settings** schema (`json.schemastore.org/claude-code-settings.json`). The plugin docs document no `$schema` key for that file. It is harmless — the loader ignores unknown keys — and it buys editor completion, because the settings schema defines `hooks` at the top level and `hooks.json` has the same shape one level down. Keep it, but don't read it as a documented contract.
+- `settings.json`'s `statusLine.command` uses `${CLAUDE_PLUGIN_DIR:-…}` where every hook command uses `${CLAUDE_PLUGIN_ROOT:-…}`, and `CLAUDE_PLUGIN_ROOT` is the documented name. Nothing breaks: `statusLine` is settings-only (plugins cannot provide one), so the variable is never set in the mode that runs it and the `readlink` fallback always wins. The name is misleading rather than wrong-behaving.
+
 #### Hook Format
 
 Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the [official hooks reference](https://code.claude.com/docs/en/hooks.md) for the full schema and the per-event matcher fields.
