@@ -36,6 +36,7 @@ python3 scripts/generate.py --check              # Generated regions fresh (sett
 scripts/check-docs-drift.sh                      # Every primitive is documented
 python3 scripts/check-context-budget.py          # Always-loaded context within byte budget
 python3 scripts/check-agent-frontmatter.py       # Agent frontmatter contract (keys, name==filename)
+python3 scripts/check-settings-keys.py           # settings.json top-level keys allowlisted
 ```
 
 ## Scope and Implementation Philosophy

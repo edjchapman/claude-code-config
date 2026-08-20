@@ -66,6 +66,20 @@ repos:
           ^(hooks/hooks\.json|settings\.json|README\.md|scripts/generate\.py|scripts/lib/.*\.py|agents/.*\.md|skills/.*/SKILL\.md|rules/.*\.md|settings-templates/.*\.json|mcp-templates/.*\.json|scripts/hooks/.*|scripts/cli/.*)$
         pass_filenames: false
 
+  # ---- settings.json key allowlist -----------------------------------
+  # settings.json is symlinked to ~/.claude/settings.json, so tools that
+  # write user-level settings (/model, auto-mode setup) land here — in a
+  # public repo. Catch stray keys before they reach a commit; personal
+  # settings belong in ~/.claude/settings.local.json.
+  - repo: local
+    hooks:
+      - id: check-settings-keys
+        name: settings.json top-level keys are allowlisted
+        entry: python3 scripts/check-settings-keys.py
+        language: system
+        files: ^(settings\.json|scripts/check-settings-keys\.py)$
+        pass_filenames: false
+
   # ---- Prettier (Markdown, JSON, YAML) -------------------------------
   # rbubley/mirrors-prettier is the actively-maintained mirror after
   # pre-commit/mirrors-prettier went unmaintained.
