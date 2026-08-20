@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.0](https://github.com/edjchapman/claude-code-config/compare/1.16.0...1.17.0) (2026-08-20)
+
+
+### Features
+
+* **scripts:** add agent frontmatter contract validator ([#121](https://github.com/edjchapman/claude-code-config/issues/121)) ([43054cf](https://github.com/edjchapman/claude-code-config/commit/43054cf86df84c340030c2b415b5442502e8c282))
+
 ## [1.16.0](https://github.com/edjchapman/claude-code-config/compare/1.15.0...1.16.0) (2026-08-19)
 
 
