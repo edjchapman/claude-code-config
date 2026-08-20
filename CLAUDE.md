@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a configuration repository for Claude Code. It can be consumed two ways:
 
 1. **As a plugin** (recommended): `/plugin marketplace add edjchapman/claude-code-config`, then `/plugin install claude-code-config`. The plugin name resolves only against marketplaces you have added — there is no global registry — so this can only install from this repo. If another added marketplace also defines a `claude-code-config` plugin, disambiguate with `/plugin install claude-code-config@claude-code-config` (`plugin@marketplace`). The plugin loader sets `CLAUDE_PLUGIN_ROOT` and the hook commands resolve relative to that.
-2. **As a symlinked global config** (legacy path, still supported): `scripts/setup-global.sh` symlinks `agents/`, `skills/`, `rules/`, and `settings.json` into `~/.claude/`. Per-project use is via `scripts/setup-project.sh`.
+2. **In global mode** (legacy path, still supported): `scripts/setup-global.sh` symlinks `agents/`, `skills/`, and `rules/` into `~/.claude/`, and mirrors `settings.json` into `~/.claude/settings.json` as a real file — managed keys track the repo via `scripts/sync-global-settings.py`, personal keys survive every sync (ADR-0002). Per-project use is via `scripts/setup-project.sh`.
 
 The two modes coexist — hook command paths use `${CLAUDE_PLUGIN_ROOT:-<readlink fallback>}`, so they resolve in both modes without modification.
 

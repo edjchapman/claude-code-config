@@ -3,7 +3,7 @@
 #
 # Why: settings.json is mirrored — not symlinked — into ~/.claude/settings.json
 # (ADR-0002), so a repo edit stays inert until a sync runs, and a runtime write
-# can flip a repo-managed key. This check surfaces pending drift at session
+# can flip a managed key. This check surfaces pending drift at session
 # start. Warn-only by design: it never applies changes itself, because silent
 # mutation of the user's settings was deliberately rejected.
 

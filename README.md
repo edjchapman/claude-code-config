@@ -49,7 +49,7 @@ Claude Code stores configuration in `~/.claude/` (global) and `.claude/` (per-pr
 
 This repo fixes that with **one canonical config** that everything else links back to:
 
-- **Symlinks** so updates propagate everywhere automatically
+- **Symlinks** (agents, skills, rules) so updates propagate everywhere automatically, plus a **mirrored** `settings.json` that a sync keeps fresh ([ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md))
 - **Composable templates** for different project types
 - **Hooks** for auto-formatting, safety checks, and notifications
 - **Skills & rules** for passive domain knowledge and style enforcement
@@ -61,24 +61,25 @@ flowchart LR
   subgraph Global["~/.claude — global"]
     direction TB
     a["agents · skills · rules"]
-    set["settings.json"]
+    set["settings.json<br/>(mirrored real file)"]
   end
   subgraph Proj[".claude — per-project"]
     direction TB
     sl["settings.local.json"]
     mcp[".mcp.json"]
   end
-  repo -- "setup-global.sh<br/>(symlink)" --> Global
+  repo -- "setup-global.sh<br/>(symlink)" --> a
+  repo -- "sync-global-settings.py<br/>(mirror — ADR-0002)" --> set
   repo -- "setup-project.sh<br/>(merge templates)" --> Proj
 ```
 
-One repo links into every machine (global symlinks) and composes per-project permissions (template merge) — so a change here propagates everywhere instead of being copied around.
+One repo links into every machine and composes per-project permissions (template merge). Symlinked directories propagate a change here live; the mirrored `settings.json` applies it on the next sync ([ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md)) — either way, nothing is copied around by hand.
 
 ---
 
 ## 🚀 Quick Start
 
-There are two ways to consume this repo: as a **plugin** (recommended) or as a **symlinked global config** (legacy, still supported). Both modes coexist — hook paths use `${CLAUDE_PLUGIN_ROOT:-<readlink fallback>}`, so they resolve either way.
+There are two ways to consume this repo: as a **plugin** (recommended) or in **global mode** (legacy, still supported). Both modes coexist — hook paths use `${CLAUDE_PLUGIN_ROOT:-<readlink fallback>}`, so they resolve either way.
 
 ### Option A — Plugin install (recommended)
 
@@ -97,13 +98,13 @@ cd ~/my-django-project
 ~/Development/claude-code-config/scripts/setup-project.sh django   # settings.local.json + .mcp.json
 ```
 
-### Option B — Symlinked global config (legacy)
+### Option B — Global mode (legacy)
 
 ```bash
 # 1. Clone (or fork to customize)
 git clone https://github.com/edjchapman/claude-code-config.git ~/claude-code-config
 
-# 2. Global config (symlinks into ~/.claude/)
+# 2. Global config (symlinks + settings mirror into ~/.claude/)
 ~/Development/claude-code-config/scripts/setup-global.sh
 
 # 3. Project config (from your project directory)
@@ -408,7 +409,7 @@ This repo ships `"outputStyle": "Explanatory"` as the default in `settings.json`
 | `explanatory` | Adds learning insights inline (good for unfamiliar codebases) |
 | `learning`    | More guided; fewer one-shot answers (good for upskilling)     |
 
-Override the default per project in `.claude/settings.local.json` (e.g. `{ "outputStyle": "default" }`), or switch on the fly via `/output-style`. (`outputStyle` is a repo-managed key, so a global override in `~/.claude/settings.json` would be reverted on the next sync — see [ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md).)
+Override the default per project in `.claude/settings.local.json` (e.g. `{ "outputStyle": "default" }`), or switch on the fly via `/output-style`. (`outputStyle` is a managed key, so a global override in `~/.claude/settings.json` would be reverted on the next sync — see [ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md).)
 
 </details>
 
@@ -629,6 +630,7 @@ claude-code-config/
     ├── install-mkdocs-style.sh  # Installs/updates the shared MkDocs style layer
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
+    ├── sync-global-settings.py  # Mirrors settings.json into ~/.claude (ADR-0002)
     ├── generate.py          # Regenerates generated regions (ADR-0001)
     ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
@@ -716,7 +718,7 @@ rm -f ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/rules
 
 # ~/.claude/settings.json is a real file, NOT a symlink (ADR-0002): it holds your
 # personal keys (model pin, permissions) alongside the mirrored repo keys, so
-# don't delete it wholesale — edit out the repo-managed keys if you want them gone.
+# don't delete it wholesale — edit out the managed keys if you want them gone.
 
 # Remove from a project (.claude/commands only exists on older installs)
 rm -rf .claude/agents .claude/commands .claude/skills .claude/rules .claude/settings.json

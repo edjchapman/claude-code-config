@@ -81,13 +81,6 @@ ln -s "$REPO_ROOT/agents" ~/.claude/agents
 ln -s "$REPO_ROOT/skills" ~/.claude/skills
 ln -s "$REPO_ROOT/rules" ~/.claude/rules
 
-# Mirror settings.json into ~/.claude/settings.json (ADR-0002). A real file,
-# deliberately NOT a symlink: Claude Code writes user-scope settings (/model,
-# /config toggles, permission approvals) to this path at runtime, and a
-# symlink would land every one of those writes as a pending diff in this
-# repo. The sync mirrors repo-managed keys and preserves personal ones.
-python3 "$SCRIPT_DIR/sync-global-settings.py" --source-root "$REPO_ROOT"
-
 # Handle CLAUDE.md symlink (global cross-project behavioural rules)
 if [ -L ~/.claude/CLAUDE.md ]; then
   echo "Removing existing symlink: ~/.claude/CLAUDE.md"
@@ -100,6 +93,16 @@ fi
 
 ln -s "$REPO_ROOT/home/CLAUDE.md" ~/.claude/CLAUDE.md
 
+# Mirror settings.json into ~/.claude/settings.json (ADR-0002). A real file,
+# deliberately NOT a symlink: Claude Code writes user-scope settings (/model,
+# /config toggles, permission approvals) to this path at runtime, and a
+# symlink would land every one of those writes as a pending diff in this
+# repo. The sync mirrors managed keys and preserves personal ones.
+# Deliberately the LAST step: it refuses to touch an unparseable target and
+# exits 1, and under `set -e` that must abort with every symlink (including
+# CLAUDE.md) already in place, not leave a half-installed tree.
+python3 "$SCRIPT_DIR/sync-global-settings.py" --source-root "$REPO_ROOT"
+
 echo ""
 echo "Global Claude Code config set up successfully!"
 echo ""
@@ -111,7 +114,7 @@ echo "  ~/.claude/CLAUDE.md       -> $REPO_ROOT/home/CLAUDE.md"
 echo ""
 echo "Notes:"
 echo "  - settings.json is a mirrored real file, not a symlink (ADR-0002):"
-echo "    repo-managed keys track the repo; personal keys (model, permissions,"
+echo "    managed keys track the repo; personal keys (model, permissions,"
 echo "    extra enabledPlugins entries) stay yours and survive every sync."
 echo "  - After editing settings in the repo, re-run this script (or"
 echo "    scripts/sync-global-settings.py) to apply; a SessionStart hook warns"

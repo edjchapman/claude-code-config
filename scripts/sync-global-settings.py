@@ -5,7 +5,7 @@ Why: ~/.claude/settings.json used to be a symlink into this repo, so every
 user-scope runtime write (/model, /config toggles, permission approvals)
 landed as a pending diff in a public repo — and the only file Claude Code
 actually reads at user scope was the one it could not safely write to.
-The sync replaces the symlink (ADR-0002): repo-managed keys mirror the
+The sync replaces the symlink (ADR-0002): managed keys mirror the
 repo exactly; every other key in the home file is personal and is never
 touched.
 
@@ -40,50 +40,74 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from typing import NamedTuple
 
 from lib.config_common import REPO_ROOT
 from lib.settings_keys import ALLOWED_KEYS, RETIRED_KEYS
 
 
-def merge(repo_cfg: dict, home_cfg: dict) -> tuple[dict, list[str]]:
-    """Return (merged home config, human-readable change list)."""
-    merged = dict(home_cfg)
-    changes = []
+class Change(NamedTuple):
+    """One sync mutation. ``key`` is the top-level settings key (the --check
+    report groups by it, so plugin entries carry "enabledPlugins", not the
+    entry name); ``line`` is the rendered human-readable description."""
 
-    def render(value: object) -> str:
-        text = json.dumps(value)
-        return text if len(text) <= 60 else f"<{type(value).__name__} value>"
+    key: str
+    line: str
+
+
+def render(value: object) -> str:
+    text = json.dumps(value)
+    return text if len(text) <= 60 else f"<{type(value).__name__} value>"
+
+
+def _mirror(mapping: dict, changes: list[Change], key: str, name: str, value: object) -> None:
+    """Set mapping[name] to the repo's value, recording an add/update Change.
+
+    ``name`` is the dict key being written; the Change carries the top-level
+    ``key`` (identical to ``name`` except for plugin entries, where
+    key="enabledPlugins" and the line shows "enabledPlugins.<name>").
+    """
+    label = name if key == name else f"{key}.{name}"
+    if name not in mapping:
+        changes.append(Change(key, f"+ {label}: {render(value)}"))
+    elif mapping[name] != value:
+        changes.append(Change(key, f"~ {label}: {render(mapping[name])} -> {render(value)}"))
+    mapping[name] = value
+
+
+def _drop(mapping: dict, changes: list[Change], key: str) -> None:
+    """Delete a formerly-managed key, recording the removal."""
+    changes.append(Change(key, f"- {key} (no longer managed by the repo)"))
+    del mapping[key]
+
+
+def merge(repo_cfg: dict, home_cfg: dict) -> tuple[dict, list[Change]]:
+    """Return (merged home config, list of Changes applied)."""
+    merged = dict(home_cfg)
+    changes: list[Change] = []
 
     managed = (ALLOWED_KEYS | set(repo_cfg) | RETIRED_KEYS) - {"enabledPlugins"}
     for key in sorted(managed):
         if key in repo_cfg and key not in RETIRED_KEYS:
-            if key not in merged:
-                changes.append(f"+ {key}: {render(repo_cfg[key])}")
-            elif merged[key] != repo_cfg[key]:
-                changes.append(f"~ {key}: {render(merged[key])} -> {render(repo_cfg[key])}")
-            merged[key] = repo_cfg[key]
+            _mirror(merged, changes, key, key, repo_cfg[key])
         elif key in merged:
-            changes.append(f"- {key} (no longer managed by the repo)")
-            del merged[key]
+            _drop(merged, changes, key)
 
+    _merge_plugins(repo_cfg, merged, changes)
+    return merged, changes
+
+
+def _merge_plugins(repo_cfg: dict, merged: dict, changes: list[Change]) -> None:
+    """Per-entry merge for enabledPlugins: repo entries mirror, others survive."""
     repo_plugins = repo_cfg.get("enabledPlugins")
     if repo_plugins is None:
         if "enabledPlugins" in merged:
-            changes.append("- enabledPlugins (no longer managed by the repo)")
-            del merged["enabledPlugins"]
-    else:
-        plugins = dict(merged.get("enabledPlugins") or {})
-        for name, value in sorted(repo_plugins.items()):
-            if name not in plugins:
-                changes.append(f"+ enabledPlugins.{name}: {render(value)}")
-            elif plugins[name] != value:
-                changes.append(
-                    f"~ enabledPlugins.{name}: {render(plugins[name])} -> {render(value)}"
-                )
-            plugins[name] = value
-        merged["enabledPlugins"] = plugins
-
-    return merged, changes
+            _drop(merged, changes, "enabledPlugins")
+        return
+    plugins = dict(merged.get("enabledPlugins") or {})
+    for name, value in sorted(repo_plugins.items()):
+        _mirror(plugins, changes, "enabledPlugins", name, value)
+    merged["enabledPlugins"] = plugins
 
 
 def load(path: Path) -> dict:
@@ -99,20 +123,49 @@ def write_atomic(path: Path, config: dict) -> None:
             json.dump(config, handle, indent=2)
             handle.write("\n")
         os.replace(tmp, path)
-    except BaseException:
-        os.unlink(tmp)
-        raise
+    finally:
+        # os.replace consumed tmp on success; anything left is a failed write.
+        if os.path.exists(tmp):
+            os.unlink(tmp)
 
 
-def main() -> int:
+def report_drift(changes: list[Change], was_symlink: bool) -> None:
+    """One-line warn-only drift report backing the SessionStart hook."""
+    if not changes and not was_symlink:
+        return
+    keys = sorted({change.key for change in changes})
+    what = ", ".join(keys) if keys else "symlinked target"
+    print(
+        f"claude-code-config: ~/.claude/settings.json has drifted from the"
+        f" repo ({what}) — run scripts/setup-global.sh (or"
+        f" scripts/sync-global-settings.py) to apply."
+    )
+
+
+def apply_sync(source: Path, target: Path, merged: dict, changes: list[Change]) -> None:
+    if target.is_symlink():
+        print(f"Replacing symlink {target} -> {os.readlink(target)} with a real file.")
+        target.unlink()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    write_atomic(target, merged)
+
+    for change in changes:
+        print(f"  {change.line}")
+    print(f"Synced {source} -> {target} ({len(changes)} change(s)).")
+
+
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="One-way sync of the repo's settings.json into ~/.claude/settings.json."
     )
     parser.add_argument("--check", action="store_true", help="warn-only drift report")
     parser.add_argument("--source-root", type=Path, default=REPO_ROOT)
     parser.add_argument("--target", type=Path, default=Path.home() / ".claude" / "settings.json")
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def main() -> int:
+    args = parse_args()
     source = args.source_root / "settings.json"
     if not source.is_file():
         print(f"FAIL: no settings.json at {args.source_root}", file=sys.stderr)
@@ -131,30 +184,12 @@ def main() -> int:
     merged, changes = merge(repo_cfg, home_cfg)
 
     if args.check:
-        # Backs the SessionStart drift hook: one line, warn-only, exit 0.
-        if changes or was_symlink:
-            keys = sorted({c.split()[1].rstrip(":").split(".")[0] for c in changes})
-            what = ", ".join(keys) if keys else "symlinked target"
-            print(
-                f"claude-code-config: ~/.claude/settings.json has drifted from the"
-                f" repo ({what}) — run scripts/setup-global.sh (or"
-                f" scripts/sync-global-settings.py) to apply."
-            )
+        report_drift(changes, was_symlink)
         return 0
-
     if not changes and not was_symlink and target.exists():
         print(f"{target}: already in sync ({len(merged)} top-level keys).")
         return 0
-
-    if was_symlink:
-        print(f"Replacing symlink {target} -> {os.readlink(target)} with a real file.")
-        target.unlink()
-    target.parent.mkdir(parents=True, exist_ok=True)
-    write_atomic(target, merged)
-
-    for change in changes:
-        print(f"  {change}")
-    print(f"Synced {source} -> {target} ({len(changes)} change(s)).")
+    apply_sync(source, target, merged, changes)
     return 0
 
 

@@ -38,11 +38,17 @@ symlinks `~/.claude/` at the clone that runs it, so a second clone (e.g. an old
 # Merge templates (used internally by setup-project.sh)
 python3 <repo>/scripts/merge-settings.py <templates-dir> base <type1> [type2...]
 python3 <repo>/scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]
+
+# One-way settings mirror: repo settings.json -> ~/.claude/settings.json (ADR-0002).
+# Run by setup-global.sh; managed keys track the repo, personal keys survive.
+# --check is the warn-only drift report behind the SessionStart drift hook.
+python3 <repo>/scripts/sync-global-settings.py [--check]
 ```
 
 Shared internals (not run directly):
 
 - `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, and `generate.py` (Python version gate, template loading, output validation)
+- `scripts/lib/settings_keys.py` — the managed-key sets (`ALLOWED_KEYS`, `RETIRED_KEYS`) shared by `check-settings-keys.py` and `sync-global-settings.py` (ADR-0002)
 - `scripts/hooks/lib/git-context.sh` — git helpers (`in_git_work_tree`, `git_branch`, `git_dirty_count`) sourced by the hook scripts; not a hook itself
 - `scripts/hooks/lib/hook-input.sh` — `hook_field <payload> <dotted.key>` helper for reading a field from the hook's stdin JSON payload; sourced by the hooks that parse stdin (format-on-edit, dangerous-cmd-check, session-end, pre/post-compact); not a hook itself
 - `mcp-templates/fragments/` — shared MCP server definitions (`sqlite.json`); templates reference them as `{"$fragment": "<name>"}` and `merge-mcp.py` inlines them at merge time
@@ -78,7 +84,7 @@ Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the 
 Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 10 bindings across 9 events:
 
 - **SessionStart** → `scripts/hooks/session-context.sh`: Auto-load git context at session start (branch, recent commits, dirty files).
-- **SessionStart** → `scripts/hooks/settings-drift-check.sh`: Warn when ~/.claude/settings.json has drifted from the repo's settings.json. _Why:_ settings.json is mirrored — not symlinked — into ~/.claude/settings.json (ADR-0002), so a repo edit stays inert until a sync runs, and a runtime write can flip a repo-managed key. This check surfaces pending drift at session start. Warn-only by design: it never applies changes itself, because silent mutation of the user's settings was deliberately rejected.
+- **SessionStart** → `scripts/hooks/settings-drift-check.sh`: Warn when ~/.claude/settings.json has drifted from the repo's settings.json. _Why:_ settings.json is mirrored — not symlinked — into ~/.claude/settings.json (ADR-0002), so a repo edit stays inert until a sync runs, and a runtime write can flip a managed key. This check surfaces pending drift at session start. Warn-only by design: it never applies changes itself, because silent mutation of the user's settings was deliberately rejected.
 - **PostToolUse (Write|Edit)** → `scripts/hooks/format-on-edit.sh`: Auto-format files after Claude edits them (unified Python + JS/TS formatter). _Why:_ deliberately NOT `async` — the formatter rewrites files in place, so running it in the background could race a subsequent Edit of the same file in the same turn.
 - **PostToolUseFailure** → `scripts/hooks/log-tool-failure.sh`: Append failed tool calls to ~/.claude/logs/tool-failures.jsonl for pattern analysis. _Why:_ cheap and LLM-free — it shows which tools fail most, so you can pre-allow them or fix the underlying issue.
 - **PreToolUse (Bash)** → `scripts/hooks/dangerous-cmd-check.sh`: Defense-in-depth: block obviously catastrophic command patterns before they run. _Why:_ a best-effort SECONDARY guard, not a security boundary — it stays bypassable via variables, quoting and encodings, so the primary protections remain the settings deny-lists and simply not allow-listing catastrophic commands.

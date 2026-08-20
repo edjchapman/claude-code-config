@@ -19,7 +19,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SYNC = REPO_ROOT / "scripts" / "sync-global-settings.py"
 
-# A minimal source settings.json of repo-managed keys (all in ALLOWED_KEYS).
+# A minimal source settings.json of managed keys (all in ALLOWED_KEYS).
 SOURCE = {
     "tui": "fullscreen",
     "outputStyle": "Explanatory",

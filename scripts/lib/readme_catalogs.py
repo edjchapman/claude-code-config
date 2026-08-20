@@ -61,6 +61,7 @@ claude-code-config/
     ├── install-mkdocs-style.sh  # Installs/updates the shared MkDocs style layer
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
+    ├── sync-global-settings.py  # Mirrors settings.json into ~/.claude (ADR-0002)
     ├── generate.py          # Regenerates generated regions (ADR-0001)
     ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
