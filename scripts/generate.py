@@ -23,10 +23,10 @@ region's source. Targets registered here:
 settings.json is re-serialized canonically (json.dumps, indent=2, trailing
 newline): every key outside the generated region keeps its value, but the
 file's *formatting* is owned by this generator, not by hand edits or prettier
-(settings.json is prettier-ignored for exactly this reason). README regions
-are marker-fenced spans replaced in place — every hand-written byte outside
-them is preserved — and carry prettier-ignore fences so prettier cannot
-re-pad the generated tables.
+(settings.json is prettier-ignored for exactly this reason). Markdown
+regions are marker-fenced spans replaced in place — every hand-written byte
+outside them is preserved — and carry prettier-ignore fences so prettier
+cannot re-pad the generated tables and lists.
 
 Usage: generate.py [--check] [--only TARGET] [--root PATH]
 
