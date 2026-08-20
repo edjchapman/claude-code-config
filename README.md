@@ -613,6 +613,7 @@ claude-code-config/
     ├── check-docs-drift.sh  # CI: every primitive documented
     ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # CI: agent frontmatter contract holds
+    ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
     ├── lib/                 # Shared Python helpers (config_common, readme_catalogs)
     ├── hooks/               # Hook scripts (annotated with their trigger)
     │   ├── check-duplicates.sh      # CI-only (validate-config.yml)

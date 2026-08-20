@@ -250,6 +250,24 @@ jobs:
         # `name:` drifting from its filename would otherwise ship unnoticed.
         run: python3 scripts/check-agent-frontmatter.py
 
+  check-settings-keys:
+    name: Check settings.json keys are allowlisted
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.11"
+
+      - name: Run check-settings-keys.py
+        # settings.json is symlinked to ~/.claude/settings.json, so tools
+        # that write user-level settings (/model, auto-mode setup) land here
+        # — in a public repo. The allowlist keeps personal or machine-local
+        # keys from shipping unnoticed.
+        run: python3 scripts/check-settings-keys.py
+
   markdownlint:
     name: Lint Markdown
     runs-on: ubuntu-latest
