@@ -2,6 +2,8 @@
 
 Full Claude-facing reference for this repo's moving parts — scripts, hooks, settings keys, templates, and automation. Behavioural rules and the easy-to-get-wrong gotchas live in [`CLAUDE.md`](../CLAUDE.md); user-facing catalogs live in [`README.md`](../README.md); extension recipes live in [`extending.md`](extending.md).
 
+**Every catalog below is a generated region** (`<!-- BEGIN GENERATED: … -->`), rendered from the primitives on disk by `scripts/generate.py` (ADR-0001). Hand edits inside one are reverted on the next run — change the source instead: a hook's summary and `Why:` note live in its script header, a skill's or agent's in its frontmatter, a template's in its `_description`, and the platform-reference data in `scripts/lib/architecture_catalogs.py`. Prose outside the markers is hand-written rationale and is yours to edit.
+
 ## Key Scripts
 
 Substitute `<repo>` below with wherever you cloned this repo (commonly
@@ -56,6 +58,11 @@ Hooks are configured in **two places** so the repo works in both consumption mod
 
 **Edit hooks in `hooks/hooks.json` only** — `settings.json`'s hooks block is regenerated from it (ADR-0001). Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/settings.json | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode.
 
+Two small discrepancies between this repo and the docs, verified 2026-08-20 and left as-is:
+
+- `hooks/hooks.json` carries a `$schema` pointing at the **settings** schema (`json.schemastore.org/claude-code-settings.json`). The plugin docs document no `$schema` key for that file. It is harmless — the loader ignores unknown keys — and it buys editor completion, because the settings schema defines `hooks` at the top level and `hooks.json` has the same shape one level down. Keep it, but don't read it as a documented contract.
+- `settings.json`'s `statusLine.command` uses `${CLAUDE_PLUGIN_DIR:-…}` where every hook command uses `${CLAUDE_PLUGIN_ROOT:-…}`, and `CLAUDE_PLUGIN_ROOT` is the documented name. Nothing breaks: `statusLine` is settings-only (plugins cannot provide one), so the variable is never set in the mode that runs it and the `readlink` fallback always wins. The name is misleading rather than wrong-behaving.
+
 #### Hook Format
 
 Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the [official hooks reference](https://code.claude.com/docs/en/hooks.md) for the full schema and the per-event matcher fields.
@@ -64,17 +71,24 @@ Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the 
 
 #### Available hooks
 
-Currently configured in `settings.json`:
+<!-- BEGIN GENERATED: arch-hooks -->
 
-- **SessionStart** → `scripts/hooks/session-context.sh`: auto-loads git context (branch, recent commits, dirty files)
-- **SessionEnd** → `scripts/hooks/session-end.sh`: appends session summary to `./standups/YYYY-MM-DD-log.md` for later `/standup` consumption
-- **PostToolUse (Write|Edit)** → `scripts/hooks/format-on-edit.sh`: auto-formats Python files (ruff) and JS/TS files (prettier). Deliberately **not** `async`: the formatter rewrites files in place, so running it in the background could race a subsequent Edit of the same file in the same turn.
-- **PostToolUseFailure** → `scripts/hooks/log-tool-failure.sh`: appends failed tool calls to `~/.claude/logs/tool-failures.jsonl` for later pattern analysis
-- **PreToolUse (Bash)** → `scripts/hooks/dangerous-cmd-check.sh`: blocks dangerous command patterns (defense-in-depth)
-- **PreCompact** → `scripts/hooks/pre-compact-state.sh`: writes a working-state snapshot to a session-keyed file before compaction (its stdout is _not_ injected — PreCompact is not a stdout-injecting event)
-- **PostCompact** → `scripts/hooks/post-compact-restore.sh`: after compaction, re-injects that snapshot via `hookSpecificOutput.additionalContext` and deletes the one-shot file — the half of the loop that actually restores state
-- **TaskCompleted** → `scripts/hooks/task-completed-chime.sh`: emits a terminal bell when an autonomous task completes
-- **Notification** → `scripts/hooks/notify-attention.sh`: desktop notification when Claude is blocked on you (permission request or idle wait) — osascript on macOS, notify-send on Linux, terminal bell fallback
+<!-- prettier-ignore-start -->
+
+Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 9 bindings across 9 events:
+
+- **SessionStart** → `scripts/hooks/session-context.sh`: Auto-load git context at session start (branch, recent commits, dirty files).
+- **PostToolUse (Write|Edit)** → `scripts/hooks/format-on-edit.sh`: Auto-format files after Claude edits them (unified Python + JS/TS formatter). _Why:_ deliberately NOT `async` — the formatter rewrites files in place, so running it in the background could race a subsequent Edit of the same file in the same turn.
+- **PostToolUseFailure** → `scripts/hooks/log-tool-failure.sh`: Append failed tool calls to ~/.claude/logs/tool-failures.jsonl for pattern analysis. _Why:_ cheap and LLM-free — it shows which tools fail most, so you can pre-allow them or fix the underlying issue.
+- **PreToolUse (Bash)** → `scripts/hooks/dangerous-cmd-check.sh`: Defense-in-depth: block obviously catastrophic command patterns before they run. _Why:_ a best-effort SECONDARY guard, not a security boundary — it stays bypassable via variables, quoting and encodings, so the primary protections remain the settings deny-lists and simply not allow-listing catastrophic commands.
+- **PreCompact** → `scripts/hooks/pre-compact-state.sh`: Preserve working state before context compaction. _Why:_ a hook's plain stdout is NOT injected for PreCompact (only UserPromptSubmit / UserPromptExpansion / SessionStart inject stdout), so the snapshot goes to a session-keyed file that post-compact-restore.sh re-injects via hookSpecificOutput.additionalContext once compaction completes.
+- **PostCompact** → `scripts/hooks/post-compact-restore.sh`: Re-inject the pre-compaction state snapshot after context compaction completes. _Why:_ this is the half of the compaction loop that actually restores state — it reads the session-keyed snapshot pre-compact-state.sh wrote, emits it via hookSpecificOutput.additionalContext, and deletes the one-shot file.
+- **TaskCompleted** → `scripts/hooks/task-completed-chime.sh`: Emit a terminal bell when an autonomous task completes. _Why:_ surfaces completion of long autonomous runs without polling. The bell is non-intrusive (terminals can mute it) and needs no platform-specific notification daemon.
+- **Notification** → `scripts/hooks/notify-attention.sh`: Desktop notification when Claude is blocked on you (permission request or idle wait). _Why:_ the Notification event fires exactly when Claude needs you, and you should not have to watch the terminal to notice. macOS uses osascript (with sound), Linux notify-send, with a terminal bell fallback everywhere; always exits 0.
+- **SessionEnd** → `scripts/hooks/session-end.sh`: Record each session end — always a CSV row, plus a git summary in ./standups/. _Why:_ the CSV row (~/.claude/debug/session-log.csv) is unconditional; the ./standups/YYYY-MM-DD-log.md append that /standup later reads is opt-in on that directory already existing, so ending a session in an unrelated repo does not scatter standups/ dirs across the filesystem.
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-hooks -->
 
 Available but **not configured by default** (opt-in by adding a prompt-type entry to **both** hook files):
 
@@ -92,74 +106,112 @@ Opt-in snippet shape (adjust the event name and criteria):
 
 Prompt-type hooks invoke a fast model on every fire and incur token cost. Because this config ships to plugin and symlink consumers alike, all three are opt-in (conservative defaults: cost-bearing behavior is explicit-on, never inherited from a `git pull`).
 
-#### Full platform event catalog (reference)
+#### Platform events not wired here (reference)
 
-Claude Code documents **30** hook events (verified against the [hooks reference](https://code.claude.com/docs/en/hooks.md), 2026-07-29); this repo wires 8 of them above. The events not yet used here, with their matcher field where confirmed against the docs on that date:
+<!-- BEGIN GENERATED: arch-unwired-events -->
+
+<!-- prettier-ignore-start -->
+
+Claude Code documents **30** hook events; this repo wires 9 of them above. Documented events it does not wire, with their matcher field where confirmed against the docs on 2026-07-29:
 
 | Event                | Fires when                                              | Matcher field                                       |
 | -------------------- | ------------------------------------------------------- | --------------------------------------------------- |
-| `Setup`              | started with `--init` / `--init-only` / `--maintenance` | CLI flag (`init` / `maintenance`)                   |
+| `Setup`              | started with `--init` / `--init-only` / `--maintenance` | CLI flag                                            |
 | `PermissionRequest`  | a tool call needs a permission decision                 | tool name                                           |
 | `PermissionDenied`   | a tool call is denied by the auto-mode classifier       | tool name                                           |
 | `SubagentStart`      | a subagent is spawned                                   | agent type                                          |
 | `StopFailure`        | the turn ends due to an API error                       | error type (`rate_limit`, `overloaded`, …)          |
 | `InstructionsLoaded` | a `CLAUDE.md` / `.claude/rules/*.md` loads into context | load reason (`session_start`, `path_glob_match`, …) |
 | `FileChanged`        | a watched file changes on disk                          | filename(s) to watch                                |
-| `PostCompact`        | after context compaction completes                      | none (no-matcher)                                   |
 
 Also available (matcher fields not re-verified here — consult the hooks reference before wiring): `UserPromptExpansion`, `ConfigChange`, `Elicitation`, `ElicitationResult`.
 
-Most useful to adopt here: **`PostCompact`** closes the compaction loop the repo half-implements — `PreCompact` (`pre-compact-state.sh`) preserves working state _before_ compaction, and a `PostCompact` hook can re-inject it _after_. **`PermissionRequest` / `PermissionDenied`** could feed a permission-tuning workflow, and **`StopFailure`** matched on `rate_limit` / `overloaded` complements the `fallbackModel` chain.
+Most useful to adopt here: **`PermissionRequest`** / **`PermissionDenied`** could feed a permission-tuning workflow; **`StopFailure`** matched on `rate_limit` / `overloaded`, complements the `fallbackModel` chain.
 
-CI-only utility (not a runtime hook): `scripts/hooks/check-duplicates.sh` runs from `.github/workflows/validate-config.yml` to fail CI if two agents/skills share a name.
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-unwired-events -->
+
+Not a runtime hook: `scripts/hooks/check-duplicates.sh` lives alongside the hooks but is a validator, run by pre-commit and by `.github/workflows/validate-config.yml`, failing if two agents/skills share a name.
 
 ### Settings Keys
 
-Beyond plugins and hooks, `settings.json` currently sets (listed in file order — keep this list in sync when reordering keys):
+Beyond plugins and hooks, `settings.json` sets:
 
-- **`attribution`**: Git commit/PR attribution text. Both fields are set to empty strings (`commit: ""`, `pr: ""`) to suppress the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line on commits **and** PRs — per the schema, the `commit` field covers trailers too, so one empty string handles both. Modern replacement for the deprecated `includeCoAuthoredBy` boolean. Additionally, `sessionUrl: false` suppresses the `Claude-Session: https://claude.ai/code/session_...` link trailer on commits and PR bodies — a separate boolean key (added in v2.1.183) that the co-author/generated-with fields do **not** cover, and which is still absent from the official settings docs (anthropics/claude-code#69614).
-- **No universal `model` pin**: `settings.json` deliberately sets **no** `model`, so consumers fall through to their account's recommended default (`opus` → Opus 5, `sonnet` → Sonnet 5 on the Anthropic API as of v2.1.219). A pin is avoided here because `fallbackModel` does **not** cover entitlement — an entitlement-gated pin (e.g. `fable`) would fail outright for a consumer who lacks access. The maintainer's Fable 5 pin therefore lives in the personal layer (`settings.personal.json.example` → `~/.claude/settings.local.json`). If you _do_ want a universal pin, two aliases are worth knowing: **`best`** (Fable 5 where your org has access, else the latest Opus — entitlement-aware, so it degrades gracefully) and **`opusplan`** (uses `opus` in plan mode, then `sonnet` for execution — a natural fit for Explore→Plan→Code and the plan-mode advisors). Accepts aliases (`fable`, `opus`, `sonnet`, `haiku`, `best`, `opusplan`), full model IDs (e.g. `claude-opus-5`), and 1M forms (`opus[1m]`). History: `fable` → `opus` (Fable budget exhausted, 2026-07-14) → `claude-fable-5[1m]` moved to the personal layer (PR #84) → universal pin removed entirely (2026-07-29). (Model landscape verified against the model-config docs, 2026-07-29.)
-- **`fallbackModel`**: Ordered fallback chain (`["sonnet", "haiku"]`) tried when the primary `model` is overloaded or unavailable — Claude switches to the next model for the rest of the turn and shows a notice. Added after a Fable-exhaustion incident (2026-07-14) broke sessions outright; the fallback makes exhaustion/rate-limits degrade gracefully to Sonnet instead. **Value is an array** (bare string is invalid), capped at 3 entries. Note: unlike most array settings it does **not** merge across settings files — the highest-precedence file that defines it supplies the whole chain — and the `--fallback-model` CLI flag overrides it for one session. It does **not** cover entitlement: a model your account can't access fails with a manual `/model` prompt rather than falling back — which is why entitlement-gated pins live in the personal layer, not here.
-- **`hooks`**: Per-event hook configuration (see Hooks section above)
-- **`worktree`**: Worktree-session config. `baseRef: head` branches new worktrees from local HEAD (preserving unpushed commits) instead of `origin/<default>`; `bgIsolation: worktree` blocks Edit/Write in the main checkout until `EnterWorktree` is called.
+<!-- BEGIN GENERATED: arch-settings-keys -->
+
+<!-- prettier-ignore-start -->
+
+- **`$schema`**: Settings schema URL, for editor completion and validation
+- **`attribution`**: Git commit/PR attribution text — empty `commit`/`pr` strings and `sessionUrl: false` suppress the Claude trailers
+- **`fallbackModel`**: Ordered fallback chain tried when the primary model is unavailable
+- **`hooks`**: Per-event hook configuration — generated from `hooks/hooks.json` (ADR-0001)
+- **`worktree`**: Worktree-session config: `baseRef: head` branches from local HEAD (preserving unpushed commits); `bgIsolation: worktree` blocks Edit/Write in the main checkout until `EnterWorktree` is called
 - **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
-- **`enabledPlugins`**: Plugin enablement map. The checked-in `settings.json` lists only **universal** plugins (no external accounts required), but not all are enabled: entries set to `false` are deliberate default-offs — heavy plugins whose skill/agent/command descriptions would load into every session (see the "What earns always-loaded context" ladder in [`extending.md`](extending.md)). Re-enable one per-machine via `~/.claude/settings.local.json`. Personal opt-ins (Figma) live in `settings.personal.json.example`
-- **`outputStyle`**: Output style for assistant responses (`Explanatory`; built-ins are `default`, `Explanatory`, `Learning`)
-- **`sandbox`**: Sandbox configuration with `enabled` and `autoAllowBashIfSandboxed`
-- **`tui`**: TUI rendering mode (`fullscreen` = flicker-free alt-screen renderer with virtualized scrollback; `default` = classic renderer). Corresponds to the `/tui` command.
-- **`inputNeededNotifEnabled`**: Desktop notification when Claude is blocked waiting for user input
+- **`enabledPlugins`**: Plugin enablement map — universal plugins only, some deliberately `false`
+- **`extraKnownMarketplaces`**: Extra plugin marketplaces this config expects to be available
+- **`outputStyle`**: Output style for assistant responses (built-ins: `default`, `Explanatory`, `Learning`)
+- **`sandbox`**: Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)
+- **`tui`**: TUI rendering mode — `fullscreen` is the flicker-free alt-screen renderer with virtualized scrollback; `default` is the classic one. Matches `/tui`
+- **`autoMemoryEnabled`**: Auto-memory on/off (platform default `true`)
+- **`inputNeededNotifEnabled`**: Desktop notification when Claude is blocked waiting for you
 - **`agentPushNotifEnabled`**: Push notifications for background agent activity
 
-Other documented keys that this repo does **not** currently set (available as opt-ins): `env`, `fileSuggestion`, `spinnerVerbs`, `skillOverrides`, `autoMode`, `alwaysThinkingEnabled`, `parentSettingsBehavior`, `autoMemoryDirectory` (custom auto-memory storage dir), `autoMemoryEnabled` (auto-memory on/off, default `true`), `availableModels` / `enforceAvailableModels` (restrict selectable models), `axScreenReader` (screen-reader-friendly output), `fastMode` (faster Opus output, default `false`), `language` (response language preference), `cleanupPeriodDays` (session file retention, default 30), `disableBundledSkills` (hide bundled skills like `/code-review`, `/loop`), `effortLevel` (default reasoning effort — a `medium` default was set 2026-07-14 as a routine token saving, then dropped with the Fable 5 switch; effort now inherits the model default, stepped up per-task when depth matters).
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-settings-keys -->
+
+Why some of them are set the way they are:
+
+- **`attribution`**: both fields are set to empty strings (`commit: ""`, `pr: ""`) to suppress the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line on commits **and** PRs — per the schema, the `commit` field covers trailers too, so one empty string handles both. Modern replacement for the deprecated `includeCoAuthoredBy` boolean. `sessionUrl: false` suppresses the `Claude-Session: https://claude.ai/code/session_...` link trailer as well — a separate boolean key (added in v2.1.183) that the co-author/generated-with fields do **not** cover, and which is still absent from the official settings docs (anthropics/claude-code#69614).
+- **No universal `model` pin**: `settings.json` deliberately sets **no** `model`, so consumers fall through to their account's recommended default (`opus` → Opus 5, `sonnet` → Sonnet 5 on the Anthropic API as of v2.1.219). A pin is avoided here because `fallbackModel` does **not** cover entitlement — an entitlement-gated pin (e.g. `fable`) would fail outright for a consumer who lacks access. The maintainer's Fable 5 pin therefore lives in the personal layer (`settings.personal.json.example` → `~/.claude/settings.local.json`). If you _do_ want a universal pin, two aliases are worth knowing: **`best`** (Fable 5 where your org has access, else the latest Opus — entitlement-aware, so it degrades gracefully) and **`opusplan`** (uses `opus` in plan mode, then `sonnet` for execution — a natural fit for Explore→Plan→Code and the plan-mode advisors). Accepts aliases (`fable`, `opus`, `sonnet`, `haiku`, `best`, `opusplan`), full model IDs (e.g. `claude-opus-5`), and 1M forms (`opus[1m]`). History: `fable` → `opus` (Fable budget exhausted, 2026-07-14) → `claude-fable-5[1m]` moved to the personal layer (PR #84) → universal pin removed entirely (2026-07-29). (Model landscape verified against the model-config docs, 2026-07-29.)
+- **`fallbackModel`**: Ordered fallback chain (`["sonnet", "haiku"]`) tried when the primary `model` is overloaded or unavailable — Claude switches to the next model for the rest of the turn and shows a notice. Added after a Fable-exhaustion incident (2026-07-14) broke sessions outright; the fallback makes exhaustion/rate-limits degrade gracefully to Sonnet instead. **Value is an array** (bare string is invalid), capped at 3 entries. Note: unlike most array settings it does **not** merge across settings files — the highest-precedence file that defines it supplies the whole chain — and the `--fallback-model` CLI flag overrides it for one session. It does **not** cover entitlement: a model your account can't access fails with a manual `/model` prompt rather than falling back — which is why entitlement-gated pins live in the personal layer, not here.
+- **`enabledPlugins`**: Plugin enablement map. The checked-in `settings.json` lists only **universal** plugins (no external accounts required), but not all are enabled: entries set to `false` are deliberate default-offs — heavy plugins whose skill/agent/command descriptions would load into every session (see the "What earns always-loaded context" ladder in [`extending.md`](extending.md)). Re-enable one per-machine via `~/.claude/settings.local.json`. Personal opt-ins (Figma) live in `settings.personal.json.example`
+- **`effortLevel`** (not set): a `medium` default was set 2026-07-14 as a routine token saving, then dropped with the Fable 5 switch; effort now inherits the model default, stepped up per-task when depth matters.
+
+<!-- BEGIN GENERATED: arch-unset-settings-keys -->
+
+<!-- prettier-ignore-start -->
+
+Other documented keys this repo does **not** set (available as opt-ins): `alwaysThinkingEnabled`, `autoMemoryDirectory` (custom auto-memory storage dir), `autoMode`, `availableModels` (restrict selectable models), `axScreenReader` (screen-reader-friendly output), `cleanupPeriodDays` (session file retention, default 30), `disableBundledSkills` (hide bundled skills like `/code-review`, `/loop`), `effortLevel` (default reasoning effort), `enforceAvailableModels` (restrict selectable models), `env`, `fastMode` (faster Opus output, default `false`), `fileSuggestion`, `language` (response language preference), `model`, `parentSettingsBehavior`, `skillOverrides`, `spinnerVerbs`.
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-unset-settings-keys -->
 
 ### Skills
 
 Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands were merged into skills upstream — a flat `commands/foo.md` still works but is the legacy form, so this repo keeps everything under `skills/` (the former `commands/` directory was migrated here). Two kinds live in `skills/`:
 
+<!-- BEGIN GENERATED: arch-skills -->
+
+<!-- prettier-ignore-start -->
+
 **Domain-knowledge skills** — Claude loads these automatically when the conversation matches their `description:`:
 
-- `git-workflow`: Conventional commits, branch naming, PR size, release workflow guidance, and complex operations (rebase, bisect, reflog recovery)
-- `testing-patterns`: AAA pattern, factories, mocks, coverage, and test organization
-- `security-patterns`: Input validation, JWT, CSRF, auth, secrets, and security-sensitive routes
-- `api-design`: REST conventions, status codes, pagination, schemas, and error formats
-- `django-patterns`: Fat models, managers, query optimization, signals, migrations, and admin patterns
-- `docker-patterns`: Multi-stage builds, layer caching, Compose files, and container security
-- `infrastructure`: Terraform modules, Kubernetes resources, Helm charts, and deployment configuration
-- `project-setup`: Applying this config's tooling to a project — `setup-project.sh`, `install-tooling.sh`, the `--hooks`/`--tooling` caveat, and the new-repo bootstrap runbook
+- `api-design`: REST API conventions — resources, status codes, pagination, error shapes. Use when designing or reviewing routes, controllers, endpoints, serializers, or schemas.
+- `django-patterns`: Django app-layer and ORM conventions. Use when editing models, views, serializers, admin, managers, signals, migrations, or querysets.
+- `docker-patterns`: Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.
+- `git-workflow`: Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, merge-conflict resolution, cherry-picking, bisecting, reflog recovery.
+- `infrastructure`: Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.
+- `project-setup`: Install this config into a repo or bootstrap a new one — setup-project.sh, install-tooling.sh, the layered hooks setup, the new-repo runbook. Use when running the setup scripts or vendoring the tooling.
+- `security-patterns`: Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.
+- `testing-patterns`: Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.
 
-**Workflow skills** — invoked as `/<name>`; those with trigger-rich descriptions can also be auto-invoked by Claude when the conversation calls for them:
+**Workflow skills** — invoked as `/<name>`; those without `disable-model-invocation` can also be auto-invoked by Claude:
 
-- `commit` (`/commit`): Analyze staged changes and write a conventional commit message
-- `pr` (`/pr`): Create a pull request with a well-crafted description
-- `hotfix` (`/hotfix`): Create a hotfix branch with a minimal fix, targeted tests, and PR
-- `adr` (`/adr`): Create an Architecture Decision Record (Nygard format)
-- `standup` (`/standup`): Summarize recent work activity across Git, GitHub, and Jira — **schedulable** (see Automation)
-- `eow-review` (`/eow-review`): End-of-week review notes — **schedulable** (see Automation)
-- `status` (`/status`, user-only): Append a quick status update to today's daily log
-- `refinement` (`/refinement`, user-only): Technical analysis for backlog refinement meetings
-- `later` (`/later`, user-only): Create a Later backlog item (Learn/Research/Do/Read)
+- `/adr`: Record a technical decision as an Architecture Decision Record (Nygard format). Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.
+- `/commit`: Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.
+- `/eow-review`: Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week. **Schedulable** — fired by the end-of-week review routine (issue #52).
+- `/hotfix`: Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.
+- `/later`: Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template. **User-only.**
+- `/mkdocs-style`: Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.
+- `/pr`: Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.
+- `/refinement`: Prepare technical analysis for backlog refinement meetings. **User-only.**
+- `/standup`: Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently. **Schedulable** — fired by the daily standup routine (issue #51).
+- `/status`: Capture a quick status update and append it to today's daily log. **User-only.**
 
-The three user-only skills set `disable-model-invocation: true`. **Scheduling constraint**: that flag also prevents a skill from running when a scheduled task fires with the skill as its prompt (v2.1.196+) — `/standup` and `/eow-review` deliberately omit it so scheduled routines can run them.
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-skills -->
+
+The user-only skills above set `disable-model-invocation: true`. **Scheduling constraint**: that flag also prevents a skill from running when a scheduled task fires with the skill as its prompt (v2.1.196+) — `/standup` and `/eow-review` deliberately omit it so scheduled routines can run them.
 
 ### Rules
 
@@ -169,12 +221,19 @@ Rules are path-scoped code style enforcement files in `rules/`. They use `paths`
 
 Available rules:
 
-- `python-style.md`: Naming, error handling, imports, type hints (`**/*.py`)
-- `typescript-style.md`: Naming, error handling, type usage, plus a React-specific section for `.tsx` (`**/*.ts`, `**/*.tsx`)
+<!-- BEGIN GENERATED: arch-rules -->
+
+<!-- prettier-ignore-start -->
+
+- `python-style`: General, Naming, Error Handling, Imports, Type Hints (`**/*.py`)
+- `typescript-style`: General, Naming, Error Handling, Types, React (`.tsx` files) (`**/*.ts`, `**/*.tsx`)
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-rules -->
 
 ### Settings Files: Two Purposes
 
-This repo manages three distinct settings files:
+The settings files this repo manages:
 
 | File                             | Purpose                                                                 | Distribution                                            | Source                            |
 | -------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------- | --------------------------------- |
@@ -195,12 +254,29 @@ Templates in `settings-templates/` are JSON files defining Claude Code permissio
 3. Merges permissions with precedence: **deny > allow**
 4. Outputs combined `settings.local.json`
 
-Available templates (14 total):
+<!-- BEGIN GENERATED: arch-settings-templates -->
 
-- **Base**: `base.json` (always included)
-- **Backend stacks**: `django.json`, `fastapi.json`, `go.json`, `java.json`, `node.json`, `python.json`, `rust.json`
-- **Frontend stacks**: `nextjs.json`, `react.json`
-- **Platform / infra**: `aws.json`, `docker.json`, `kubernetes.json`, `terraform.json`
+<!-- prettier-ignore-start -->
+
+Available templates (14):
+
+- `aws`: AWS CLI describe/validate (read-only), cfn-lint, cfn-guard, cdk synth/diff (deletion & deploy denied)
+- `base`: Git, GitHub CLI, file operations, WebSearch (always included)
+- `django`: Django manage.py commands (test with --no-input --parallel=8), docker compose, make, uv run (flake8, basedpyright)
+- `docker`: Docker build, compose, buildx, system commands
+- `fastapi`: uvicorn, alembic, pytest, ruff, mypy, uv, poetry, docker compose
+- `go`: go build/test/run, golangci-lint, staticcheck, dlv, mockgen, wire
+- `java`: Gradle, Maven, Java compilation (javac, jar)
+- `kubernetes`: kubectl, helm, kustomize, kubectx, stern
+- `nextjs`: Next.js dev/build/lint, Vercel CLI, npm/yarn/pnpm, vitest, playwright
+- `node`: npm, yarn, pnpm, vitest, jest, mocha, eslint, prettier, tsc, bun
+- `python`: pytest, mypy, ruff, black, isort, flake8, pylint, bandit, pre-commit, pip, uv, poetry
+- `react`: npm, yarn, pnpm, vitest, playwright, TypeScript, eslint, prettier
+- `rust`: cargo, rustc, rustup, rustfmt, clippy
+- `terraform`: terraform fmt/validate/plan/init
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-settings-templates -->
 
 This repo's own `.claude/settings.local.json` is generated from every template **except `aws`** (see its `_generated_from`) — deliberate selection, not drift: the repo has no AWS surface, so AWS CLI allows would be dead weight here.
 
@@ -229,13 +305,22 @@ MCP templates in `mcp-templates/` define MCP server configurations per project t
 2. Adds MCP servers from matching type templates
 3. Outputs combined `.mcp.json` in the project root
 
+<!-- BEGIN GENERATED: arch-mcp-templates -->
+
+<!-- prettier-ignore-start -->
+
 Available MCP templates:
 
-- `base.json`: Empty (MCP servers are opt-in)
-- `django.json` (`_version: 3`), `nextjs.json` (`_version: 2`), `fastapi.json` (`_version: 2`): **no MCP server by default** (empty `mcpServers`). They previously shipped the archived `@modelcontextprotocol/server-postgres`; it was dropped (deprecated, a known SQL-injection vuln, and no maintained `npx` drop-in exists) — wire a PostgreSQL MCP server per-project when needed (e.g. Crystal DBA's `uvx postgres-mcp`)
-- `python.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Python local dev
-- `node.json` (`_version: 1`): SQLite MCP server (`mcp-server-sqlite-npx`) for generic Node local dev
-- `aws.json` (`_version: 1`): AWS Infrastructure-as-Code MCP server (`awslabs.aws-iac-mcp-server`) for CloudFormation/CDK validation, `cfn-guard` compliance, and deployment troubleshooting. Runs via `uvx` (Python/PyPI), not `npx` — needs the `uv` package manager plus AWS credentials (`AWS_PROFILE`/`AWS_REGION`). The deprecated `awslabs.terraform-mcp-server` is deliberately excluded; HashiCorp's official Terraform MCP server has superseded it.
+- `aws`: `aws-iac`
+- `base`: **no MCP server** (opt-in)
+- `django`: **no MCP server** (opt-in)
+- `fastapi`: **no MCP server** (opt-in)
+- `nextjs`: **no MCP server** (opt-in)
+- `node`: `sqlite`
+- `python`: `sqlite`
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-mcp-templates -->
 
 Stacks without an MCP template (Go, Rust, Java, Kubernetes, Terraform) fall through to `base.json` (empty); Django/Next.js/FastAPI keep templates but now ship **no default MCP server** (empty `mcpServers`). Add MCP servers manually in the project's generated `.mcp.json` when needed. Generic Python/Node templates use SQLite because there's no shared external DB assumption. The `aws` template is the lone infra MCP server — it's `uvx`-based rather than `npx`-based, so verify against PyPI (confirmed `awslabs.aws-iac-mcp-server` published at template creation time) rather than the npm registry. Verify each template's package before relying on it — versions move (npm search confirmed `mcp-server-sqlite-npx@0.8.0` exists at template creation time). **Postgres note (2026-07-29):** the shared `postgres` fragment (`@modelcontextprotocol/server-postgres`) was **removed** — it's archived/deprecated with a known SQL-injection vuln, and the `npx` "replacements" are unmaintained or npm security-stub names; the one maintained option is Python-only (`uvx postgres-mcp`, Crystal DBA), so DB MCP is left to deliberate per-project opt-in.
 
@@ -250,10 +335,17 @@ Ensure required variables are set in your shell or `.envrc` before launching Cla
 
 Headless Claude Code scripts in `scripts/cli/` for automation:
 
-- `review-changes.sh`: Review uncommitted changes for bugs, security, quality
-- `explain-error.sh`: Pipe errors to Claude for explanation (`cmd 2>&1 | explain-error.sh`)
-- `daily-report.sh`: Summarize last 24h of git activity
-- `review-pr.sh <number>`: Headless PR review
+<!-- BEGIN GENERATED: arch-cli-scripts -->
+
+<!-- prettier-ignore-start -->
+
+- `daily-report.sh`: Summarize yesterday's git activity across all projects
+- `explain-error.sh`: Pipe error output to Claude for explanation — invoke as `some-command 2>&1 | explain-error.sh`
+- `review-changes.sh`: Review uncommitted changes using Claude headless mode
+- `review-pr.sh`: Headless PR review — invoke as `review-pr.sh <pr-number>`
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-cli-scripts -->
 
 ### Automation: pick the right trigger
 
@@ -283,7 +375,7 @@ Agents in `agents/` are Markdown files with YAML frontmatter:
 - `name`: Agent identifier (used as `@agent-name`)
 - `description`: When Claude should invoke this agent — a rich `"… Use when <trigger>"` phrasing (this repo's convention; the agents use trigger prose rather than `<example>` blocks)
 - `model` (optional): omit to **inherit** the session model (the default, right for deep-reasoning agents); pin `sonnet` for pattern-based cost routing or `haiku` for highly structured / data-plumbing
-- `tools` / `disallowedTools` (optional): Allowlist / denylist restricting the agent's tool pool. Used by the two `permissionMode: plan` advisors (`database-architect`, `devops-engineer`) with a read-only pool (`Read, Glob, Grep, Bash, WebFetch, WebSearch`) — they analyse and design; the main session implements
+- `tools` / `disallowedTools` (optional): Allowlist / denylist restricting the agent's tool pool. Used by the `permissionMode: plan` advisors (`database-architect`, `devops-engineer`) with a read-only pool (`Read, Glob, Grep, Bash, WebFetch, WebSearch`) — they analyse and design; the main session implements
 - `color` (optional): UI hint for the agent's display colour
 - `permissionMode` (optional): Override the subagent's permission mode (e.g. `plan` starts the agent in plan mode for spec/review work that should not edit until approved)
 - `memory` (optional): Persistent cross-session memory scope (`user`, `project`, or `local`). Used by `bug-resolver`, `ci-debugger`, and `performance-engineer` (`project`) so diagnosed root causes, flaky-test signatures, and perf baselines compound across sessions — pair it with a body section telling the agent to read/update its memory

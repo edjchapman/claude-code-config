@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Re-inject the pre-compaction state snapshot after context compaction completes.
-# Used by: PostCompact hook in settings.json
+# Re-inject the pre-compaction state snapshot after context compaction completes
+#
+# Why: this is the half of the compaction loop that actually restores state — it
+# reads the session-keyed snapshot pre-compact-state.sh wrote, emits it via
+# hookSpecificOutput.additionalContext, and deletes the one-shot file.
 #
 # PostCompact stdout is not shown to the model directly, but a JSON
 # hookSpecificOutput.additionalContext payload on stdout IS injected into the
-# post-compaction context (verified against the hooks docs, 2026-07-29). We read
-# the snapshot that pre-compact-state.sh wrote (keyed by session id) and emit it,
-# then remove the one-shot file.
+# post-compaction context (verified against the hooks docs, 2026-07-29).
 
 set -u
 

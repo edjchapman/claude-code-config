@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: Use when working with Git repositories, branches, commits, pull requests, release workflows, or files under .git — including complex operations like interactive rebase, merge-conflict resolution, cherry-picking, bisecting, or recovering lost commits via reflog.
+description: Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, merge-conflict resolution, cherry-picking, bisecting, reflog recovery.
 ---
 
 # Git Workflow

@@ -153,9 +153,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Generated regions must be fresh (settings.json hooks key)
+      - name: Generated regions must be fresh
         # hooks/hooks.json is the source of truth for hook definitions
-        # (ADR-0001); settings.json's hooks key is a generated region.
+        # (ADR-0001); settings.json's hooks key, the README catalogs and
+        # the docs/architecture.md reference lists are generated regions.
         # Also runnable locally (python3 scripts/generate.py --check) for a
         # pre-push check; pre-commit runs write mode to regenerate.
         run: python3 scripts/generate.py --check
@@ -206,15 +207,6 @@ jobs:
               sys.exit(1)
           print('All hook script references are valid.')
           PY
-
-  check-docs-drift:
-    name: Check docs reference all primitives on disk
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Run check-docs-drift.sh
-        run: bash scripts/check-docs-drift.sh
 
   check-context-budget:
     name: Check always-loaded context stays within budget

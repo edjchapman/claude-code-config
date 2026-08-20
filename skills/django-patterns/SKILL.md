@@ -1,6 +1,6 @@
 ---
 name: django-patterns
-description: Use when editing Django models, views, serializers, admin, managers, signals, migrations, querysets, or database access patterns.
+description: Django app-layer and ORM conventions. Use when editing models, views, serializers, admin, managers, signals, migrations, or querysets.
 ---
 
 # Django Patterns

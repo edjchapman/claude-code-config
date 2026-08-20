@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-# Preserve working state before context compaction.
-# Used by: PreCompact hook in settings.json
+# Preserve working state before context compaction
 #
-# A hook's plain stdout is NOT added to context for PreCompact (only
-# UserPromptSubmit / UserPromptExpansion / SessionStart inject stdout — see the
-# hooks docs). So instead of echoing the snapshot into the void of the debug
-# log, we write it to a session-keyed file that post-compact-restore.sh reads
-# and re-injects via hookSpecificOutput.additionalContext once compaction
-# completes.
+# Why: a hook's plain stdout is NOT injected for PreCompact (only
+# UserPromptSubmit / UserPromptExpansion / SessionStart inject stdout), so the
+# snapshot goes to a session-keyed file that post-compact-restore.sh re-injects
+# via hookSpecificOutput.additionalContext once compaction completes.
 
 set -u
 

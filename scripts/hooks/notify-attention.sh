@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
-# Desktop notification when Claude needs your attention
-# Used by: Notification hook in settings.json
+# Desktop notification when Claude is blocked on you (permission request or idle wait)
 #
-# The Notification event fires when Claude is blocked on you: a permission
-# request, or waiting for input while idle. This surfaces it as an OS
-# notification so you notice without watching the terminal.
-#
-# macOS: osascript notification (with sound). Linux: notify-send.
-# Fallback everywhere: terminal bell. Always exits 0.
+# Why: the Notification event fires exactly when Claude needs you, and you should
+# not have to watch the terminal to notice. macOS uses osascript (with sound),
+# Linux notify-send, with a terminal bell fallback everywhere; always exits 0.
 
 set -u
 

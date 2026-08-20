@@ -6,7 +6,7 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
 ## Terms
 
 - **Primitive** — a unit this repo ships for Claude Code: an agent, skill, hook, rule,
-  or template. The unit the catalogs enumerate and the validation suite polices.
+  template, or CLI script. The unit the catalogs enumerate and the generator renders.
 - **Catalog** — any human-facing enumeration of primitives (the README tables,
   the reference listings in `docs/architecture.md`).
 - **Install modes** — the two ways this repo is consumed: **plugin mode** (via the

@@ -1,6 +1,6 @@
 ---
 name: security-patterns
-description: Use when writing or reviewing authentication, authorization, middleware, routes, input validation, secrets handling, JWT, CSRF, CORS, or security-sensitive code paths. For a full audit of pending changes, use the bundled /security-review command instead.
+description: Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.
 ---
 
 # Security Patterns

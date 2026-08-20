@@ -1,6 +1,6 @@
 ---
 name: infrastructure
-description: Use when editing Terraform, Kubernetes manifests, Helm charts, infrastructure modules, or deployment configuration.
+description: Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.
 ---
 
 # Infrastructure Patterns

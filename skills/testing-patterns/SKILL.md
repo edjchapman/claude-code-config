@@ -1,6 +1,6 @@
 ---
 name: testing-patterns
-description: Use when writing or reviewing tests, fixtures, factories, mocks, test coverage, or files named test_*, *_test, *.test.*, or *.spec.*.
+description: Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test_*, *_test, *.test.*, or *.spec.*.
 ---
 
 # Testing Patterns

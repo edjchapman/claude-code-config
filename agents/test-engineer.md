@@ -1,10 +1,9 @@
 ---
 name: test-engineer
 description: >-
-  Create, modify, or debug tests at any level — backend unit/integration (API endpoints, models,
-  services), frontend (components, hooks, pages), and Playwright end-to-end specs, fixtures, and
-  flaky-test debugging. Use after implementing a feature or fixing a bug, or when asked to write
-  or review tests.
+  Write, fix, and debug tests at any level — backend unit and integration, frontend components and
+  hooks, Playwright end-to-end specs, fixtures, and flaky tests. Use after building a feature or
+  fixing a bug.
 model: sonnet
 color: blue
 ---

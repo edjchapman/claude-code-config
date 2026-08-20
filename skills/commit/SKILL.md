@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Analyze staged changes and write a conventional commit message. Use when the user has staged git changes and asks to commit, or wants help writing a commit message.
+description: Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.
 argument-hint: "[scope hint] [--no-ticket]"
 ---
 

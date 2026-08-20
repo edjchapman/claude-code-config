@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# Append failed tool calls to a JSONL log for later pattern analysis
-# Used by: PostToolUseFailure hook in settings.json
+# Append failed tool calls to ~/.claude/logs/tool-failures.jsonl for pattern analysis
 #
-# Cheap, no LLM. Helps spot which tools fail most so you can pre-allow them
-# or fix the underlying issue.
+# Why: cheap and LLM-free — it shows which tools fail most, so you can pre-allow
+# them or fix the underlying issue.
 
 set -u
 

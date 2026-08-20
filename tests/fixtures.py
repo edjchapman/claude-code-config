@@ -22,6 +22,18 @@ HOOK_ENTRY = [
     }
 ]
 
+ARCHITECTURE_REGIONS = [
+    "arch-hooks",
+    "arch-unwired-events",
+    "arch-settings-keys",
+    "arch-unset-settings-keys",
+    "arch-skills",
+    "arch-rules",
+    "arch-settings-templates",
+    "arch-mcp-templates",
+    "arch-cli-scripts",
+]
+
 README_REGIONS = [
     "counts",
     "agents",
@@ -75,7 +87,12 @@ def _write_agents(root: Path) -> None:
 
 def _write_skills(root: Path) -> None:
     skills = {
-        "dom-skill": "---\nname: dom-skill\ndescription: Use when editing dom things.\n---\n",
+        # The glob in this description is deliberate: verbatim frontmatter
+        # must survive into both docs unparsed as emphasis.
+        "dom-skill": (
+            "---\nname: dom-skill\n"
+            "description: Use when editing files named test_*, *.spec.*.\n---\n"
+        ),
         "flow-skill": (
             '---\nname: flow-skill\ndescription: Flow the flow.\nargument-hint: "<what>"\n---\n'
         ),
@@ -118,8 +135,12 @@ def _write_scripts(root: Path) -> None:
     hooks_dir = root / "scripts" / "hooks"
     hooks_dir.mkdir(parents=True)
     (hooks_dir / "one.sh").write_text("#!/usr/bin/env bash\n# Emits session context\nset -u\n")
+    # two.sh carries a `Why:` paragraph; one.sh carries none. The pair pins
+    # both halves of the rationale projection (issue #114).
     (hooks_dir / "two.sh").write_text(
-        "#!/usr/bin/env bash\n# Restores state after compaction\nset -u\n"
+        "#!/usr/bin/env bash\n# Restores state after compaction\n#\n"
+        "# Why: it closes the loop pre-compaction\n# only half-opened.\n#\n"
+        "# Implementation notes that must not be projected.\nset -u\n"
     )
     cli_dir = root / "scripts" / "cli"
     cli_dir.mkdir(parents=True)
@@ -137,6 +158,16 @@ def _write_readme(root: Path) -> None:
         + '### "I want to…" lookup\n\n'
         + "| I want to... | Use |\n| --- | --- |\n| Flow it | `/flow-skill` |\n\n"
         + "HAND-WRITTEN-BOTTOM\n"
+    )
+
+
+def _write_architecture(root: Path) -> None:
+    (root / "docs").mkdir(exist_ok=True)
+    regions = "\n\n".join(region_markers(name) for name in ARCHITECTURE_REGIONS)
+    (root / "docs" / "architecture.md").write_text(
+        "# Fixture Architecture\n\nARCH-HAND-WRITTEN-TOP\n\n"
+        + regions
+        + "\n\nARCH-HAND-WRITTEN-BOTTOM\n"
     )
 
 
@@ -166,3 +197,4 @@ def make_readme_fixture(root: Path) -> None:
     _write_templates(root)
     _write_scripts(root)
     _write_readme(root)
+    _write_architecture(root)

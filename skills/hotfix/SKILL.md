@@ -1,6 +1,6 @@
 ---
 name: hotfix
-description: Create a hotfix branch with a minimal fix, targeted tests, and PR. Use when the user describes an urgent production bug, says "hotfix", or asks for a quick fix to ship to main.
+description: Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.
 argument-hint: "<bug description>"
 ---
 

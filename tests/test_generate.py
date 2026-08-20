@@ -129,6 +129,17 @@ class ReadmeCatalogs(unittest.TestCase):
         self.assertIn("scheduling invariant", result.stderr)
         self.assertIn("standup", result.stderr)
 
+    def test_user_only_skill_losing_its_flag_is_an_error(self) -> None:
+        """The other half of the scheduling invariant (issue #115)."""
+        (self.root / "skills" / "status").mkdir(parents=True)
+        (self.root / "skills" / "status" / "SKILL.md").write_text(
+            "---\nname: status\ndescription: Log a status line.\n---\nbody\n"
+        )
+        result = run_generate(self.root, "--check", "--only", "readme")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("scheduling invariant", result.stderr)
+        self.assertIn("status", result.stderr)
+
     def test_unrecognised_invocation_flag_is_an_error(self) -> None:
         (self.root / "skills" / "solo-skill" / "SKILL.md").write_text(
             "---\nname: solo-skill\ndescription: Solo only.\n"
@@ -152,6 +163,93 @@ class ReadmeCatalogs(unittest.TestCase):
         settings = json.loads((self.root / "settings.json").read_text())
         self.assertIn("PostCompact", settings["hooks"])
         self.assertIn("PostCompact", extract_region(self.readme(), "hooks"))
+
+
+class ArchitectureReference(unittest.TestCase):
+    """The 'architecture' target renders docs/architecture.md (issue #114)."""
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.addCleanup(self.tmp.cleanup)
+        make_readme_fixture(self.root)
+
+    def architecture(self) -> str:
+        return (self.root / "docs" / "architecture.md").read_text()
+
+    def test_check_fails_stale_then_passes_after_write(self) -> None:
+        check = run_generate(self.root, "--check", "--only", "architecture")
+        self.assertEqual(check.returncode, 1)
+        self.assertIn("architecture.md", check.stdout + check.stderr)
+        write = run_generate(self.root, "--only", "architecture")
+        self.assertEqual(write.returncode, 0, write.stdout + write.stderr)
+        recheck = run_generate(self.root, "--check", "--only", "architecture")
+        self.assertEqual(recheck.returncode, 0, recheck.stdout + recheck.stderr)
+
+    def test_second_run_is_a_byte_level_noop(self) -> None:
+        run_generate(self.root, "--only", "architecture")
+        first = (self.root / "docs" / "architecture.md").read_bytes()
+        second = run_generate(self.root, "--only", "architecture")
+        self.assertEqual(second.returncode, 0)
+        self.assertEqual((self.root / "docs" / "architecture.md").read_bytes(), first)
+
+    def test_hand_written_prose_is_preserved(self) -> None:
+        run_generate(self.root, "--only", "architecture")
+        text = self.architecture()
+        self.assertIn("ARCH-HAND-WRITTEN-TOP", text)
+        self.assertIn("ARCH-HAND-WRITTEN-BOTTOM", text)
+
+    def test_hook_rationale_is_projected_from_the_script_header(self) -> None:
+        run_generate(self.root, "--only", "architecture")
+        hooks = extract_region(self.architecture(), "arch-hooks")
+        self.assertIn("it closes the loop pre-compaction only half-opened", hooks)
+        self.assertNotIn("must not be projected", hooks)
+        one = next(line for line in hooks.splitlines() if "one.sh" in line)
+        self.assertNotIn("_Why:_", one)
+
+    def test_a_wired_event_leaves_the_unwired_table(self) -> None:
+        """The class of stale claim T4 exists to kill: PostCompact is wired here."""
+        run_generate(self.root, "--only", "architecture")
+        unwired = extract_region(self.architecture(), "arch-unwired-events")
+        self.assertNotIn("`PostCompact`", unwired)
+        self.assertIn("`SubagentStart`", unwired)
+        self.assertIn("this repo wires 3 of them", unwired)
+
+    def test_a_set_settings_key_leaves_the_unset_list(self) -> None:
+        run_generate(self.root, "--only", "architecture")
+        text = self.architecture()
+        self.assertIn("`autoMemoryEnabled`", extract_region(text, "arch-settings-keys"))
+        self.assertNotIn("`autoMemoryEnabled`", extract_region(text, "arch-unset-settings-keys"))
+        self.assertIn("`fastMode`", extract_region(text, "arch-unset-settings-keys"))
+
+    def test_verbatim_globs_survive_into_the_bullet_lists(self) -> None:
+        """Unescaped `*` would render as emphasis and eat the glob."""
+        run_generate(self.root, "--only", "architecture")
+        skills = extract_region(self.architecture(), "arch-skills")
+        self.assertIn("test\\_\\*, \\*.spec.\\*", skills)
+
+    def test_settings_key_without_a_gloss_is_an_error(self) -> None:
+        settings = json.loads((self.root / "settings.json").read_text())
+        settings["someInventedKey"] = True
+        (self.root / "settings.json").write_text(canonical(settings))
+        result = run_generate(self.root, "--only", "architecture")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("someInventedKey", result.stderr)
+
+    def test_skill_markers_are_derived_from_frontmatter(self) -> None:
+        run_generate(self.root, "--only", "architecture")
+        skills = extract_region(self.architecture(), "arch-skills")
+        solo = next(line for line in skills.splitlines() if "`/solo-skill`" in line)
+        standup = next(line for line in skills.splitlines() if "`/standup`" in line)
+        self.assertIn("**User-only.**", solo)
+        self.assertIn("**Schedulable**", standup)
+        self.assertIn("issue #51", standup)
+
+    def test_full_run_updates_every_destination(self) -> None:
+        result = run_generate(self.root)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("`report.sh`", extract_region(self.architecture(), "arch-cli-scripts"))
+        self.assertIn("`demo-style`", extract_region(self.architecture(), "arch-rules"))
 
 
 class StaleHooksBlock(unittest.TestCase):

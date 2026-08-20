@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Output git context at session start so Claude has immediate awareness
-# Used by: SessionStart hook in settings.json
+# Auto-load git context at session start (branch, recent commits, dirty files)
 
 set -u
 

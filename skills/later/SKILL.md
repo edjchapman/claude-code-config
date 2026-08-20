@@ -1,6 +1,6 @@
 ---
 name: later
-description: Create a new "Later" backlog item (Learn / Research / Do / Read) from a configurable template.
+description: Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template.
 argument-hint: "<title> [--category <name>] [--priority <level>]"
 disable-model-invocation: true
 ---

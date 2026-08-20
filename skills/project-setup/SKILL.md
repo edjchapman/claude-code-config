@@ -1,6 +1,6 @@
 ---
 name: project-setup
-description: Set up or bootstrap a project with the claude-code-config tooling — setup-project.sh, install-tooling.sh, the layered hooks setup, and the new-repo runbook. Use when installing this config into a repo, running the setup scripts, vendoring the make-check tooling, or bootstrapping a new project.
+description: Install this config into a repo or bootstrap a new one — setup-project.sh, install-tooling.sh, the layered hooks setup, the new-repo runbook. Use when running the setup scripts or vendoring the tooling.
 ---
 
 # Project Setup

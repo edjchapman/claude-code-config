@@ -1,6 +1,6 @@
 ---
 name: docker-patterns
-description: Use when editing Dockerfiles, Docker Compose files, container build contexts, .dockerignore files, or container security and caching patterns.
+description: Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.
 ---
 
 # Docker Patterns
