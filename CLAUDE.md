@@ -35,6 +35,7 @@ scripts/hooks/check-duplicates.sh                # No agent/skill/command name c
 python3 scripts/generate.py --check              # Generated regions fresh (settings.json hooks key, README catalogs)
 scripts/check-docs-drift.sh                      # Every primitive is documented
 python3 scripts/check-context-budget.py          # Always-loaded context within byte budget
+python3 scripts/check-agent-frontmatter.py       # Agent frontmatter contract (keys, name==filename)
 ```
 
 ## Scope and Implementation Philosophy

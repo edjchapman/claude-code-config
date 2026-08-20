@@ -76,6 +76,7 @@ claude-code-config/
     ├── generate.py          # Regenerates generated regions (ADR-0001)
     ├── check-docs-drift.sh  # CI: every primitive documented
     ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
+    ├── check-agent-frontmatter.py  # CI: agent frontmatter contract holds
     ├── lib/                 # Shared Python helpers (config_common, readme_catalogs)
     ├── hooks/               # Hook scripts (annotated with their trigger)
 {hook_lines}

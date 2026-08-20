@@ -10,39 +10,20 @@ always-loaded context" ladder in docs/extending.md.
 Per-item descriptions over WARN_ITEM_BYTES get a warning (exit 0);
 a total over TOTAL_BUDGET_BYTES fails the check (exit 1).
 
-Files are enumerated via `git ls-files` (matching check-docs-drift.sh)
-so untracked local-only extras never trip CI.
-
 Run from anywhere: python3 scripts/check-context-budget.py
 """
 
 from __future__ import annotations
 
-import subprocess
 import sys
 from pathlib import Path
 
-from lib.config_common import parse_frontmatter
+from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
 
 TOTAL_BUDGET_BYTES = 10_240
 WARN_ITEM_BYTES = 350
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 GLOBAL_MEMORY = REPO_ROOT / "home" / "CLAUDE.md"
-
-
-def tracked_files(pattern: str) -> list[Path]:
-    out = subprocess.run(
-        ["git", "ls-files", pattern],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
-    paths = [REPO_ROOT / line for line in out.splitlines() if line]
-    # ls-files reads the index; a file deleted in the worktree but not yet
-    # committed would otherwise crash the read below.
-    return [p for p in paths if p.is_file()]
 
 
 def frontmatter_description(path: Path) -> str:
