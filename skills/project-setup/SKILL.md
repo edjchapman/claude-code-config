@@ -67,8 +67,8 @@ For a greenfield repo, run from the project root in this order. Validated on
 
 ## Related
 
-- **Global install** (symlinks `agents/`, `skills/`, `rules/`, `settings.json` into
-  `~/.claude/`): `<repo>/scripts/setup-global.sh`.
+- **Global install** (symlinks `agents/`, `skills/`, `rules/` into `~/.claude/`
+  and mirrors `settings.json` — ADR-0002): `<repo>/scripts/setup-global.sh`.
 - **MkDocs style layer**: `<repo>/scripts/install-mkdocs-style.sh` (wrapped by the
   `/mkdocs-style` skill).
 - Full script + flag reference: [`docs/architecture.md`](../../docs/architecture.md).
