@@ -6,7 +6,8 @@
 #   ./setup-global.sh /custom/path # Use custom path to repo
 #
 # This script creates symlinks in ~/.claude/ pointing to this repo's
-# agents, skills, and rules directories.
+# agents, skills, and rules directories, and mirrors settings.json into
+# ~/.claude/settings.json (a real file, not a symlink — ADR-0002).
 
 set -e
 
@@ -80,17 +81,12 @@ ln -s "$REPO_ROOT/agents" ~/.claude/agents
 ln -s "$REPO_ROOT/skills" ~/.claude/skills
 ln -s "$REPO_ROOT/rules" ~/.claude/rules
 
-# Handle settings.json symlink (plugin configuration)
-if [ -L ~/.claude/settings.json ]; then
-  echo "Removing existing symlink: ~/.claude/settings.json"
-  rm ~/.claude/settings.json
-elif [ -e ~/.claude/settings.json ]; then
-  backup_file=~/.claude/settings.json.backup.$(date +%s)
-  echo "Backing up existing file: ~/.claude/settings.json -> $backup_file"
-  mv ~/.claude/settings.json "$backup_file"
-fi
-
-ln -s "$REPO_ROOT/settings.json" ~/.claude/settings.json
+# Mirror settings.json into ~/.claude/settings.json (ADR-0002). A real file,
+# deliberately NOT a symlink: Claude Code writes user-scope settings (/model,
+# /config toggles, permission approvals) to this path at runtime, and a
+# symlink would land every one of those writes as a pending diff in this
+# repo. The sync mirrors repo-managed keys and preserves personal ones.
+python3 "$SCRIPT_DIR/sync-global-settings.py" --source-root "$REPO_ROOT"
 
 # Handle CLAUDE.md symlink (global cross-project behavioural rules)
 if [ -L ~/.claude/CLAUDE.md ]; then
@@ -110,19 +106,21 @@ echo ""
 echo "  ~/.claude/agents          -> $REPO_ROOT/agents"
 echo "  ~/.claude/skills          -> $REPO_ROOT/skills"
 echo "  ~/.claude/rules           -> $REPO_ROOT/rules"
-echo "  ~/.claude/settings.json   -> $REPO_ROOT/settings.json"
+echo "  ~/.claude/settings.json   <- mirrored from $REPO_ROOT/settings.json"
 echo "  ~/.claude/CLAUDE.md       -> $REPO_ROOT/home/CLAUDE.md"
 echo ""
 echo "Notes:"
-echo "  - settings.json is now symlinked (universal plugin + hooks configuration)"
-echo "  - settings.local.json remains local (machine-specific permissions)"
+echo "  - settings.json is a mirrored real file, not a symlink (ADR-0002):"
+echo "    repo-managed keys track the repo; personal keys (model, permissions,"
+echo "    extra enabledPlugins entries) stay yours and survive every sync."
+echo "  - After editing settings in the repo, re-run this script (or"
+echo "    scripts/sync-global-settings.py) to apply; a SessionStart hook warns"
+echo "    when the mirror has drifted."
 echo "  - Run setup-project.sh in project directories to set up per-project config"
 echo ""
-echo "Optional: enable personal plugins (Notion, Figma, frontend-design)"
-echo "  These require external accounts and are intentionally not in the universal settings.json."
-echo "  To enable them on this machine, merge enabledPlugins from:"
-echo "    $REPO_ROOT/settings.personal.json.example"
-echo "  into ~/.claude/settings.local.json (alongside your existing permissions block)."
+echo "Optional: enable personal plugins (e.g. Figma) that need external accounts"
+echo "  by adding their entries to enabledPlugins in ~/.claude/settings.json —"
+echo "  the sync preserves entries the repo does not declare."
 echo ""
 echo "Tip: Add these aliases to your shell profile:"
 echo "  alias cr='$REPO_ROOT/scripts/cli/review-changes.sh'"

@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `9 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `10 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -254,20 +254,21 @@ Path-scoped style enforcement (`paths` frontmatter). Skills provide patterns; ru
 
 ### Hooks
 
-Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the source of truth ([ADR-0001](docs/adr/0001-hooks-json-is-the-source-of-truth.md)), spliced into `settings.json` for symlink-global mode. Scripts live in `scripts/hooks/` and only run when their tools are present (e.g. `ruff`, `prettier`).
+Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the source of truth ([ADR-0001](docs/adr/0001-hooks-json-is-the-source-of-truth.md)), spliced into `settings.json` for the global install mode. Scripts live in `scripts/hooks/` and only run when their tools are present (e.g. `ruff`, `prettier`).
 
 <details>
 <!-- BEGIN GENERATED: hooks -->
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>9 configured hooks</strong> + opt-in — click to expand</summary>
+<summary><strong>10 configured hooks</strong> + opt-in — click to expand</summary>
 
 **Configured:**
 
 | Hook                        | Script                    | What It Does                                                                         |
 | --------------------------- | ------------------------- | ------------------------------------------------------------------------------------ |
 | `SessionStart`              | `session-context.sh`      | Auto-load git context at session start (branch, recent commits, dirty files)         |
+| `SessionStart`              | `settings-drift-check.sh` | Warn when ~/.claude/settings.json has drifted from the repo's settings.json          |
 | `PostToolUse (Write\|Edit)` | `format-on-edit.sh`       | Auto-format files after Claude edits them (unified Python + JS/TS formatter)         |
 | `PostToolUseFailure`        | `log-tool-failure.sh`     | Append failed tool calls to ~/.claude/logs/tool-failures.jsonl for pattern analysis  |
 | `PreToolUse (Bash)`         | `dangerous-cmd-check.sh`  | Defense-in-depth: block obviously catastrophic command patterns before they run.     |
@@ -407,7 +408,7 @@ This repo ships `"outputStyle": "Explanatory"` as the default in `settings.json`
 | `explanatory` | Adds learning insights inline (good for unfamiliar codebases) |
 | `learning`    | More guided; fewer one-shot answers (good for upskilling)     |
 
-Override the default in `~/.claude/settings.local.json` (e.g. `{ "outputStyle": "default" }`), or switch on the fly via `/output-style`.
+Override the default per project in `.claude/settings.local.json` (e.g. `{ "outputStyle": "default" }`), or switch on the fly via `/output-style`. (`outputStyle` is a repo-managed key, so a global override in `~/.claude/settings.json` would be reverted on the next sync — see [ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md).)
 
 </details>
 
@@ -548,14 +549,14 @@ daily-report.sh                # Headless: auto-generate daily summary
 
 ### What gets created
 
-**Global** (`setup-global.sh`) — symlinks in `~/.claude/`:
+**Global** (`setup-global.sh`) — in `~/.claude/`:
 
 ```
 ~/.claude/
 ├── agents          -> claude-code-config/agents
 ├── skills          -> claude-code-config/skills
 ├── rules           -> claude-code-config/rules
-└── settings.json   -> claude-code-config/settings.json
+└── settings.json      # real file, mirrored from claude-code-config/settings.json
 ```
 
 **Project** (`setup-project.sh`) — in your project:
@@ -572,7 +573,7 @@ your-project/
 
 ### Settings files
 
-- **`settings.json`** (global): plugin enablement, hooks, status line, output style — applies everywhere via the `~/.claude/` symlink. It deliberately pins **no** `model` (consumers get their account default; see [`docs/architecture.md`](docs/architecture.md)). `setup-project.sh` does **not** create a per-project copy. A project may still commit its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
+- **`settings.json`** (global): plugin enablement, hooks, status line, output style — applies everywhere via a mirrored copy in `~/.claude/settings.json`, kept fresh by `scripts/sync-global-settings.py` (deliberately **not** a symlink, so runtime settings writes never land in this repo — [ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md)). Keys the repo doesn't manage (`model`, `permissions`, personal plugin entries) are yours and survive every sync. It deliberately pins **no** `model` (consumers get their account default; see [`docs/architecture.md`](docs/architecture.md)). `setup-project.sh` does **not** create a per-project copy. A project may still commit its own `.claude/settings.json` for environment-specific hooks (e.g. the Claude-on-web bootstrap from `--tooling`); Claude layers project settings over global.
 - **`settings.local.json`** (generated): permissions — which bash commands and tools Claude can use in your project.
 
 ### Project tooling (`--tooling`)
@@ -643,6 +644,7 @@ claude-code-config/
     │   ├── pre-compact-state.sh     # PreCompact
     │   ├── session-context.sh       # SessionStart
     │   ├── session-end.sh           # SessionEnd
+    │   ├── settings-drift-check.sh  # SessionStart
     │   ├── statusline.sh            # settings.json statusLine.command
     │   ├── task-completed-chime.sh  # TaskCompleted
     │   └── lib/                     # shared helpers sourced by the hook scripts
@@ -710,7 +712,11 @@ Add the personal symlinks to your project's `.gitignore`:
 
 ```bash
 # Remove global symlinks (~/.claude/commands only exists on older installs)
-rm -f ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/rules ~/.claude/settings.json
+rm -f ~/.claude/agents ~/.claude/commands ~/.claude/skills ~/.claude/rules
+
+# ~/.claude/settings.json is a real file, NOT a symlink (ADR-0002): it holds your
+# personal keys (model pin, permissions) alongside the mirrored repo keys, so
+# don't delete it wholesale — edit out the repo-managed keys if you want them gone.
 
 # Remove from a project (.claude/commands only exists on older installs)
 rm -rf .claude/agents .claude/commands .claude/skills .claude/rules .claude/settings.json

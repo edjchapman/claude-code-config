@@ -68,10 +68,11 @@ repos:
         pass_filenames: false
 
   # ---- settings.json key allowlist -----------------------------------
-  # settings.json is symlinked to ~/.claude/settings.json, so tools that
-  # write user-level settings (/model, auto-mode setup) land here — in a
-  # public repo. Catch stray keys before they reach a commit; personal
-  # settings belong in ~/.claude/settings.local.json.
+  # settings.json is mirrored into every consumer's ~/.claude/settings.json
+  # by scripts/sync-global-settings.py (ADR-0002), so a stray key committed
+  # here propagates to every machine on its next sync. Catch strays before
+  # they reach a commit; personal settings live directly in
+  # ~/.claude/settings.json as unmanaged keys the sync preserves.
   - repo: local
     hooks:
       - id: check-settings-keys
