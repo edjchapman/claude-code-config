@@ -1,9 +1,8 @@
 ---
 name: ci-debugger
 description: >-
-  Investigate CI/CD pipeline failures, flaky tests, and environment-related build issues across
-  GitHub Actions, Jenkins, CircleCI, and similar systems. Use when a build fails in CI but passes
-  locally, or a test fails intermittently.
+  Debug CI pipeline failures, flaky tests, and environment-only build breaks across GitHub Actions,
+  Jenkins, and CircleCI. Use when a build fails in CI but passes locally.
 model: sonnet
 color: red
 memory: project

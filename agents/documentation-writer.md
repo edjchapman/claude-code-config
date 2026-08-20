@@ -1,9 +1,8 @@
 ---
 name: documentation-writer
 description: >-
-  Create and improve project documentation — README files, API docs, ADRs, runbooks, and
-  onboarding guides — following the Divio system (tutorials, how-to, reference, explanation). Use
-  when docs are outdated, missing, or need writing.
+  Write and refresh project documentation in the Divio system — READMEs, API docs, ADRs, runbooks,
+  onboarding guides. Use when docs are missing, stale, or need writing from scratch.
 model: sonnet
 color: blue
 ---

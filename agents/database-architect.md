@@ -1,10 +1,8 @@
 ---
 name: database-architect
 description: >-
-  Database schema design, data modeling, index strategies, query optimization, and migration
-  safety analysis: schema changes, ORM migrations, and data restructuring. Use when designing
-  schemas, planning zero-downtime or expand-contract migrations, or reviewing data architecture
-  decisions.
+  Design schemas, indexes, and safe migrations. Use when modeling data, planning a zero-downtime or
+  expand-contract migration, optimizing slow queries, or reviewing an ORM change.
 color: cyan
 permissionMode: plan
 tools: Read, Glob, Grep, Bash, WebFetch, WebSearch

@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Create a pull request with a well-crafted description. Use when the user finished work on a branch and wants to open a PR, or asks to create a pull request.
+description: Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.
 argument-hint: "[--draft] [--base <branch>]"
 ---
 

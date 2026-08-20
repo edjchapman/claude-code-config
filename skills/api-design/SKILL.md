@@ -1,6 +1,6 @@
 ---
 name: api-design
-description: Use when designing or reviewing REST APIs, including views, routes, controllers, endpoints, serializers, schemas, status codes, pagination, and error response formats.
+description: REST API conventions — resources, status codes, pagination, error shapes. Use when designing or reviewing routes, controllers, endpoints, serializers, or schemas.
 ---
 
 # API Design Standards

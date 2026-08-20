@@ -1,9 +1,8 @@
 ---
 name: dependency-manager
 description: >-
-  Dependency audits, outdated/unused package cleanup, license compatibility checks, and upgrade
-  planning across npm, pip, uv, go modules, and other package managers. Use when auditing for
-  CVEs, planning a major version bump, or planning a framework upgrade.
+  Audit and upgrade dependencies across npm, pip, uv, and go modules. Use when checking for CVEs,
+  pruning unused packages, verifying licence compatibility, or planning a major version bump.
 model: sonnet
 color: green
 ---

@@ -1,9 +1,8 @@
 ---
 name: performance-engineer
 description: >-
-  Analyze and optimize application performance: profiling, bottleneck identification, slow database
-  query optimization, memory/CPU analysis, caching strategies, and load-testing guidance. Use for
-  slow endpoints or scalability planning.
+  Profile and optimize application performance — bottlenecks, slow queries, memory and CPU, caching.
+  Use for a slow endpoint, a load-testing plan, or scalability work.
 color: pink
 memory: project
 ---

@@ -1,9 +1,8 @@
 ---
 name: bug-resolver
 description: >-
-  Investigate and resolve bugs, errors, and unexpected behavior — runtime errors, failing tests,
-  incorrect output, or performance regressions. Use when code isn't behaving as expected and the
-  root cause needs tracing.
+  Trace a bug to its root cause and fix it. Use for runtime errors, failing tests, wrong output, or
+  performance regressions — anything not behaving as expected.
 color: red
 memory: project
 ---
