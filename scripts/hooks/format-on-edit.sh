@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Auto-format files after Claude edits them (unified Python + JS/TS formatter)
-# Used by: PostToolUse hook in settings.json
+#
+# Why: deliberately NOT `async` — the formatter rewrites files in place, so
+# running it in the background could race a subsequent Edit of the same file in
+# the same turn.
 #
 # The harness passes the hook payload as JSON on stdin; the edited file path is
 # at .tool_input.file_path. (The older $CLAUDE_FILE_PATH env var is NOT set by

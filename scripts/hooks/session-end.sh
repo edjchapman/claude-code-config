@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# SessionEnd hook: log session info and clean up
-# Used by: SessionEnd hook in settings.json
+# Append a session summary to ./standups/YYYY-MM-DD-log.md for later /standup use
 
 set -u
 

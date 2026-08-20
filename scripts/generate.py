@@ -13,6 +13,12 @@ region's source. Targets registered here:
                   lib/readme_catalogs.py (issue #112). Skills the hand-written
                   "I want to…" cheat-sheet never mentions get a soft warning
                   on stderr — never a failure.
+  architecture    docs/architecture.md's reference regions, rendered by
+                  lib/architecture_catalogs.py (issue #114): the same
+                  primitives as the README plus the two *difference* lists —
+                  documented-but-unwired hook events, documented-but-unset
+                  settings keys — that keep the doc from claiming the repo
+                  lacks something it now has.
 
 settings.json is re-serialized canonically (json.dumps, indent=2, trailing
 newline): every key outside the generated region keeps its value, but the
@@ -36,7 +42,7 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from lib import readme_catalogs
+from lib import architecture_catalogs, readme_catalogs
 from lib.config_common import GenerationError, check_python_version, load_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -72,23 +78,39 @@ def _generate_settings_hooks(root: Path) -> dict[Path, str]:
     return {destination: _canonical_json(settings)}
 
 
-def _generate_readme(root: Path) -> dict[Path, str]:
-    """Replace every catalog region in README.md; all other bytes survive."""
-    destination = root / "README.md"
+def _splice(destination: Path, regions: dict[str, str]) -> str:
+    """Replace every named region in `destination`; all other bytes survive."""
     if not destination.is_file():
         raise GenerationError(f"destination not found: {destination}")
     text = destination.read_text()
-    regions, skill_names = readme_catalogs.build_regions(root)
     for name, content in regions.items():
         text = replace_generated_region(text, name, content)
+    return text
+
+
+def _generate_readme(root: Path) -> dict[Path, str]:
+    """Replace every catalog region in README.md; all other bytes survive."""
+    destination = root / "README.md"
+    regions, skill_names = readme_catalogs.build_regions(root)
+    text = _splice(destination, regions)
     for warning in readme_catalogs.uncurated_skills(text, skill_names):
         print(f"warning: {warning}", file=sys.stderr)
     return {destination: text}
 
 
+def _generate_architecture(root: Path) -> dict[Path, str]:
+    """Replace every reference region in docs/architecture.md (issue #114)."""
+    destination = root / "docs" / "architecture.md"
+    regions, warnings = architecture_catalogs.build_regions(root)
+    for warning in warnings:
+        print(f"warning: {warning}", file=sys.stderr)
+    return {destination: _splice(destination, regions)}
+
+
 TARGETS: dict[str, Callable[[Path], dict[Path, str]]] = {
     "settings-hooks": _generate_settings_hooks,
     "readme": _generate_readme,
+    "architecture": _generate_architecture,
 }
 
 

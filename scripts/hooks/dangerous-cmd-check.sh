@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # Defense-in-depth: block obviously catastrophic command patterns before they run.
-# Used by: PreToolUse (Bash) hook in settings.json
+#
+# Why: a best-effort SECONDARY guard, not a security boundary — it stays
+# bypassable via variables, quoting and encodings, so the primary protections
+# remain the settings deny-lists and simply not allow-listing catastrophic
+# commands.
 #
 # The harness passes the hook payload as JSON on stdin; the command is at
 # .tool_input.command. (The older $CLAUDE_TOOL_INPUT env var is NOT set by the
 # harness.) Exit 0 = allow, Exit 2 = block. The block reason MUST go to STDERR —
 # the harness surfaces stderr on a blocking exit, not stdout.
 #
-# This is a best-effort SECONDARY guard, not a security boundary. It normalises
-# whitespace and matches case-insensitively, but it is still bypassable (via
-# variables, quoting, encodings, etc.). The primary protections are the settings
-# deny-lists and simply not allow-listing catastrophic commands.
+# Matching normalises whitespace and ignores case.
 
 set -u
 
