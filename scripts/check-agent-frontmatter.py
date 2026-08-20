@@ -13,41 +13,21 @@ Checks per agent file:
   - `name:` equals the filename stem (one source of truth for identity)
   - every key is in ALLOWED_KEYS (catches misspelled runtime keys)
 
-Files are enumerated via `git ls-files` (matching check-docs-drift.sh)
-so untracked local-only extras never trip CI.
-
 Run from anywhere: python3 scripts/check-agent-frontmatter.py
 """
 
 from __future__ import annotations
 
-import subprocess
 import sys
 from pathlib import Path
 
-from lib.config_common import parse_frontmatter
+from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
 
 # Runtime keys this repo's agents actually use. Grow this deliberately when
 # adopting a new Claude Code frontmatter key — an unknown key here is far
 # more likely a typo than a new feature.
 ALLOWED_KEYS = {"name", "description", "model", "color", "memory", "permissionMode", "tools"}
 REQUIRED_KEYS = {"name", "description"}
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-
-
-def tracked_agent_files() -> list[Path]:
-    out = subprocess.run(
-        ["git", "ls-files", "agents/*.md"],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
-    paths = [REPO_ROOT / line for line in out.splitlines() if line]
-    # ls-files reads the index; a file deleted in the worktree but not yet
-    # committed would otherwise crash the read below.
-    return [p for p in paths if p.is_file()]
 
 
 def check_agent(path: Path) -> list[str]:
@@ -72,7 +52,7 @@ def check_agent(path: Path) -> list[str]:
 
 
 def main() -> int:
-    files = tracked_agent_files()
+    files = tracked_files("agents/*.md")
     if not files:
         print("FAIL: no tracked agent files found under agents/")
         return 1

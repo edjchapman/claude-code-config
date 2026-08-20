@@ -10,11 +10,15 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 # Minimum Python version required by the config scripts
 MIN_PYTHON_VERSION = (3, 8)
+
+# This file lives at scripts/lib/config_common.py
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 class GenerationError(Exception):
@@ -29,6 +33,25 @@ def load_json(path: Path) -> dict:
         return json.loads(path.read_text())
     except json.JSONDecodeError as exc:
         raise GenerationError(f"invalid JSON in {path}: {exc}") from exc
+
+
+def tracked_files(pattern: str) -> list[Path]:
+    """Tracked files matching a git pathspec, as absolute paths.
+
+    Enumerated via `git ls-files` (matching check-docs-drift.sh) so
+    untracked local-only extras never trip CI.
+    """
+    out = subprocess.run(
+        ["git", "ls-files", pattern],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    paths = [REPO_ROOT / line for line in out.splitlines() if line]
+    # ls-files reads the index; a file deleted in the worktree but not yet
+    # committed would otherwise crash the caller's read.
+    return [p for p in paths if p.is_file()]
 
 
 def parse_frontmatter(path: Path) -> dict:
