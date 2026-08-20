@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0](https://github.com/edjchapman/claude-code-config/compare/1.18.0...1.19.0) (2026-08-20)
+
+
+### Features
+
+* **scripts:** generate the doc catalogs and retire the drift checker ([#126](https://github.com/edjchapman/claude-code-config/issues/126)) ([12deba8](https://github.com/edjchapman/claude-code-config/commit/12deba8e9414229b860fbc92df7577f9f29c2551)), closes [#113](https://github.com/edjchapman/claude-code-config/issues/113) [#114](https://github.com/edjchapman/claude-code-config/issues/114) [#115](https://github.com/edjchapman/claude-code-config/issues/115) [#110](https://github.com/edjchapman/claude-code-config/issues/110)
+
 ## [1.18.0](https://github.com/edjchapman/claude-code-config/compare/1.17.0...1.18.0) (2026-08-20)
 
 
