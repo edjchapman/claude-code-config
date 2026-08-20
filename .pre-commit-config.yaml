@@ -81,6 +81,33 @@ repos:
         files: ^(settings\.json|scripts/check-settings-keys\.py)$
         pass_filenames: false
 
+  # ---- Standing invariants (also run as separate CI jobs) -------------
+  # Every checker that used to be pre-push-only runs here too, so
+  # CLAUDE.md's validation suite can be three commands rather than seven:
+  # `pre-commit run --all-files` genuinely covers them.
+  - repo: local
+    hooks:
+      - id: check-duplicates
+        name: no agent/skill name collisions
+        entry: scripts/hooks/check-duplicates.sh
+        language: system
+        files: ^(agents/.*\.md|skills/.*/SKILL\.md|scripts/hooks/check-duplicates\.sh)$
+        pass_filenames: false
+
+      - id: check-context-budget
+        name: always-loaded context within byte budget
+        entry: python3 scripts/check-context-budget.py
+        language: system
+        files: ^(agents/.*\.md|skills/.*/SKILL\.md|home/CLAUDE\.md|scripts/check-context-budget\.py)$
+        pass_filenames: false
+
+      - id: check-agent-frontmatter
+        name: agent frontmatter contract holds
+        entry: python3 scripts/check-agent-frontmatter.py
+        language: system
+        files: ^(agents/.*\.md|scripts/check-agent-frontmatter\.py)$
+        pass_filenames: false
+
   # ---- Prettier (Markdown, JSON, YAML) -------------------------------
   # rbubley/mirrors-prettier is the actively-maintained mirror after
   # pre-commit/mirrors-prettier went unmaintained.

@@ -100,10 +100,16 @@ When extending this repo (adding a new agent / skill / command / hook / template
 Run the validation suite locally before pushing:
 
 ```bash
-python -m json.tool settings.json > /dev/null   # JSON sanity
-scripts/hooks/check-duplicates.sh               # No agent/skill/command name collisions
-python3 scripts/generate.py --check             # Generated regions fresh (settings.json hooks key)
+pre-commit run --all-files                # Formatters, linters, and every standing checker
+python3 scripts/generate.py --check       # Generated regions fresh; hook and scheduling invariants
+python3 -m unittest discover -s tests     # Generator CLI tests
 ```
+
+A new primitive needs no docs edit: the README catalogs and
+[`architecture.md`](architecture.md)'s reference lists are generated from
+what it carries — frontmatter `description:`, a script header comment, or a
+template `_description`. Regenerate (or let pre-commit do it) and it is
+listed.
 
 CI (`.github/workflows/validate-config.yml`) runs the same checks.
 

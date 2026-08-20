@@ -208,15 +208,6 @@ jobs:
           print('All hook script references are valid.')
           PY
 
-  check-docs-drift:
-    name: Check docs reference all primitives on disk
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Run check-docs-drift.sh
-        run: bash scripts/check-docs-drift.sh
-
   check-context-budget:
     name: Check always-loaded context stays within budget
     runs-on: ubuntu-latest

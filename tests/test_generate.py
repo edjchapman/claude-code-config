@@ -129,6 +129,17 @@ class ReadmeCatalogs(unittest.TestCase):
         self.assertIn("scheduling invariant", result.stderr)
         self.assertIn("standup", result.stderr)
 
+    def test_user_only_skill_losing_its_flag_is_an_error(self) -> None:
+        """The other half of the scheduling invariant (issue #115)."""
+        (self.root / "skills" / "status").mkdir(parents=True)
+        (self.root / "skills" / "status" / "SKILL.md").write_text(
+            "---\nname: status\ndescription: Log a status line.\n---\nbody\n"
+        )
+        result = run_generate(self.root, "--check", "--only", "readme")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("scheduling invariant", result.stderr)
+        self.assertIn("status", result.stderr)
+
     def test_unrecognised_invocation_flag_is_an_error(self) -> None:
         (self.root / "skills" / "solo-skill" / "SKILL.md").write_text(
             "---\nname: solo-skill\ndescription: Solo only.\n"

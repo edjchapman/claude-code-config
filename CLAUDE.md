@@ -25,18 +25,15 @@ These are the rules that are easy to get wrong — keep them in mind whenever yo
 
 - **Hooks are edited in one place.** `hooks/hooks.json` is the source of truth for hook definitions (ADR-0001); `settings.json`'s `hooks` key is a **generated region** produced by `scripts/generate.py`. Never hand-edit the generated block — edit `hooks/hooks.json` and let pre-commit regenerate (or run `python3 scripts/generate.py`). CI enforces freshness via `generate.py --check`. Both files stay committed: each install mode reads its file directly. See [`docs/architecture.md`](docs/architecture.md) for the hook formats and the current catalog.
 - **No-matcher events.** These events must omit the `matcher` field (adding one is silently ignored per the docs): `UserPromptSubmit`, `Stop`, `TaskCompleted`, `PostToolBatch`, `TeammateIdle`, `TaskCreated`, `WorktreeCreate`, `WorktreeRemove`, `MessageDisplay`, `CwdChanged`.
-- **Every primitive must be named in `CLAUDE.md` or `README.md`.** `scripts/check-docs-drift.sh` fails CI if an agent / skill / hook / template on disk is documented in neither. README's catalogs and `docs/architecture.md`'s reference lists are **generated regions** (issues #112/#114), so a new primitive appears in both by regeneration — provided it carries the description its catalog renders (frontmatter `description:`, a hook/CLI script header comment, or a settings-template `_description` key).
+- **Primitives document themselves.** The README's catalogs and `docs/architecture.md`'s reference lists are **generated regions** (issues #112/#114), so an agent / skill / rule / hook / template / CLI script on disk appears in both by regeneration — provided it carries the description its catalog renders: frontmatter `description:`, a hook or CLI script header comment (plus an optional `Why:` paragraph, projected as its rationale), or a settings-template `_description` key. Missing one is a generator error, not a docs review.
+- **Some invariants are declared, not derived.** `scripts/lib/primitives.py` declares which skills the cloud routines fire (`SCHEDULED_SKILLS`) and which must stay user-only (`USER_ONLY_SKILLS`); `scripts/lib/architecture_catalogs.py` declares the platform's documented hook events and settings keys. `generate.py --check` fails on a violation. Adding a skill in either category means adding it there too.
 - **Keep issues [#51](https://github.com/edjchapman/claude-code-config/issues/51) and [#52](https://github.com/edjchapman/claude-code-config/issues/52) open** — they are the delivery targets for the daily-standup and end-of-week cloud routines; closing one orphans its routine.
 - **Run the validation suite before pushing** (CI runs the same checks):
 
 ```bash
-python3 -m json.tool settings.json > /dev/null   # JSON sanity
-scripts/hooks/check-duplicates.sh                # No agent/skill/command name collisions
-python3 scripts/generate.py --check              # Generated regions fresh (settings.json hooks key, README catalogs)
-scripts/check-docs-drift.sh                      # Every primitive is documented
-python3 scripts/check-context-budget.py          # Always-loaded context within byte budget
-python3 scripts/check-agent-frontmatter.py       # Agent frontmatter contract (keys, name==filename)
-python3 scripts/check-settings-keys.py           # settings.json top-level keys allowlisted
+pre-commit run --all-files                # Formatters, linters, and every standing checker
+python3 scripts/generate.py --check       # Generated regions fresh; hook and scheduling invariants
+python3 -m unittest discover -s tests     # Generator CLI tests
 ```
 
 ## Scope and Implementation Philosophy

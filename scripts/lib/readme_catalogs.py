@@ -62,7 +62,6 @@ claude-code-config/
     ├── merge-settings.py    # Permission template merger
     ├── merge-mcp.py         # MCP template merger
     ├── generate.py          # Regenerates generated regions (ADR-0001)
-    ├── check-docs-drift.sh  # CI: every primitive documented
     ├── check-context-budget.py  # CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # CI: agent frontmatter contract holds
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted

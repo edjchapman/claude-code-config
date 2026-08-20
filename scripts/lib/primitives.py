@@ -27,6 +27,15 @@ SCHEDULED_SKILLS = {
     "eow-review": "the end-of-week review routine (issue #52)",
 }
 
+# The other half of the same invariant: skills that must stay user-only.
+# `disable-model-invocation: true` is what keeps them out of every session's
+# always-loaded context and stops Claude firing them unbidden — these three
+# write to a personal log or backlog, so an auto-fire is a side effect the
+# user never asked for. Losing the flag would not make any catalog wrong
+# (the column is derived), which is exactly why it needs asserting: the
+# regression would be invisible in the docs.
+USER_ONLY_SKILLS = frozenset({"status", "refinement", "later"})
+
 
 class Agent(NamedTuple):
     name: str
@@ -135,6 +144,12 @@ def skills(root: Path) -> list[Skill]:
                 f"scheduling invariant: skill '{name}' is fired by {SCHEDULED_SKILLS[name]} "
                 f"but sets disable-model-invocation: true, which blocks scheduled tasks "
                 f"from running it (v2.1.196+) and orphans the routine"
+            )
+        if not user_only and name in USER_ONLY_SKILLS:
+            raise GenerationError(
+                f"scheduling invariant: skill '{name}' is declared user-only "
+                f"(USER_ONLY_SKILLS) but does not set disable-model-invocation: true, "
+                f"so Claude can now auto-fire it and it costs always-loaded context"
             )
         # Workflow skills are the explicitly-invoked ones; on disk that is
         # exactly the set carrying an argument-hint or a

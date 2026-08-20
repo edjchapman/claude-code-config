@@ -38,8 +38,9 @@ def load_json(path: Path) -> dict:
 def tracked_files(pattern: str) -> list[Path]:
     """Tracked files matching a git pathspec, as absolute paths.
 
-    Enumerated via `git ls-files` (matching check-docs-drift.sh) so
-    untracked local-only extras never trip CI.
+    Enumerated via `git ls-files` rather than a directory scan, so
+    untracked local-only extras — a personal skill installed into a live
+    clone and excluded via .git/info/exclude — never trip CI.
     """
     out = subprocess.run(
         ["git", "ls-files", pattern],
