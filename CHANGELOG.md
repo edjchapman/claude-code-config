@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.0](https://github.com/edjchapman/claude-code-config/compare/1.19.0...1.20.0) (2026-08-20)
+
+
+### Features
+
+* **scripts:** mirror settings.json into ~/.claude instead of symlinking ([#131](https://github.com/edjchapman/claude-code-config/issues/131)) ([7f1ba09](https://github.com/edjchapman/claude-code-config/commit/7f1ba09b347ed02f84e0da8232047f5eda587de2))
+
 ## [1.19.0](https://github.com/edjchapman/claude-code-config/compare/1.18.0...1.19.0) (2026-08-20)
 
 
