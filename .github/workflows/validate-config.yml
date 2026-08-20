@@ -233,6 +233,23 @@ jobs:
         # budget. See "What earns always-loaded context" in docs/extending.md.
         run: python3 scripts/check-context-budget.py
 
+  check-agent-frontmatter:
+    name: Check agent frontmatter contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.11"
+
+      - name: Run check-agent-frontmatter.py
+        # The runtime silently ignores unknown frontmatter keys and
+        # check-duplicates.sh compares filenames only, so a typo'd key or a
+        # `name:` drifting from its filename would otherwise ship unnoticed.
+        run: python3 scripts/check-agent-frontmatter.py
+
   markdownlint:
     name: Lint Markdown
     runs-on: ubuntu-latest
