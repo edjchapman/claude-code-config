@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.0](https://github.com/edjchapman/claude-code-config/compare/1.17.0...1.18.0) (2026-08-20)
+
+
+### Features
+
+* **scripts:** guard settings.json top-level keys with an allowlist ([#124](https://github.com/edjchapman/claude-code-config/issues/124)) ([5533a00](https://github.com/edjchapman/claude-code-config/commit/5533a00f53d7c3e7e0a659e5ea37d439207cb16a))
+
 ## [1.17.0](https://github.com/edjchapman/claude-code-config/compare/1.16.0...1.17.0) (2026-08-20)
 
 
