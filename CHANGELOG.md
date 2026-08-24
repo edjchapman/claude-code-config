@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.21.0](https://github.com/edjchapman/claude-code-config/compare/1.20.0...1.21.0) (2026-08-24)
+
+
+### Features
+
+* **skills:** rewrite project-setup around invariants and an adaptive interview ([#134](https://github.com/edjchapman/claude-code-config/issues/134)) ([a2c21c6](https://github.com/edjchapman/claude-code-config/commit/a2c21c6b4780d66690c61e3ed88db584569f2d0a))
+
 ## [1.20.0](https://github.com/edjchapman/claude-code-config/compare/1.19.0...1.20.0) (2026-08-20)
 
 
