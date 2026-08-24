@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.21.1](https://github.com/edjchapman/claude-code-config/compare/1.21.0...1.21.1) (2026-08-24)
+
+
+### Bug Fixes
+
+* **tooling:** stop excluding the vendored payload from lint/format ([#136](https://github.com/edjchapman/claude-code-config/issues/136)) ([1a98d90](https://github.com/edjchapman/claude-code-config/commit/1a98d9037996eb990ea920be1f2a89ab7db2e999))
+
 ## [1.21.0](https://github.com/edjchapman/claude-code-config/compare/1.20.0...1.21.0) (2026-08-24)
 
 
