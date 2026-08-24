@@ -12,9 +12,18 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
 - **Install modes** — the two ways this repo is consumed: **plugin mode** (via the
   plugin marketplace, reads `hooks/hooks.json`) and **global mode** (via
   `setup-global.sh`: symlinks the primitive directories into `~/.claude/`, mirrors
-  `settings.json` — ADR-0002). Every hook must reach both. _Formerly
+  `settings.json` — ADR-0002). Every hook must reach both. Concerns how Claude Code
+  loads this repo's primitives — a different axis from the **layers** a target
+  project receives, despite both being called "install". _Formerly
   "symlink-global mode", renamed when the settings mirror made the old name
   half-false._
+- **Claude layer** — what a target project receives **by reference**: the primitives
+  reach it via symlink or generation, so a change here propagates to every project
+  without re-running anything.
+- **Tooling layer** — what a target project receives **by copy**: the quality gate,
+  validators, git hooks, and CI become that repo's own source. Nothing propagates —
+  picking up a change means re-running the install. This asymmetry with the Claude
+  layer is what makes "did my fix reach that project?" answerable.
 - **Generated region** — a marker-fenced span of a committed file whose content is
   owned by the generator. Hand edits inside a generated region are reverted by
   regeneration; the fix belongs in the region's source.

@@ -198,7 +198,6 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `docker-patterns`: Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.
 - `git-workflow`: Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, merge-conflict resolution, cherry-picking, bisecting, reflog recovery.
 - `infrastructure`: Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.
-- `project-setup`: Install this config into a repo or bootstrap a new one — setup-project.sh, install-tooling.sh, the layered hooks setup, the new-repo runbook. Use when running the setup scripts or vendoring the tooling.
 - `security-patterns`: Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.
 - `testing-patterns`: Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.
 
@@ -211,6 +210,7 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `/later`: Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template. **User-only.**
 - `/mkdocs-style`: Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.
 - `/pr`: Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.
+- `/project-setup`: Bootstrap a new repository end-to-end, or install this config's tooling into an existing one. Use when starting a new repo, or when applying the quality gate, git hooks, CI, and branch protection to a project that already exists.
 - `/refinement`: Prepare technical analysis for backlog refinement meetings. **User-only.**
 - `/standup`: Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently. **Schedulable** — fired by the daily standup routine (issue #51).
 - `/status`: Capture a quick status update and append it to today's daily log. **User-only.**

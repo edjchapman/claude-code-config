@@ -183,20 +183,21 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>10 workflow skills</strong> — click to expand</summary>
+<summary><strong>11 workflow skills</strong> — click to expand</summary>
 
-| Skill           | Description                                                                                                                                                                                | Who Can Invoke             |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- |
-| `/adr`          | Record a technical decision as an Architecture Decision Record (Nygard format). Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR. | you or Claude              |
-| `/commit`       | Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.                                                    | you or Claude              |
-| `/eow-review`   | Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week.                                                                  | you, Claude, or a schedule |
-| `/hotfix`       | Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.                                         | you or Claude              |
-| `/later`        | Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template.                                                                                                 | you only                   |
-| `/mkdocs-style` | Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.                                                   | you or Claude              |
-| `/pr`           | Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.                                                                                | you or Claude              |
-| `/refinement`   | Prepare technical analysis for backlog refinement meetings.                                                                                                                                | you only                   |
-| `/standup`      | Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently.                                                                    | you, Claude, or a schedule |
-| `/status`       | Capture a quick status update and append it to today's daily log.                                                                                                                          | you only                   |
+| Skill            | Description                                                                                                                                                                                                                           | Who Can Invoke             |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `/adr`           | Record a technical decision as an Architecture Decision Record (Nygard format). Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.                                            | you or Claude              |
+| `/commit`        | Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.                                                                                               | you or Claude              |
+| `/eow-review`    | Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week.                                                                                                             | you, Claude, or a schedule |
+| `/hotfix`        | Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.                                                                                    | you or Claude              |
+| `/later`         | Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template.                                                                                                                                            | you only                   |
+| `/mkdocs-style`  | Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.                                                                                              | you or Claude              |
+| `/pr`            | Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.                                                                                                                           | you or Claude              |
+| `/project-setup` | Bootstrap a new repository end-to-end, or install this config's tooling into an existing one. Use when starting a new repo, or when applying the quality gate, git hooks, CI, and branch protection to a project that already exists. | you or Claude              |
+| `/refinement`    | Prepare technical analysis for backlog refinement meetings.                                                                                                                                                                           | you only                   |
+| `/standup`       | Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently.                                                                                                               | you, Claude, or a schedule |
+| `/status`        | Capture a quick status update and append it to today's daily log.                                                                                                                                                                     | you only                   |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: workflow-skills -->
@@ -214,7 +215,7 @@ Domain knowledge Claude loads automatically based on the conversation — matche
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>8 domain skills</strong> — click to expand</summary>
+<summary><strong>7 domain skills</strong> — click to expand</summary>
 
 | Skill               | Description                                                                                                                                                                                                          |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -223,7 +224,6 @@ Domain knowledge Claude loads automatically based on the conversation — matche
 | `docker-patterns`   | Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.                                                                                   |
 | `git-workflow`      | Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, merge-conflict resolution, cherry-picking, bisecting, reflog recovery.              |
 | `infrastructure`    | Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.                                                                                       |
-| `project-setup`     | Install this config into a repo or bootstrap a new one — setup-project.sh, install-tooling.sh, the layered hooks setup, the new-repo runbook. Use when running the setup scripts or vendoring the tooling.           |
 | `security-patterns` | Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review. |
 | `testing-patterns`  | Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.                                                     |
 

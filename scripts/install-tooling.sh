@@ -20,7 +20,9 @@
 #                    print a suggested stack-check snippet; nothing is auto-wired
 #   --target DIR     project root to install into (default: current directory)
 #   --dry-run, -n    print what would happen; change nothing
-#   --hooks          also run `git config core.hooksPath .githooks` in the target
+#   --hooks          also run `git config core.hooksPath .githooks` in the target.
+#                    Declines with an explanation when a global/system
+#                    core.hooksPath exists, rather than silently shadowing it.
 #   -h, --help       show this help
 #
 # Called by `setup-project.sh --tooling`, or run standalone.
@@ -134,8 +136,28 @@ echo ""
 echo "Summary: $added added, $skipped skipped."
 
 # Optionally wire git hooks.
+#
+# Invariant: a project's hook mechanism must not silently shadow a global one.
+# A repo-local core.hooksPath takes precedence over a global/system one, so
+# wiring it here would silently disable a global dispatcher (e.g. a secret scan
+# on every commit) with no output saying so. Detect that case and decline —
+# installing the payload succeeded, so this is a skip, not a failure.
+global_hooks_path="$(git config --global --get core.hooksPath 2>/dev/null || true)"
+[ -n "$global_hooks_path" ] || global_hooks_path="$(git config --system --get core.hooksPath 2>/dev/null || true)"
+
 if [ "$WIRE_HOOKS" = true ]; then
-  if [ "$DRY_RUN" = true ]; then
+  if [ -n "$global_hooks_path" ]; then
+    echo ""
+    echo "Declined: --hooks would set a repo-local core.hooksPath, shadowing your"
+    echo "  global dispatcher at: $global_hooks_path"
+    echo "  Those global checks would stop running on commit in this repo, silently."
+    echo ""
+    echo "  The vendored hooks are installed at .githooks/ either way. To keep both,"
+    echo "  invoke them from your existing hook manager, e.g. a pre-commit repo:local"
+    echo "  hook running 'make check' (language: system, pass_filenames: false)."
+    echo ""
+    echo "  To override deliberately: git -C $TARGET config core.hooksPath .githooks"
+  elif [ "$DRY_RUN" = true ]; then
     echo "Would set: git config core.hooksPath .githooks (in $TARGET)"
   elif git -C "$TARGET" rev-parse --git-dir > /dev/null 2>&1; then
     git -C "$TARGET" config core.hooksPath .githooks
@@ -173,7 +195,13 @@ fi
 echo ""
 echo "Next steps:"
 echo "  - Review the vendored Makefile and wire 'stack-check' to your lint/test."
-echo "  - Activate git hooks:  git config core.hooksPath .githooks"
+if [ -n "$global_hooks_path" ]; then
+  echo "  - A global core.hooksPath is active ($global_hooks_path). Invoke the"
+  echo "    vendored checks from your existing hook manager instead of setting a"
+  echo "    repo-local core.hooksPath, which would shadow it."
+else
+  echo "  - Activate git hooks:  git config core.hooksPath .githooks"
+fi
 echo "  - Run the gate:        make check"
 echo "  - Tailor .claude/hooks/session-start.sh for Claude-on-web (deps + env),"
 echo "    and keep .claude/hooks/ + .claude/settings.json OUT of .gitignore"

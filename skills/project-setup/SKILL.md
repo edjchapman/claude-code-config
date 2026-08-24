@@ -1,74 +1,120 @@
 ---
 name: project-setup
-description: Install this config into a repo or bootstrap a new one — setup-project.sh, install-tooling.sh, the layered hooks setup, the new-repo runbook. Use when running the setup scripts or vendoring the tooling.
+description: Bootstrap a new repository end-to-end, or install this config's tooling into an existing one. Use when starting a new repo, or when applying the quality gate, git hooks, CI, and branch protection to a project that already exists.
+argument-hint: "[stack] [--existing]"
+allowed-tools: Bash(bash *)
 ---
 
 # Project Setup
 
-How to apply this repo's tooling to a project. Substitute `<repo>` with wherever
-`claude-code-config` is cloned (commonly `~/Development/claude-code-config/` — keep a
-single clone; the global symlinks and any dev work should point at the same one).
-Full reference for every script and flag is
-in [`docs/architecture.md`](../../docs/architecture.md) ("Key Scripts").
+## Environment
 
-## Apply the config to an existing project
+!`bash "${CLAUDE_SKILL_DIR}/detect-env.sh"`
 
-Run from the target project's root:
+Facts come from the block above; only **decisions** go to the user.
 
-```bash
-# Permissions + MCP templates for your stack (generates .claude/settings.local.json, .mcp.json)
-<repo>/scripts/setup-project.sh <template> [template2...]
+## Invariants
 
-# Inspect first
-<repo>/scripts/setup-project.sh --list            # available templates
-<repo>/scripts/setup-project.sh --dry-run django  # preview changes
-<repo>/scripts/setup-project.sh --check django    # check drift + symlinks
-<repo>/scripts/setup-project.sh --status          # current config state
-```
+These hold for every repo. The **default** column is today's recommendation, not
+a mandate — propose it, let the user swap the tool, keep the invariant.
 
-## The `--hooks` / `--tooling` gotcha (read before using `--tooling`)
+| Invariant                                                  | Test that it holds                                       | Default                     |
+| ---------------------------------------------------------- | -------------------------------------------------------- | --------------------------- |
+| One command runs the full quality gate                     | That command exits 0                                     | `make check`                |
+| The gate runs locally and in CI                            | A local hook and a CI job both invoke it                 | pre-commit + GitHub Actions |
+| A local hook mechanism never silently shadows a global one | `core.hooksPath` unset, or set with the user's knowledge | run the layers separately   |
+| Personal config stays out of git, shared config stays in   | `.gitignore` names only the personal paths               | see `.gitignore` below      |
+| The gate is green before the first commit                  | Gate exits 0 on a clean tree                             | —                           |
 
-`setup-project.sh <type> --tooling` vendors the hard-tooling layer (Makefile,
-validators, git hooks, CI) by calling `install-tooling.sh --hooks`. **That sets a
-repo-local `core.hooksPath .githooks`, which shadows a global git-hooks
-dispatcher** (e.g. `~/.config/git/hooks` running ggshield secret-scan + ruff),
-silently dropping those checks on commit.
+Additional invariants **when the host is GitHub**:
 
-To keep a global dispatcher active, **run the layers separately and omit `--hooks`**:
+| Invariant                                                          | Test that it holds                                 | Default                                                   |
+| ------------------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------------------- |
+| The permanent commit subject is validated, not merely warned about | A non-conforming subject fails the check           | `--strict` in `commit-style.yml` + `.githooks/commit-msg` |
+| `main` is protected and history stays linear                       | Direct push to `main` is rejected                  | `main-protection` ruleset                                 |
+| The maintainer cannot be locked out                                | An always-bypass entry exists for the user         | `RepositoryRole` id 5 (admin)                             |
+| The process proves itself                                          | The setup change itself landed through the process | branch → PR → checks → squash                             |
 
-```bash
-<repo>/scripts/setup-project.sh <type>            # Claude layer (no --tooling)
-<repo>/scripts/install-tooling.sh <type>          # tooling layer, WITHOUT --hooks
-```
+Under squash-merge the **PR title** becomes the permanent commit subject; branch
+commits are disposable WIP. A brand-new repo has no legacy runway, so promote
+commit style to strict immediately rather than leaving it warn-only.
 
-Then add `make check` as a `repo: local` hook in the project's
-`.pre-commit-config.yaml` (`language: system`, `pass_filenames: false`) so the
-quality gate still runs on commit.
+Required status checks are job **names**, not workflow names — renaming a job
+orphans the requirement.
 
-**`.gitignore` hygiene**: commit `.claude/settings.json` + `.claude/hooks/` (the
-Claude-on-web bootstrap from `--tooling`); ignore only the personal bits —
-`.claude/{agents,skills,rules}`, `settings.local.json`, `.mcp.json`. Don't
-blanket-ignore `.claude/`.
+## Interview
 
-## Bootstrap a brand-new repo (end-to-end)
+Ask what the environment cannot tell you. Use `AskUserQuestion`, batched, and
+let later rounds depend on earlier answers — a throwaway spike should never be
+asked about a release process.
 
-For a greenfield repo, run from the project root in this order. Validated on
-`AiEngineering` (2026-07-10). GitHub account: `edjchapman`.
+**Round 1 — shape.** What is this for (spike / tool / library / service)? Host
+(GitHub / other / local-only)? Visibility? Licence?
 
-1. **Layered setup** — `setup-project.sh <type>`, then `install-tooling.sh <type>` (omit `--hooks`; see the gotcha above), then a `.pre-commit-config.yaml` with a `repo: local` hook running `make check` (`language: system`, `pass_filenames: false`).
-2. **Wire `stack-check`** in the vendored Makefile to the stack's fmt + lint + test (Rust: `cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test`). Run `make check` green before the first commit.
-3. **Manifest hygiene** — package name per ecosystem convention (Rust packages: kebab-case), plus description / license / readme / repository fields; pin the minimum toolchain (e.g. `rust-version`) to what's installed.
-4. **Standard files** — README (quick start, `make check` workflow, CI badge), MIT LICENSE, CONTRIBUTING.md (branch → PR → squash flow), `.github/PULL_REQUEST_TEMPLATE.md`, `.github/dependabot.yml` (weekly; package ecosystem with minor+patch grouped, plus `github-actions`). Add toolchain-install + cache steps to the vendored `check.yml` (Rust: `dtolnay/rust-toolchain@stable` with rustfmt/clippy, `Swatinem/rust-cache@v2`).
-5. **Create the remote** — `gh repo create <Name> --public --source . --push`, then `gh repo edit --add-topic ...`.
-6. **Merge policy** — `gh api -X PATCH repos/<owner>/<repo>`: squash-only (`allow_merge_commit=false`, `allow_rebase_merge=false`), `delete_branch_on_merge=true`, `allow_auto_merge=true`, `squash_merge_commit_title=PR_TITLE`, `squash_merge_commit_message=PR_BODY`.
-7. **`main-protection` ruleset** — require PR (0 approvals, `allowed_merge_methods: ["squash"]`), required status checks `make check` + `validate PR title` (these are job **names**, not workflow names — renaming a job orphans the requirement), strict up-to-date policy, linear history, block deletion + force-push, and a `RepositoryRole` id 5 (admin) always-bypass so a solo maintainer is never locked out.
-8. **Promote commit style to strict immediately** — a brand-new repo has no legacy runway to honour: add `--strict` in `.github/workflows/commit-style.yml` and `.githooks/commit-msg`. Under squash-merge the PR title is the permanent commit subject; branch commits are disposable WIP.
-9. **Prove the loop** — land the process change itself via branch → PR → checks → `gh pr merge --squash`, then `git switch main && git pull --prune && git branch -D <branch>` (squash merges need `-D`; ancestry never records the merge).
+**Round 2 — conditional on round 1.** Only what the shape makes relevant:
+dependency automation, release/versioning, docs, published artifacts, a CI
+matrix.
+
+Then propose the concrete setup — tool by tool, with the default named and the
+invariant it serves — and let the user swap any of it before anything runs.
+
+Question every tool choice rather than assuming this repo's defaults still fit:
+the gate runner (make / just / npm scripts / task), the local hook manager
+(pre-commit / lefthook / husky / native `.githooks`), and CI (GitHub Actions /
+alternatives). The invariants outlive all of them.
+
+## Confirm before irreversible actions
+
+Creating a remote, changing merge policy, and writing a ruleset reach outside
+the working tree. Confirm each with the user immediately before running it.
+
+## Layers
+
+Two layers, distinguished by how updates reach a project (see `CONTEXT.md`):
+
+- **Claude layer** — received by reference. Updates to this repo propagate.
+  `<repo>/scripts/setup-project.sh <template> [more...]`
+- **Tooling layer** — received by copy. Updates never propagate; re-run to
+  refresh. `<repo>/scripts/install-tooling.sh <stack>`
+
+`setup-project.sh <type> --tooling` runs both. It copies the git hooks but does
+**not** activate them; `--git-hooks` does that, and is opt-in because a
+repo-local `core.hooksPath` shadows a global dispatcher. `install-tooling.sh`
+declines to wire it when a global one exists.
+
+With a global dispatcher in play, satisfy the "gate runs locally" invariant by
+invoking the gate from the existing hook manager instead — e.g. a `repo: local`
+pre-commit hook running `make check` (`language: system`,
+`pass_filenames: false`).
+
+Inspect before applying: `--list`, `--dry-run <template>`, `--check <template>`,
+`--status`.
+
+## .gitignore
+
+Commit `.claude/settings.json` and `.claude/hooks/` — the Claude-on-web
+bootstrap needs them in the repo. Ignore only the personal paths:
+`.claude/{agents,skills,rules}`, `.claude/settings.local.json`, `.mcp.json`.
+Never blanket-ignore `.claude/`.
+
+## Order
+
+1. Claude layer, then tooling layer.
+2. Wire the gate to the stack's fmt + lint + test; run it green.
+3. Manifest hygiene — name per ecosystem convention, plus description, licence,
+   readme, repository fields; pin the minimum toolchain to what is installed.
+4. Standard files — README (quick start, gate command, CI badge), LICENSE,
+   CONTRIBUTING, and where the host supports them a PR template and dependency
+   automation. Add toolchain-install and cache steps to the CI workflow.
+5. First commit, then the remote.
+6. Host policy — merge method, branch protection, maintainer bypass.
+7. Land this setup through the process itself. After a squash merge use
+   `git branch -D` — ancestry never records the merge, so `-d` refuses.
+
+Create `CONTEXT.md` and `docs/adr/` lazily — at the first term or decision worth recording.
 
 ## Related
 
-- **Global install** (symlinks `agents/`, `skills/`, `rules/` into `~/.claude/`
-  and mirrors `settings.json` — ADR-0002): `<repo>/scripts/setup-global.sh`.
-- **MkDocs style layer**: `<repo>/scripts/install-mkdocs-style.sh` (wrapped by the
-  `/mkdocs-style` skill).
-- Full script + flag reference: [`docs/architecture.md`](../../docs/architecture.md).
+- **Global install**: `<repo>/scripts/setup-global.sh` (ADR-0002).
+- **MkDocs style layer**: `/mkdocs-style`.
+- Full script and flag reference: [`docs/architecture.md`](../../docs/architecture.md).
