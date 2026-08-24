@@ -77,6 +77,7 @@ When extending this repo (adding a new agent / skill / command / hook / template
 - **Where**: `skills/<kebab-name>/SKILL.md` (nested layout — one directory per skill; the directory name is the `/name`)
 - **Required frontmatter**: `description` — write it as `"<what it does>. Use when <user trigger phrasing>."` so Claude loads it from the conversation
 - **Optional**: `argument-hint`, `allowed-tools`, `disallowed-tools`, `disable-model-invocation: true`, `user-invocable: false`, `model`, `effort`, `when_to_use`, `paths`, `context: fork`
+- **Supporting files**: a skill directory may hold more than `SKILL.md`. A sibling `.md` is _loaded_ when a pointer in `SKILL.md` sends Claude to it; a script is _executed_ and never enters context. Exemplar: [`skills/project-setup/detect-env.sh`](../skills/project-setup/detect-env.sh), injected via `` !`bash "${CLAUDE_SKILL_DIR}/detect-env.sh"` ``. Note the two traps that make injected commands fail _closed_: a non-zero exit or a permission check that does not return **allow** aborts the whole invocation, and Claude never sees the skill at all — so keep such a script exit-0 always, and cover it with `allowed-tools`.
 - **Domain-knowledge exemplar**: [`skills/django-patterns/SKILL.md`](../skills/django-patterns/SKILL.md)
 - **Workflow exemplar (user-only)**: [`skills/later/SKILL.md`](../skills/later/SKILL.md) — for workflows only you should trigger, add `disable-model-invocation: true`; remember that flag also blocks scheduled tasks from running the skill (which is why `standup`/`eow-review` omit it)
 
