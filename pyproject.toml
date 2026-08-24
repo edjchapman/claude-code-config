@@ -5,9 +5,11 @@
 [tool.ruff]
 target-version = "py38"
 line-length = 100
-# tooling/ is vendored payload copied verbatim into other repos — not this
-# repo's own source, so it's excluded from this repo's lint/format.
-extend-exclude = ["tooling"]
+# tooling/ is vendored payload copied verbatim into other repos. It is NOT
+# excluded from lint/format: the payload becomes the downstream project's own
+# source and is held to that project's gate, so it must meet the strictest
+# standard it will face. Excluding it here shipped unformatted Python that
+# failed a freshly-bootstrapped project's `make check` on the first run.
 
 [tool.ruff.lint]
 select = [

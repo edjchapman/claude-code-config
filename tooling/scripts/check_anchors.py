@@ -78,9 +78,7 @@ def main() -> int:
     # and Path("") resolves to "." (a directory) → IsADirectoryError on read.
     tracked = [
         line
-        for line in subprocess.check_output(
-            ["git", "ls-files", "*.md"], text=True
-        ).splitlines()
+        for line in subprocess.check_output(["git", "ls-files", "*.md"], text=True).splitlines()
         if line
     ]
 
