@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0](https://github.com/edjchapman/claude-code-config/compare/1.21.1...1.22.0) (2026-08-24)
+
+
+### Features
+
+* **skills:** add run-claude-code-config skill with a hook driver ([#138](https://github.com/edjchapman/claude-code-config/issues/138)) ([37f0497](https://github.com/edjchapman/claude-code-config/commit/37f04974310c7f8dab4dfd462ce5ec1848c3651c))
+
 ## [1.21.1](https://github.com/edjchapman/claude-code-config/compare/1.21.0...1.21.1) (2026-08-24)
 
 
