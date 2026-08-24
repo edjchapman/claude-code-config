@@ -20,6 +20,8 @@ uv.lock
 # Claude Code local config (symlinks are machine-specific)
 .claude/*
 !.claude/settings.local.json
+# ...but hand-authored skills here ARE source, not machine-specific symlinks.
+!.claude/skills/
 
 # Session-end log hook output (local artifact, written by hooks)
 /standups/
