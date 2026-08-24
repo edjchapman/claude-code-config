@@ -111,7 +111,24 @@ Never blanket-ignore `.claude/`.
 7. Land this setup through the process itself. After a squash merge use
    `git branch -D` — ancestry never records the merge, so `-d` refuses.
 
+8. Vendored-plugin setup (below), if the plugin is installed.
+
 Create `CONTEXT.md` and `docs/adr/` lazily — at the first term or decision worth recording.
+
+## Vendored-plugin setup
+
+Several `mattpocock-skills` skills — `to-spec`, `to-tickets`, `triage`, `implement`,
+`wayfinder` — read per-repo configuration that does not exist until it is scaffolded:
+which issue tracker the repo uses, the triage label strings, and where domain docs
+live. Without it they interrogate the user from scratch in every new repo, or guess.
+
+If that plugin is installed, run **`/setup-matt-pocock-skills`** once in the new repo.
+It writes `docs/agents/{issue-tracker,triage-labels,domain}.md`. Defer to it rather
+than writing those files here: it owns their contract, and a copy kept in this skill
+would rot silently the next time the pin moves (ADR-0003).
+
+It is prompt-driven and cannot run silently. Skip it where the plugin is absent —
+including plugin-mode installs of this repo, which never receive it — and say so.
 
 ## Related
 

@@ -43,9 +43,15 @@ python3 <repo>/scripts/merge-mcp.py <mcp-templates-dir> base <type1> [type2...]
 # Run by setup-global.sh; managed keys track the repo, personal keys survive.
 # --check is the warn-only drift report behind the SessionStart drift hook.
 python3 <repo>/scripts/sync-global-settings.py [--check]
+
+# Regenerate the vendored-plugin lockfile from the local plugin cache (ADR-0003).
+# Local-only: reads ~/.claude/plugins, which does not exist in CI.
+python3 <repo>/scripts/update-plugin-lock.py [--ref REF]
 ```
 
 Shared internals (not run directly):
+
+- `scripts/lib/vendored_plugins.py` — the pinned third-party plugin: pin/lockfile agreement (enforced by `generate.py --check`) and the always-loaded cost of its model-invocable skills (counted by `check-context-budget.py`). See [ADR-0003](adr/0003-pin-and-lock-vendored-plugins.md)
 
 - `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, and `generate.py` (Python version gate, template loading, output validation)
 - `scripts/lib/settings_keys.py` — the managed-key sets (`ALLOWED_KEYS`, `RETIRED_KEYS`) shared by `check-settings-keys.py` and `sync-global-settings.py` (ADR-0002)
@@ -196,14 +202,14 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `api-design`: REST API conventions — resources, status codes, pagination, error shapes. Use when designing or reviewing routes, controllers, endpoints, serializers, or schemas.
 - `django-patterns`: Django app-layer and ORM conventions. Use when editing models, views, serializers, admin, managers, signals, migrations, or querysets.
 - `docker-patterns`: Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.
-- `git-workflow`: Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, merge-conflict resolution, cherry-picking, bisecting, reflog recovery.
+- `git-workflow`: Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, cherry-picking, bisecting, reflog recovery. To resolve an in-progress merge or rebase conflict, use the resolving-merge-conflicts skill.
 - `infrastructure`: Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.
 - `security-patterns`: Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.
 - `testing-patterns`: Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.
 
 **Workflow skills** — invoked as `/<name>`; those without `disable-model-invocation` can also be auto-invoked by Claude:
 
-- `/adr`: Record a technical decision as an Architecture Decision Record (Nygard format). Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.
+- `/adr`: Record a technical decision as an Architecture Decision Record. Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.
 - `/commit`: Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.
 - `/eow-review`: Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week. **Schedulable** — fired by the end-of-week review routine (issue #52).
 - `/hotfix`: Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.

@@ -46,6 +46,10 @@ When starting a documentation task:
 - Discuss concepts, decisions, and architecture
 - Explain "why", not "how"
 - Good for ADRs, architecture docs, design rationale
+- Writing an ADR? Read `docs/adr/README.md` first if the repo has one — it is the
+  destination's own format spec and outranks any template you would otherwise use.
+  More than one primitive writes to `docs/adr/`, so the convention lives beside the
+  records rather than in any one writer.
 
 ## Writing Standards
 
