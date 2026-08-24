@@ -8,6 +8,12 @@
 #   ./setup-project.sh --check <types>      # Check for settings drift and symlinks
 #   ./setup-project.sh --status             # Show current configuration state
 #   ./setup-project.sh --dry-run <types>    # Preview changes without applying
+#   ./setup-project.sh <types> --tooling    # Also vendor the tooling layer
+#   ./setup-project.sh <types> --tooling --git-hooks
+#                                           # ...and activate the vendored git
+#                                           # hooks (sets a repo-local
+#                                           # core.hooksPath, which SHADOWS any
+#                                           # global git-hooks dispatcher)
 #   ./setup-project.sh --help               # Show this help
 #
 # Examples:
@@ -29,26 +35,40 @@ TEMPLATES_PATH="$REPO_ROOT/settings-templates"
 MCP_TEMPLATES_PATH="$REPO_ROOT/mcp-templates"
 DRY_RUN=false
 
-# Extract the --tooling modifier (it can appear anywhere alongside the project
-# types). Unlike a project type it is not a template — it triggers vendoring the
-# hard-tooling layer (Makefile + validator scripts + CI workflows + git hooks)
-# via scripts/install-tooling.sh after the Claude-layer setup. Strip it from the
-# positional args here so the flag handlers below never see it.
+# Extract the --tooling / --git-hooks modifiers (they can appear anywhere
+# alongside the project types). Neither is a template: --tooling triggers
+# vendoring the tooling layer (Makefile + validator scripts + CI workflows +
+# git hooks) via scripts/install-tooling.sh after the Claude-layer setup, and
+# --git-hooks additionally activates the vendored hooks by setting a repo-local
+# core.hooksPath. Strip both from the positional args here so the flag handlers
+# below never see them.
+#
+# --git-hooks is opt-in because a repo-local core.hooksPath SHADOWS a global
+# git-hooks dispatcher (e.g. ~/.config/git/hooks running a secret scan), which
+# silently drops those checks on every commit. Invariant: a project's hook
+# mechanism must not silently shadow a global one. Vendoring the payload is
+# safe; activating it is the part that needs a deliberate choice.
 INSTALL_TOOLING=false
+WIRE_GIT_HOOKS=false
 _args=()
 for _a in "$@"; do
-  if [ "$_a" = "--tooling" ]; then
-    INSTALL_TOOLING=true
-  else
-    _args+=("$_a")
-  fi
+  case "$_a" in
+    --tooling) INSTALL_TOOLING=true ;;
+    --git-hooks) WIRE_GIT_HOOKS=true ;;
+    *) _args+=("$_a") ;;
+  esac
 done
 set -- "${_args[@]}"
+
+_tooling_hook_flag() {
+  [ "$WIRE_GIT_HOOKS" = true ] && printf '%s' "--hooks"
+}
 
 # `--tooling` with no project type → install only the tooling layer.
 if [ "$INSTALL_TOOLING" = true ] && [ $# -eq 0 ]; then
   echo "Installing project tooling only (no Claude-layer templates)..."
-  exec "$SCRIPT_DIR/install-tooling.sh" --hooks
+  # shellcheck disable=SC2046 # deliberate word-split: empty unless --git-hooks
+  exec "$SCRIPT_DIR/install-tooling.sh" $(_tooling_hook_flag)
 fi
 
 # Check Python 3.8+ is available
@@ -80,8 +100,14 @@ show_help() {
   echo "  $0 --check, -c <types>     Check settings drift and symlink integrity"
   echo "  $0 --status, -s            Show current configuration state"
   echo "  $0 --dry-run, -n <types>   Preview changes without applying"
-  echo "  $0 <types> --tooling       Also vendor the hard-tooling layer (Makefile,"
+  echo "  $0 <types> --tooling       Also vendor the tooling layer (Makefile,"
   echo "                             scripts, CI, git hooks) — copied, not symlinked"
+  echo "  $0 <types> --tooling --git-hooks"
+  echo "                             ...and activate them: sets a repo-local"
+  echo "                             core.hooksPath, which SHADOWS a global"
+  echo "                             git-hooks dispatcher. Opt-in for that reason;"
+  echo "                             prefer invoking the vendored checks from your"
+  echo "                             existing hook manager instead."
   echo "  $0 --help, -h              Show this help"
   echo ""
   echo "Available templates:"
@@ -122,6 +148,7 @@ show_help() {
   echo "  .claude/hooks/session-start.sh, .claude/settings.json (Claude-on-web bootstrap)"
   echo "  (run scripts/install-tooling.sh directly for the tooling layer on its own)"
   echo "  --tooling applies to a setup run or --dry-run; it is ignored with --check/--list/--status."
+  echo "  --tooling only COPIES the git hooks; add --git-hooks to activate them."
 }
 
 # Handle --help flag
@@ -511,5 +538,6 @@ echo "Verify: ls -la .claude/"
 if [ "$INSTALL_TOOLING" = true ]; then
   echo ""
   echo "Installing project tooling (--tooling)..."
-  "$SCRIPT_DIR/install-tooling.sh" --hooks "${TYPES[@]}"
+  # shellcheck disable=SC2046 # deliberate word-split: empty unless --git-hooks
+  "$SCRIPT_DIR/install-tooling.sh" $(_tooling_hook_flag) "${TYPES[@]}"
 fi
