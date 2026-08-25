@@ -148,6 +148,7 @@ show_help() {
   echo "  .claude/hooks/session-start.sh, .claude/settings.json (Claude-on-web bootstrap)"
   echo "  (run scripts/install-tooling.sh directly for the tooling layer on its own)"
   echo "  --tooling applies to a setup run or --dry-run; it is ignored with --check/--list/--status."
+  echo "  A project declines individual payload files via .tooling-ignore at its root."
   echo "  --tooling only COPIES the git hooks; add --git-hooks to activate them."
 }
 

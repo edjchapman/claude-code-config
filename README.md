@@ -579,7 +579,7 @@ your-project/
 
 ### Project tooling (`--tooling`)
 
-The Claude layer is symlinked so updates propagate. A project's **hard tooling** — a `make check` quality gate, validators, git hooks, CI workflows, a Claude-on-web bootstrap — can't be symlinked (GitHub Actions only runs workflows physically present in the repo). So `setup-project.sh <type> --tooling` **copies** (vendors) that layer in idempotently — existing files are never clobbered.
+The Claude layer is symlinked so updates propagate. A project's **hard tooling** — a `make check` quality gate, validators, git hooks, CI workflows, a Claude-on-web bootstrap — can't be symlinked (GitHub Actions only runs workflows physically present in the repo). So `setup-project.sh <type> --tooling` **copies** (vendors) that layer in idempotently — existing files are never clobbered. A project that has deliberately dropped or replaced a payload file lists it in `.tooling-ignore` at its root, one destination-relative path per line, so a later run reports it as ignored instead of silently restoring it.
 
 ```bash
 setup-project.sh python --tooling    # Claude layer + tooling layer
