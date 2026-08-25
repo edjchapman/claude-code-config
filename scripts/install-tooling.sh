@@ -13,6 +13,18 @@
 # Idempotent: copy-if-absent, never clobber. A second run reports all-skipped
 # and leaves the working tree unchanged.
 #
+# A project can decline individual payload files by listing them in
+# .tooling-ignore at its root, one destination-relative path per line:
+#
+#     # this repo ported the anchor checker to TypeScript
+#     scripts/check_anchors.py
+#
+# Without it, copy-if-absent means a project that deliberately DELETES a payload
+# file gets it back on the next run — silently, because absent is exactly what
+# this script exists to fix. Blank lines and # comments are skipped; matches are
+# exact paths, not globs, because the statement being made is "do not manage
+# this file" rather than "hide anything shaped like this".
+#
 # Usage:
 #   install-tooling.sh [--dry-run] [--hooks] [--target DIR] [STACK ...]
 #
@@ -73,12 +85,44 @@ fi
 
 added=0
 skipped=0
+ignored=0
+
+# Payload paths this project has declined, from .tooling-ignore at its root.
+IGNORED=()
+if [ -f "$TARGET/.tooling-ignore" ]; then
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%%#*}"
+    line="${line#"${line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+    if [ -n "$line" ]; then
+      IGNORED+=("$line")
+    fi
+  done < "$TARGET/.tooling-ignore"
+fi
+
+# is_ignored DST_REL — true when the project has declined this payload path.
+is_ignored() {
+  local candidate="$1" entry
+  # Guarded expansion: an empty array is unbound under `set -u` on bash 3.2,
+  # which is what macOS ships.
+  for entry in ${IGNORED+"${IGNORED[@]}"}; do
+    if [ "$entry" = "$candidate" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
 
 # copy_file SRC DST_REL — copy payload SRC to TARGET/DST_REL if absent.
 copy_file() {
   local src="$1"
   local dst_rel="$2"
   local dst="$TARGET/$2"
+  if is_ignored "$dst_rel"; then
+    echo "  ignore $dst_rel (.tooling-ignore)"
+    ignored=$((ignored + 1))
+    return
+  fi
   if [ -e "$dst" ]; then
     echo "  skip   $dst_rel (exists)"
     skipped=$((skipped + 1))
@@ -133,7 +177,11 @@ copy_file "$PAYLOAD/claude-hooks/session-start.sh" ".claude/hooks/session-start.
 copy_file "$PAYLOAD/claude-settings.json" ".claude/settings.json"
 
 echo ""
-echo "Summary: $added added, $skipped skipped."
+if [ "$ignored" -gt 0 ]; then
+  echo "Summary: $added added, $skipped skipped, $ignored ignored (.tooling-ignore)."
+else
+  echo "Summary: $added added, $skipped skipped."
+fi
 
 # Optionally wire git hooks.
 #

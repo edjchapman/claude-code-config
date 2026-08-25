@@ -46,7 +46,27 @@ Kept custom because no enabled plugin fully covers them:
 
 If you enable a new plugin and it overlaps with one of the kept-custom items, re-apply the rule.
 
-Rule re-applied for `mattpocock-skills@mattpocock` (enabled 2026-07-31, via the `mattpocock` marketplace in `extraKnownMarketplaces`): its `tdd`, `code-review`, `research`, and `diagnosing-bugs` skills overlap with custom `/tdd`, the bundled `/code-review`, `/deep-research`, and the `root-cause-analysis` skill respectively. Initially all four were judged borderline; the 2026-07-31 token-efficiency review reversed two of those calls — `tdd` and `root-cause-analysis` were retired (see table above) because keeping both made skill invocation ambiguous (an exact trigger collision means which one fires is a coin flip). The `code-review` and `research` overlaps are with _bundled_ commands, not repo customs, so nothing to retire there. The plugin's additive value is the grilling suite (`grilling`, `grill-me`, `grill-with-docs`), the spec→ticket pipeline (`to-spec`, `to-tickets`, `triage`, `wayfinder`, `implement` — run its `setup-matt-pocock-skills` once per repo first), the design-vocabulary skills (`codebase-design`, `domain-modeling`), and productivity extras (`handoff`, `teach`, `writing-great-skills`, `prototype`).
+Rule re-applied for `mattpocock-skills@mattpocock` (enabled 2026-07-31, via the `mattpocock` marketplace in `extraKnownMarketplaces`, pinned and locked per [ADR-0003](adr/0003-pin-and-lock-vendored-plugins.md)): its `tdd`, `code-review`, `research`, and `diagnosing-bugs` skills overlap with custom `/tdd`, the bundled `/code-review`, `/deep-research`, and the `root-cause-analysis` skill respectively. Initially all four were judged borderline; the 2026-07-31 token-efficiency review reversed two of those calls — `tdd` and `root-cause-analysis` were retired (see table above) because keeping both made skill invocation ambiguous (an exact trigger collision means which one fires is a coin flip). The `code-review` and `research` overlaps are with _bundled_ commands, not repo customs, so nothing to retire there. The plugin's additive value is the grilling suite (`grilling`, `grill-me`, `grill-with-docs`), the spec→ticket pipeline (`to-spec`, `to-tickets`, `triage`, `wayfinder`, `implement` — run its `setup-matt-pocock-skills` once per repo first, wired into `/project-setup`), the design-vocabulary skills (`codebase-design`, `domain-modeling`), and productivity extras (`handoff`, `teach`, `writing-great-skills`, `prototype`).
+
+The 2026-08-24 review re-applied the rule again, this time across primitive types, and resolved three surviving collisions by **delegation** rather than retirement — nothing was deleted:
+
+| Kept primitive          | Collided with               | Trigger now                                                |
+| ----------------------- | --------------------------- | ---------------------------------------------------------- |
+| `@bug-resolver`         | `diagnosing-bugs`           | a dispatched investigation; method deferred to the skill   |
+| `@performance-engineer` | `diagnosing-bugs`           | planned optimization only; regressions routed to the skill |
+| `/git-workflow`         | `resolving-merge-conflicts` | dropped "merge-conflict resolution" from its trigger       |
+
+Examined and found _not_ colliding: `/refinement` (Jira ticket → analysis, the inverse of `to-tickets`, and user-only so it never auto-fires), `@test-engineer` (writes tests; `tdd` drives design), `/api-design` (REST shape; `codebase-design` is module seams), `/project-setup` (strictly broader than `setup-pre-commit`). ADRs were a three-way collision — `/adr`, `@documentation-writer`, and `domain-modeling` all write `docs/adr/` in three different formats — resolved by publishing the house format at the destination in [`docs/adr/README.md`](adr/README.md), which the vendored writer reads and this repo cannot edit into it.
+
+### Bumping a vendored plugin
+
+The pin is a commit SHA and the lockfile is the review surface. To move it:
+
+1. `python3 scripts/update-plugin-lock.py --ref <new ref>` after updating the plugin locally.
+2. Set the same ref in `settings.json`'s `extraKnownMarketplaces`. `generate.py --check` fails until the two agree, in either direction.
+3. **Read the lockfile diff.** Every changed `description` is a collision candidate against the table above; every added `model_invocable: true` entry is new always-loaded cost.
+
+The pin currently sits behind upstream deliberately: moving to `v1.2.3` adds `wizard` and `writing-for-agents` as model-invocable skills (+417 B), and the latter triggers on "creating or editing skills, or modifying AGENTS.md or CLAUDE.md" — which is what this repository is, so it would collide with this very document. That upgrade is a decision, not a chore.
 
 ## What earns always-loaded context
 
@@ -58,7 +78,16 @@ Every primitive has a fixed per-session token cost and an on-demand cost. When a
 4. **CLAUDE.md line** — full cost, every session, every project (for `home/CLAUDE.md`). Only for cross-cutting behavioural rules that must always apply. Reference material belongs in `docs/` (linked, not loaded).
 5. **Plugin** — heaviest and all-or-nothing: an enabled plugin ships _all_ of its skill/agent/command descriptions (and sometimes MCP tools) into every session. Enable by default only when most sessions benefit; otherwise leave it disabled in `settings.json` and enable per-machine or per-project.
 
-Two enforcement mechanisms back this ladder: `scripts/check-context-budget.py` (CI) fails when the always-loaded surface exceeds its budget, and one canonical skill per trigger — when two skills share a trigger (as `/tdd` and `mattpocock-skills:tdd` briefly did), which one fires is nondeterministic, so resolve the collision rather than tolerate it.
+**Plugin mode receives none of this.** `enabledPlugins` and `extraKnownMarketplaces` are `settings.json` keys, and `settings.json` is not part of the plugin contract — a plugin cannot enable another plugin. So consumers who install this repo _as a plugin_ get its agents, skills, and hooks but never the vendored `mattpocock-skills`, exactly as they never receive `rules/`. This matters because two retirements above (`skills/tdd/`, `skills/root-cause-analysis/`) traded a custom primitive for a vendored replacement those consumers will not have. That is an accepted gap, not an oversight: this repo is maintained Ed-first, and global mode is the supported path. Plugin-mode consumers wanting those workflows should add the `mattpocock` marketplace themselves.
+
+Two enforcement mechanisms back this ladder: `scripts/check-context-budget.py` (CI) fails when the always-loaded surface exceeds its budget — counting **third-party primitives** from the vendored-plugin lockfile, since a skill costs the same whether this repo authored it or merely enabled it — and **one canonical primitive per trigger**.
+
+That second rule applies **across primitive types**, not only skill-to-skill. An agent and a skill compete for the same dispatch decision, so `@bug-resolver` and `mattpocock-skills:diagnosing-bugs` collided just as `/tdd` and `mattpocock-skills:tdd` did — the cross-type case simply survived the first review because the rule was written narrowly. A collision has two resolutions:
+
+- **Retirement** — delete the weaker primitive. Right when one is strictly better and offers nothing the other lacks (`skills/tdd/`, `skills/root-cause-analysis/`).
+- **Delegation** — narrow one primitive's trigger so it no longer competes, and have its body invoke the other as the method. Right when the kept primitive offers something structural the other cannot: `@bug-resolver` keeps a dedicated context window, project memory, and issue-tracker lookup, so it defers its _method_ to `diagnosing-bugs` while owning a distinct _situation_.
+
+A third resolution may exist: `skillOverrides` (a `settings.json` key, values `on` / `name-only` / `user-invocable-only` / `off`) demotes a named skill's listing, which would let a vendored trigger be silenced without touching our own primitive. **Unverified for plugin-sourced skills** — one code path in the CLI short-circuits plugin sources to `on`. Confirm via `/skills` before relying on it.
 
 ## Self-Extension Guide
 

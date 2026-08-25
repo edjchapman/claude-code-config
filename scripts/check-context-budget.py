@@ -2,10 +2,14 @@
 """Fail CI if the always-loaded context surface exceeds its byte budget.
 
 Every session pays a fixed token cost for: the global memory file
-(home/CLAUDE.md) and the frontmatter `description:` of every skill and
-agent (bodies load on demand and are deliberately not counted). This
-check keeps that surface from growing silently — see the "What earns
-always-loaded context" ladder in docs/extending.md.
+(home/CLAUDE.md), the frontmatter `description:` of every skill and
+agent (bodies load on demand and are deliberately not counted), and the
+model-invocable descriptions of every **third-party primitive** a pinned
+plugin ships (read from the lockfile, since the plugin cache is a local
+artifact absent in CI). A skill costs the same whether this repo authored
+it or merely enabled it, so both are counted. This check keeps that
+surface from growing silently — see the "What earns always-loaded
+context" ladder in docs/extending.md.
 
 Per-item descriptions over WARN_ITEM_BYTES get a warning (exit 0);
 a total over TOTAL_BUDGET_BYTES fails the check (exit 1).
@@ -18,6 +22,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from lib import vendored_plugins
 from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
 
 TOTAL_BUDGET_BYTES = 10_240
@@ -49,6 +54,8 @@ def main() -> int:
             continue
         items.append((f"{rel} (description)", len(desc.encode())))
 
+    items.extend(vendored_plugins.always_loaded_items(REPO_ROOT))
+
     memory_name = str(GLOBAL_MEMORY.relative_to(REPO_ROOT))
     total = sum(size for _, size in items)
     width = max(len(name) for name, _ in items)
@@ -60,9 +67,17 @@ def main() -> int:
         print(f"  {name:<{width}}  {size:>6} B{marker}")
     print(f"\nTotal: {total} B (budget {TOTAL_BUDGET_BYTES} B, per-item warn {WARN_ITEM_BYTES} B)")
 
+    # A third-party primitive cannot be trimmed — this repo does not own its
+    # frontmatter — so it gets the advice that actually applies to it.
+    vendored = {name for name, _ in vendored_plugins.always_loaded_items(REPO_ROOT)}
     over = [name for name, size in items if size > WARN_ITEM_BYTES and name != memory_name]
     for name in over:
-        print(f"WARNING: {name} exceeds {WARN_ITEM_BYTES} B — trim it or justify the cost")
+        remedy = (
+            "demote it (skillOverrides) or drop the pin"
+            if name in vendored
+            else "trim it or justify the cost"
+        )
+        print(f"WARNING: {name} exceeds {WARN_ITEM_BYTES} B — {remedy}")
 
     if total > TOTAL_BUDGET_BYTES:
         print(f"FAIL: always-loaded surface {total} B exceeds the {TOTAL_BUDGET_BYTES} B budget.")

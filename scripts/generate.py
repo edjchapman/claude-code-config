@@ -20,6 +20,12 @@ region's source. Targets registered here:
                   settings keys — that keep the doc from claiming the repo
                   lacks something it now has.
 
+Beyond the targets, this generator enforces the repo's declared invariants
+(the scheduling invariants in lib/primitives.py, and the vendored-plugin pin
+in lib/vendored_plugins.py): a run fails when settings.json's plugin pin has
+drifted from the committed lockfile, so a third-party primitive can never
+change what it ships into a session without a reviewed diff.
+
 settings.json is re-serialized canonically (json.dumps, indent=2, trailing
 newline): every key outside the generated region keeps its value, but the
 file's *formatting* is owned by this generator, not by hand edits or prettier
@@ -42,7 +48,7 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from lib import architecture_catalogs, readme_catalogs
+from lib import architecture_catalogs, readme_catalogs, vendored_plugins
 from lib.config_common import GenerationError, check_python_version, load_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -129,6 +135,7 @@ def _sync_path(name: str, path: Path, content: str, check: bool) -> bool:
 
 def run(root: Path, check: bool, only: str | None) -> int:
     """Generate (or verify) every selected target; return the exit code."""
+    vendored_plugins.verify_pin(root)
     names = [only] if only else list(TARGETS)
     stale = False
     for name in names:
