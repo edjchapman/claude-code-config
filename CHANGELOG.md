@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.0](https://github.com/edjchapman/claude-code-config/compare/1.22.0...1.23.0) (2026-08-25)
+
+
+### Features
+
+* **tooling:** let a project decline payload files via .tooling-ignore ([#141](https://github.com/edjchapman/claude-code-config/issues/141)) ([a7ba096](https://github.com/edjchapman/claude-code-config/commit/a7ba0963f0da0309bef1b6f1081495f2800848ff))
+
 ## [1.22.0](https://github.com/edjchapman/claude-code-config/compare/1.21.1...1.22.0) (2026-08-24)
 
 
