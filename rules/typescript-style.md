@@ -4,41 +4,29 @@ paths:
   - "**/*.tsx"
 ---
 
-# TypeScript Style Rules
+<!--
+Only what a linter cannot say. If eslint or tsc flags it, it does not
+belong here. Naming conventions were removed as derivable from the
+language. These rules are user-level — they load in every TypeScript repo
+on the machine, so nothing here may assume a framework. React guidance was
+removed on that basis; if it returns it belongs in a skill, alongside
+django-patterns, not in a language rule.
+-->
 
-## General
+# TypeScript Style
 
-- Functions: keep under 30 lines. Extract sub-functions if longer.
-- Files: keep under 400 lines. Split into modules when growing beyond this.
-- Nesting: maximum 3 levels of indentation. Use early returns to flatten logic.
-- Comments: only where the "why" isn't obvious. Never restate what code does.
+## Errors
 
-## Naming
-
-- Variables and functions: `camelCase`
-- Classes and interfaces: `PascalCase`
-- Constants: `UPPER_SNAKE_CASE`
-- Type parameters: single capital letter (`T`, `K`, `V`)
-- Files: `kebab-case.ts` for utilities, `PascalCase.tsx` for React components
-
-## Error Handling
-
-- Never swallow errors silently in catch blocks
-- Use discriminated unions for expected failure cases
-- Reserve try/catch for truly exceptional situations
-- Always type error responses in API handlers
+- Model expected failures as discriminated unions; reserve try/catch for the exceptional.
+- Never swallow an error silently.
 
 ## Types
 
-- Prefer `interface` over `type` for object shapes
-- Use `unknown` instead of `any` -- narrow with type guards
-- Export types alongside their implementations
-- Use `readonly` for data that shouldn't mutate
+- Prefer `interface` over `type` for object shapes.
+- Use `unknown` over `any` — narrow with type guards.
+- Mark data that shouldn't mutate `readonly`.
+- Export types alongside their implementations.
 
-## React (`.tsx` files)
+## Files
 
-- Components: one per file, named same as file
-- Props: define interface above component, suffix with `Props`
-- Hooks: prefix custom hooks with `use`
-- State: prefer derived state over synchronized state
-- Effects: minimize `useEffect` -- prefer event handlers
+- `kebab-case.ts` for modules.

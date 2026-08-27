@@ -12,6 +12,10 @@ When you notice a non-time-bound follow-up mid-session (a validator worth buildi
 
 Default: pick the most durable home that matches the scope. A few seconds invoking `/later` (or adding two lines here) beats a silently-lost learning.
 
+## Writing code
+
+- Comments: only where the "why" isn't obvious. Never restate what code does.
+
 ## Applying the tooling & bootstrapping repos
 
 The `--hooks`/`--tooling` gotcha, `.gitignore` hygiene, and the full end-to-end new-repo runbook (manifest hygiene, standard files, remote creation, merge policy, `main-protection` ruleset, strict commit style, prove-the-loop) live in the **`project-setup` skill** — invoked on demand rather than loaded every session. Reach for it when installing this config into a repo or bootstrapping a new one.

@@ -7,6 +7,16 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
 
 - **Primitive** — a unit this repo ships for Claude Code: an agent, skill, hook, rule,
   template, or CLI script. The unit the catalogs enumerate and the generator renders.
+- **Rule** — the primitive that carries _judgement a linter cannot express_, loaded
+  as **context** when Claude reads a file matching its `paths` frontmatter. Rules
+  **inform; they never enforce** — enforcement is a hook or a linter, and content a
+  linter already flags or autofixes does not belong in one. Delivered at user level
+  (`~/.claude/rules/`, global mode only), so a rule applies to _every_ repo of that
+  language on the machine: nothing in one may assume a particular linter config,
+  framework, or language version. Framework guidance is a **skill** instead
+  (`django-patterns`, `docker-patterns`) — language → rule, framework → skill.
+  _Formerly described as "style enforcement", which invited linter content into
+  rules and is why the retired bullets sat unexamined._
 - **Catalog** — any human-facing enumeration of primitives (the README tables,
   the reference listings in `docs/architecture.md`).
 - **Install modes** — the two ways this repo is consumed: **plugin mode** (via the

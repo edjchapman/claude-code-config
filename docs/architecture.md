@@ -228,7 +228,7 @@ The user-only skills above set `disable-model-invocation: true`. **Scheduling co
 
 ### Rules
 
-Rules are path-scoped code style enforcement files in `rules/`. They use `paths` frontmatter for granular file matching.
+Rules are path-scoped code style **context** in `rules/`, loaded when Claude reads a matching file. They use `paths` frontmatter for granular file matching. Rules inform rather than enforce — enforcement is a hook or a linter — so a rule carries only judgement a linter cannot express (see **Rule** in [`CONTEXT.md`](../CONTEXT.md)).
 
 **Symlink-mode only.** Rules are not a supported plugin component — the official plugin layout ships skills, agents, hooks, MCP/LSP servers, and settings, but has no rules directory or manifest field (verified against the plugin docs, 2026-07-22; rules exist only at user level `~/.claude/rules/` and project level `.claude/rules/`). Consumers installing this repo as a plugin therefore don't get `rules/`; only the `setup-global.sh` symlink path (`rules/` → `~/.claude/rules`) delivers them. If plugin support for rules lands upstream, wire it here and drop this note.
 
@@ -238,8 +238,8 @@ Available rules:
 
 <!-- prettier-ignore-start -->
 
-- `python-style`: General, Naming, Error Handling, Imports, Type Hints (`**/*.py`)
-- `typescript-style`: General, Naming, Error Handling, Types, React (`.tsx` files) (`**/*.ts`, `**/*.tsx`)
+- `python-style`: Errors, Types and Imports (`**/*.py`)
+- `typescript-style`: Errors, Types, Files (`**/*.ts`, `**/*.tsx`)
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-rules -->
@@ -409,4 +409,4 @@ Skills use the official nested layout: each skill is a directory `skills/<name>/
 - `paths` (optional): Glob patterns limiting auto-load to work on matching files
 - `context: fork` + `agent` (optional): Run the skill in a forked subagent context
 
-Historical note: `when_to_use:` and `paths:` were once non-canonical for skills; both are now official fields. This repo still prefers a rich `description:` as the primary trigger, and keeps path-scoped _style enforcement_ in `rules/` (which also use `paths:`).
+Historical note: `when_to_use:` and `paths:` were once non-canonical for skills; both are now official fields. This repo still prefers a rich `description:` as the primary trigger, and keeps path-scoped _style judgement_ in `rules/` (which also use `paths:`).
