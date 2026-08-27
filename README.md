@@ -52,7 +52,7 @@ This repo fixes that with **one canonical config** that everything else links ba
 - **Symlinks** (agents, skills, rules) so updates propagate everywhere automatically, plus a **mirrored** `settings.json` that a sync keeps fresh ([ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md))
 - **Composable templates** for different project types
 - **Hooks** for auto-formatting, safety checks, and notifications
-- **Skills & rules** for passive domain knowledge and style enforcement
+- **Skills & rules** for passive domain knowledge and style judgement
 - **Setup scripts** that work on any machine
 
 ```mermaid
@@ -234,7 +234,7 @@ Domain knowledge Claude loads automatically based on the conversation — matche
 
 ### Rules
 
-Path-scoped style enforcement (`paths` frontmatter). Skills provide patterns; rules enforce style.
+Path-scoped style judgement (`paths` frontmatter). Skills carry patterns, loaded on relevance; rules carry style judgement, loaded on file match. Neither enforces — enforcement is a hook or a linter, so a rule holds only what a linter cannot say.
 
 <details>
 <!-- BEGIN GENERATED: rules -->
@@ -243,10 +243,10 @@ Path-scoped style enforcement (`paths` frontmatter). Skills provide patterns; ru
 
 <summary><strong>2 style rules</strong> — click to expand</summary>
 
-| Rule               | Applies To            | Covers                                                       |
-| ------------------ | --------------------- | ------------------------------------------------------------ |
-| `python-style`     | `**/*.py`             | General, Naming, Error Handling, Imports, Type Hints         |
-| `typescript-style` | `**/*.ts`, `**/*.tsx` | General, Naming, Error Handling, Types, React (`.tsx` files) |
+| Rule               | Applies To            | Covers                    |
+| ------------------ | --------------------- | ------------------------- |
+| `python-style`     | `**/*.py`             | Errors, Types and Imports |
+| `typescript-style` | `**/*.ts`, `**/*.tsx` | Errors, Types, Files      |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: rules -->
