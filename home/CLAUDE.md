@@ -16,6 +16,30 @@ Default: pick the most durable home that matches the scope. A few seconds invoki
 
 - Comments: only where the "why" isn't obvious. Never restate what code does.
 
+## The GitGuardian secret scan (ggshield)
+
+The global pre-commit hook scans every commit in every repo on this machine against one
+shared workspace budget of 10,000 API calls on a rolling 30-day window — exhausting it in
+one repo blocks commits in all of them, and it recovers only as old usage ages out.
+
+**A failed scan is not a detected secret.** Only exit code 1 means secrets were found;
+quota exhaustion exits 128, auth failure 3, server-unreachable 4. **Run `ggshield quota`
+before acting on any ggshield failure** — on the old hook's message, which said "detected
+secrets" for every non-zero exit, agents sanitised files that were never dirty.
+
+**Cost** (measured 2026-08-28; billing is per API _request_, not per document — `/multiscan`
+carries 20 documents for one unit): a commit costs **1 unit**, or `ceil(files / 20)`.
+`ggshield secret scan repo` costs **hundreds** — ~417 on a 996-commit repo. A busy month of
+commits came to under 5% of the budget, so cutting commit volume buys almost nothing and
+costs real safety; the expensive thing is scan _mode_. Treat full-history scans as
+deliberate and occasional, never a routine gate. If the budget is gone, suspect those (or
+check GitGuardian's dashboard) before blaming commit volume.
+
+**Never bypass with `git commit --no-verify`** where a repo's `.githooks/pre-commit` also
+runs a validation battery — that skips the battery too. It needs Ed's explicit per-commit
+approval, with `make check` then run by hand. Under the `pre-commit` framework,
+`SKIP=ggshield git commit` skips only that hook and is the safer lever.
+
 ## Applying the tooling & bootstrapping repos
 
 The `--hooks`/`--tooling` gotcha, `.gitignore` hygiene, and the full end-to-end new-repo runbook (manifest hygiene, standard files, remote creation, merge policy, `main-protection` ruleset, strict commit style, prove-the-loop) live in the **`project-setup` skill** — invoked on demand rather than loaded every session. Reach for it when installing this config into a repo or bootstrapping a new one.
