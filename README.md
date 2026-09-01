@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `10 lifecycle hooks` · `2 style rules` · `4 CLI scripts`
+`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `10 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -241,12 +241,13 @@ Path-scoped style judgement (`paths` frontmatter). Skills carry patterns, loaded
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>2 style rules</strong> — click to expand</summary>
+<summary><strong>3 style rules</strong> — click to expand</summary>
 
-| Rule               | Applies To            | Covers                    |
-| ------------------ | --------------------- | ------------------------- |
-| `python-style`     | `**/*.py`             | Errors, Types and Imports |
-| `typescript-style` | `**/*.ts`, `**/*.tsx` | Errors, Types, Files      |
+| Rule               | Applies To            | Covers                      |
+| ------------------ | --------------------- | --------------------------- |
+| `content-style`    | `**/*.md`             | Length, Structure, Speaking |
+| `python-style`     | `**/*.py`             | Errors, Types and Imports   |
+| `typescript-style` | `**/*.ts`, `**/*.tsx` | Errors, Types, Files        |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: rules -->

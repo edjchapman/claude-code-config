@@ -238,6 +238,7 @@ Available rules:
 
 <!-- prettier-ignore-start -->
 
+- `content-style`: Length, Structure, Speaking (`**/*.md`)
 - `python-style`: Errors, Types and Imports (`**/*.py`)
 - `typescript-style`: Errors, Types, Files (`**/*.ts`, `**/*.tsx`)
 
