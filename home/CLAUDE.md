@@ -18,9 +18,12 @@ Default: pick the most durable home that matches the scope. A few seconds invoki
 
 ## The GitGuardian secret scan (ggshield)
 
-The global pre-commit hook scans every commit in every repo on this machine against one
-shared workspace budget of 10,000 API calls on a rolling 30-day window — exhausting it in
-one repo blocks commits in all of them, and it recovers only as old usage ages out.
+The global **pre-push** hook (`~/.config/git/hooks/pre-push`, chezmoi-managed) scans the
+commits about to leave the machine, in every repo, against one shared workspace budget of
+10,000 API calls on a rolling 30-day window — exhausting it in one repo blocks pushes in
+all of them, and it recovers only as old usage ages out. (It moved from pre-commit in
+Dotfiles#159: per-commit scanning billed every amend and rejected attempt. Individual
+repos may still carry their own per-commit ggshield hook via the `pre-commit` framework.)
 
 **A failed scan is not a detected secret.** Only exit code 1 means secrets were found;
 quota exhaustion exits 128, auth failure 3, server-unreachable 4. **Run `ggshield quota`
@@ -39,6 +42,12 @@ check GitGuardian's dashboard) before blaming commit volume.
 runs a validation battery — that skips the battery too. It needs Ed's explicit per-commit
 approval, with `make check` then run by hand. Under the `pre-commit` framework,
 `SKIP=ggshield git commit` skips only that hook and is the safer lever.
+
+**When quota exhaustion blocks a push** (exit 128 — which can persist for weeks):
+`git push --no-verify` skips only the secret scan, since the global pre-push hook is the
+only pre-push check; per-commit gitleaks and GitGuardian's GitHub App still cover the
+range. It needs Ed's explicit per-push approval — agents must stop and ask, never run it
+unprompted.
 
 ## Applying the tooling & bootstrapping repos
 
