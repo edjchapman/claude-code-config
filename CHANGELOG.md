@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/edjchapman/claude-code-config/compare/1.23.0...1.24.0) (2026-09-03)
+
+
+### Features
+
+* **output-styles:** ship Scannable, an augmenting ADHD-friendly output style ([#150](https://github.com/edjchapman/claude-code-config/issues/150)) ([72a34c6](https://github.com/edjchapman/claude-code-config/commit/72a34c64f52f7e9624f1ab528fe079b04f4ca538))
+
 ## [1.23.0](https://github.com/edjchapman/claude-code-config/compare/1.22.0...1.23.0) (2026-08-25)
 
 
