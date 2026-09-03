@@ -136,7 +136,7 @@
       }
     }
   },
-  "outputStyle": "Explanatory",
+  "outputStyle": "Scannable",
   "sandbox": {
     "enabled": false,
     "autoAllowBashIfSandboxed": false
