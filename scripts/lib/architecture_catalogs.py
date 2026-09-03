@@ -107,7 +107,8 @@ SETTINGS_KEY_GLOSSES = {
     "enabledPlugins": "Plugin enablement map — universal plugins only, some deliberately `false`",
     "extraKnownMarketplaces": "Extra plugin marketplaces this config expects to be available",
     "outputStyle": (
-        "Output style for assistant responses (built-ins: `default`, `Explanatory`, `Learning`)"
+        "Output style for assistant responses — `Scannable`, this repo's augmenting "
+        "custom style in `output-styles/` (built-ins: `default`, `Explanatory`, `Learning`)"
     ),
     "sandbox": "Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)",
     "tui": (

@@ -6,7 +6,19 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
 ## Terms
 
 - **Primitive** — a unit this repo ships for Claude Code: an agent, skill, hook, rule,
-  template, or CLI script. The unit the catalogs enumerate and the generator renders.
+  template, output style, or CLI script. The unit the catalogs enumerate and the
+  generator renders.
+- **Output style** — the primitive that owns Claude's conversational response format,
+  activated by the `outputStyle` managed key. Comes in two modes: **augmenting**
+  (keeps the harness's own instructions and layers extra guidance on top, so harness
+  improvements keep flowing) and **replacing** (discards them). This repo's style is
+  augmenting — replacing would freeze out upstream output improvements.
+- **Scannable** — this repo's output style: full detail, never prose walls. Substantial
+  answers lead with the outcome, then anchored bullets, tables for enumerable facts,
+  and visually delimited blocks; brief educational insights stay inside their own box.
+  **Threshold-based** — one-fact answers stay a plain sentence; the structure is
+  mandatory only once an answer carries more than a couple of sentences or facts.
+  Over-formatting a trivial reply is the mirror-image failure of a prose wall.
 - **Rule** — the primitive that carries _judgement a linter cannot express_, loaded
   as **context** when Claude reads a file matching its `paths` frontmatter. Rules
   **inform; they never enforce** — enforcement is a hook or a linter, and content a

@@ -402,13 +402,18 @@ alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
 <details>
 <summary><strong>Output styles</strong> — set <code>outputStyle</code> or use <code>/output-style</code></summary>
 
-This repo ships `"outputStyle": "Explanatory"` as the default in `settings.json`.
+This repo ships `"outputStyle": "Scannable"` as the default in `settings.json` — a custom
+augmenting style defined in [`output-styles/scannable.md`](output-styles/scannable.md)
+(`keep-coding-instructions: true`, so harness improvements keep flowing; `force-for-plugin:
+true`, so plugin installs apply it automatically). Global mode delivers it via the
+`~/.claude/output-styles` symlink.
 
-| Style         | When to use                                                   |
-| ------------- | ------------------------------------------------------------- |
-| `default`     | Standard task-focused responses                               |
-| `explanatory` | Adds learning insights inline (good for unfamiliar codebases) |
-| `learning`    | More guided; fewer one-shot answers (good for upskilling)     |
+| Style         | When to use                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| `Scannable`   | Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks |
+| `default`     | Standard task-focused responses                                                           |
+| `explanatory` | Adds learning insights inline (good for unfamiliar codebases)                             |
+| `learning`    | More guided; fewer one-shot answers (good for upskilling)                                 |
 
 Override the default per project in `.claude/settings.local.json` (e.g. `{ "outputStyle": "default" }`), or switch on the fly via `/output-style`. (`outputStyle` is a managed key, so a global override in `~/.claude/settings.json` would be reverted on the next sync — see [ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md).)
 

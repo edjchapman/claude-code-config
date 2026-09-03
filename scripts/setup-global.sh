@@ -6,8 +6,9 @@
 #   ./setup-global.sh /custom/path # Use custom path to repo
 #
 # This script creates symlinks in ~/.claude/ pointing to this repo's
-# agents, skills, and rules directories, and mirrors settings.json into
-# ~/.claude/settings.json (a real file, not a symlink — ADR-0002).
+# agents, skills, rules, and output-styles directories, and mirrors
+# settings.json into ~/.claude/settings.json (a real file, not a
+# symlink — ADR-0002).
 
 set -e
 
@@ -34,6 +35,11 @@ fi
 
 if [ ! -d "$REPO_ROOT/rules" ]; then
   echo "Error: rules/ directory not found at: $REPO_ROOT"
+  exit 1
+fi
+
+if [ ! -d "$REPO_ROOT/output-styles" ]; then
+  echo "Error: output-styles/ directory not found at: $REPO_ROOT"
   exit 1
 fi
 
@@ -66,7 +72,7 @@ if [ -L ~/.claude/commands ]; then
 fi
 
 # Remove existing symlinks/directories if they exist (each is recreated below)
-for item in agents skills rules; do
+for item in agents skills rules output-styles; do
   if [ -L ~/.claude/$item ]; then
     echo "Removing existing symlink: ~/.claude/$item"
     rm ~/.claude/$item
@@ -80,6 +86,7 @@ done
 ln -s "$REPO_ROOT/agents" ~/.claude/agents
 ln -s "$REPO_ROOT/skills" ~/.claude/skills
 ln -s "$REPO_ROOT/rules" ~/.claude/rules
+ln -s "$REPO_ROOT/output-styles" ~/.claude/output-styles
 
 # Handle CLAUDE.md symlink (global cross-project behavioural rules)
 if [ -L ~/.claude/CLAUDE.md ]; then
@@ -109,6 +116,7 @@ echo ""
 echo "  ~/.claude/agents          -> $REPO_ROOT/agents"
 echo "  ~/.claude/skills          -> $REPO_ROOT/skills"
 echo "  ~/.claude/rules           -> $REPO_ROOT/rules"
+echo "  ~/.claude/output-styles   -> $REPO_ROOT/output-styles"
 echo "  ~/.claude/settings.json   <- mirrored from $REPO_ROOT/settings.json"
 echo "  ~/.claude/CLAUDE.md       -> $REPO_ROOT/home/CLAUDE.md"
 echo ""

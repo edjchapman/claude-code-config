@@ -162,7 +162,7 @@ Beyond plugins and hooks, `settings.json` sets:
 - **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
 - **`enabledPlugins`**: Plugin enablement map — universal plugins only, some deliberately `false`
 - **`extraKnownMarketplaces`**: Extra plugin marketplaces this config expects to be available
-- **`outputStyle`**: Output style for assistant responses (built-ins: `default`, `Explanatory`, `Learning`)
+- **`outputStyle`**: Output style for assistant responses — `Scannable`, this repo's augmenting custom style in `output-styles/` (built-ins: `default`, `Explanatory`, `Learning`)
 - **`sandbox`**: Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)
 - **`tui`**: TUI rendering mode — `fullscreen` is the flicker-free alt-screen renderer with virtualized scrollback; `default` is the classic one. Matches `/tui`
 - **`autoMemoryEnabled`**: Auto-memory on/off (platform default `true`)
