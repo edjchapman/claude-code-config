@@ -11,7 +11,8 @@ it or merely enabled it, so both are counted. This check keeps that
 surface from growing silently — see the "What earns always-loaded
 context" ladder in docs/extending.md.
 
-Per-item descriptions over WARN_ITEM_BYTES get a warning (exit 0);
+Per-item descriptions over WARN_ITEM_BYTES get a warning (exit 0),
+unless ACCEPTED_OVERSIZE_ITEMS records a reviewed size for that item;
 a total over TOTAL_BUDGET_BYTES fails the check (exit 1).
 
 Run from anywhere: python3 scripts/check-context-budget.py
@@ -32,6 +33,22 @@ from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
 # printed Total carry the actual figures.
 TOTAL_BUDGET_BYTES = 10_752
 WARN_ITEM_BYTES = 350
+
+# Third-party descriptions this repo has reviewed and accepted above the
+# per-item guideline, keyed by their budget label with the accepted size in
+# bytes. An entry silences the warning at exactly that size and no larger, so
+# an upstream bump that grows the description warns again and forces a fresh
+# decision. A third-party primitive cannot be trimmed, and it cannot be demoted
+# either: `skillOverrides` is inert for plugin-sourced skills (verified against
+# Claude Code 2.1.266 for #159 — the resolver returns `on` for any skill with
+# source "plugin" before it reads the setting, and /skills shows the entry
+# locked). The only remaining lever is dropping the pin, so an accepted size
+# is the honest record of "we keep it, at this cost".
+ACCEPTED_OVERSIZE_ITEMS: dict[str, int] = {
+    # Kept for its Spec axis (review against the originating issue), which the
+    # bundled /code-review lacks and /implement depends on. #159.
+    "mattpocock-skills:code-review (description)": 420,
+}
 
 GLOBAL_MEMORY = REPO_ROOT / "home" / "CLAUDE.md"
 
@@ -65,23 +82,40 @@ def main() -> int:
     total = sum(size for _, size in items)
     width = max(len(name) for name, _ in items)
 
+    def over_threshold(name: str, size: int) -> bool:
+        if name == memory_name:
+            return False
+        return size > ACCEPTED_OVERSIZE_ITEMS.get(name, WARN_ITEM_BYTES)
+
     print("Always-loaded context surface:")
     for name, size in sorted(items, key=lambda item: -item[1]):
-        flagged = size > WARN_ITEM_BYTES and name != memory_name
-        marker = "  <-- over per-item warn threshold" if flagged else ""
+        if over_threshold(name, size):
+            marker = "  <-- over per-item warn threshold"
+        elif name in ACCEPTED_OVERSIZE_ITEMS:
+            marker = "  (accepted oversize, #159)"
+        else:
+            marker = ""
         print(f"  {name:<{width}}  {size:>6} B{marker}")
     print(f"\nTotal: {total} B (budget {TOTAL_BUDGET_BYTES} B, per-item warn {WARN_ITEM_BYTES} B)")
 
     # A third-party primitive cannot be trimmed — this repo does not own its
     # frontmatter — so it gets the advice that actually applies to it.
     vendored = {name for name, _ in vendored_plugins.always_loaded_items(REPO_ROOT)}
-    over = [name for name, size in items if size > WARN_ITEM_BYTES and name != memory_name]
-    for name in over:
-        remedy = (
-            "demote it (skillOverrides) or drop the pin"
-            if name in vendored
-            else "trim it or justify the cost"
-        )
+    for name, size in items:
+        if not over_threshold(name, size):
+            continue
+        if name in ACCEPTED_OVERSIZE_ITEMS:
+            remedy = (
+                f"it grew past its accepted {ACCEPTED_OVERSIZE_ITEMS[name]} B — "
+                "re-review it (update ACCEPTED_OVERSIZE_ITEMS) or drop the pin"
+            )
+        elif name in vendored:
+            remedy = (
+                "drop the pin or accept it in ACCEPTED_OVERSIZE_ITEMS "
+                "(skillOverrides is inert for plugin skills)"
+            )
+        else:
+            remedy = "trim it or justify the cost"
         print(f"WARNING: {name} exceeds {WARN_ITEM_BYTES} B — {remedy}")
 
     if total > TOTAL_BUDGET_BYTES:

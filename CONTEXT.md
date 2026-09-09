@@ -69,9 +69,10 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   collision is resolved. Every trigger has at most one.
 - **Third-party primitive** — a primitive this repo _enables_ but does not _own_: a skill
   or agent shipped by an external plugin (currently `mattpocock-skills`). It costs
-  always-loaded context like any other primitive, but cannot be edited — a trigger
-  collision with one is resolved by demoting it (`skillOverrides`) or by narrowing
-  our own primitive, never by editing theirs. Its version is a **pin**; its shipped
+  always-loaded context like any other primitive, but cannot be edited or demoted
+  (`skillOverrides` is inert for plugin-sourced skills, #159) — a trigger collision
+  with one is resolved by narrowing our own primitive or dropping the pin, never by
+  editing theirs; an over-guideline description is accepted at a recorded size. Its version is a **pin**; its shipped
   set is captured in a committed **lockfile** so upstream change surfaces as a diff.
 - **Scheduling invariant** — the rule that skills invoked by the cloud routines
   (daily standup #51, end-of-week review #52) must remain model-invocable, while
