@@ -1,6 +1,6 @@
 # ADR-0003: Third-party plugin primitives are pinned and locked
 
-**Status:** Accepted — 2026-08-24; amended 2026-09-09 (pin moved to a tag, see below)
+**Status:** Accepted — 2026-08-24, revised 2026-09-09 (the pin is a tag, not a SHA)
 
 ## Context
 
@@ -26,6 +26,20 @@ hypothetical: between the pinned commit and `v1.2.3` the whitelist gains `wizard
 and `writing-for-agents`, the latter triggering on _"creating or editing skills, or
 modifying AGENTS.md or CLAUDE.md"_ — which is precisely what this repository is
 for, and would collide with `docs/extending.md`'s own Self-Extension Guide.
+_(Revised 2026-09-09: it competes with a document, not a dispatchable primitive,
+so it is additive rather than a collision — see `docs/extending.md`.)_
+
+**Revised 2026-09-09 — the SHA pin was not installable from scratch.** Claude
+Code 2.1.266 introduced a marketplace reconciler that (a) ignores any marketplace
+whose entry in `~/.claude/plugins/known_marketplaces.json` differs from its
+`extraKnownMarketplaces` declaration, `ref` included, and (b) heals the gap by
+re-cloning with `git clone --branch <ref>`, which git only accepts for a branch
+or tag name. The SHA below had been declared after the marketplace was
+registered, so the registry never carried it; older versions tolerated the
+drift, 2.1.266 dropped the plugin from every session, and the auto-heal failed
+with `Remote branch 2ab958… not found in upstream origin`. The pin had been
+verified against the refresh path only; a fresh clone was never tried
+([#152](https://github.com/edjchapman/claude-code-config/issues/152)).
 
 **The context budget was measuring the wrong surface.** `check-context-budget.py`
 counted only `tracked_files(...)` — this repo's own primitives — reporting 5,805 B
@@ -40,18 +54,26 @@ Any check reading it live is blind on GitHub Actions.
 ## Decision
 
 **Pin the marketplace by `ref`.** `extraKnownMarketplaces` gains
-`"ref": "2ab958093e83e0ec752e6c1c5932da465bf23e0c"`. The field is honoured by
+`"ref": "2ab958093e83e0ec752e6c1c5932da465bf23e0c"` _(since 2026-09-09: `"v1.2.3"`)_. The field is honoured by
 Claude Code's marketplace refresh (`git fetch origin <ref>` → `checkout` →
 `pull origin <ref>`), verified end-to-end against the upstream repository before
 adoption.
 
-The pin is a **commit SHA, not a tag**, against the general preference for
-readable refs. No tag reproduces the reviewed state: `v1.2.0` (`e903586`),
+_Superseded 2026-09-09 — see the rule below._ The pin is a **commit SHA, not a
+tag**, against the general preference for readable refs. No tag reproduces the reviewed state: `v1.2.0` (`e903586`),
 `v1.2.2`, and `v1.2.3` all ship the wider 25-skill whitelist, so pinning to any
 tag would be a content change (+2 model-invocable skills, +417 B) disguised as a
 reproducibility fix. The SHA pins what has actually been in use and reviewed
 since July. Moving to `v1.2.3` is a real decision with a known cost, deliberately
 left for a separate, reviewed commit.
+
+**Revised 2026-09-09 — the ref is a tag, and must be a branch or tag name.**
+The pin is `v1.2.3`; `generate.py --check` rejects a SHA-shaped ref. The content
+cost deferred above — `wizard` and `writing-for-agents` become model-invocable —
+is accepted, with the always-loaded budget raised in the same change. The
+lockfile diff was read as the review: `wizard` was checked against the
+provisioning and migration primitives and found to be a different situation,
+not a competing method (`docs/extending.md` records both verdicts).
 
 **Commit a lockfile.** `plugins/mattpocock-skills.lock.json` records the pinned
 ref, the plugin version, every skill the pin ships, each description verbatim,
@@ -95,28 +117,11 @@ committed sources. The lockfile is therefore reviewed as input, not verified as
 output. A hand-edited lockfile would pass every check; the mitigation is that
 editing it is pointless, since it changes nothing about what loads.
 
-Pinning to a SHA freezes this config at a state upstream has moved past. That is
+Pinning to a SHA _(since 2026-09-09: a tag)_ freezes this config at a state upstream
+has moved past. That is
 the intended trade — but it means missing upstream fixes until someone chooses to
 bump, and nothing here schedules or prompts that choice.
 
-## Amendment — 2026-09-09
-
-**The SHA pin was not installable from scratch.** Claude Code 2.1.266 introduced a
-marketplace reconciler that (a) ignores any marketplace whose registry entry in
-`~/.claude/plugins/known_marketplaces.json` differs from its
-`extraKnownMarketplaces` declaration — including on `ref` — and (b) heals the
-gap by re-cloning with `git clone --branch <ref>`, which git only accepts for a
-branch or tag name. The SHA declared here had been added after the marketplace
-was registered, so the registry never carried it; older versions tolerated the
-drift, 2.1.266 dropped the plugin from every session, and the auto-heal failed
-with `Remote branch 2ab958… not found in upstream origin`. The pin was verified
-against the refresh path only; a fresh clone was never tried.
-[#152](https://github.com/edjchapman/claude-code-config/issues/152).
-
-**Decision:** the pin is now the tag `v1.2.3`, and a marketplace `ref` in this
-repo must always be a branch or tag name. The content cost the original decision
-deferred — `wizard` and `writing-for-agents` become model-invocable (+417 B) — is
-accepted, with the always-loaded budget raised from 10,240 B to 10,752 B in the
-same change. The lockfile diff was read as the review: `writing-for-agents`
-overlaps `docs/extending.md`'s Self-Extension Guide but competes with a document
-rather than a dispatchable primitive, so it is additive, not a collision.
+A tag pin gives up what the SHA gave: upstream can move `v1.2.3` and every check
+here still passes, because the lockfile records the ref, not the commit it
+resolved to. Recording that commit is a follow-up, not part of this revision.

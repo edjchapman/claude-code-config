@@ -21,6 +21,7 @@ local plugin cache. CI never regenerates it — CI only verifies it.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -34,6 +35,10 @@ MARKETPLACE = "mattpocock"
 PLUGIN = "mattpocock-skills"
 
 PLUGIN_CACHE = Path.home() / ".claude" / "plugins" / "cache"
+
+# A marketplace ref must be a branch or tag name: Claude Code clones a declared
+# marketplace with `git clone --branch <ref>`, which git rejects for a SHA (#152).
+SHA_LIKE = re.compile(r"[0-9a-f]{7,40}")
 
 
 @dataclass(frozen=True)
@@ -100,6 +105,13 @@ def verify_pin(root: Path = REPO_ROOT) -> None:
             f"extraKnownMarketplaces['{MARKETPLACE}'].source has no `ref` — the marketplace "
             f"would track its default branch, and the lockfile would describe a state "
             f"this config never loads"
+        )
+    if SHA_LIKE.fullmatch(plugin.ref):
+        raise GenerationError(
+            f"settings.json pins extraKnownMarketplaces['{MARKETPLACE}'] to a commit SHA "
+            f"({plugin.ref}); Claude Code installs a marketplace with `git clone --branch <ref>`, "
+            f"which only accepts a branch or tag name, so a SHA pin cannot be installed from "
+            f"scratch (#152). Pin a tag instead"
         )
     if plugin.ref != lock["ref"]:
         raise GenerationError(

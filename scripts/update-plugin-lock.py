@@ -14,7 +14,8 @@
 # Usage: python3 scripts/update-plugin-lock.py [--ref REF] [--root PATH]
 #
 # Bumping a pin is a three-step, reviewed act:
-#   1. git -C <a clone of the upstream repo> checkout <new ref>
+#   1. move the pin in settings.json and refresh the local plugin (the ordered
+#      procedure is in docs/extending.md, "Bumping a vendored plugin")
 #   2. python3 scripts/update-plugin-lock.py --ref <new ref>
 #   3. read the lockfile diff — every changed trigger is a collision candidate
 #      against this repo's own primitives (see docs/extending.md)
@@ -58,7 +59,9 @@ def _skill_manifest(cache: Path) -> dict[str, dict]:
 def main() -> None:
     check_python_version()
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--ref", help="the commit or tag to record as the pin")
+    parser.add_argument(
+        "--ref", help="the tag (or branch) to record as the pin — never a commit SHA (#152)"
+    )
     parser.add_argument("--root", type=Path, default=REPO_ROOT)
     args = parser.parse_args()
 
