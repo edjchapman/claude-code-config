@@ -21,7 +21,8 @@ region's source. Targets registered here:
                   lacks something it now has.
 
 Beyond the targets, this generator enforces the repo's declared invariants
-(CONTEXT.md), every one a named error rather than a stale doc:
+(the first, second and fourth are CONTEXT.md glossary terms), every one a
+named error rather than a stale doc:
 
   scheduling      a routine-fired skill stays model-invocable; a user-only
                   skill keeps its flag (lib/primitives.py).

@@ -643,7 +643,7 @@ claude-code-config/
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
-    │   ├── check-duplicates.sh      # pre-commit + CI validator (not a runtime hook)
+    │   ├── check-duplicates.sh      # pre-commit + CI (not a runtime hook)
     │   ├── dangerous-cmd-check.sh   # PreToolUse (Bash)
     │   ├── format-on-edit.sh        # PostToolUse (Write|Edit)
     │   ├── log-tool-failure.sh      # PostToolUseFailure
@@ -653,7 +653,7 @@ claude-code-config/
     │   ├── session-context.sh       # SessionStart
     │   ├── session-end.sh           # SessionEnd
     │   ├── settings-drift-check.sh  # SessionStart
-    │   ├── statusline.sh            # run by settings.json statusLine.command
+    │   ├── statusline.sh            # settings.json statusLine.command
     │   ├── task-completed-chime.sh  # TaskCompleted
     │   └── lib/                     # shared helpers sourced by the hook scripts
     └── cli/                 # Headless CLI automation scripts

@@ -264,9 +264,7 @@ class ArchitectureReference(unittest.TestCase):
         unwired = extract_region(self.architecture(), "arch-unwired-events")
         count = int(re.search(r"documents \*\*(\d+)\*\* hook events", unwired).group(1))
         table_rows = [ln for ln in unwired.splitlines() if ln.startswith("| `")]
-        also = re.search(r"Also available[^:]*: (.*)\.$", unwired, re.MULTILINE)
-        unverified = also.group(1).split(", ") if also else []
-        self.assertEqual(count, 3 + len(table_rows) + len(unverified))
+        self.assertEqual(count, 3 + len(table_rows))
 
     def test_wiring_an_undocumented_event_is_a_named_error(self) -> None:
         hooks = json.loads((self.root / "hooks" / "hooks.json").read_text())

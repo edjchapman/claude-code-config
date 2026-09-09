@@ -51,8 +51,8 @@ USER_ONLY_SKILLS = frozenset({"status", "refinement", "later"})
 # mention-grep checker was retired (issue #128). The note is projected into
 # both catalogs, so this list is also the source of that sentence.
 NON_HOOK_SCRIPTS = {
-    "statusline.sh": "run by settings.json statusLine.command",
-    "check-duplicates.sh": "pre-commit + CI validator (not a runtime hook)",
+    "statusline.sh": "settings.json statusLine.command",
+    "check-duplicates.sh": "pre-commit + CI (not a runtime hook)",
 }
 
 
@@ -67,7 +67,7 @@ class Invocation(Enum):
 
     USER_ONLY = "user-only"  # disable-model-invocation: true
     SCHEDULED = "scheduled"  # model-invocable and fired by a cloud routine
-    MODEL = "model"  # model-invocable
+    MODEL = "model"
 
 
 class Skill(NamedTuple):
@@ -75,10 +75,6 @@ class Skill(NamedTuple):
     description: str
     workflow: bool
     invocation: Invocation
-
-    @property
-    def user_only(self) -> bool:
-        return self.invocation is Invocation.USER_ONLY
 
     @property
     def scheduled_by(self) -> str:
@@ -107,7 +103,7 @@ class HookScript(NamedTuple):
 
     name: str
     summary: str
-    non_hook: str  # NON_HOOK_SCRIPTS note, or "" when a binding fires it
+    non_hook: str | None  # the NON_HOOK_SCRIPTS note; None when a binding fires it
 
 
 class Template(NamedTuple):
@@ -240,8 +236,8 @@ def hook_scripts(root: Path, bindings: list[HookBinding]) -> list[HookScript]:
     result = []
     for path in tracked_files(":(glob)scripts/hooks/*.sh", root):
         summary, _ = script_doc(path)
-        non_hook = NON_HOOK_SCRIPTS.get(path.name, "")
-        if path.name not in wired and not non_hook:
+        non_hook = NON_HOOK_SCRIPTS.get(path.name)
+        if path.name not in wired and non_hook is None:
             raise GenerationError(
                 f"wired-coverage invariant: scripts/hooks/{path.name} is fired by no binding in "
                 f"hooks/hooks.json — wire it there, or declare it in NON_HOOK_SCRIPTS "

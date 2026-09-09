@@ -38,30 +38,29 @@ from lib.catalog_render import Verbatim, bullets, fence, table
 from lib.config_common import GenerationError, load_json
 from lib.primitives import Invocation
 
-# Every hook event Claude Code documents, declared once. Verified against
-# the hooks reference (https://code.claude.com/docs/en/hooks.md) on
-# EVENTS_VERIFIED. The catalog is declared rather than derived because it
-# describes the harness, not this repo — but it is declared *once*: the
-# rendered count is its length, the "not wired" table is this list minus
-# whatever hooks/hooks.json wires today (so an event this repo adopts
-# leaves the table, and takes its `adopt` note with it, without anyone
-# deleting a paragraph), and an entry whose matcher was not re-verified
-# says so via `verified=False` rather than living in a second list. A
-# wired event missing from here is an error — otherwise the table could
-# no longer claim to be the complement of the docs.
-EVENTS_VERIFIED = "2026-09-09"
-
 
 class PlatformEvent(NamedTuple):
     name: str
     fires_when: str
     matcher: str
     adopt: str = ""  # why it would be worth wiring here, if it would
-    verified: bool = True  # matcher field confirmed against the docs on EVENTS_VERIFIED
 
+
+EVENTS_VERIFIED_ON = "2026-09-09"
 
 NO_MATCHER = "none (no-matcher)"
 
+# Every hook event Claude Code documents, declared once and verified against
+# the hooks reference (https://code.claude.com/docs/en/hooks.md) on
+# EVENTS_VERIFIED_ON. Declared rather than derived because it describes the
+# harness, not this repo — but declared *once*: the rendered count is its
+# length, and the "not wired" table is this list minus whatever
+# hooks/hooks.json wires today, so an event this repo adopts leaves the
+# table (and takes its `adopt` note with it) without anyone deleting a
+# paragraph. A wired event missing from here is an error — otherwise the
+# table could no longer claim to be the complement of the docs. A matcher
+# that cannot be confirmed on the next transcription says so in its own
+# `matcher` string rather than in a second list.
 DOCUMENTED_EVENTS = [
     PlatformEvent(
         "SessionStart",
@@ -227,7 +226,7 @@ def _hooks(root: Path) -> str:
         f"{len(bindings)} bindings across {len({b.event for b in bindings})} events:"
     )
     parts = [lead, bullets(items)]
-    non_hooks = [s for s in primitives.hook_scripts(root, bindings) if s.non_hook]
+    non_hooks = [s for s in primitives.hook_scripts(root, bindings) if s.non_hook is not None]
     if non_hooks:
         parts.append(
             "Not runtime hooks, though they live beside them (declared in `NON_HOOK_SCRIPTS`, "
@@ -259,23 +258,16 @@ def _unwired_events(root: Path) -> str:
             f"or the unwired-events table stops being the complement of the docs"
         )
     unwired = [event for event in DOCUMENTED_EVENTS if event.name not in wired]
-    confirmed = [event for event in unwired if event.verified]
-    unverified = [event for event in unwired if not event.verified]
     lead = (
         f"Claude Code documents **{len(DOCUMENTED_EVENTS)}** hook events; this repo wires "
         f"{len(wired)} of them above. Documented events it does not wire, with their matcher "
-        f"field where confirmed against the docs on {EVENTS_VERIFIED}:"
+        f"field as confirmed against the docs on {EVENTS_VERIFIED_ON}:"
     )
     grid = table(
         ["Event", "Fires when", "Matcher field"],
-        [[f"`{e.name}`", e.fires_when, e.matcher] for e in confirmed],
+        [[f"`{e.name}`", e.fires_when, e.matcher] for e in unwired],
     )
     parts = [lead, grid]
-    if unverified:
-        parts.append(
-            "Also available (matcher fields not re-verified here — consult the hooks reference "
-            "before wiring): " + ", ".join(f"`{e.name}`" for e in unverified) + "."
-        )
     # Events sharing a rationale are named together rather than repeating it.
     grouped: dict[str, list[str]] = {}
     for event in unwired:

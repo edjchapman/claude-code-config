@@ -52,7 +52,7 @@ def check_agent(path: Path) -> list[str]:
 
 
 def main() -> int:
-    files = tracked_files("agents/*.md")
+    files = tracked_files(":(glob)agents/*.md")
     if not files:
         print("FAIL: no tracked agent files found under agents/")
         return 1

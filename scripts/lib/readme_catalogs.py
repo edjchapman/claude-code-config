@@ -89,9 +89,10 @@ def _branch_lines(indent: str, items: list[tuple[str, str]]) -> str:
 def _tree(root: Path, bindings: list[primitives.HookBinding]) -> str:
     triggers = primitives.hook_triggers(bindings)
     hook_items = [
-        (s.name, s.non_hook or triggers[s.name]) for s in primitives.hook_scripts(root, bindings)
+        (s.name, s.non_hook if s.non_hook is not None else triggers[s.name])
+        for s in primitives.hook_scripts(root, bindings)
     ]
-    if tracked_files("scripts/hooks/lib/*", root):
+    if tracked_files(":(glob)scripts/hooks/lib/*", root):
         hook_items.append(("lib/", HOOK_LIB_NOTE))
     if not hook_items:
         raise GenerationError(f"no hook scripts found under {root / 'scripts' / 'hooks'}")

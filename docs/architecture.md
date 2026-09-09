@@ -103,8 +103,8 @@ Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 10 bindings across 9 even
 
 Not runtime hooks, though they live beside them (declared in `NON_HOOK_SCRIPTS`, `scripts/lib/primitives.py`):
 
-- `scripts/hooks/check-duplicates.sh`: Check for duplicate names across agents/ and skills/ directories — pre-commit + CI validator (not a runtime hook)
-- `scripts/hooks/statusline.sh`: Status line script for Claude Code — run by settings.json statusLine.command
+- `scripts/hooks/check-duplicates.sh`: Check for duplicate names across agents/ and skills/ directories — pre-commit + CI (not a runtime hook)
+- `scripts/hooks/statusline.sh`: Status line script for Claude Code — settings.json statusLine.command
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-hooks -->
@@ -131,7 +131,7 @@ Prompt-type hooks invoke a fast model on every fire and incur token cost. Becaus
 
 <!-- prettier-ignore-start -->
 
-Claude Code documents **33** hook events; this repo wires 9 of them above. Documented events it does not wire, with their matcher field where confirmed against the docs on 2026-09-09:
+Claude Code documents **33** hook events; this repo wires 9 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-09-09:
 
 | Event                 | Fires when                                                      | Matcher field                                       |
 | --------------------- | --------------------------------------------------------------- | --------------------------------------------------- |

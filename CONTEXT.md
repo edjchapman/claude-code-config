@@ -83,6 +83,7 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   retired mention-grep checker caught: a script added and never wired. Enforced
   by the generator's `--check`, like the scheduling invariant.
 - **No-count rule** — hand-written prose in a catalog-bearing doc states no count
-  of primitives; every count is a generated region. Asserted by the generator's
-  `--check` over the hand-written spans, scoped to the term **primitive** so an
-  architectural count ("two install modes") is not a violation.
+  of primitives, cloud routines, or enabled plugins; every count is a generated
+  region. Asserted by the generator's `--check` over the hand-written spans and
+  scoped to those declared sets, so an architectural count ("two install modes")
+  is not a violation.

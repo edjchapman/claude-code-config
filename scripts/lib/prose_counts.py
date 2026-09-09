@@ -7,11 +7,13 @@ nothing to notice — so the catalog-bearing docs are scanned, outside their
 generated regions, for a sentence that states one, and a hit fails the run
 naming the file and line.
 
-Scope is deliberately the glossary term *primitive* (CONTEXT.md): a number
-followed by a primitive noun ("4 skills", "two cloud routines"), or the
-shape that refers back to an enumeration just given ("all three are
-opt-in", "these five weren't earning"). Architectural facts — "two install
-modes", "one canonical config" — do not trip it. Fenced code blocks and
+Scope is the glossary term *primitive* (CONTEXT.md) plus the two other sets
+the repo declares and could therefore count wrongly — the cloud routines
+(SCHEDULED_SKILLS) and the enabled plugins (settings.json): a number followed
+by one of those nouns ("4 skills", "two cloud routines"), or the shape that
+refers back to an enumeration just given ("all three are opt-in", "these
+five weren't earning"). Architectural facts — "two install modes", "one
+canonical config" — do not trip it. Fenced code blocks and
 inline code spans are skipped: a version, a byte budget, or a `4.` in a
 numbered shell comment is not a claim about the catalog.
 """
