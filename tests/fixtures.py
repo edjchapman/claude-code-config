@@ -9,6 +9,7 @@ directory on sys.path, so the tests import this module by its bare name.
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 HOOK_ENTRY = [
@@ -46,6 +47,17 @@ README_REGIONS = [
     "cli-scripts",
     "repo-tree",
 ]
+
+
+def stage(root: Path) -> None:
+    """Track every file under `root` — the generator enumerates primitives via git.
+
+    Call again after a test adds a file it expects the catalogs to see; a file
+    written but never staged is exactly the local-only extra that must stay out.
+    """
+    if not (root / ".git").is_dir():
+        subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
 
 
 def canonical(obj: dict) -> str:
@@ -198,3 +210,4 @@ def make_readme_fixture(root: Path) -> None:
     _write_scripts(root)
     _write_readme(root)
     _write_architecture(root)
+    stage(root)

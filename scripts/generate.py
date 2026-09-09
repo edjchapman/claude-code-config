@@ -21,10 +21,24 @@ region's source. Targets registered here:
                   lacks something it now has.
 
 Beyond the targets, this generator enforces the repo's declared invariants
-(the scheduling invariants in lib/primitives.py, and the vendored-plugin pin
-in lib/vendored_plugins.py): a run fails when settings.json's plugin pin has
-drifted from the committed lockfile, so a third-party primitive can never
-change what it ships into a session without a reviewed diff.
+(the first, second and fourth are CONTEXT.md glossary terms), every one a
+named error rather than a stale doc:
+
+  scheduling      a routine-fired skill stays model-invocable; a user-only
+                  skill keeps its flag (lib/primitives.py).
+  wired-coverage  every tracked scripts/hooks/*.sh is fired by a binding or
+                  declared a non-hook (NON_HOOK_SCRIPTS, lib/primitives.py).
+  documented      a wired event appears in the declared platform catalog
+                  (DOCUMENTED_EVENTS, lib/architecture_catalogs.py), so the
+                  "not wired" table stays the complement of the docs.
+  no-count        hand-written prose in a markdown destination states no
+                  primitive count (lib/prose_counts.py).
+  plugin pin      settings.json's pin matches the committed lockfile
+                  (lib/vendored_plugins.py), so a third-party primitive can
+                  never change what it ships without a reviewed diff.
+
+Primitives are enumerated from git-tracked files, so an untracked local-only
+extra is never written into a catalog and staged by pre-commit.
 
 settings.json is re-serialized canonically (json.dumps, indent=2, trailing
 newline): every key outside the generated region keeps its value, but the
@@ -48,7 +62,7 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from lib import architecture_catalogs, readme_catalogs, vendored_plugins
+from lib import architecture_catalogs, prose_counts, readme_catalogs, vendored_plugins
 from lib.config_common import GenerationError, check_python_version, load_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -94,29 +108,33 @@ def _splice(destination: Path, regions: dict[str, str]) -> str:
     return text
 
 
-def _generate_readme(root: Path) -> dict[Path, str]:
-    """Replace every catalog region in README.md; all other bytes survive."""
-    destination = root / "README.md"
-    regions, skill_names = readme_catalogs.build_regions(root)
-    text = _splice(destination, regions)
-    for warning in readme_catalogs.uncurated_skills(text, skill_names):
-        print(f"warning: {warning}", file=sys.stderr)
-    return {destination: text}
+RegionBuilder = Callable[[Path], tuple[dict[str, str], list[str]]]
 
 
-def _generate_architecture(root: Path) -> dict[Path, str]:
-    """Replace every reference region in docs/architecture.md (issue #114)."""
-    destination = root / "docs" / "architecture.md"
-    regions, warnings = architecture_catalogs.build_regions(root)
-    for warning in warnings:
-        print(f"warning: {warning}", file=sys.stderr)
-    return {destination: _splice(destination, regions)}
+def _markdown_target(relative: str, build: RegionBuilder) -> Callable[[Path], dict[Path, str]]:
+    """A target that splices `build`'s regions into one markdown destination.
+
+    Every builder returns (regions, warnings): warnings go to stderr and
+    never fail the run, and the spliced text — hand-written bytes intact —
+    is then held to the no-count rule (lib/prose_counts.py).
+    """
+
+    def generate(root: Path) -> dict[Path, str]:
+        destination = root / relative
+        regions, warnings = build(root)
+        for warning in warnings:
+            print(f"warning: {warning}", file=sys.stderr)
+        text = _splice(destination, regions)
+        prose_counts.check_no_primitive_counts(destination, text)
+        return {destination: text}
+
+    return generate
 
 
 TARGETS: dict[str, Callable[[Path], dict[Path, str]]] = {
     "settings-hooks": _generate_settings_hooks,
-    "readme": _generate_readme,
-    "architecture": _generate_architecture,
+    "readme": _markdown_target("README.md", readme_catalogs.build_regions),
+    "architecture": _markdown_target("docs/architecture.md", architecture_catalogs.build_regions),
 }
 
 

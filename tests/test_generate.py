@@ -8,13 +8,14 @@ on exit codes and resulting file bytes — never on internals.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from fixtures import HOOK_ENTRY, canonical, make_fixture, make_readme_fixture
+from fixtures import HOOK_ENTRY, canonical, make_fixture, make_readme_fixture, stage
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GENERATE = REPO_ROOT / "scripts" / "generate.py"
@@ -135,6 +136,7 @@ class ReadmeCatalogs(unittest.TestCase):
         (self.root / "skills" / "status" / "SKILL.md").write_text(
             "---\nname: status\ndescription: Log a status line.\n---\nbody\n"
         )
+        stage(self.root)
         result = run_generate(self.root, "--check", "--only", "readme")
         self.assertEqual(result.returncode, 1)
         self.assertIn("scheduling invariant", result.stderr)
@@ -156,6 +158,47 @@ class ReadmeCatalogs(unittest.TestCase):
         result = run_generate(self.root, "--only", "readme")
         self.assertEqual(result.returncode, 1)
         self.assertIn("_description", result.stderr)
+
+    def test_untracked_primitive_stays_out_of_every_catalog(self) -> None:
+        """A personal skill excluded via .git/info/exclude must never be committed."""
+        (self.root / "skills" / "my-private-skill").mkdir()
+        (self.root / "skills" / "my-private-skill" / "SKILL.md").write_text(
+            "---\nname: my-private-skill\ndescription: Personal experiment.\n---\nbody\n"
+        )
+        (self.root / "agents" / "private-agent.md").write_text(
+            "---\nname: private-agent\ndescription: Personal agent.\n---\nbody\n"
+        )
+        write = run_generate(self.root)
+        self.assertEqual(write.returncode, 0, write.stdout + write.stderr)
+        for path in ("README.md", "docs/architecture.md"):
+            text = (self.root / path).read_text()
+            self.assertNotIn("my-private-skill", text, path)
+            self.assertNotIn("private-agent", text, path)
+        self.assertIn("`2 specialist agents`", extract_region(self.readme(), "counts"))
+        check = run_generate(self.root, "--check")
+        self.assertEqual(check.returncode, 0, check.stdout + check.stderr)
+
+    def test_hand_written_primitive_count_is_a_named_error(self) -> None:
+        """No hand-written sentence states a count (issue #114's criterion, asserted)."""
+        readme = self.readme().replace(
+            "HAND-WRITTEN-TOP",
+            "HAND-WRITTEN-TOP\n\nThere are two install modes.\n\nThis repo ships 4 skills.",
+        )
+        (self.root / "README.md").write_text(readme)
+        result = run_generate(self.root, "--check", "--only", "readme")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("README.md:7", result.stderr)
+        self.assertIn("4 skills", result.stderr)
+        self.assertNotIn("install modes", result.stderr)
+
+    def test_bare_count_referring_back_to_primitives_is_a_named_error(self) -> None:
+        readme = self.readme().replace(
+            "HAND-WRITTEN-TOP", "Prompt hooks cost; all three are opt-in."
+        )
+        (self.root / "README.md").write_text(readme)
+        result = run_generate(self.root, "--check", "--only", "readme")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("all three are", result.stderr)
 
     def test_full_run_updates_both_targets(self) -> None:
         write = run_generate(self.root)
@@ -215,6 +258,46 @@ class ArchitectureReference(unittest.TestCase):
         self.assertIn("`SubagentStart`", unwired)
         self.assertIn("this repo wires 3 of them", unwired)
 
+    def test_documented_event_count_is_derived_from_the_rendered_lists(self) -> None:
+        """The count and the lists come from one declaration, so they cannot disagree."""
+        run_generate(self.root, "--only", "architecture")
+        unwired = extract_region(self.architecture(), "arch-unwired-events")
+        count = int(re.search(r"documents \*\*(\d+)\*\* hook events", unwired).group(1))
+        table_rows = [ln for ln in unwired.splitlines() if ln.startswith("| `")]
+        self.assertEqual(count, 3 + len(table_rows))
+
+    def test_wiring_an_undocumented_event_is_a_named_error(self) -> None:
+        hooks = json.loads((self.root / "hooks" / "hooks.json").read_text())
+        hooks["hooks"]["NoSuchEvent"] = [
+            {"hooks": [{"type": "command", "command": "${X:-y}/scripts/hooks/one.sh"}]}
+        ]
+        (self.root / "hooks" / "hooks.json").write_text(canonical(hooks))
+        result = run_generate(self.root, "--check", "--only", "architecture")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("NoSuchEvent", result.stderr)
+
+    def test_unwired_hook_script_is_a_named_error(self) -> None:
+        """Restores the coverage the retired mention-grep gave (issue #128)."""
+        stray = self.root / "scripts" / "hooks" / "three.sh"
+        stray.write_text("#!/usr/bin/env bash\n# Does something nobody wired\nset -u\n")
+        stage(self.root)
+        result = run_generate(self.root, "--check", "--only", "architecture")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("three.sh", result.stderr)
+        self.assertIn("wired-coverage", result.stderr)
+
+    def test_declared_non_hook_script_is_exempt_and_catalogued(self) -> None:
+        """statusline.sh lives beside the hooks by design; the exemption list says so."""
+        (self.root / "scripts" / "hooks" / "statusline.sh").write_text(
+            "#!/usr/bin/env bash\n# Renders the status line\nset -u\n"
+        )
+        stage(self.root)
+        result = run_generate(self.root, "--only", "architecture")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        hooks = extract_region(self.architecture(), "arch-hooks")
+        self.assertIn("`scripts/hooks/statusline.sh`", hooks)
+        self.assertIn("Renders the status line", hooks)
+
     def test_a_set_settings_key_leaves_the_unset_list(self) -> None:
         run_generate(self.root, "--only", "architecture")
         text = self.architecture()
@@ -227,6 +310,16 @@ class ArchitectureReference(unittest.TestCase):
         run_generate(self.root, "--only", "architecture")
         skills = extract_region(self.architecture(), "arch-skills")
         self.assertIn("test\\_\\*, \\*.spec.\\*", skills)
+
+    def test_rule_headings_with_metacharacters_survive_escaped(self) -> None:
+        """The builder that missed escaping (issue #128): headings arrive verbatim from disk."""
+        (self.root / "rules" / "demo-style.md").write_text(
+            '---\npaths:\n  - "**/*.demo"\n---\n\n# Demo\n\n'
+            "## snake_case names\n\n## The * wildcard\n"
+        )
+        run_generate(self.root, "--only", "architecture")
+        rules = extract_region(self.architecture(), "arch-rules")
+        self.assertIn("snake\\_case names, The \\* wildcard", rules)
 
     def test_settings_key_without_a_gloss_is_an_error(self) -> None:
         settings = json.loads((self.root / "settings.json").read_text())

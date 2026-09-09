@@ -296,7 +296,7 @@ deliberately; ready-to-paste snippets live in [`docs/architecture.md`](docs/arch
 
 ### Scheduled Routines
 
-Time-based workflows run themselves — two cloud routines (a daily standup prep and a Friday end-of-week review, created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills and deliver each run as a comment on a pinned GitHub issue thread. Their schedules, delivery targets, and gotchas live in **one place** — [`docs/architecture.md`](docs/architecture.md)'s Automation section — alongside the **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts).
+Time-based workflows run themselves — cloud routines (a daily standup prep and a Friday end-of-week review, created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills and deliver each run as a comment on a pinned GitHub issue thread. Their schedules, delivery targets, and gotchas live in **one place** — [`docs/architecture.md`](docs/architecture.md)'s Automation section — alongside the **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts).
 
 ### Settings Templates
 

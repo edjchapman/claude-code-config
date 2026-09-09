@@ -51,7 +51,7 @@ def main() -> int:
 
     items.append((str(GLOBAL_MEMORY.relative_to(REPO_ROOT)), len(GLOBAL_MEMORY.read_bytes())))
 
-    for path in tracked_files("skills/*/SKILL.md") + tracked_files("agents/*.md"):
+    for path in tracked_files(":(glob)skills/*/SKILL.md") + tracked_files(":(glob)agents/*.md"):
         rel = str(path.relative_to(REPO_ROOT))
         desc = frontmatter_description(path)
         if not desc:

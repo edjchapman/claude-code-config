@@ -8,18 +8,24 @@ escaping and fencing rules are decided once.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 
-def escape_inline(text: str) -> str:
+
+class Verbatim(str):
+    """Text that arrived verbatim from disk — a description, a script summary,
+    a rule heading. `bullets` escapes it; a plain `str` part is markdown the
+    builder composed itself and renders as written (that `**bold**` is meant
+    to be bold). Choosing the type at the call site is what makes escaping a
+    property of construction rather than of discipline (issue #128)."""
+
+
+def _escape_inline(text: str) -> str:
     """Escape emphasis metacharacters so verbatim text renders verbatim.
 
     `_` and `*` are escaped only outside code spans (backslashes would be
     literal inside backticks); escaping keeps glob-like prose such as
     `test_*` from being parsed as emphasis — GitHub would otherwise
     italicise `*.test.*` and swallow the asterisks the reader needs.
-
-    Apply this to any string that arrives verbatim from disk (a
-    description, a script summary), never to markdown a builder composed
-    itself — that `**bold**` is meant to be bold.
     """
     parts = text.split("`")
     for i in range(0, len(parts), 2):
@@ -28,8 +34,8 @@ def escape_inline(text: str) -> str:
 
 
 def escape(cell: str) -> str:
-    """`escape_inline`, plus the pipe escaping a table cell also needs."""
-    return escape_inline(cell.replace("|", "\\|"))
+    """`_escape_inline`, plus the pipe escaping a table cell also needs."""
+    return _escape_inline(cell.replace("|", "\\|"))
 
 
 def table(headers: list[str], rows: list[list[str]]) -> str:
@@ -43,14 +49,22 @@ def table(headers: list[str], rows: list[list[str]]) -> str:
     return "\n".join([render(grid[0]), separator] + [render(row) for row in grid[1:]])
 
 
-def bullets(items: list[str]) -> str:
-    """A markdown bullet list. Items are already-composed markdown, not cells.
+def bullets(items: Iterable[str | Sequence[str]]) -> str:
+    """A markdown bullet list.
 
-    Unlike `table`, nothing is escaped: bullet text carries deliberate bold
-    and code spans (a hook's `**Event**` label, a skill's `**schedulable**`
-    marker) that the table escaper would defuse.
+    Each item is either one composed-markdown string or a sequence of parts
+    joined in order, where every `Verbatim` part is escaped and every plain
+    `str` part is rendered as written. Bullet text carries deliberate bold
+    and code spans (a hook's `**Event**` label, a skill's `**Schedulable**`
+    marker) beside descriptions that arrive from disk — the type of each
+    part says which is which.
     """
-    return "\n".join(f"- {item}" for item in items)
+
+    def render(item: str | Sequence[str]) -> str:
+        parts = [item] if isinstance(item, str) else list(item)
+        return "".join(_escape_inline(p) if isinstance(p, Verbatim) else p for p in parts)
+
+    return "\n".join(f"- {render(item)}" for item in items)
 
 
 def details_body(summary: str, body: str) -> str:
