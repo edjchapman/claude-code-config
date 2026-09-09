@@ -53,7 +53,8 @@ Shared internals (not run directly):
 
 - `scripts/lib/vendored_plugins.py` — the pinned third-party plugin: pin/lockfile agreement (enforced by `generate.py --check`) and the always-loaded cost of its model-invocable skills (counted by `check-context-budget.py`). See [ADR-0003](adr/0003-pin-and-lock-vendored-plugins.md)
 
-- `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, and `generate.py` (Python version gate, template loading, output validation)
+- `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, the checkers, and `generate.py` (Python version gate, template loading, output validation, frontmatter parsing, and `tracked_files` — the one definition of which files count as primitives: git-tracked, so an untracked local-only extra is invisible to generator and checkers alike)
+- `scripts/lib/prose_counts.py` — the no-count rule (CONTEXT.md), asserted by `generate.py --check` over the hand-written spans of this file and the README
 - `scripts/lib/settings_keys.py` — the managed-key sets (`ALLOWED_KEYS`, `RETIRED_KEYS`) shared by `check-settings-keys.py` and `sync-global-settings.py` (ADR-0002)
 - `scripts/hooks/lib/git-context.sh` — git helpers (`in_git_work_tree`, `git_branch`, `git_dirty_count`) sourced by the hook scripts; not a hook itself
 - `scripts/hooks/lib/hook-input.sh` — `hook_field <payload> <dotted.key>` helper for reading a field from the hook's stdin JSON payload; sourced by the hooks that parse stdin (format-on-edit, dangerous-cmd-check, session-end, pre/post-compact); not a hook itself
@@ -100,6 +101,11 @@ Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 10 bindings across 9 even
 - **Notification** → `scripts/hooks/notify-attention.sh`: Desktop notification when Claude is blocked on you (permission request or idle wait). _Why:_ the Notification event fires exactly when Claude needs you, and you should not have to watch the terminal to notice. macOS uses osascript (with sound), Linux notify-send, with a terminal bell fallback everywhere; always exits 0.
 - **SessionEnd** → `scripts/hooks/session-end.sh`: Record each session end — always a CSV row, plus a git summary in ./standups/. _Why:_ the CSV row (~/.claude/debug/session-log.csv) is unconditional; the ./standups/YYYY-MM-DD-log.md append that /standup later reads is opt-in on that directory already existing, so ending a session in an unrelated repo does not scatter standups/ dirs across the filesystem.
 
+Not runtime hooks, though they live beside them (declared in `NON_HOOK_SCRIPTS`, `scripts/lib/primitives.py`):
+
+- `scripts/hooks/check-duplicates.sh`: Check for duplicate names across agents/ and skills/ directories — pre-commit + CI validator (not a runtime hook)
+- `scripts/hooks/statusline.sh`: Status line script for Claude Code — run by settings.json statusLine.command
+
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-hooks -->
 
@@ -117,7 +123,7 @@ Opt-in snippet shape (adjust the event name and criteria):
 ]
 ```
 
-Prompt-type hooks invoke a fast model on every fire and incur token cost. Because this config ships to plugin and symlink consumers alike, all three are opt-in (conservative defaults: cost-bearing behavior is explicit-on, never inherited from a `git pull`).
+Prompt-type hooks invoke a fast model on every fire and incur token cost. Because this config ships to plugin and symlink consumers alike, every one of them is opt-in (conservative defaults: cost-bearing behavior is explicit-on, never inherited from a `git pull`).
 
 #### Platform events not wired here (reference)
 
@@ -125,26 +131,39 @@ Prompt-type hooks invoke a fast model on every fire and incur token cost. Becaus
 
 <!-- prettier-ignore-start -->
 
-Claude Code documents **30** hook events; this repo wires 9 of them above. Documented events it does not wire, with their matcher field where confirmed against the docs on 2026-07-29:
+Claude Code documents **33** hook events; this repo wires 9 of them above. Documented events it does not wire, with their matcher field where confirmed against the docs on 2026-09-09:
 
-| Event                | Fires when                                              | Matcher field                                       |
-| -------------------- | ------------------------------------------------------- | --------------------------------------------------- |
-| `Setup`              | started with `--init` / `--init-only` / `--maintenance` | CLI flag                                            |
-| `PermissionRequest`  | a tool call needs a permission decision                 | tool name                                           |
-| `PermissionDenied`   | a tool call is denied by the auto-mode classifier       | tool name                                           |
-| `SubagentStart`      | a subagent is spawned                                   | agent type                                          |
-| `StopFailure`        | the turn ends due to an API error                       | error type (`rate_limit`, `overloaded`, …)          |
-| `InstructionsLoaded` | a `CLAUDE.md` / `.claude/rules/*.md` loads into context | load reason (`session_start`, `path_glob_match`, …) |
-| `FileChanged`        | a watched file changes on disk                          | filename(s) to watch                                |
-
-Also available (matcher fields not re-verified here — consult the hooks reference before wiring): `UserPromptExpansion`, `ConfigChange`, `Elicitation`, `ElicitationResult`.
+| Event                 | Fires when                                                      | Matcher field                                       |
+| --------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
+| `Setup`               | started with `--init` / `--init-only` / `--maintenance`         | CLI flag                                            |
+| `UserPromptSubmit`    | a prompt is submitted, before Claude processes it               | none (no-matcher)                                   |
+| `UserPromptExpansion` | a typed command expands into a prompt, before it reaches Claude | command name                                        |
+| `PermissionRequest`   | a tool call needs a permission decision                         | tool name                                           |
+| `PermissionDenied`    | a tool call is denied by the auto-mode classifier               | tool name                                           |
+| `PostToolBatch`       | a full batch of parallel tool calls resolves                    | none (no-matcher)                                   |
+| `MessageDisplay`      | assistant message text is displayed                             | none (no-matcher)                                   |
+| `SubagentStart`       | a subagent is spawned                                           | agent type                                          |
+| `SubagentStop`        | a subagent finishes                                             | agent type                                          |
+| `TaskCreated`         | a task is created via `TaskCreate`                              | none (no-matcher)                                   |
+| `Stop`                | Claude finishes responding                                      | none (no-matcher)                                   |
+| `StopFailure`         | the turn ends due to an API error                               | error type (`rate_limit`, `overloaded`, …)          |
+| `TeammateIdle`        | an agent-team teammate is about to go idle                      | none (no-matcher)                                   |
+| `InstructionsLoaded`  | a `CLAUDE.md` / `.claude/rules/*.md` loads into context         | load reason (`session_start`, `path_glob_match`, …) |
+| `ConfigChange`        | a configuration file changes during a session                   | configuration source                                |
+| `CwdChanged`          | the working directory changes                                   | none (no-matcher)                                   |
+| `DirectoryAdded`      | a working directory is added mid-session                        | how it was added                                    |
+| `FileChanged`         | a watched file changes on disk                                  | filename(s) to watch                                |
+| `WorktreeCreate`      | a worktree is being created                                     | none (no-matcher)                                   |
+| `WorktreeRemove`      | a worktree is being removed                                     | none (no-matcher)                                   |
+| `PreModelSwitch`      | before a model switch is applied                                | canonical model name                                |
+| `PostModelSwitch`     | after the session's model changes                               | canonical model name                                |
+| `Elicitation`         | an MCP server requests user input during a tool call            | MCP server name                                     |
+| `ElicitationResult`   | a user responds to an MCP elicitation                           | MCP server name                                     |
 
 Most useful to adopt here: **`PermissionRequest`** / **`PermissionDenied`** could feed a permission-tuning workflow; **`StopFailure`** matched on `rate_limit` / `overloaded`, complements the `fallbackModel` chain.
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-unwired-events -->
-
-Not a runtime hook: `scripts/hooks/check-duplicates.sh` lives alongside the hooks but is a validator, run by pre-commit and by `.github/workflows/validate-config.yml`, failing if two agents/skills share a name.
 
 ### Settings Keys
 
@@ -255,7 +274,7 @@ The settings files this repo manages:
 | `~/.claude/settings.json` | The live user-scope file: managed keys track the repo, the rest (model pin, permissions, personal plugin entries) is yours | Real file, untracked; `scripts/sync-global-settings.py` keeps managed keys fresh | Merged: repo + personal keys      |
 | `settings.local.json`     | Bash permissions (project scope: `.claude/settings.local.json`)                                                            | **Generated** per-project                                                        | Merged from `settings-templates/` |
 
-**Why split universal vs personal plugins?** The repo is consumable by anyone (via plugin install or the global setup). Auto-enabling Notion/Figma/etc. for someone who has no account or doesn't use those tools is surprising. `settings.json` carries only plugins that work without external accounts. Of those, `github`, `playwright`, `pyright-lsp`, `typescript-lsp`, and `mattpocock-skills` are enabled by default; `pr-review-toolkit`, `feature-dev`, `code-simplifier`, `document-skills`, and `frontend-design` are listed but set `false` — a deliberate default-off (2026-07-31 token-efficiency review): each enabled plugin ships all its skill/agent/command descriptions into every session, and these five weren't earning that fixed cost in most sessions. Repo-declared entries follow the repo on every sync; enable a default-off universally (flip it in the repo) or per-project (`.claude/settings.json`). Personal opt-ins (`figma`) are added directly to `enabledPlugins` in `~/.claude/settings.json` — the sync's per-entry merge preserves entries the repo does not declare. Entitlement-gated model pins likewise live in `~/.claude/settings.json` as unmanaged keys, never in the universal file (see the _No universal `model` pin_ note above).
+**Why split universal vs personal plugins?** The repo is consumable by anyone (via plugin install or the global setup). Auto-enabling Notion/Figma/etc. for someone who has no account or doesn't use those tools is surprising. `settings.json` carries only plugins that work without external accounts. Of those, `github`, `playwright`, `pyright-lsp`, `typescript-lsp`, and `mattpocock-skills` are enabled by default; `pr-review-toolkit`, `feature-dev`, `code-simplifier`, `document-skills`, and `frontend-design` are listed but set `false` — a deliberate default-off (2026-07-31 token-efficiency review): each enabled plugin ships all its skill/agent/command descriptions into every session, and the default-offs weren't earning that fixed cost in most sessions. Repo-declared entries follow the repo on every sync; enable a default-off universally (flip it in the repo) or per-project (`.claude/settings.json`). Personal opt-ins (`figma`) are added directly to `enabledPlugins` in `~/.claude/settings.json` — the sync's per-entry merge preserves entries the repo does not declare. Entitlement-gated model pins likewise live in `~/.claude/settings.json` as unmanaged keys, never in the universal file (see the _No universal `model` pin_ note above).
 
 **Merge semantics (ADR-0002)**: `scripts/sync-global-settings.py` performs a one-way, strict mirror — repo → `~/.claude/settings.json` — of the managed keys (`ALLOWED_KEYS` in `scripts/lib/settings_keys.py`, plus whatever the repo file carries; `RETIRED_KEYS` tombstones clean up dropped keys). `enabledPlugins` is the one exception: it merges per entry. Every other key in the home file is personal and never touched. A warn-only SessionStart hook (`settings-drift-check.sh`) reports drift; it deliberately never auto-applies. Historical note: before 2026-08-20, `~/.claude/settings.json` was a symlink into this repo, which sent every user-scope runtime write (`/model`, `/config` toggles) into the public repo as a pending diff — and the documented escape hatch, `~/.claude/settings.local.json`, was proven by experiment to not be read by Claude Code (only the project-scope `.claude/settings.local.json` exists; see the [settings docs](https://code.claude.com/docs/en/settings.md)).
 

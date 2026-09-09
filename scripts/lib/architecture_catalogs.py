@@ -34,17 +34,22 @@ from pathlib import Path
 from typing import NamedTuple
 
 from lib import primitives
-from lib.catalog_render import bullets, escape_inline, fence, table
+from lib.catalog_render import Verbatim, bullets, fence, table
 from lib.config_common import GenerationError, load_json
+from lib.primitives import Invocation
 
-# Hook events Claude Code documents, verified against the hooks reference
-# (https://code.claude.com/docs/en/hooks.md) on 2026-07-29. The catalog is
-# declared rather than derived because it describes the harness, not this
-# repo. Only the count is used from here directly; the *table* is this list
-# minus whatever hooks/hooks.json wires today, so an event this repo adopts
-# leaves the "not wired" list — and takes its `adopt` note with it —
-# without anyone remembering to delete a paragraph.
-DOCUMENTED_EVENT_COUNT = 30
+# Every hook event Claude Code documents, declared once. Verified against
+# the hooks reference (https://code.claude.com/docs/en/hooks.md) on
+# EVENTS_VERIFIED. The catalog is declared rather than derived because it
+# describes the harness, not this repo — but it is declared *once*: the
+# rendered count is its length, the "not wired" table is this list minus
+# whatever hooks/hooks.json wires today (so an event this repo adopts
+# leaves the table, and takes its `adopt` note with it, without anyone
+# deleting a paragraph), and an entry whose matcher was not re-verified
+# says so via `verified=False` rather than living in a second list. A
+# wired event missing from here is an error — otherwise the table could
+# no longer claim to be the complement of the docs.
+EVENTS_VERIFIED = "2026-09-09"
 
 
 class PlatformEvent(NamedTuple):
@@ -52,10 +57,27 @@ class PlatformEvent(NamedTuple):
     fires_when: str
     matcher: str
     adopt: str = ""  # why it would be worth wiring here, if it would
+    verified: bool = True  # matcher field confirmed against the docs on EVENTS_VERIFIED
 
 
-UNWIRED_EVENTS = [
+NO_MATCHER = "none (no-matcher)"
+
+DOCUMENTED_EVENTS = [
+    PlatformEvent(
+        "SessionStart",
+        "a session begins or resumes",
+        "start reason (`startup`, `resume`, `clear`, `compact`, `fork`)",
+    ),
     PlatformEvent("Setup", "started with `--init` / `--init-only` / `--maintenance`", "CLI flag"),
+    PlatformEvent(
+        "UserPromptSubmit", "a prompt is submitted, before Claude processes it", NO_MATCHER
+    ),
+    PlatformEvent(
+        "UserPromptExpansion",
+        "a typed command expands into a prompt, before it reaches Claude",
+        "command name",
+    ),
+    PlatformEvent("PreToolUse", "before a tool call executes", "tool name"),
     PlatformEvent(
         "PermissionRequest",
         "a tool call needs a permission decision",
@@ -68,24 +90,56 @@ UNWIRED_EVENTS = [
         "tool name",
         "could feed a permission-tuning workflow",
     ),
+    PlatformEvent("PostToolUse", "after a tool call succeeds", "tool name"),
+    PlatformEvent("PostToolUseFailure", "after a tool call fails", "tool name"),
+    PlatformEvent("PostToolBatch", "a full batch of parallel tool calls resolves", NO_MATCHER),
+    PlatformEvent("Notification", "Claude Code sends a notification", "notification type"),
+    PlatformEvent("MessageDisplay", "assistant message text is displayed", NO_MATCHER),
     PlatformEvent("SubagentStart", "a subagent is spawned", "agent type"),
+    PlatformEvent("SubagentStop", "a subagent finishes", "agent type"),
+    PlatformEvent("TaskCreated", "a task is created via `TaskCreate`", NO_MATCHER),
+    PlatformEvent("TaskCompleted", "a task is marked completed", NO_MATCHER),
+    PlatformEvent("Stop", "Claude finishes responding", NO_MATCHER),
     PlatformEvent(
         "StopFailure",
         "the turn ends due to an API error",
         "error type (`rate_limit`, `overloaded`, …)",
         "matched on `rate_limit` / `overloaded`, complements the `fallbackModel` chain",
     ),
+    PlatformEvent("TeammateIdle", "an agent-team teammate is about to go idle", NO_MATCHER),
     PlatformEvent(
         "InstructionsLoaded",
         "a `CLAUDE.md` / `.claude/rules/*.md` loads into context",
         "load reason (`session_start`, `path_glob_match`, …)",
     ),
+    PlatformEvent(
+        "ConfigChange",
+        "a configuration file changes during a session",
+        "configuration source",
+    ),
+    PlatformEvent("CwdChanged", "the working directory changes", NO_MATCHER),
+    PlatformEvent("DirectoryAdded", "a working directory is added mid-session", "how it was added"),
     PlatformEvent("FileChanged", "a watched file changes on disk", "filename(s) to watch"),
-    PlatformEvent("PostCompact", "after context compaction completes", "none (no-matcher)"),
+    PlatformEvent("WorktreeCreate", "a worktree is being created", NO_MATCHER),
+    PlatformEvent("WorktreeRemove", "a worktree is being removed", NO_MATCHER),
+    PlatformEvent("PreCompact", "before context compaction", "trigger (`manual`, `auto`)"),
+    PlatformEvent(
+        "PostCompact", "after context compaction completes", "trigger (`manual`, `auto`)"
+    ),
+    PlatformEvent("PreModelSwitch", "before a model switch is applied", "canonical model name"),
+    PlatformEvent("PostModelSwitch", "after the session's model changes", "canonical model name"),
+    PlatformEvent(
+        "Elicitation",
+        "an MCP server requests user input during a tool call",
+        "MCP server name",
+    ),
+    PlatformEvent("ElicitationResult", "a user responds to an MCP elicitation", "MCP server name"),
+    PlatformEvent(
+        "SessionEnd",
+        "a session terminates",
+        "exit reason (`clear`, `resume`, `logout`, `prompt_input_exit`, `other`)",
+    ),
 ]
-
-# Documented events whose matcher field was not re-verified on that date.
-UNVERIFIED_EVENTS = ["UserPromptExpansion", "ConfigChange", "Elicitation", "ElicitationResult"]
 
 # One-line gloss per top-level key settings.json sets. Rationale longer than
 # a line stays as prose next to the generated block — this is a catalog, not
@@ -163,33 +217,65 @@ def _hooks(root: Path) -> str:
     for binding in bindings:
         # Script summaries are written as headline comments; some end in a
         # full stop and some don't, and the bullet needs exactly one.
-        summary = escape_inline(binding.summary.rstrip("."))
-        note = f" _Why:_ {escape_inline(binding.why)}" if binding.why else ""
-        items.append(f"**{binding.label}** → `scripts/hooks/{binding.script}`: {summary}.{note}")
+        summary = Verbatim(binding.summary.rstrip("."))
+        item = [f"**{binding.label}** → `scripts/hooks/{binding.script}`: ", summary, "."]
+        if binding.why:
+            item += [" _Why:_ ", Verbatim(binding.why)]
+        items.append(item)
     lead = (
         f"Wired in [`hooks/hooks.json`](../hooks/hooks.json) — "
         f"{len(bindings)} bindings across {len({b.event for b in bindings})} events:"
     )
-    return f"{lead}\n\n{bullets(items)}"
+    parts = [lead, bullets(items)]
+    non_hooks = [s for s in primitives.hook_scripts(root, bindings) if s.non_hook]
+    if non_hooks:
+        parts.append(
+            "Not runtime hooks, though they live beside them (declared in `NON_HOOK_SCRIPTS`, "
+            "`scripts/lib/primitives.py`):"
+        )
+        parts.append(
+            bullets(
+                [
+                    (
+                        f"`scripts/hooks/{s.name}`: ",
+                        Verbatim(s.summary.rstrip(".")),
+                        f" — {s.non_hook}",
+                    )
+                    for s in non_hooks
+                ]
+            )
+        )
+    return "\n\n".join(parts)
 
 
 def _unwired_events(root: Path) -> str:
     wired = {binding.event for binding in primitives.hook_bindings(root)}
-    unwired = [event for event in UNWIRED_EVENTS if event.name not in wired]
+    documented = {event.name for event in DOCUMENTED_EVENTS}
+    undocumented = sorted(wired - documented)
+    if undocumented:
+        raise GenerationError(
+            f"hooks/hooks.json wires event(s) {undocumented} absent from DOCUMENTED_EVENTS in "
+            f"lib/architecture_catalogs.py — add them (verified against the hooks reference) "
+            f"or the unwired-events table stops being the complement of the docs"
+        )
+    unwired = [event for event in DOCUMENTED_EVENTS if event.name not in wired]
+    confirmed = [event for event in unwired if event.verified]
+    unverified = [event for event in unwired if not event.verified]
     lead = (
-        f"Claude Code documents **{DOCUMENTED_EVENT_COUNT}** hook events; this repo wires "
+        f"Claude Code documents **{len(DOCUMENTED_EVENTS)}** hook events; this repo wires "
         f"{len(wired)} of them above. Documented events it does not wire, with their matcher "
-        f"field where confirmed against the docs on 2026-07-29:"
+        f"field where confirmed against the docs on {EVENTS_VERIFIED}:"
     )
     grid = table(
         ["Event", "Fires when", "Matcher field"],
-        [[f"`{e.name}`", e.fires_when, e.matcher] for e in unwired],
+        [[f"`{e.name}`", e.fires_when, e.matcher] for e in confirmed],
     )
-    also = (
-        "Also available (matcher fields not re-verified here — consult the hooks reference "
-        "before wiring): " + ", ".join(f"`{name}`" for name in UNVERIFIED_EVENTS) + "."
-    )
-    parts = [lead, grid, also]
+    parts = [lead, grid]
+    if unverified:
+        parts.append(
+            "Also available (matcher fields not re-verified here — consult the hooks reference "
+            "before wiring): " + ", ".join(f"`{e.name}`" for e in unverified) + "."
+        )
     # Events sharing a rationale are named together rather than repeating it.
     grouped: dict[str, list[str]] = {}
     for event in unwired:
@@ -236,19 +322,19 @@ def _skills(root: Path) -> str:
     domain = [s for s in skills if not s.workflow]
     workflow = [s for s in skills if s.workflow]
 
-    def workflow_item(skill: primitives.Skill) -> str:
+    def workflow_item(skill: primitives.Skill) -> tuple[str, ...]:
         mark = ""
-        if skill.user_only:
+        if skill.invocation is Invocation.USER_ONLY:
             mark = " **User-only.**"
-        elif skill.scheduled:
-            mark = f" **Schedulable** — fired by {primitives.SCHEDULED_SKILLS[skill.name]}."
-        return f"`/{skill.name}`: {escape_inline(skill.description)}{mark}"
+        elif skill.invocation is Invocation.SCHEDULED:
+            mark = f" **Schedulable** — fired by {skill.scheduled_by}."
+        return (f"`/{skill.name}`: ", Verbatim(skill.description), mark)
 
     return "\n\n".join(
         [
             "**Domain-knowledge skills** — Claude loads these automatically when the "
             "conversation matches their `description:`:",
-            bullets([f"`{s.name}`: {escape_inline(s.description)}" for s in domain]),
+            bullets([(f"`{s.name}`: ", Verbatim(s.description)) for s in domain]),
             "**Workflow skills** — invoked as `/<name>`; those without "
             "`disable-model-invocation` can also be auto-invoked by Claude:",
             bullets([workflow_item(s) for s in workflow]),
@@ -259,7 +345,11 @@ def _skills(root: Path) -> str:
 def _rules(root: Path) -> str:
     return bullets(
         [
-            f"`{rule.name}`: {', '.join(rule.headings)} ({', '.join(f'`{p}`' for p in rule.paths)})"
+            (
+                f"`{rule.name}`: ",
+                Verbatim(", ".join(rule.headings)),
+                f" ({', '.join(f'`{p}`' for p in rule.paths)})",
+            )
             for rule in primitives.rules(root)
         ]
     )
@@ -268,9 +358,7 @@ def _rules(root: Path) -> str:
 def _settings_templates(root: Path) -> str:
     templates = primitives.settings_templates(root)
     lead = f"Available templates ({len(templates)}):"
-    return (
-        lead + "\n\n" + bullets([f"`{t.name}`: {escape_inline(t.description)}" for t in templates])
-    )
+    return lead + "\n\n" + bullets([(f"`{t.name}`: ", Verbatim(t.description)) for t in templates])
 
 
 def _mcp_templates(root: Path) -> str:
@@ -282,11 +370,11 @@ def _mcp_templates(root: Path) -> str:
 
 
 def _cli_scripts(root: Path) -> str:
-    def item(script: primitives.CliScript) -> str:
+    def item(script: primitives.CliScript) -> tuple[str, ...]:
         # Only worth showing the invocation when it is not just the filename
         # (explain-error.sh is meant to be piped into, and reads oddly bare).
         call = f" — invoke as `{script.usage}`" if script.usage != script.name else ""
-        return f"`{script.name}`: {escape_inline(script.summary)}{call}"
+        return (f"`{script.name}`: ", Verbatim(script.summary), call)
 
     return bullets([item(script) for script in primitives.cli_scripts(root)])
 

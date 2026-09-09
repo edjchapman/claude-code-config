@@ -22,8 +22,8 @@ from typing import NamedTuple
 
 from lib import primitives
 from lib.catalog_render import details_body, fence, table
-from lib.config_common import GenerationError
-from lib.primitives import Skill
+from lib.config_common import GenerationError, tracked_files
+from lib.primitives import Invocation, Skill
 
 
 class Catalog(NamedTuple):
@@ -34,12 +34,7 @@ class Catalog(NamedTuple):
     rows: list[list[str]]
 
 
-# scripts/hooks/ entries whose purpose no hooks.json event explains.
-EXTRA_HOOK_NOTES = {
-    "statusline.sh": "settings.json statusLine.command",
-    "check-duplicates.sh": "pre-commit + CI (not a runtime hook)",
-    "lib": "shared helpers sourced by the hook scripts",
-}
+HOOK_LIB_NOTE = "shared helpers sourced by the hook scripts"
 
 CHEATSHEET_HEADING = '### "I want to…" lookup'
 
@@ -73,12 +68,11 @@ claude-code-config/
 {cli_lines}"""
 
 
-def _invoke_column(skill: Skill) -> str:
-    if skill.user_only:
-        return "you only"
-    if skill.scheduled:
-        return "you, Claude, or a schedule"
-    return "you or Claude"
+INVOKE_COLUMN = {
+    Invocation.USER_ONLY: "you only",
+    Invocation.SCHEDULED: "you, Claude, or a schedule",
+    Invocation.MODEL: "you or Claude",
+}
 
 
 def _branch_lines(indent: str, items: list[tuple[str, str]]) -> str:
@@ -92,15 +86,16 @@ def _branch_lines(indent: str, items: list[tuple[str, str]]) -> str:
     return "\n".join(lines)
 
 
-def _tree(root: Path, hook_notes: dict[str, str]) -> str:
-    notes = {**hook_notes, **EXTRA_HOOK_NOTES}
-    hooks_dir = root / "scripts" / "hooks"
-    hook_items = [(p.name, notes.get(p.name, "")) for p in sorted(hooks_dir.glob("*.sh"))]
-    if (hooks_dir / "lib").is_dir():
-        hook_items.append(("lib/", notes["lib"]))
+def _tree(root: Path, bindings: list[primitives.HookBinding]) -> str:
+    triggers = primitives.hook_triggers(bindings)
+    hook_items = [
+        (s.name, s.non_hook or triggers[s.name]) for s in primitives.hook_scripts(root, bindings)
+    ]
+    if tracked_files("scripts/hooks/lib/*", root):
+        hook_items.append(("lib/", HOOK_LIB_NOTE))
     if not hook_items:
-        raise GenerationError(f"no hook scripts found under {hooks_dir}")
-    cli_items = [(p.name, "") for p in sorted((root / "scripts" / "cli").glob("*.sh"))]
+        raise GenerationError(f"no hook scripts found under {root / 'scripts' / 'hooks'}")
+    cli_items = [(c.name, "") for c in primitives.cli_scripts(root)]
     if not cli_items:
         raise GenerationError(f"no CLI scripts found under {root / 'scripts' / 'cli'}")
     return _TREE.format(
@@ -111,7 +106,9 @@ def _tree(root: Path, hook_notes: dict[str, str]) -> str:
 
 def _catalog_tables(root: Path, skills: list[Skill]) -> dict[str, Catalog]:
     """{region name: Catalog} for the plain table regions."""
-    workflow = [[f"`/{s.name}`", s.description, _invoke_column(s)] for s in skills if s.workflow]
+    workflow = [
+        [f"`/{s.name}`", s.description, INVOKE_COLUMN[s.invocation]] for s in skills if s.workflow
+    ]
     domain = [[f"`{s.name}`", s.description] for s in skills if not s.workflow]
     agents = [[f"`@{a.name}`", a.description, f"`{a.model}`"] for a in primitives.agents(root)]
     rules = [
@@ -160,7 +157,13 @@ def _counts_line(tables: dict[str, Catalog], hook_count: int) -> str:
 
 
 def build_regions(root: Path) -> tuple[dict[str, str], list[str]]:
-    """Render every README region; returns ({region name: content}, skill names)."""
+    """Render every README region; returns ({region name: content}, warnings).
+
+    The one warning source is curation: a skill the hand-written "I want
+    to…" cheat-sheet never mentions. It is read from the README on disk —
+    the cheat-sheet is outside every generated region, so regeneration
+    cannot change it.
+    """
     skills = primitives.skills(root)
     bindings = primitives.hook_bindings(root)
     hook_rows = [[f"`{b.label}`", f"`{b.script}`", b.summary] for b in bindings]
@@ -177,12 +180,14 @@ def build_regions(root: Path) -> tuple[dict[str, str], list[str]]:
         "**Configured:**\n\n" + table(["Hook", "Script", "What It Does"], hook_rows),
     )
     regions["counts"] = _counts_line(tables, len(hook_rows))
-    regions["repo-tree"] = "```\n" + _tree(root, primitives.hook_triggers(bindings)) + "\n```"
+    regions["repo-tree"] = "```\n" + _tree(root, bindings) + "\n```"
     regions = {name: fence(content) for name, content in regions.items()}
-    return regions, [s.name for s in skills]
+    readme = root / "README.md"
+    readme_text = readme.read_text() if readme.is_file() else ""
+    return regions, _uncurated_skills(readme_text, [s.name for s in skills])
 
 
-def uncurated_skills(readme_text: str, skill_names: list[str]) -> list[str]:
+def _uncurated_skills(readme_text: str, skill_names: list[str]) -> list[str]:
     """Soft-warning list: skills the hand-written cheat-sheet never mentions."""
     start = readme_text.find(CHEATSHEET_HEADING)
     if start == -1:

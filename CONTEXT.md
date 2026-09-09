@@ -77,3 +77,12 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   (daily standup #51, end-of-week review #52) must remain model-invocable, while
   user-only skills must carry `disable-model-invocation`. Enforced by the
   generator's `--check`.
+- **Wired-coverage invariant** — the rule that every tracked script under
+  `scripts/hooks/` is fired by a binding in `hooks/hooks.json`, or is declared
+  a non-hook (`NON_HOOK_SCRIPTS`) with what runs it instead. Restores what the
+  retired mention-grep checker caught: a script added and never wired. Enforced
+  by the generator's `--check`, like the scheduling invariant.
+- **No-count rule** — hand-written prose in a catalog-bearing doc states no count
+  of primitives; every count is a generated region. Asserted by the generator's
+  `--check` over the hand-written spans, scoped to the term **primitive** so an
+  architectural count ("two install modes") is not a violation.

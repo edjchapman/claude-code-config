@@ -35,24 +35,26 @@ def load_json(path: Path) -> dict:
         raise GenerationError(f"invalid JSON in {path}: {exc}") from exc
 
 
-def tracked_files(pattern: str) -> list[Path]:
-    """Tracked files matching a git pathspec, as absolute paths.
+def tracked_files(pattern: str, root: Path = REPO_ROOT) -> list[Path]:
+    """Tracked files matching a git pathspec, as sorted absolute paths.
 
     Enumerated via `git ls-files` rather than a directory scan, so
     untracked local-only extras — a personal skill installed into a live
-    clone and excluded via .git/info/exclude — never trip CI.
+    clone and excluded via .git/info/exclude — never trip CI, and never get
+    written into a catalog. Git pathspec wildcards match `/` too, so a
+    pattern that must stay in one directory needs the `:(glob)` prefix.
     """
     out = subprocess.run(
         ["git", "ls-files", pattern],
-        cwd=REPO_ROOT,
+        cwd=root,
         capture_output=True,
         text=True,
         check=True,
     ).stdout
-    paths = [REPO_ROOT / line for line in out.splitlines() if line]
+    paths = [root / line for line in out.splitlines() if line]
     # ls-files reads the index; a file deleted in the worktree but not yet
     # committed would otherwise crash the caller's read.
-    return [p for p in paths if p.is_file()]
+    return sorted(p for p in paths if p.is_file())
 
 
 def parse_frontmatter(path: Path) -> dict:

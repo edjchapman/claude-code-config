@@ -296,7 +296,7 @@ deliberately; ready-to-paste snippets live in [`docs/architecture.md`](docs/arch
 
 ### Scheduled Routines
 
-Time-based workflows run themselves — two cloud routines (a daily standup prep and a Friday end-of-week review, created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills and deliver each run as a comment on a pinned GitHub issue thread. Their schedules, delivery targets, and gotchas live in **one place** — [`docs/architecture.md`](docs/architecture.md)'s Automation section — alongside the **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts).
+Time-based workflows run themselves — cloud routines (a daily standup prep and a Friday end-of-week review, created via `/schedule`, managed at [claude.ai/code/routines](https://claude.ai/code/routines)) fire the schedulable workflow skills and deliver each run as a comment on a pinned GitHub issue thread. Their schedules, delivery targets, and gotchas live in **one place** — [`docs/architecture.md`](docs/architecture.md)'s Automation section — alongside the **automation decision table** (command hooks vs prompt hooks vs routines vs `/loop` vs headless CLI scripts).
 
 ### Settings Templates
 
@@ -643,7 +643,7 @@ claude-code-config/
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
-    │   ├── check-duplicates.sh      # pre-commit + CI (not a runtime hook)
+    │   ├── check-duplicates.sh      # pre-commit + CI validator (not a runtime hook)
     │   ├── dangerous-cmd-check.sh   # PreToolUse (Bash)
     │   ├── format-on-edit.sh        # PostToolUse (Write|Edit)
     │   ├── log-tool-failure.sh      # PostToolUseFailure
@@ -653,7 +653,7 @@ claude-code-config/
     │   ├── session-context.sh       # SessionStart
     │   ├── session-end.sh           # SessionEnd
     │   ├── settings-drift-check.sh  # SessionStart
-    │   ├── statusline.sh            # settings.json statusLine.command
+    │   ├── statusline.sh            # run by settings.json statusLine.command
     │   ├── task-completed-chime.sh  # TaskCompleted
     │   └── lib/                     # shared helpers sourced by the hook scripts
     └── cli/                 # Headless CLI automation scripts
