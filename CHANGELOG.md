@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.0](https://github.com/edjchapman/claude-code-config/compare/1.24.1...1.25.0) (2026-09-09)
+
+
+### Features
+
+* **generator:** enumerate from git, derive the event count, enforce wired coverage ([#157](https://github.com/edjchapman/claude-code-config/issues/157)) ([e7ffc7d](https://github.com/edjchapman/claude-code-config/commit/e7ffc7d78610d339583b043b6bc9af2e77f5b989))
+
 ## [1.24.1](https://github.com/edjchapman/claude-code-config/compare/1.24.0...1.24.1) (2026-09-09)
 
 
