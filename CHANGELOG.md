@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.1](https://github.com/edjchapman/claude-code-config/compare/1.24.0...1.24.1) (2026-09-09)
+
+
+### Bug Fixes
+
+* **plugins:** pin mattpocock-skills to tag v1.2.3, not a commit SHA ([#153](https://github.com/edjchapman/claude-code-config/issues/153)) ([024e576](https://github.com/edjchapman/claude-code-config/commit/024e5765dfdbd3dfd2ef7aa22bafb1147672a987))
+
 ## [1.24.0](https://github.com/edjchapman/claude-code-config/compare/1.23.0...1.24.0) (2026-09-03)
 
 
