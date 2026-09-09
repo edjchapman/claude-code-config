@@ -25,7 +25,11 @@ from pathlib import Path
 from lib import vendored_plugins
 from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
 
-TOTAL_BUDGET_BYTES = 10_240
+# Raised from 10_240 in #152: bumping the vendored plugin to v1.2.3 added
+# two model-invocable skills (+417 B) onto a surface that sat 31 B under the
+# old line. The 10.5 KiB figure keeps the trade-off visible rather than
+# generous — ~130 B of headroom, so the next addition still has to argue.
+TOTAL_BUDGET_BYTES = 10_752
 WARN_ITEM_BYTES = 350
 
 GLOBAL_MEMORY = REPO_ROOT / "home" / "CLAUDE.md"

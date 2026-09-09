@@ -60,13 +60,15 @@ Examined and found _not_ colliding: `/refinement` (Jira ticket → analysis, the
 
 ### Bumping a vendored plugin
 
-The pin is a commit SHA and the lockfile is the review surface. To move it:
+The pin is a git tag and the lockfile is the review surface. To move it:
 
 1. `python3 scripts/update-plugin-lock.py --ref <new ref>` after updating the plugin locally.
 2. Set the same ref in `settings.json`'s `extraKnownMarketplaces`. `generate.py --check` fails until the two agree, in either direction.
 3. **Read the lockfile diff.** Every changed `description` is a collision candidate against the table above; every added `model_invocable: true` entry is new always-loaded cost.
 
-The pin currently sits behind upstream deliberately: moving to `v1.2.3` adds `wizard` and `writing-for-agents` as model-invocable skills (+417 B), and the latter triggers on "creating or editing skills, or modifying AGENTS.md or CLAUDE.md" — which is what this repository is, so it would collide with this very document. That upgrade is a decision, not a chore.
+**The ref must be a branch or tag name, never a commit SHA.** Claude Code ≥ 2.1.266 installs a declared marketplace with `git clone --branch <ref>`, which git rejects for a SHA — so a SHA pin is only ever loadable on a machine where the clone already exists ([#152](https://github.com/edjchapman/claude-code-config/issues/152)). The same version also refuses a marketplace whose entry in `~/.claude/plugins/known_marketplaces.json` disagrees with the `extraKnownMarketplaces` declaration on any field, `ref` included. After moving the pin, sync `~/.claude/settings.json` (`python3 scripts/sync-global-settings.py`), then `claude plugin marketplace update mattpocock` and `claude plugin update mattpocock-skills@mattpocock` — if the marketplace reports "not found", the registry entry is stale; set its `ref` to the declared value by hand and retry.
+
+The pin moved from an untagged `main` commit to `v1.2.3` in #152, which added `wizard` and `writing-for-agents` as model-invocable skills (+417 B, absorbed by raising the context budget in the same change). `writing-for-agents` triggers on "creating or editing skills, or modifying AGENTS.md or CLAUDE.md" — the work this repository exists for — but it competes with a document (this guide), not with a dispatchable primitive, so it is additive rather than a collision; expect it to fire when editing primitives here, and defer to the Self-Extension Guide below where the two disagree.
 
 ## What earns always-loaded context
 

@@ -1,6 +1,6 @@
 # ADR-0003: Third-party plugin primitives are pinned and locked
 
-**Status:** Accepted — 2026-08-24
+**Status:** Accepted — 2026-08-24; amended 2026-09-09 (pin moved to a tag, see below)
 
 ## Context
 
@@ -98,3 +98,25 @@ editing it is pointless, since it changes nothing about what loads.
 Pinning to a SHA freezes this config at a state upstream has moved past. That is
 the intended trade — but it means missing upstream fixes until someone chooses to
 bump, and nothing here schedules or prompts that choice.
+
+## Amendment — 2026-09-09
+
+**The SHA pin was not installable from scratch.** Claude Code 2.1.266 introduced a
+marketplace reconciler that (a) ignores any marketplace whose registry entry in
+`~/.claude/plugins/known_marketplaces.json` differs from its
+`extraKnownMarketplaces` declaration — including on `ref` — and (b) heals the
+gap by re-cloning with `git clone --branch <ref>`, which git only accepts for a
+branch or tag name. The SHA declared here had been added after the marketplace
+was registered, so the registry never carried it; older versions tolerated the
+drift, 2.1.266 dropped the plugin from every session, and the auto-heal failed
+with `Remote branch 2ab958… not found in upstream origin`. The pin was verified
+against the refresh path only; a fresh clone was never tried.
+[#152](https://github.com/edjchapman/claude-code-config/issues/152).
+
+**Decision:** the pin is now the tag `v1.2.3`, and a marketplace `ref` in this
+repo must always be a branch or tag name. The content cost the original decision
+deferred — `wizard` and `writing-for-agents` become model-invocable (+417 B) — is
+accepted, with the always-loaded budget raised from 10,240 B to 10,752 B in the
+same change. The lockfile diff was read as the review: `writing-for-agents`
+overlaps `docs/extending.md`'s Self-Extension Guide but competes with a document
+rather than a dispatchable primitive, so it is additive, not a collision.
