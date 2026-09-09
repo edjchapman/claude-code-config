@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.1](https://github.com/edjchapman/claude-code-config/compare/1.25.0...1.25.1) (2026-09-09)
+
+
+### Bug Fixes
+
+* **scripts:** accept the vendored code-review description at a recorded size ([#160](https://github.com/edjchapman/claude-code-config/issues/160)) ([748f4ca](https://github.com/edjchapman/claude-code-config/commit/748f4ca9cd107fc595f1acb20368a9bda4137f66))
+
 ## [1.25.0](https://github.com/edjchapman/claude-code-config/compare/1.24.1...1.25.0) (2026-09-09)
 
 
