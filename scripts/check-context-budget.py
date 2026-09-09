@@ -25,7 +25,12 @@ from pathlib import Path
 from lib import vendored_plugins
 from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
 
-TOTAL_BUDGET_BYTES = 10_240
+# Raised from 10_240 in #152: moving the vendored plugin to a tag (ADR-0003,
+# revised) made two more of its skills model-invocable on a surface already at
+# the line. Raised by half a KiB rather than a round KiB so the next addition
+# still has to argue; the lockfile's always_loaded_bytes and this script's
+# printed Total carry the actual figures.
+TOTAL_BUDGET_BYTES = 10_752
 WARN_ITEM_BYTES = 350
 
 GLOBAL_MEMORY = REPO_ROOT / "home" / "CLAUDE.md"
