@@ -22,6 +22,14 @@
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/settings-drift-check.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -31,6 +39,14 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/format-on-edit.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
           }
         ]
       }
@@ -52,6 +68,14 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/dangerous-cmd-check.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
           }
         ]
       }
@@ -94,6 +118,14 @@
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/notify-attention.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
+          }
+        ]
       }
     ],
     "SessionEnd": [
@@ -102,6 +134,64 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/session-end.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
           }
         ]
       }
