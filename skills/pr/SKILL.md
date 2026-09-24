@@ -17,9 +17,8 @@ Help me create a pull request with a well-crafted description.
 ## Jira Configuration
 
 Read Jira config from the project's `CLAUDE.md` if present (look for a
-`## Jira` section with `Base URL` and `Ticket Pattern`). If absent, prefer
-the `mcp__plugin_atlassian_atlassian__*` tools (dormant unless the atlassian plugin is enabled; they return canonical URLs from
-the API), or ask the user. Do not assume any specific organisation's URL.
+`## Jira` section with `Base URL` and `Ticket Pattern`). If absent, ask the
+user. Do not assume any specific organisation's URL.
 
 - **Common ticket patterns**: `[A-Z]+-\d+` (e.g. `ABC-123`, `PROJ-456`), `#123`, `GH-123`
 
@@ -53,13 +52,7 @@ Extract ticket ID from branch name patterns:
 - `fix/BIL-456-bug-fix` → `BIL-456`
 - `BIL-789/some-feature` → `BIL-789`
 
-**If Jira MCP is available (`mcp__plugin_atlassian_atlassian__getJiraIssue`):**
-
-- Fetch ticket summary, description, acceptance criteria
-- Extract linked issues and epic context
-- Auto-populate "Related Issues" section in PR with ticket details
-
-**If Jira MCP is NOT available but ticket ID found:**
+**If a ticket ID is found:**
 
 - Add a Jira link to the PR body using the project CLAUDE.md base URL:
   `Related: [TICKET-ID](<base_url>/TICKET-ID)`

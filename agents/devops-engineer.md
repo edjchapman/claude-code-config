@@ -38,15 +38,6 @@ If `mcp__plugin_github_github__*` tools are available:
 
 **If unavailable:** Use local search and `gh` CLI for GitHub operations.
 
-### Jira MCP (Optional)
-
-If `mcp__plugin_atlassian_atlassian__*` tools are available:
-
-- Search for infrastructure-related tickets
-- Create tickets for infrastructure improvements
-
-**If unavailable:** Document findings in markdown.
-
 ## CI/CD Pipeline Optimization
 
 ### GitHub Actions Best Practices

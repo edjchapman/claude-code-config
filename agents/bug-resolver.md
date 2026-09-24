@@ -45,15 +45,6 @@ If `mcp__plugin_github_github__*` tools are available:
 
 **If unavailable:** Use local git commands to investigate history.
 
-### Jira MCP (Optional)
-
-If `mcp__plugin_atlassian_atlassian__*` tools are available:
-
-- Use `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` to find related bugs
-- Use `mcp__plugin_atlassian_atlassian__addCommentToJiraIssue` to document findings
-
-**If unavailable:** Document findings in markdown for manual ticket updates.
-
 ## Your Core Investigation Process
 
 ### Phase 1: Evidence Gathering

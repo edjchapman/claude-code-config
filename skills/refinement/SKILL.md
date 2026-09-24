@@ -12,26 +12,12 @@ Prepare technical analysis for backlog refinement meetings.
 `$ARGUMENTS`
 
 - List of Jira ticket IDs: `/refinement BIL-3606 BIL-3580 BIL-3252`
-- JQL query: `/refinement --jql "status='Ready to Refine'"`
 - Output directory: `/refinement BIL-3606 --output ./refinement-2026-01-17/`
 - Exploration depth: `/refinement BIL-3606 --explore thorough` (quick|medium|thorough)
 
 ## Step 1: Fetch Tickets
 
-**If Jira MCP is available (`mcp__plugin_atlassian_atlassian__*` tools):**
-
-Use the following tools:
-
-- `mcp__plugin_atlassian_atlassian__getJiraIssue` - Get issue details
-- `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` - Search with JQL
-
-```
-For each ticket ID:
-  - mcp__plugin_atlassian_atlassian__getJiraIssue(issueIdOrKey="BIL-XXXX")
-  - Extract: summary, description, priority, status, comments, story_points
-```
-
-**If Jira MCP is NOT available:**
+Ask the user to supply the ticket details:
 
 > "I don't have direct Jira access. Please provide ticket details in one of these formats:
 >
@@ -181,8 +167,7 @@ Ask:
 > "I've created refinement documents in `{output_dir}/`. Would you like me to:
 >
 > 1. Add meeting notes after your refinement session?
-> 2. Update story points in Jira? (requires Jira MCP)
-> 3. Create any additional analysis?"
+> 2. Create any additional analysis?"
 
 **Final output:**
 
