@@ -11,7 +11,9 @@
 # harness.) Exit 0 = allow, Exit 2 = block. The block reason MUST go to STDERR —
 # the harness surfaces stderr on a blocking exit, not stdout.
 #
-# Matching normalises whitespace and ignores case.
+# Matching normalises whitespace, ignores case, and skips heredoc bodies that
+# are data rather than code (see strip_heredoc_bodies below). Quoted arguments
+# are still matched, so `bash -c "rm -rf /"` is blocked.
 
 set -u
 
@@ -25,8 +27,41 @@ CMD=$(hook_field "$PAYLOAD" tool_input.command)
 CMD="${CMD:-${CLAUDE_TOOL_INPUT:-$PAYLOAD}}"
 [ -n "$CMD" ] || exit 0
 
+# A heredoc body is stdin DATA for the program receiving it, not shell code, so
+# matching against it reports commands that never run — writing a file whose
+# CONTENT documents a dangerous pattern was blocked, and this repo ships deny
+# rules containing exactly those strings.
+#
+# Exception: when the heredoc feeds a shell the body IS executed, so it stays in
+# scope; stripping it unconditionally would be a one-line bypass.
+strip_heredoc_bodies() {
+  awk '
+    function feeds_a_shell(line) {
+      return (line ~ /(^|[ \t;&|(])([^ \t]*\/)?(ba|z|k|da)?sh([ \t]|$)/)
+    }
+    BEGIN { in_body = 0; strip = 0; term = "" }
+    {
+      if (in_body) {
+        trimmed = $0
+        sub(/^[ \t]+/, "", trimmed)          # <<- allows a tab-indented terminator
+        if (trimmed == term) { in_body = 0; next }
+        if (!strip) { print }
+        next
+      }
+      print
+      if (match($0, /<<-?[ \t]*["\047]?[A-Za-z_][A-Za-z0-9_]*["\047]?/)) {
+        term = substr($0, RSTART, RLENGTH)
+        sub(/^<<-?[ \t]*/, "", term)
+        gsub(/["\047]/, "", term)
+        strip = feeds_a_shell($0) ? 0 : 1
+        in_body = 1
+      }
+    }
+  '
+}
+
 # Collapse runs of whitespace so "rm  -rf" and "rm -rf" match identically.
-NORM=$(printf '%s' "$CMD" | tr -s '[:space:]' ' ')
+NORM=$(printf '%s' "$CMD" | strip_heredoc_bodies | tr -s '[:space:]' ' ')
 
 block() {
   echo "BLOCKED: dangerous command pattern detected ($1)" >&2
