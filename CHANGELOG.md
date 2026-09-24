@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.26.0](https://github.com/edjchapman/claude-code-config/compare/1.25.0...1.26.0) (2026-09-24)
+
+
+### Features
+
+* **hooks:** own the iTerm2 status integration in hooks.json ([#166](https://github.com/edjchapman/claude-code-config/issues/166)) ([4240336](https://github.com/edjchapman/claude-code-config/commit/4240336bb1f1bd9f90259f59223c227d5e34a4f7))
+
+
+### Bug Fixes
+
+* **hooks:** stop dangerous-cmd-check matching heredoc bodies ([#165](https://github.com/edjchapman/claude-code-config/issues/165)) ([cd94cb8](https://github.com/edjchapman/claude-code-config/commit/cd94cb8b9e3e10c2647b040343cf24d2f1a6e84f))
+* **scripts:** accept the vendored code-review description at a recorded size ([#160](https://github.com/edjchapman/claude-code-config/issues/160)) ([748f4ca](https://github.com/edjchapman/claude-code-config/commit/748f4ca9cd107fc595f1acb20368a9bda4137f66))
+
 ## [1.25.0](https://github.com/edjchapman/claude-code-config/compare/1.24.1...1.25.0) (2026-09-09)
 
 
