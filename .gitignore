@@ -25,3 +25,10 @@ uv.lock
 
 # Session-end log hook output (local artifact, written by hooks)
 /standups/
+
+# Artifacts of an external agent-sync tool (Codex/AGENTS.md mirroring).
+# Machine-local and regenerated, not source — AGENTS.md here is a copy of
+# CLAUDE.md, so tracking it would duplicate the file and invite drift.
+/AGENTS.md
+/.agents/
+/skills/synced/
