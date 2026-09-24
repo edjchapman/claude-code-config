@@ -12,9 +12,6 @@ Common data-gathering steps for the activity-report skills (`/standup` and `/eow
 git config user.email && git config user.name
 ```
 
-**Jira Identity:**
-Use `mcp__plugin_atlassian_atlassian__atlassianUserInfo` to get the current user's account ID and display name.
-
 Store these identities for filtering activity in subsequent steps.
 
 ## Step G2: Git Activity
@@ -53,28 +50,6 @@ Replace `${DAYS_AGO}` with the number of days between today and `$START_DATE`. O
 
 ## Step G4: Jira Activity (skip if `--skip-jira`)
 
-**If Jira MCP is available (`mcp__plugin_atlassian_atlassian__*` tools):**
-
-Use `mcp__plugin_atlassian_atlassian__searchJiraIssuesUsingJql` with:
-
-```
-JQL: assignee = currentUser() AND updated >= "$START_DATE" ORDER BY updated DESC
-Fields: summary, status, issuetype, priority, updated, created, resolution, self
-```
-
-Use `$START_DATE` in `YYYY-MM-DD` format. Do NOT hardcode a relative offset like `-7d`.
-
-For each ticket, extract:
-
-- Current status and any status transitions in the period
-- Issue type (Story, Bug, Task), priority, story points and sprint if available
-- Whether it was resolved/done in the period
-- Related PR numbers (from commit messages or branch names)
-- The Jira base URL from the `self` field (e.g., `https://yourorg.atlassian.net`) for linking tickets
-
-For project board context, read the board URL from the project's `CLAUDE.md` (look for a `## Jira` section with a `Board URL`). If absent, skip the board reference.
-
-**If Jira MCP is NOT available:**
 Ask the user:
 
 > "I don't have direct Jira access. Please paste your Jira activity summary, or tell me:
@@ -115,4 +90,4 @@ If any source fails (MCP server unavailable, API error, empty results):
 - Focus on outcomes and progress, not just "worked on X"
 - Group work by ticket/feature, not by source
 - Flag blockers and open items prominently
-- Link ticket references using the Jira base URL discovered from the API `self` field (e.g., `[PROJ-123](https://yourorg.atlassian.net/browse/PROJ-123)`) or the project `CLAUDE.md` `## Jira` section. If no base URL is available, include the bare ticket ID.
+- Link ticket references using the Jira base URL from the project `CLAUDE.md` `## Jira` section. If no base URL is available, include the bare ticket ID.

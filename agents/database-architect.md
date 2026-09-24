@@ -37,15 +37,6 @@ If `mcp__plugin_github_github__*` tools are available:
 
 **If unavailable:** Use local search to find migration files and models.
 
-### Jira MCP (Optional)
-
-If `mcp__plugin_atlassian_atlassian__*` tools are available:
-
-- Search for database-related tickets
-- Create migration tracking tickets
-
-**If unavailable:** Document migration plans in markdown.
-
 ## Schema Design Principles
 
 ### 1. Normalization Guidelines

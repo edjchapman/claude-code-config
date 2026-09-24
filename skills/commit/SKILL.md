@@ -17,9 +17,8 @@ Analyze my staged changes and help me write a good commit message.
 ## Jira Configuration
 
 Read Jira config from the project's `CLAUDE.md` if present (look for a
-`## Jira` section with `Base URL` and `Ticket Pattern`). If absent, prefer
-the `mcp__plugin_atlassian_atlassian__*` tools (dormant unless the atlassian plugin is enabled), or skip linking and use a bare
-ticket reference.
+`## Jira` section with `Base URL` and `Ticket Pattern`). If absent, skip
+linking and use a bare ticket reference.
 
 - **Common ticket patterns**: `[A-Z]+-\d+` (e.g. `ABC-123`, `PROJ-456`)
 
@@ -57,15 +56,9 @@ ticket reference.
    - `BIL-789/some-feature` → `BIL-789`
    - Common patterns: `[A-Z]+-[0-9]+` (e.g., `ABC-123`, `PROJ-456`)
 
-   **If Jira MCP is available (`mcp__plugin_atlassian_atlassian__getJiraIssue`):**
-
-   - Fetch ticket summary to validate and provide context
-   - Use ticket title to inform commit message scope
-
-   **If Jira MCP is NOT available but ticket ID found:**
+   **If a ticket ID is found:**
 
    - Include ticket reference in commit message
-   - Note: "Jira details not available - using ticket ID only"
 
 5. **Generate commit message** following conventional commits format:
 

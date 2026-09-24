@@ -44,15 +44,6 @@ If `mcp__plugin_github_github__*` tools are available:
 
 **If unavailable:** Use local search to find performance tests and benchmarks.
 
-### Jira MCP (Optional)
-
-If `mcp__plugin_atlassian_atlassian__*` tools are available:
-
-- Search for performance-related tickets with JQL
-- Create tickets for performance improvements identified
-
-**If unavailable:** Document findings in markdown for manual tracking.
-
 ## Performance Analysis Framework
 
 ### 1. Profiling & Measurement
