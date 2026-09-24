@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `10 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
+`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `20 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -263,7 +263,7 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>10 configured hooks</strong> + opt-in — click to expand</summary>
+<summary><strong>20 configured hooks</strong> + opt-in — click to expand</summary>
 
 **Configured:**
 
@@ -271,14 +271,24 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 | --------------------------- | ------------------------- | ------------------------------------------------------------------------------------ |
 | `SessionStart`              | `session-context.sh`      | Auto-load git context at session start (branch, recent commits, dirty files)         |
 | `SessionStart`              | `settings-drift-check.sh` | Warn when ~/.claude/settings.json has drifted from the repo's settings.json          |
+| `SessionStart`              | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
 | `PostToolUse (Write\|Edit)` | `format-on-edit.sh`       | Auto-format files after Claude edits them (unified Python + JS/TS formatter)         |
+| `PostToolUse`               | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
 | `PostToolUseFailure`        | `log-tool-failure.sh`     | Append failed tool calls to ~/.claude/logs/tool-failures.jsonl for pattern analysis  |
 | `PreToolUse (Bash)`         | `dangerous-cmd-check.sh`  | Defense-in-depth: block obviously catastrophic command patterns before they run.     |
+| `PreToolUse`                | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
 | `PreCompact`                | `pre-compact-state.sh`    | Preserve working state before context compaction                                     |
 | `PostCompact`               | `post-compact-restore.sh` | Re-inject the pre-compaction state snapshot after context compaction completes       |
 | `TaskCompleted`             | `task-completed-chime.sh` | Emit a terminal bell when an autonomous task completes                               |
 | `Notification`              | `notify-attention.sh`     | Desktop notification when Claude is blocked on you (permission request or idle wait) |
+| `Notification`              | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
 | `SessionEnd`                | `session-end.sh`          | Record each session end — always a CSV row, plus a git summary in ./standups/        |
+| `SessionEnd`                | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
+| `UserPromptSubmit`          | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
+| `PermissionRequest`         | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
+| `Stop`                      | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
+| `StopFailure`               | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
+| `SubagentStop`              | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: hooks -->
@@ -646,6 +656,7 @@ claude-code-config/
     │   ├── check-duplicates.sh      # pre-commit + CI (not a runtime hook)
     │   ├── dangerous-cmd-check.sh   # PreToolUse (Bash)
     │   ├── format-on-edit.sh        # PostToolUse (Write|Edit)
+    │   ├── iterm2-status.sh         # SessionStart, PostToolUse, PreToolUse, Notification, SessionEnd, UserPromptSubmit, PermissionRequest, Stop, StopFailure, SubagentStop
     │   ├── log-tool-failure.sh      # PostToolUseFailure
     │   ├── notify-attention.sh      # Notification
     │   ├── post-compact-restore.sh  # PostCompact
