@@ -156,7 +156,7 @@ jobs:
                           if hook.get('type') != 'command':
                               continue
                           cmd = hook.get('command', '')
-                          # Hook commands use ${CLAUDE_PLUGIN_DIR:-...readlink...}
+                          # Hook commands use ${CLAUDE_PLUGIN_ROOT:-...readlink...}
                           # followed by a path under scripts/hooks/. Extract the
                           # script-relative path so we can check it on disk.
                           if 'scripts/hooks/' not in cmd:

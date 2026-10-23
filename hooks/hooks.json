@@ -6,10 +6,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/session-context.sh"
-          },
-          {
-            "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/settings-drift-check.sh"
           }
         ]

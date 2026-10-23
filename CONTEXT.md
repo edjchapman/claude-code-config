@@ -12,7 +12,9 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   activated by the `outputStyle` managed key. Comes in two modes: **augmenting**
   (keeps the harness's own instructions and layers extra guidance on top, so harness
   improvements keep flowing) and **replacing** (discards them). This repo's style is
-  augmenting — replacing would freeze out upstream output improvements.
+  augmenting — replacing would freeze out upstream output improvements. The mode is
+  `keep-coding-instructions`, which only bites on the _full_ system prompt; newer
+  models get the shorter prompt, which has no coding section to keep or discard.
 - **Scannable** — this repo's output style: full detail, never prose walls. Substantial
   answers lead with the outcome, then anchored bullets, tables for enumerable facts,
   and visually delimited blocks; brief educational insights stay inside their own box.

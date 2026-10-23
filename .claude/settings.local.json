@@ -379,7 +379,6 @@
     "postgres",
     "playwright"
   ],
-  "outputStyle": "Scannable",
   "_version": 1,
   "_generated_from": [
     "base",

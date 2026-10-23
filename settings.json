@@ -15,10 +15,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/session-context.sh"
-          },
-          {
-            "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/settings-drift-check.sh"
           }
         ]
@@ -203,7 +199,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "${CLAUDE_PLUGIN_DIR:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/statusline.sh"
+    "command": "$(readlink ~/.claude/agents | xargs dirname)/scripts/hooks/statusline.sh"
   },
   "enabledPlugins": {
     "github@claude-plugins-official": true,

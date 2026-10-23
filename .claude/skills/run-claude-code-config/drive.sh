@@ -140,13 +140,16 @@ cmd_hooks() {
   expect_rc "allows benign command" 0
 
   head_ "SessionStart"
-  fire session-context.sh '{"hook_event_name":"SessionStart","source":"startup"}'
-  expect_rc "session-context.sh" 0
-  printf '%s' "$FIRE_OUT" | grep -q 'Session Context' \
-    && ok "emits the context banner" || bad "no context banner in stdout"
-
   fire settings-drift-check.sh '{"hook_event_name":"SessionStart","source":"startup"}'
   expect_rc "settings-drift-check.sh (sandbox has the agents symlink)" 0
+
+  head_ "statusline.sh (settings statusLine, not a hook)"
+  fire statusline.sh '{"model":{"display_name":"Opus"},"context_window":{"used_percentage":42},"pr":{"number":7}}'
+  expect_rc "statusline.sh" 0
+  printf '%s' "$FIRE_OUT" | grep -q 'PR #7' \
+    && ok "reads the PR from the stdin payload" || bad "no PR segment in stdout"
+  printf '%s' "$FIRE_OUT" | grep -q 'Opus' \
+    && ok "renders the model line" || bad "no model line in stdout"
 
   head_ "PostToolUse — format-on-edit.sh"
   local py="$SANDBOX/sample.py"

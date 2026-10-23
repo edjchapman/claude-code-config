@@ -82,11 +82,9 @@ if in_git_work_tree; then
   fi
 fi
 
-# Clean up stale cache files older than 1 hour: PR-status caches and any
-# orphaned pre-compact snapshots (post-compact-restore.sh normally deletes those,
-# but a crashed or interrupted compaction can leave one behind).
+# Clean up orphaned pre-compact snapshots older than 1 hour (post-compact-restore.sh
+# normally deletes those, but a crashed or interrupted compaction can leave one behind).
 if [ -d "$CACHE_DIR" ]; then
-  find "$CACHE_DIR" -name "pr-status-*" -mmin +60 -delete 2> /dev/null
   find "$CACHE_DIR" -name "precompact-*" -mmin +60 -delete 2> /dev/null
 fi
 

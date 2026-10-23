@@ -54,7 +54,7 @@ The one skip is `notify-attention.sh` (fires a real desktop banner). Opt in with
 Most PRs here touch a single hook or a single generator target. To poke one hook in isolation, with its output and exit code shown and `HOME` still sandboxed:
 
 ```bash
-bash .claude/skills/run-claude-code-config/drive.sh hook session-context.sh '{"source":"startup"}'
+bash .claude/skills/run-claude-code-config/drive.sh hook settings-drift-check.sh '{"source":"startup"}'
 bash .claude/skills/run-claude-code-config/drive.sh hook format-on-edit.sh '{"tool_input":{"file_path":"/tmp/x.py"}}'
 ```
 
