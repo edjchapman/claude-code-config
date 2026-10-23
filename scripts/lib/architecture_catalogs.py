@@ -156,12 +156,16 @@ SETTINGS_KEY_GLOSSES = {
         "(preserving unpushed commits); `bgIsolation: worktree` blocks Edit/Write "
         "in the main checkout until `EnterWorktree` is called"
     ),
-    "statusLine": "Command-based status line showing git branch, dirty count, and PR status",
+    "statusLine": (
+        "Command-based status line: git branch, dirty count and open PR, then model, "
+        "context use and effort — all but the dirty count read from the stdin payload"
+    ),
     "enabledPlugins": "Plugin enablement map — universal plugins only, some deliberately `false`",
     "extraKnownMarketplaces": "Extra plugin marketplaces this config expects to be available",
     "outputStyle": (
         "Output style for assistant responses — `Scannable`, this repo's augmenting "
-        "custom style in `output-styles/` (built-ins: `default`, `Explanatory`, `Learning`)"
+        "custom style in `output-styles/` (built-ins: `default`, `Proactive`, `Concise`, "
+        "`Explanatory`, `Learning`; values are case-sensitive)"
     ),
     "sandbox": "Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)",
     "tui": (

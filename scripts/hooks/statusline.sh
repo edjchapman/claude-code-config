@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Status line script for Claude Code
-# Shows git branch, dirty file count, and open PR status
-# Must execute fast (< 1s) — status line refreshes frequently
+# Line 1: git branch, dirty file count, open PR; line 2: model, context use, effort
+# Why: everything but the dirty count arrives in the stdin JSON payload, so the
+# script makes no network calls and keeps no cache — it stays well under the 300ms
+# debounce that Claude Code refreshes on.
 
 set -u
 
@@ -9,55 +11,52 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/git-context.sh
 . "$SCRIPT_DIR/lib/git-context.sh"
 
-BRANCH=$(git_branch "no-git")
+PAYLOAD=$(cat 2> /dev/null || true)
+
+# One python3 pass over the payload; absent fields come back empty. The unit
+# separator (not tab) keeps empty fields from collapsing in read.
+IFS=$'\x1f' read -r DIR PR_NUM PR_STATE MODEL CTX EFFORT < <(
+  printf '%s' "$PAYLOAD" | python3 -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    d = {}
+def get(path):
+    cur = d
+    for part in path.split("."):
+        cur = cur.get(part) if isinstance(cur, dict) else None
+    return "" if cur is None else str(cur)
+ctx = get("context_window.used_percentage")
+if ctx:
+    ctx = str(round(float(ctx)))
+print("\x1f".join([get("workspace.current_dir"), get("pr.number"), get("pr.review_state"),
+                 get("model.display_name"), ctx, get("effort.level")]))
+' 2> /dev/null || echo
+)
+
+if [ -n "$DIR" ]; then
+  cd "$DIR" 2> /dev/null || true
+fi
+
+LINE1=$(git_branch "no-git")
 DIRTY=$(git_dirty_count)
+[ "$DIRTY" -gt 0 ] && LINE1="$LINE1 | ${DIRTY} dirty"
+[ -n "$PR_NUM" ] && LINE1="$LINE1 | PR #${PR_NUM}${PR_STATE:+ $PR_STATE}"
+echo "$LINE1"
 
-# Build status parts
-STATUS="$BRANCH"
-
-if [ "$DIRTY" -gt 0 ]; then
-  STATUS="$STATUS | ${DIRTY} dirty"
-fi
-
-# Open PR status (cached for 60s to stay fast)
-CACHE_DIR="${HOME}/.claude/cache"
-if command -v md5sum &> /dev/null; then
-  CACHE_HASH=$(echo -n "$(pwd)" | md5sum | cut -d' ' -f1)
-else
-  CACHE_HASH=$(md5 -q -s "$(pwd)" 2> /dev/null || echo "default")
-fi
-CACHE_FILE="${CACHE_DIR}/pr-status-${CACHE_HASH}"
-CACHE_TTL=60
-PR_STATUS=""
-
-if [ -f "$CACHE_FILE" ]; then
-  CACHE_AGE=$(($(date +%s) - $(stat -f%m "$CACHE_FILE" 2> /dev/null || stat -c%Y "$CACHE_FILE" 2> /dev/null || echo 0)))
-  if [ "$CACHE_AGE" -lt "$CACHE_TTL" ]; then
-    PR_STATUS=$(cat "$CACHE_FILE")
-  fi
-fi
-
-if [ -z "$PR_STATUS" ]; then
-  if command -v gh &> /dev/null; then
-    # Guard the network call so a slow gh can't stall the status line (< 1s goal).
-    if command -v timeout &> /dev/null; then
-      GH_TIMEOUT="timeout 2"
-    elif command -v gtimeout &> /dev/null; then
-      GH_TIMEOUT="gtimeout 2"
-    else
-      GH_TIMEOUT=""
-    fi
-    # shellcheck disable=SC2086  # word-splitting of $GH_TIMEOUT is intentional
-    PR_STATUS=$($GH_TIMEOUT gh pr view --json state,number --jq '"PR #\(.number) \(.state)"' 2> /dev/null || echo "no PR")
-    mkdir -p "$CACHE_DIR"
-    echo "$PR_STATUS" > "$CACHE_FILE" 2> /dev/null
+LINE2="$MODEL"
+if [ -n "$CTX" ]; then
+  if [ "$CTX" -ge 80 ]; then
+    COLOR='\033[31m'
+  elif [ "$CTX" -ge 50 ]; then
+    COLOR='\033[33m'
   else
-    PR_STATUS="no gh"
+    COLOR='\033[32m'
   fi
+  LINE2="${LINE2:+$LINE2 · }$(printf "${COLOR}%s%% ctx\033[0m" "$CTX")"
 fi
+[ -n "$EFFORT" ] && LINE2="${LINE2:+$LINE2 · }$EFFORT effort"
+[ -n "$LINE2" ] && echo "$LINE2"
 
-if [ "$PR_STATUS" != "no PR" ] && [ "$PR_STATUS" != "no gh" ]; then
-  STATUS="$STATUS | $PR_STATUS"
-fi
-
-echo "$STATUS"
+exit 0

@@ -71,10 +71,9 @@ Hooks are configured in **two places** so the repo works in both consumption mod
 
 **Edit hooks in `hooks/hooks.json` only** — `settings.json`'s hooks block is regenerated from it (ADR-0001). Hook scripts themselves live in `scripts/hooks/` and the `${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}` prefix in command paths makes them resolve correctly under either mode (anchored on the `agents` symlink — `settings.json` is a mirrored real file, not a symlink; ADR-0002).
 
-Two small discrepancies between this repo and the docs, verified 2026-08-20 and left as-is:
+One small discrepancy between this repo and the docs, verified 2026-08-20 and left as-is:
 
 - `hooks/hooks.json` carries a `$schema` pointing at the **settings** schema (`json.schemastore.org/claude-code-settings.json`). The plugin docs document no `$schema` key for that file. It is harmless — the loader ignores unknown keys — and it buys editor completion, because the settings schema defines `hooks` at the top level and `hooks.json` has the same shape one level down. Keep it, but don't read it as a documented contract.
-- `settings.json`'s `statusLine.command` uses `${CLAUDE_PLUGIN_DIR:-…}` where every hook command uses `${CLAUDE_PLUGIN_ROOT:-…}`, and `CLAUDE_PLUGIN_ROOT` is the documented name. Nothing breaks: `statusLine` is settings-only (plugins cannot provide one), so the variable is never set in the mode that runs it and the `readlink` fallback always wins. The name is misleading rather than wrong-behaving.
 
 #### Hook Format
 
@@ -88,9 +87,8 @@ Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the 
 
 <!-- prettier-ignore-start -->
 
-Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 20 bindings across 14 events:
+Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 19 bindings across 14 events:
 
-- **SessionStart** → `scripts/hooks/session-context.sh`: Auto-load git context at session start (branch, recent commits, dirty files).
 - **SessionStart** → `scripts/hooks/settings-drift-check.sh`: Warn when ~/.claude/settings.json has drifted from the repo's settings.json. _Why:_ settings.json is mirrored — not symlinked — into ~/.claude/settings.json (ADR-0002), so a repo edit stays inert until a sync runs, and a runtime write can flip a managed key. This check surfaces pending drift at session start. Warn-only by design: it never applies changes itself, because silent mutation of the user's settings was deliberately rejected.
 - **SessionStart** → `scripts/hooks/iterm2-status.sh`: Forward session events to iTerm2's Claude Code status integration. _Why:_ iTerm2 ships a `cc-status` helper that renders live session state in the terminal's status bar, and its installer registers that helper directly in ~/.claude/settings.json. Because `hooks` is a managed key (ADR-0002), every sync then reported drift and setup-global.sh would have wiped all ten registrations. Wiring it through the repo's own hook definitions (ADR-0001) makes the integration survive a sync instead of fighting it.
 - **PostToolUse (Write|Edit)** → `scripts/hooks/format-on-edit.sh`: Auto-format files after Claude edits them (unified Python + JS/TS formatter). _Why:_ deliberately NOT `async` — the formatter rewrites files in place, so running it in the background could race a subsequent Edit of the same file in the same turn.
@@ -183,10 +181,10 @@ Beyond plugins and hooks, `settings.json` sets:
 - **`fallbackModel`**: Ordered fallback chain tried when the primary model is unavailable
 - **`hooks`**: Per-event hook configuration — generated from `hooks/hooks.json` (ADR-0001)
 - **`worktree`**: Worktree-session config: `baseRef: head` branches from local HEAD (preserving unpushed commits); `bgIsolation: worktree` blocks Edit/Write in the main checkout until `EnterWorktree` is called
-- **`statusLine`**: Command-based status line showing git branch, dirty count, and PR status
+- **`statusLine`**: Command-based status line: git branch, dirty count and open PR, then model, context use and effort — all but the dirty count read from the stdin payload
 - **`enabledPlugins`**: Plugin enablement map — universal plugins only, some deliberately `false`
 - **`extraKnownMarketplaces`**: Extra plugin marketplaces this config expects to be available
-- **`outputStyle`**: Output style for assistant responses — `Scannable`, this repo's augmenting custom style in `output-styles/` (built-ins: `default`, `Explanatory`, `Learning`)
+- **`outputStyle`**: Output style for assistant responses — `Scannable`, this repo's augmenting custom style in `output-styles/` (built-ins: `default`, `Proactive`, `Concise`, `Explanatory`, `Learning`; values are case-sensitive)
 - **`sandbox`**: Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)
 - **`tui`**: TUI rendering mode — `fullscreen` is the flicker-free alt-screen renderer with virtualized scrollback; `default` is the classic one. Matches `/tui`
 - **`autoMemoryEnabled`**: Auto-memory on/off (platform default `true`)

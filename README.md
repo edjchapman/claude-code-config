@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `20 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
+`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `19 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -263,13 +263,12 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>20 configured hooks</strong> + opt-in — click to expand</summary>
+<summary><strong>19 configured hooks</strong> + opt-in — click to expand</summary>
 
 **Configured:**
 
 | Hook                        | Script                    | What It Does                                                                         |
 | --------------------------- | ------------------------- | ------------------------------------------------------------------------------------ |
-| `SessionStart`              | `session-context.sh`      | Auto-load git context at session start (branch, recent commits, dirty files)         |
 | `SessionStart`              | `settings-drift-check.sh` | Warn when ~/.claude/settings.json has drifted from the repo's settings.json          |
 | `SessionStart`              | `iterm2-status.sh`        | Forward session events to iTerm2's Claude Code status integration.                   |
 | `PostToolUse (Write\|Edit)` | `format-on-edit.sh`       | Auto-format files after Claude edits them (unified Python + JS/TS formatter)         |
@@ -413,19 +412,25 @@ alias cee='~/Development/claude-code-config/scripts/cli/explain-error.sh'
 <summary><strong>Output styles</strong> — set <code>outputStyle</code> or use <code>/output-style</code></summary>
 
 This repo ships `"outputStyle": "Scannable"` as the default in `settings.json` — a custom
-augmenting style defined in [`output-styles/scannable.md`](output-styles/scannable.md)
-(`keep-coding-instructions: true`, so harness improvements keep flowing; `force-for-plugin:
-true`, so plugin installs apply it automatically). Global mode delivers it via the
-`~/.claude/output-styles` symlink.
+augmenting style defined in [`output-styles/scannable.md`](output-styles/scannable.md).
+`keep-coding-instructions: true` keeps Claude Code's coding instructions on the _full_ system
+prompt; newer models get the shorter prompt, which has no such section, so there the field is
+inert. `force-for-plugin: true` makes plugin installs apply it automatically. Global mode
+delivers it via the `~/.claude/output-styles` symlink.
 
 | Style         | When to use                                                                               |
 | ------------- | ----------------------------------------------------------------------------------------- |
 | `Scannable`   | Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks |
 | `default`     | Standard task-focused responses                                                           |
-| `explanatory` | Adds learning insights inline (good for unfamiliar codebases)                             |
-| `learning`    | More guided; fewer one-shot answers (good for upskilling)                                 |
+| `Proactive`   | Starts work right away, assuming routine decisions instead of asking                      |
+| `Concise`     | Leads with the result; drops preamble, narration and recaps                               |
+| `Explanatory` | Adds learning insights inline (good for unfamiliar codebases)                             |
+| `Learning`    | More guided; leaves small pieces for you to write (good for upskilling)                   |
 
-Override the default per project in `.claude/settings.local.json` (e.g. `{ "outputStyle": "default" }`), or switch on the fly via `/output-style`. (`outputStyle` is a managed key, so a global override in `~/.claude/settings.json` would be reverted on the next sync — see [ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md).)
+Values are case-sensitive in settings — `explanatory` silently falls back to `default`
+(`/output-style` itself ignores case).
+
+In global mode, override the default per project in `.claude/settings.local.json` (e.g. `{ "outputStyle": "default" }`), or switch on the fly via `/output-style`. In plugin mode, `force-for-plugin` overrides the `outputStyle` setting, so the only way out is disabling the plugin. (`outputStyle` is a managed key, so a global override in `~/.claude/settings.json` would be reverted on the next sync — see [ADR-0002](docs/adr/0002-mirror-settings-json-instead-of-symlinking.md).)
 
 </details>
 
@@ -661,7 +666,6 @@ claude-code-config/
     │   ├── notify-attention.sh      # Notification
     │   ├── post-compact-restore.sh  # PostCompact
     │   ├── pre-compact-state.sh     # PreCompact
-    │   ├── session-context.sh       # SessionStart
     │   ├── session-end.sh           # SessionEnd
     │   ├── settings-drift-check.sh  # SessionStart
     │   ├── statusline.sh            # settings.json statusLine.command
