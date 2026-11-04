@@ -232,7 +232,7 @@
     "autoAllowBashIfSandboxed": false
   },
   "tui": "fullscreen",
-  "autoMemoryEnabled": false,
+  "autoMemoryEnabled": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true
 }
