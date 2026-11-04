@@ -15,6 +15,7 @@ Default: pick the most durable home that matches the scope. A few seconds invoki
 ## Writing code
 
 - Comments: only where the "why" isn't obvious. Never restate what code does.
+- Edit repo files with Edit/Write, not shell scripts: format hooks and path rules skip those.
 
 ## The GitGuardian secret scan (ggshield)
 
