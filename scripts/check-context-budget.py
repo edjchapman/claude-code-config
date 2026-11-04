@@ -15,11 +15,20 @@ Per-item descriptions over WARN_ITEM_BYTES get a warning (exit 0),
 unless ACCEPTED_OVERSIZE_ITEMS records a reviewed size for that item;
 a total over TOTAL_BUDGET_BYTES fails the check (exit 1).
 
-Run from anywhere: python3 scripts/check-context-budget.py
+`--live` measures this machine instead, for what the repo cannot see: plugins
+synced from claude.ai sit outside the repo and the lockfile, yet load in every
+session. It sums each enabled plugin's always-on cost as reported by
+`claude plugin details`, so it needs the CLI and never runs in CI.
+
+Run from anywhere: python3 scripts/check-context-budget.py [--live]
 """
 
 from __future__ import annotations
 
+import json
+import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -50,6 +59,10 @@ ACCEPTED_OVERSIZE_ITEMS: dict[str, int] = {
     "mattpocock-skills:code-review (description)": 420,
 }
 
+# Current use is ~1.6k; the margin admits a small plugin but not a large one.
+LIVE_BUDGET_TOKENS = 3_000
+ALWAYS_ON_COST = re.compile(r"Always-on:\s+~?([\d,]+)\s*tok")
+
 GLOBAL_MEMORY = REPO_ROOT / "home" / "CLAUDE.md"
 
 
@@ -63,7 +76,52 @@ def frontmatter_description(path: Path) -> str:
     return value if isinstance(value, str) else ""
 
 
+def enabled_plugin_costs(claude: str) -> list[tuple[str, int]]:
+    """Return (plugin id, always-on tokens) for every enabled plugin."""
+
+    def run(*args: str) -> str:
+        return subprocess.run(
+            [claude, "plugin", *args], capture_output=True, text=True, check=True
+        ).stdout
+
+    enabled = {entry["id"] for entry in json.loads(run("list", "--json")) if entry["enabled"]}
+    costs = []
+    for plugin_id in sorted(enabled):
+        match = ALWAYS_ON_COST.search(run("details", plugin_id))
+        if match is None:
+            raise ValueError(f"no always-on cost reported for {plugin_id}")
+        costs.append((plugin_id, int(match.group(1).replace(",", ""))))
+    return costs
+
+
+def check_live() -> int:
+    claude = shutil.which("claude")
+    if claude is None:
+        print("ERROR: --live needs the claude CLI on PATH.")
+        return 2
+    try:
+        costs = enabled_plugin_costs(claude)
+    except (subprocess.CalledProcessError, ValueError, KeyError, json.JSONDecodeError) as exc:
+        print(f"ERROR: could not read plugin costs: {exc}")
+        return 2
+
+    print("Enabled plugins, always-on cost:")
+    for plugin_id, tokens in sorted(costs, key=lambda item: -item[1]):
+        print(f"  {plugin_id:<50}  ~{tokens:>6} tok")
+    total = sum(tokens for _, tokens in costs)
+    print(f"\nTotal: ~{total} tok (budget {LIVE_BUDGET_TOKENS} tok)")
+    if total > LIVE_BUDGET_TOKENS:
+        print(f"FAIL: enabled plugins cost ~{total} tok, over the {LIVE_BUDGET_TOKENS} tok budget.")
+        print("Disable unused ones with `claude plugin disable <id>`.")
+        return 1
+    print("Live plugin budget OK.")
+    return 0
+
+
 def main() -> int:
+    if "--live" in sys.argv[1:]:
+        return check_live()
+
     items: list[tuple[str, int]] = []
 
     items.append((str(GLOBAL_MEMORY.relative_to(REPO_ROOT)), len(GLOBAL_MEMORY.read_bytes())))

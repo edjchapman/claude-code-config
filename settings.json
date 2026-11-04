@@ -64,6 +64,10 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/dangerous-cmd-check.sh"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/shell-file-access-nudge.sh"
           }
         ]
       },
