@@ -1,3 +1,6 @@
 # Read by scripts/hooks/stop-check.sh: the first non-comment line runs before Claude
 # finishes a turn that changed the tree. Keep it fast and read-only (no formatters).
-python3 scripts/generate.py --check && python3 -m unittest discover -s tests -q
+# Test files run in parallel (every test works in its own temp dir): ~7s vs ~17s
+# serial. Each file's output is buffered and printed only on failure, so parallel
+# output never interleaves; xargs exits 123 if any file fails.
+python3 scripts/generate.py --check && ls tests/test_*.py | xargs -P 8 -n 1 sh -c 'out=$(python3 -m unittest discover -s tests -q -p "${1##*/}" 2>&1) || { printf "%s\n" "$out"; exit 1; }' _
