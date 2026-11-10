@@ -162,6 +162,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/stop-check.sh",
+            "timeout": 600
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/iterm2-status.sh"
           }
         ]

@@ -1,0 +1,3 @@
+# Read by scripts/hooks/stop-check.sh: the first non-comment line runs before Claude
+# finishes a turn that changed the tree. Keep it fast and read-only (no formatters).
+python3 scripts/generate.py --check && python3 -m unittest discover -s tests -q
