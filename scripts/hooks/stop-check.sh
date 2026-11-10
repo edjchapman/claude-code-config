@@ -88,15 +88,17 @@ if [ "$BLOCKS" -gt "$MAX_BLOCKS" ]; then
   rm -f "$BLOCKS_FILE"
   CHECK="$CHECK" BLOCKS="$MAX_BLOCKS" python3 -c '
 import json, os
-print(json.dumps({"systemMessage": f"stop-check: `{os.environ["CHECK"]}` is still failing after {os.environ["BLOCKS"]} attempts; letting the stop through. Run it yourself before trusting this turn."}))
+check, blocks = os.environ["CHECK"], os.environ["BLOCKS"]
+print(json.dumps({"systemMessage": f"stop-check: `{check}` is still failing after {blocks} attempts; letting the stop through. Run it yourself before trusting this turn."}))
 '
   exit 0
 fi
 
 CHECK="$CHECK" TAIL="$TAIL" STATUS="$STATUS" python3 -c '
 import json, os
+check, status = os.environ["CHECK"], os.environ["STATUS"]
 reason = (
-    f"The project check `{os.environ["CHECK"]}` failed (exit {os.environ["STATUS"]}) after your changes. "
+    f"The project check `{check}` failed (exit {status}) after your changes. "
     "Fix the cause, or if the failure is unrelated to this task, say so explicitly in your reply. "
     "Last lines of output:\n\n" + os.environ["TAIL"]
 )
