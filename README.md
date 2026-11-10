@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `20 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
+`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `21 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -263,7 +263,7 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>20 configured hooks</strong> + opt-in — click to expand</summary>
+<summary><strong>21 configured hooks</strong> + opt-in — click to expand</summary>
 
 **Configured:**
 
@@ -286,6 +286,7 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 | `SessionEnd`                | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
 | `UserPromptSubmit`          | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
 | `PermissionRequest`         | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `Stop`                      | `stop-check.sh`              | Run the project's check command before Claude finishes, and send failures back as a blocked stop.                                     |
 | `Stop`                      | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
 | `StopFailure`               | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
 | `SubagentStop`              | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
@@ -671,6 +672,7 @@ claude-code-config/
     │   ├── settings-drift-check.sh     # SessionStart
     │   ├── shell-file-access-nudge.sh  # PreToolUse (Bash)
     │   ├── statusline.sh               # settings.json statusLine.command
+    │   ├── stop-check.sh               # Stop
     │   ├── task-completed-chime.sh     # TaskCompleted
     │   └── lib/                        # shared helpers sourced by the hook scripts
     └── cli/                 # Headless CLI automation scripts
