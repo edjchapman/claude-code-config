@@ -4,6 +4,7 @@ description: >-
   Profile and optimize application performance — bottlenecks, slow queries, memory and CPU, caching.
   Use for planned optimization, load-testing, and scalability work; for a performance regression
   that needs diagnosing, use the diagnosing-bugs skill.
+effort: high
 color: pink
 memory: project
 ---

@@ -4,6 +4,7 @@ description: >-
   Run a bug investigation in its own context, with project memory and issue-tracker lookup, and
   report a root cause with proposed fixes. Use when an investigation should be dispatched
   separately from the current work; to diagnose in-context, use the diagnosing-bugs skill.
+effort: high
 color: red
 memory: project
 ---

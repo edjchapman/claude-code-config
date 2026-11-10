@@ -175,6 +175,10 @@ SETTINGS_KEY_GLOSSES = {
     "autoMemoryEnabled": "Auto-memory on/off (platform default `true`)",
     "inputNeededNotifEnabled": "Desktop notification when Claude is blocked waiting for you",
     "agentPushNotifEnabled": "Push notifications for background agent activity",
+    "modelSettings": (
+        "Per-model config keyed by model ID (`effortLevel`, `maxEffortLevel`, "
+        "`autoCompactWindow`) — Opus 5.5 runs at `high` effort"
+    ),
 }
 
 # Documented top-level settings keys, with a gloss where the name alone is
@@ -198,7 +202,8 @@ DOCUMENTED_SETTINGS_KEYS = {
     "language": "response language preference",
     "cleanupPeriodDays": "session file retention, default 30",
     "disableBundledSkills": "hide bundled skills like `/code-review`, `/loop`",
-    "effortLevel": "default reasoning effort",
+    "effortLevel": "legacy default reasoning effort, ignored on Opus 5.5+",
+    "modelSettings": "",
     "statusLine": "",
     "attribution": "",
     "fallbackModel": "",
