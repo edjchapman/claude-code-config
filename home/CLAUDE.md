@@ -6,11 +6,11 @@ Symlinked to `~/.claude/CLAUDE.md` by `scripts/setup-global.sh`. Loaded by Claud
 
 When you notice a non-time-bound follow-up mid-session (a validator worth building, a pattern worth capturing, a learning to revisit), give it a **durable home before** writing _"deferred to future sessions"_ in your reply — chat narrative dies with context expiry, the rest survive.
 
-- **Cross-session / personal backlog** — call `/later` with `--category Learn`/`Do`/`Research`/`Read`. Writes to `~/Reference/Later/<Category>/`, surfaced when `/later` next runs.
+- **Cross-session / personal backlog** — `/later` is user-only, so end your reply with a ready-to-run `/later "<title>" --category Learn|Do|Research|Read` for Ed.
 - **Repo TODO without a trigger** — inline comment in the relevant file (Makefile / script / markdown). Survives via git; visible when next editing that file.
 - **Memory-worthy rule or pattern** — write a new `feedback_*.md` to `~/.claude/projects/<slug>/memory/` (cross-session, but **not git-backed**). For rules that should apply globally across all projects, add a section to _this_ file instead — git-backed via `claude-code-config`.
 
-Default: pick the most durable home that matches the scope. A few seconds invoking `/later` (or adding two lines here) beats a silently-lost learning.
+Default: pick the most durable home that matches the scope. A one-line `/later` suggestion (or adding two lines here) beats a silently-lost learning.
 
 ## Writing code
 

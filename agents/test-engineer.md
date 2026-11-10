@@ -4,7 +4,8 @@ description: >-
   Write, fix, and debug tests at any level — backend unit and integration, frontend components and
   hooks, Playwright end-to-end specs, fixtures, and flaky tests. Use after building a feature or
   fixing a bug.
-model: sonnet
+model: inherit
+effort: high
 color: blue
 ---
 

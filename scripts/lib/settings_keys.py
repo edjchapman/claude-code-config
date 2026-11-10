@@ -30,6 +30,8 @@ ALLOWED_KEYS = {
     "autoMemoryEnabled",
     "inputNeededNotifEnabled",
     "agentPushNotifEnabled",
+    # Per-model effort: top-level effortLevel is ignored on Opus 5.5+.
+    "modelSettings",
 }
 
 # Tombstones: keys the repo once managed and has since retired. A sync

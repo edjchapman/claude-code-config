@@ -26,7 +26,16 @@ from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
 # Runtime keys this repo's agents actually use. Grow this deliberately when
 # adopting a new Claude Code frontmatter key — an unknown key here is far
 # more likely a typo than a new feature.
-ALLOWED_KEYS = {"name", "description", "model", "color", "memory", "permissionMode", "tools"}
+ALLOWED_KEYS = {
+    "name",
+    "description",
+    "model",
+    "effort",
+    "color",
+    "memory",
+    "permissionMode",
+    "tools",
+}
 REQUIRED_KEYS = {"name", "description"}
 
 
