@@ -177,7 +177,8 @@ SETTINGS_KEY_GLOSSES = {
     "agentPushNotifEnabled": "Push notifications for background agent activity",
     "modelSettings": (
         "Per-model config keyed by model ID (`effortLevel`, `maxEffortLevel`, "
-        "`autoCompactWindow`) — Opus 5.5 runs at `high` effort"
+        "`autoCompactWindow`) — Opus 5.5 runs at `high` effort and "
+        "auto-compacts at 400k tokens"
     ),
 }
 
