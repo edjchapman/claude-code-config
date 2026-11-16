@@ -13,6 +13,10 @@
     "claude-opus-5-5": {
       "effortLevel": "high",
       "autoCompactWindow": 400000
+    },
+    "claude-fable-5-2": {
+      "effortLevel": "high",
+      "autoCompactWindow": 400000
     }
   },
   "hooks": {
@@ -248,6 +252,7 @@
   },
   "tui": "fullscreen",
   "autoMemoryEnabled": true,
+  "syncClaudeAiSkills": false,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true
 }

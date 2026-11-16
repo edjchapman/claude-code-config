@@ -32,6 +32,8 @@ ALLOWED_KEYS = {
     "agentPushNotifEnabled",
     # Per-model effort: top-level effortLevel is ignored on Opus 5.5+.
     "modelSettings",
+    # claude.ai-synced skills cost ~3k tokens of listing in every session.
+    "syncClaudeAiSkills",
 }
 
 # Tombstones: keys the repo once managed and has since retired. A sync
