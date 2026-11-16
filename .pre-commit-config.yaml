@@ -116,6 +116,10 @@ repos:
     rev: v3.3.3
     hooks:
       - id: prettier
+        # Pinned: unpinned, pre-commit asks nodeenv for the "latest" Node
+        # wherever node is absent or lives under $HOME (fnm, nvm), and
+        # nodeenv 1.11 crashes when that is a pre-release (v27.0.0-alpha).
+        language_version: 26.13.1
         # Respect .prettierignore at repo root.
         # Don't format markdownlint's config or release-please outputs.
         types_or: [markdown, json, yaml]
