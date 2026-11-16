@@ -177,13 +177,18 @@ SETTINGS_KEY_GLOSSES = {
     "agentPushNotifEnabled": "Push notifications for background agent activity",
     "modelSettings": (
         "Per-model config keyed by model ID (`effortLevel`, `maxEffortLevel`, "
-        "`autoCompactWindow`) — Opus 5.5 runs at `high` effort and "
-        "auto-compacts at 400k tokens"
+        "`autoCompactWindow`) — Opus 5.5 and Fable 5.2 run at `high` effort and "
+        "auto-compact at 400k tokens"
+    ),
+    "syncClaudeAiSkills": (
+        "`false` stops skills enabled on claude.ai from syncing into Claude Code "
+        "and its always-loaded skill listing"
     ),
 }
 
 # Documented top-level settings keys, with a gloss where the name alone is
-# not self-explanatory (verified against the settings docs, 2026-07-29). The
+# not self-explanatory (verified against the settings docs, 2026-07-29; skill-listing, cache-TTL
+# and compaction keys added 2026-11-16). The
 # rendered list is this catalog minus whatever settings.json actually sets.
 DOCUMENTED_SETTINGS_KEYS = {
     "env": "",
@@ -205,6 +210,12 @@ DOCUMENTED_SETTINGS_KEYS = {
     "disableBundledSkills": "hide bundled skills like `/code-review`, `/loop`",
     "effortLevel": "legacy default reasoning effort, ignored on Opus 5.5+",
     "modelSettings": "",
+    "syncClaudeAiSkills": "",
+    "skillListingBudgetFraction": "share of the context window for the skill listing, default 1%",
+    "skillListingMaxDescChars": "per-skill description cap in the listing, default 1536",
+    "promptCacheTtl": "main-conversation prompt cache TTL, `5m` or `1h`",
+    "subagentPromptCacheTtl": "subagent prompt cache TTL, default `5m`",
+    "idleCompaction": "`false` stops compaction of idle long sessions",
     "statusLine": "",
     "attribution": "",
     "fallbackModel": "",
