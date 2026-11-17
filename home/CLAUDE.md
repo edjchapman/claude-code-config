@@ -23,7 +23,7 @@ The global **pre-push** hook (`~/.config/git/hooks/pre-push`, chezmoi-managed) s
 commits about to leave the machine, in every repo, against one shared workspace budget of
 10,000 API calls on a rolling 30-day window — exhausting it in one repo blocks pushes in
 all of them, and it recovers only as old usage ages out. (It moved from pre-commit in
-Dotfiles#159: per-commit scanning billed every amend and rejected attempt. Individual
+dotfiles#159: per-commit scanning billed every amend and rejected attempt. Individual
 repos may still carry their own per-commit ggshield hook via the `pre-commit` framework.)
 
 **A failed scan is not a detected secret.** Only exit code 1 means secrets were found;
