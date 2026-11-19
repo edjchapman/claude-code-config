@@ -125,3 +125,8 @@ bump, and nothing here schedules or prompts that choice.
 A tag pin gives up what the SHA gave: upstream can move `v1.2.3` and every check
 here still passes, because the lockfile records the ref, not the commit it
 resolved to. Recording that commit is a follow-up, not part of this revision.
+
+_Since #156:_ the lockfile records that commit, `generate.py --check` requires it,
+and `scripts/check-plugin-drift.py` fails locally when the marketplace clone has
+moved off it. CI still cannot see a re-cut tag, because it has no clone; the
+recorded commit plus the local check is the agreed mechanism.

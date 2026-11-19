@@ -9,19 +9,27 @@ Two consumers derive from this module, so the relationship is enforced rather
 than remembered:
 
 - ``generate.py --check`` fails when settings.json's pin drifts from the
-  committed lockfile, so a plugin can never move without a reviewed diff.
+  committed lockfile, so a plugin can never move without a reviewed diff, and
+  when the lockfile does not name the commit that pin resolved to.
 - ``check-context-budget.py`` counts the pinned plugin's model-invocable
   descriptions into the always-loaded budget, so the reported number is the
   real per-session cost rather than only the part this repo authors.
 
 The lockfile itself is produced by ``scripts/update-plugin-lock.py`` from the
 local plugin cache. CI never regenerates it — CI only verifies it.
+
+The pin is a tag, and a tag can be re-cut, so the lockfile also records the
+commit the tag resolved to. ``scripts/check-plugin-drift.py`` compares that
+with the local marketplace clone — a check only a machine with the clone can
+make, which is why it runs from pre-commit and not from CI.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import re
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,10 +43,16 @@ MARKETPLACE = "mattpocock"
 PLUGIN = "mattpocock-skills"
 
 PLUGIN_CACHE = Path.home() / ".claude" / "plugins" / "cache"
+# Where Claude Code keeps its git clone of each marketplace, keyed by
+# marketplace name. A machine artifact like the cache: absent in CI.
+MARKETPLACE_CLONES = Path.home() / ".claude" / "plugins" / "marketplaces"
 
 # A marketplace ref must be a branch or tag name: Claude Code clones a declared
 # marketplace with `git clone --branch <ref>`, which git rejects for a SHA (#152).
 SHA_LIKE = re.compile(r"[0-9a-f]{7,40}")
+# The lockfile's `commit` is the opposite case: it is never cloned, only
+# compared, so it must be the whole SHA.
+FULL_SHA = re.compile(r"[0-9a-f]{40}")
 
 
 @dataclass(frozen=True)
@@ -96,6 +110,27 @@ def plugin_cache_root(plugin: VendoredPlugin, cache: Path = PLUGIN_CACHE) -> Pat
     return versions[-1]
 
 
+def clone_commit(clone: Path, rev: str = "HEAD") -> str | None:
+    """The full commit SHA `rev` resolves to in a marketplace clone.
+
+    None when `clone` is not a git repository or holds no such rev. The
+    `.git` test matters: `git -C` in a plain directory would otherwise
+    answer for whichever repository encloses it.
+    """
+    if not (clone / ".git").exists():
+        return None
+    # Git exports GIT_DIR and friends to the hooks it runs, and they outrank
+    # `-C`: unstripped, a pre-commit run would read this repo, not the clone.
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    result = subprocess.run(
+        ["git", "-C", str(clone), "rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}"],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
 def load_lock(root: Path = REPO_ROOT) -> dict | None:
     """The committed lockfile, or None when this repo pins nothing."""
     path = root / LOCKFILE
@@ -136,6 +171,14 @@ def verify_pin(root: Path = REPO_ROOT) -> None:
             f"records {lock['ref']}. Regenerate the lockfile "
             f"(python3 scripts/update-plugin-lock.py) and read the diff — every changed "
             f"trigger is a collision candidate against this repo's own primitives"
+        )
+    commit = lock.get("commit")
+    if not isinstance(commit, str) or not FULL_SHA.fullmatch(commit):
+        raise GenerationError(
+            f"{LOCKFILE} must record the full 40-character commit that {lock['ref']} "
+            f"resolved to, but its `commit` is {commit!r}. A tag can be re-cut, so "
+            f"without the commit the lockfile names no fixed content. Regenerate it "
+            f"(python3 scripts/update-plugin-lock.py)"
         )
 
 
