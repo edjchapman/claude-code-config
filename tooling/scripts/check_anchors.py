@@ -16,11 +16,15 @@ Slugify rules (matches what GFM does for headings rendered on
 github.com — approximation, but verified against the existing repo's
 auto-generated anchors):
 
-  - Strip markdown formatting (`**`, `_`, `` ` ``)
   - Lowercase
   - Replace spaces with `-`
-  - Strip everything not in `[a-z0-9_-]`
+  - Strip everything not in `[a-z0-9_-]` — which removes the formatting
+    marks `*` and `` ` `` and keeps a literal `_`, as GitHub does
   - Deduplicate with `-1`, `-2`, etc. suffixes in document order
+
+The slug is computed from raw heading source, not rendered text, so an
+underscore-emphasised heading (`## _Word_`) slugs to `_word_` where
+GitHub gives `word`. That errs towards a false FAIL, never a false pass.
 
 Excludes: external URLs (http/https/mailto/tel), and lines marked
 `stale-anchor-allow` (mirrors the `stale-refs-allow` convention).
@@ -42,8 +46,6 @@ HEADING_RE = re.compile(r"^#+\s+(.+?)\s*$", re.MULTILINE)
 def slugify_gfm(heading: str) -> str:
     """Approximate GitHub heading slug."""
     s = heading.lower().strip()
-    # Strip common markdown formatting characters.
-    s = re.sub(r"[*_`]", "", s)
     # Replace spaces with hyphens.
     s = s.replace(" ", "-")
     # Keep only ASCII alphanumeric, hyphen, underscore.

@@ -2,8 +2,10 @@
 """Fail CI if the always-loaded context surface exceeds its byte budget.
 
 Every session pays a fixed token cost for: the global memory file
-(home/CLAUDE.md), the frontmatter `description:` of every skill and
-agent (bodies load on demand and are deliberately not counted), and the
+(home/CLAUDE.md), the frontmatter `description:` of every agent and every
+model-invocable skill (bodies load on demand and are deliberately not
+counted; neither is a user-only skill, whose description is never put in
+context), and the
 model-invocable descriptions of every **third-party primitive** a pinned
 plugin ships (read from the lockfile, since the plugin cache is a local
 artifact absent in CI). A skill costs the same whether this repo authored
@@ -128,6 +130,8 @@ def main() -> int:
 
     for path in tracked_files(":(glob)skills/*/SKILL.md") + tracked_files(":(glob)agents/*.md"):
         rel = str(path.relative_to(REPO_ROOT))
+        if parse_frontmatter(path).get("disable-model-invocation") == "true":
+            continue
         desc = frontmatter_description(path)
         if not desc:
             print(f"WARNING: {rel} has no parseable description: frontmatter")
