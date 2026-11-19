@@ -36,6 +36,9 @@ named error rather than a stale doc:
   plugin pin      settings.json's pin matches the committed lockfile
                   (lib/vendored_plugins.py), so a third-party primitive can
                   never change what it ships without a reviewed diff.
+  style name      settings.json's outputStyle equals the name of a tracked
+                  output style (lib/primitives.py); an unmatched value would
+                  silently run the default style.
 
 Primitives are enumerated from git-tracked files, so an untracked local-only
 extra is never written into a catalog and staged by pre-commit.

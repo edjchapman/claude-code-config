@@ -2,7 +2,7 @@
 
 Full Claude-facing reference for this repo's moving parts — scripts, hooks, settings keys, templates, and automation. Behavioural rules and the easy-to-get-wrong gotchas live in [`CLAUDE.md`](../CLAUDE.md); user-facing catalogs live in [`README.md`](../README.md); extension recipes live in [`extending.md`](extending.md).
 
-**Every catalog below is a generated region** (`<!-- BEGIN GENERATED: … -->`), rendered from the primitives on disk by `scripts/generate.py` (ADR-0001). Hand edits inside one are reverted on the next run — change the source instead: a hook's summary and `Why:` note live in its script header, a skill's or agent's in its frontmatter, a template's in its `_description`, and the platform-reference data in `scripts/lib/architecture_catalogs.py`. Prose outside the markers is hand-written rationale and is yours to edit.
+**Every catalog below is a generated region** (`<!-- BEGIN GENERATED: … -->`), rendered from the primitives on disk by `scripts/generate.py` (ADR-0001). Hand edits inside one are reverted on the next run — change the source instead: a hook's summary and `Why:` note live in its script header, a skill's, agent's or output style's in its frontmatter, a template's in its `_description`, and the platform-reference data in `scripts/lib/architecture_catalogs.py`. Prose outside the markers is hand-written rationale and is yours to edit.
 
 ## Key Scripts
 
@@ -187,7 +187,7 @@ Beyond plugins and hooks, `settings.json` sets:
 - **`statusLine`**: Command-based status line: git branch, dirty count and open PR, then model, context use and effort — all but the dirty count read from the stdin payload
 - **`enabledPlugins`**: Plugin enablement map — universal plugins only, some deliberately `false`
 - **`extraKnownMarketplaces`**: Extra plugin marketplaces this config expects to be available
-- **`outputStyle`**: Output style for assistant responses — `Scannable`, this repo's augmenting custom style in `output-styles/` (built-ins: `default`, `Proactive`, `Concise`, `Explanatory`, `Learning`; values are case-sensitive)
+- **`outputStyle`**: Output style for assistant responses — must name a style this repo ships in `output-styles/` (listed under Output Styles below; built-ins: `default`, `Proactive`, `Concise`, `Explanatory`, `Learning`; values are case-sensitive)
 - **`sandbox`**: Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)
 - **`tui`**: TUI rendering mode — `fullscreen` is the flicker-free alt-screen renderer with virtualized scrollback; `default` is the classic one. Matches `/tui`
 - **`autoMemoryEnabled`**: Auto-memory on/off (platform default `true`)
@@ -272,6 +272,21 @@ Available rules:
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-rules -->
+
+### Output Styles
+
+Output styles are markdown files in `output-styles/` that own Claude's response format. The managed `outputStyle` key selects one by its frontmatter `name` (the file name when it sets none), and `generate.py --check` fails when that value names no shipped style: the platform reports no error for an unmatched value and falls back to the default style.
+
+Shipped styles:
+
+<!-- BEGIN GENERATED: arch-output-styles -->
+
+<!-- prettier-ignore-start -->
+
+- `Scannable` (`output-styles/scannable.md`): Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks. Augments the harness defaults rather than replacing them.
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-output-styles -->
 
 ### Settings Files: Two Purposes
 
