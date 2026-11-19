@@ -90,3 +90,38 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   region. Asserted by the generator's `--check` over the hand-written spans and
   scoped to those declared sets, so an architectural count ("two install modes")
   is not a violation.
+- **Usage review** — the examination of a user's own Claude Code session history
+  for places where their config costs output quality or efficiency. Shipped to every
+  consumer, so "their config" is whatever that user runs, not only this repo. Its
+  evidence exists only on the machine the sessions ran on, and only **aggregates**
+  of it (counts, totals, tool, hook and model names) may be published — never a
+  prompt, file path, or project name. One of the two ways the
+  config improves itself; not to be merged with **upstream watch**, which looks
+  outward rather than at usage.
+- **Upstream watch** — the examination of Claude Code's released changes for what
+  this config should adopt and what they have made stale. Needs nothing from the
+  maintainer's machine, and is the maintainer's alone — not shipped to consumers.
+  Its findings rank by kind: **breakage** (a release broke something relied on),
+  **deprecation** (still works, marked legacy), **refresh** (a declared set no
+  longer matches the platform), then **adoption** (a new capability, optional).
+- **Opted-in repo** — a repo that has declared a usage review may open pull requests
+  against it, and on which sessions the review's evidence rests (that repo's, or
+  every project's when its config is global). Everywhere else a usage review is
+  **report-only**: it publishes nothing.
+- **Proposal** — the shared output unit of a usage review or an upstream watch: one
+  suggested change to a config, ranked against the others and carrying the
+  evidence for it. The best few of a run become pull requests, one change each;
+  the repo's owner merges or closes them — a proposal is never merged by the loop
+  that made it, and closing one is a **rejection** that stands unless its signal
+  worsens. One from a usage review names the **signal** it expects to move,
+  so a later review can judge whether the change worked.
+- **Verdict** — a later usage review's judgement of a merged proposal against the
+  signal it named: **improved**, **no change**, **worse**, or **inconclusive** (the
+  comparison was confounded, e.g. the daily model changed). Only _worse_ leads
+  anywhere — to a new proposal to revert. Upstream-watch proposals get no verdict;
+  they name no signal.
+- **Signal** — a countable measure of session history that a usage review tracks.
+  **Efficiency signals** measure cost directly (context size, compactions,
+  always-loaded context, permission prompts, hook latency, failed tool calls).
+  **Quality proxies** (interruptions, corrections, denied tool calls) stand in for
+  output quality, which session history does not record directly.
