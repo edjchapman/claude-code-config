@@ -99,7 +99,7 @@ repos:
         name: always-loaded context within byte budget
         entry: python3 scripts/check-context-budget.py
         language: system
-        files: ^(agents/.*\.md|skills/.*/SKILL\.md|home/CLAUDE\.md|scripts/check-context-budget\.py)$
+        files: ^(agents/.*\.md|skills/.*/SKILL\.md|home/CLAUDE\.md|scripts/check-context-budget\.py|plugins/.*\.lock\.json|settings\.json)$
         pass_filenames: false
 
       - id: check-agent-frontmatter

@@ -31,7 +31,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lib.config_common import REPO_ROOT, check_python_version  # noqa: E402
-from lib.vendored_plugins import LOCKFILE, VendoredPlugin, plugin_cache_root  # noqa: E402
+from lib.vendored_plugins import (  # noqa: E402
+    LOCKFILE,
+    PLUGIN_CACHE,
+    VendoredPlugin,
+    plugin_cache_root,
+)
+
+# A ref that names a release: `v1.2.3` or `1.2.3`. Anything else (a branch)
+# cannot be compared with the cached plugin's version.
+VERSION_REF = re.compile(r"v?(\d+(?:\.\d+)+)")
 
 
 def _skill_manifest(cache: Path) -> dict[str, dict]:
@@ -63,16 +72,36 @@ def main() -> None:
         "--ref", help="the tag (or branch) to record as the pin — never a commit SHA (#152)"
     )
     parser.add_argument("--root", type=Path, default=REPO_ROOT)
+    parser.add_argument(
+        "--cache", type=Path, default=PLUGIN_CACHE, help="plugin cache override (tests)"
+    )
     args = parser.parse_args()
 
     plugin = VendoredPlugin.declared()
-    cache = plugin_cache_root(plugin)
+    cache = plugin_cache_root(plugin, args.cache)
     skills = _skill_manifest(cache)
     version = json.loads((cache / ".claude-plugin" / "plugin.json").read_text())["version"]
 
     ref = args.ref or plugin.ref
     if not ref:
         raise SystemExit("no --ref given and no pin in settings.json to inherit")
+
+    # A lockfile stamped with one ref but read from another cached version
+    # passes verify_pin (which compares refs only) while describing content
+    # the pin does not load (#155).
+    named = VERSION_REF.fullmatch(ref)
+    if named and named.group(1) != version:
+        raise SystemExit(
+            f"ref {ref} names version {named.group(1)}, but the newest cached plugin "
+            f"({cache}) is version {version} — nothing written.\n"
+            f"Refresh the local plugin so the cache holds {ref}, then rerun "
+            f'(docs/extending.md, "Bumping a vendored plugin").'
+        )
+    if not named:
+        print(
+            f"note: ref {ref} is not version-shaped — version not verified against "
+            f"the cached plugin ({version})"
+        )
 
     always_loaded = sum(
         len(entry["description"].encode()) for entry in skills.values() if entry["model_invocable"]
