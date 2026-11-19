@@ -658,6 +658,7 @@ claude-code-config/
     ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
+    ├── check-attribution.py  # CI: no Claude attribution in a PR's commits or body
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
     │   ├── check-duplicates.sh         # pre-commit + CI (not a runtime hook)
