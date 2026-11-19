@@ -247,6 +247,7 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `/refinement`: Prepare technical analysis for backlog refinement meetings. **User-only.**
 - `/standup`: Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently. **Schedulable** — fired by the daily standup routine (issue #51).
 - `/status`: Capture a quick status update and append it to today's daily log. **User-only.**
+- `/usage-review`: Measure your Claude Code session history for where your config costs output quality or efficiency, and write a local report of ranked proposals. **User-only.**
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-skills -->
