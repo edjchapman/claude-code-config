@@ -30,6 +30,7 @@ ARCHITECTURE_REGIONS = [
     "arch-unset-settings-keys",
     "arch-skills",
     "arch-rules",
+    "arch-output-styles",
     "arch-settings-templates",
     "arch-mcp-templates",
     "arch-cli-scripts",
@@ -41,6 +42,7 @@ README_REGIONS = [
     "workflow-skills",
     "domain-skills",
     "rules",
+    "output-styles",
     "hooks",
     "settings-templates",
     "mcp-templates",
@@ -129,6 +131,16 @@ def _write_rules(root: Path) -> None:
     )
 
 
+def _write_output_styles(root: Path) -> None:
+    (root / "output-styles").mkdir()
+    # The `_` and `*` are deliberate, as in dom-skill: the description must
+    # reach both docs escaped, not parsed as emphasis.
+    (root / "output-styles" / "tidy.md").write_text(
+        "---\nname: Tidy\ndescription: Tidy output, in short_lines — never *walls*.\n"
+        "keep-coding-instructions: true\n---\n\n# Tidy\n"
+    )
+
+
 def _write_templates(root: Path) -> None:
     (root / "settings-templates").mkdir()
     (root / "settings-templates" / "base.json").write_text(
@@ -206,6 +218,7 @@ def make_readme_fixture(root: Path) -> None:
     _write_agents(root)
     _write_skills(root)
     _write_rules(root)
+    _write_output_styles(root)
     _write_templates(root)
     _write_scripts(root)
     _write_readme(root)

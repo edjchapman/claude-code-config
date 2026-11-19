@@ -1,7 +1,7 @@
 """Read this repo's primitives off disk, once, for every catalog target.
 
-A *primitive* is an agent, skill, rule, hook binding, template, or CLI
-script (CONTEXT.md). Both catalog renderers — README tables
+A *primitive* is an agent, skill, rule, output style, hook binding,
+template, or CLI script (CONTEXT.md). Both catalog renderers — README tables
 (readme_catalogs.py) and the docs/architecture.md reference lists
 (architecture_catalogs.py) — describe the same primitives, so they read
 them through this module rather than each walking the tree. Descriptions
@@ -104,6 +104,12 @@ class HookScript(NamedTuple):
     name: str
     summary: str
     non_hook: str | None  # the NON_HOOK_SCRIPTS note; None when a binding fires it
+
+
+class OutputStyle(NamedTuple):
+    name: str  # the value `outputStyle` selects it by
+    description: str
+    file: str
 
 
 class Template(NamedTuple):
@@ -209,6 +215,38 @@ def rules(root: Path) -> list[Rule]:
             paths = [paths]
         headings = [ln[3:].strip() for ln in path.read_text().splitlines() if ln.startswith("## ")]
         result.append(Rule(path.stem, paths, headings))
+    return result
+
+
+def output_styles(root: Path) -> list[OutputStyle]:
+    """Every tracked output style, enforcing the style-name invariant.
+
+    A style is selected by its frontmatter `name`, or by its file name when
+    it sets none (output-styles reference, checked 2026-11-19: "The file
+    name becomes the style name unless you set `name` in the frontmatter").
+
+    The invariant: the managed `outputStyle` value in settings.json names a
+    style this repo ships. Nothing else connects the two, and the platform
+    reports no error for a value that matches nothing — sessions fall back
+    to the default style. The comparison is case-sensitive because the
+    setting's values are. A settings.json with no `outputStyle` makes no
+    claim and is not checked.
+    """
+    result = []
+    for path in tracked_files(":(glob)output-styles/*.md", root):
+        meta = _read_meta(path)
+        name = meta.get("name") or path.stem
+        result.append(OutputStyle(name, meta["description"], path.name))
+
+    settings = root / "settings.json"
+    selected = load_json(settings).get("outputStyle") if settings.is_file() else None
+    shipped = [style.name for style in result]
+    if selected is not None and selected not in shipped:
+        raise GenerationError(
+            f"style-name invariant: settings.json sets outputStyle to {selected!r}, but the "
+            f"styles shipped in output-styles/ are named {shipped} — the value must equal one "
+            f"of them exactly (case-sensitive), or sessions silently run the default style"
+        )
     return result
 
 
