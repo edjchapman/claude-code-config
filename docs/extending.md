@@ -66,8 +66,14 @@ The pin is a git tag and the lockfile is the review surface. **The ref must be a
 2. `python3 scripts/sync-global-settings.py` so `~/.claude/settings.json` declares it too.
 3. `claude plugin marketplace update mattpocock`. If it reports "not found", the registry entry is stale: set its `ref` in `known_marketplaces.json` to the declared value by hand and retry.
 4. `claude plugin update mattpocock-skills@mattpocock`, then confirm `claude plugin list` shows the expected version.
-5. `python3 scripts/update-plugin-lock.py --ref <new ref>`. `generate.py --check` fails until settings and lockfile agree, in either direction.
+5. `python3 scripts/update-plugin-lock.py --ref <new ref>`. `generate.py --check` fails until settings and lockfile agree, in either direction. The generator also records `commit`, the full SHA the ref resolved to in the local marketplace clone (`~/.claude/plugins/marketplaces/mattpocock`), and refuses to write when that clone is not sitting on the ref.
 6. **Read the lockfile diff.** Every changed `description` is a collision candidate against the table above; every added `model_invocable: true` entry is new always-loaded cost, and `check-context-budget.py` will say whether it fits.
+
+A tag can be re-cut, so the lockfile's `commit` is the fixed baseline:
+
+- **In CI:** `generate.py --check` requires `commit` to be a full SHA.
+- **Locally:** `scripts/check-plugin-drift.py` fails when the clone's `HEAD` differs from it. It runs as a pre-commit hook on every commit, and skips with a message where there is no clone.
+- **A failure outside a bump** means the clone moved without the pin moving. Treat it as an unreviewed upstream change: read what changed before regenerating.
 
 The pin moved from an untagged `main` commit to `v1.2.3` in #152, which added `wizard` and `writing-for-agents` as model-invocable skills, absorbed by raising the context budget in the same change. `writing-for-agents` triggers on "creating or editing skills, or modifying AGENTS.md or CLAUDE.md" — the work this repository exists for — but it competes with a document (this guide), not with a dispatchable primitive, so it is additive rather than a collision; expect it to fire when editing primitives here, and defer to the Self-Extension Guide below where the two disagree.
 
