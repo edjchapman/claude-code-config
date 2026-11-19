@@ -247,6 +247,7 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 - `/refinement`: Prepare technical analysis for backlog refinement meetings. **User-only.**
 - `/standup`: Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently. **Schedulable** — fired by the daily standup routine (issue #51).
 - `/status`: Capture a quick status update and append it to today's daily log. **User-only.**
+- `/usage-review`: Measure your Claude Code session history for where your config costs output quality or efficiency, and write a local report of ranked proposals. **User-only.**
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-skills -->
@@ -404,10 +405,11 @@ Live routines — this section is the canonical home for their schedules and del
 
 - **Daily standup prep** — weekdays 07:30 UTC (~08:30 London in summer), runs the `/standup` workflow against GitHub, delivers a comment on the pinned tracking issue [#51](https://github.com/edjchapman/claude-code-config/issues/51). Cloud sessions can't read local `./standups/` logs, so the routine prompt is self-contained.
 - **End-of-week review** — Fridays 15:00 UTC (~16:00 London in summer), same pattern via the `/eow-review` workflow, delivering to issue [#52](https://github.com/edjchapman/claude-code-config/issues/52).
+- **Upstream watch** — Mondays 07:00 UTC, runs the maintainer-only `upstream-watch` skill (`.claude/skills/`, not shipped): reads the Claude Code changelog since the last run, opens up to three pull requests labelled `proposal` and `upstream-watch`, and never merges. Each run comments the version it reviewed up to on the pinned issue [#187](https://github.com/edjchapman/claude-code-config/issues/187); a cloud run keeps nothing else, so the next run starts from that comment.
 
-Delivery is a GitHub issue comment because GitHub is the one dependency the cloud sandbox already needs for activity gathering — no separate connector auth to go stale. Keep #51/#52 open — closing them orphans the routines' delivery target.
+Delivery is a GitHub issue comment because GitHub is the one dependency the cloud sandbox already needs for activity gathering — no separate connector auth to go stale. Keep #51/#52/#187 open — a closed issue orphans the routine behind it: its delivery target or, for #187, its state.
 
-Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum routine interval is 1 hour; and a skill with `disable-model-invocation: true` **cannot** be fired by a scheduled task — which is why `standup`/`eow-review` omit that flag.
+Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum routine interval is 1 hour; and a skill with `disable-model-invocation: true` **cannot** be fired by a scheduled task — which is why `standup`/`eow-review`/`upstream-watch` omit that flag, and why `generate.py --check` fails if one gains it. In a cloud session `gh pr` and `gh issue` return 403; `gh api` against the REST endpoints works.
 
 ### Agent Definitions
 

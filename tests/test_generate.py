@@ -130,6 +130,28 @@ class ReadmeCatalogs(unittest.TestCase):
         self.assertIn("scheduling invariant", result.stderr)
         self.assertIn("standup", result.stderr)
 
+    def write_project_skill(self, name: str, extra_frontmatter: str = "") -> None:
+        skill = self.root / ".claude" / "skills" / name / "SKILL.md"
+        skill.parent.mkdir(parents=True)
+        skill.write_text(
+            f"---\nname: {name}\ndescription: Maintainer only.\n{extra_frontmatter}---\nbody\n"
+        )
+        stage(self.root)
+
+    def test_scheduled_project_skill_disabling_model_invocation_is_an_error(self) -> None:
+        """A routine-fired skill under .claude/skills/ is held to the same invariant (#182)."""
+        self.write_project_skill("upstream-watch", "disable-model-invocation: true\n")
+        result = run_generate(self.root, "--check", "--only", "readme")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("scheduling invariant", result.stderr)
+        self.assertIn("upstream-watch", result.stderr)
+
+    def test_scheduled_project_skill_is_checked_but_never_catalogued(self) -> None:
+        self.write_project_skill("upstream-watch")
+        result = run_generate(self.root, "--only", "readme")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("upstream-watch", self.readme())
+
     def test_user_only_skill_losing_its_flag_is_an_error(self) -> None:
         """The other half of the scheduling invariant (issue #115)."""
         (self.root / "skills" / "status").mkdir(parents=True)
