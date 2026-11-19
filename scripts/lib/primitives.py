@@ -41,7 +41,7 @@ SCHEDULED_SKILLS = {
 # user never asked for. Losing the flag would not make any catalog wrong
 # (the column is derived), which is exactly why it needs asserting: the
 # regression would be invisible in the docs.
-USER_ONLY_SKILLS = frozenset({"status", "refinement", "later"})
+USER_ONLY_SKILLS = frozenset({"status", "refinement", "later", "usage-review"})
 
 # Scripts that live in scripts/hooks/ but are deliberately not hooks, with
 # what runs them instead. The wired-coverage invariant (CONTEXT.md): every
