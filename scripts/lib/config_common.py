@@ -65,6 +65,11 @@ def parse_frontmatter(path: Path) -> dict:
     the following indented lines joined with spaces, and simple string lists
     (`- item` lines under a bare key). Derived from the description parser
     that previously lived in check-context-budget.py, which now consumes this.
+
+    Raises GenerationError on the two malformations that would otherwise
+    pass every validator built on this parser: an indented key, which the
+    column-0 match would skip without a trace, and a key declared twice,
+    which would resolve last-wins.
     """
     result: dict = {}
     block = _frontmatter_block(path)
@@ -72,9 +77,20 @@ def parse_frontmatter(path: Path) -> dict:
     while i < len(block):
         match = re.match(r"^([A-Za-z][A-Za-z0-9_-]*):(.*)$", block[i])
         if not match:
+            # Sound only because _block_scalar consumes every indented line
+            # of a block scalar and _list_items every `- item`: a wrapped
+            # description's `Use when: …` never reaches this branch.
+            indented = re.match(r"^[ \t]+([A-Za-z][A-Za-z0-9_-]*):(\s|$)", block[i])
+            if indented:
+                raise GenerationError(
+                    f"{path}: indented key `{indented.group(1)}:` in frontmatter — "
+                    "keys must start at column 0 (nested mappings are not supported)"
+                )
             i += 1
             continue
         key, value = match.group(1), match.group(2).strip()
+        if key in result:
+            raise GenerationError(f"{path}: duplicate key `{key}:` in frontmatter")
         if value in {">", ">-", "|", "|-"}:
             result[key], i = _block_scalar(block, i + 1)
         elif value == "":

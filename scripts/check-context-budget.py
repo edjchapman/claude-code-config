@@ -33,7 +33,7 @@ import sys
 from pathlib import Path
 
 from lib import vendored_plugins
-from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
+from lib.config_common import REPO_ROOT, GenerationError, parse_frontmatter, tracked_files
 
 # Raised from 10_240 in #152: moving the vendored plugin to a tag (ADR-0003,
 # revised) made two more of its skills model-invocable on a surface already at
@@ -187,4 +187,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except GenerationError as exc:
+        print(f"FAIL: {exc}")
+        sys.exit(1)

@@ -21,7 +21,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from lib.config_common import REPO_ROOT, parse_frontmatter, tracked_files
+from lib.config_common import REPO_ROOT, GenerationError, parse_frontmatter, tracked_files
 
 # Runtime keys this repo's agents actually use. Grow this deliberately when
 # adopting a new Claude Code frontmatter key — an unknown key here is far
@@ -42,7 +42,10 @@ REQUIRED_KEYS = {"name", "description"}
 def check_agent(path: Path) -> list[str]:
     """All contract violations in one agent file, as printable messages."""
     rel = str(path.relative_to(REPO_ROOT))
-    frontmatter = parse_frontmatter(path)
+    try:
+        frontmatter = parse_frontmatter(path)
+    except GenerationError as exc:
+        return [str(exc)]
     if not frontmatter:
         return [f"{rel}: no parseable frontmatter block"]
 
