@@ -63,14 +63,31 @@ class VendoredPlugin:
         return cls(MARKETPLACE, PLUGIN, source["repo"], source.get("ref"))
 
 
-def plugin_cache_root(plugin: VendoredPlugin) -> Path:
-    """The installed plugin's directory in the local Claude Code cache.
+def _version_order(directory: Path) -> tuple[int, tuple[int, ...], str]:
+    """Sort key putting the newest cached version last.
+
+    Components compare as numbers, so 1.10.0 follows 1.2.3. A name that is
+    not purely dotted numbers (a pre-release suffix, a stray folder) sorts
+    below every real version rather than raising on a mixed comparison.
+    """
+    name = directory.name
+    if re.fullmatch(r"\d+(\.\d+)*", name):
+        return (1, tuple(int(part) for part in name.split(".")), name)
+    return (0, (), name)
+
+
+def plugin_cache_root(plugin: VendoredPlugin, cache: Path = PLUGIN_CACHE) -> Path:
+    """The installed plugin's newest version directory in the local Claude Code cache.
 
     Local-only: the cache is a machine artifact, absent in CI. Callers that
     must work in CI read the lockfile instead.
     """
-    parent = PLUGIN_CACHE / plugin.marketplace / plugin.name
-    versions = sorted(path for path in parent.glob("*") if path.is_dir()) if parent.is_dir() else []
+    parent = cache / plugin.marketplace / plugin.name
+    versions = (
+        sorted((path for path in parent.glob("*") if path.is_dir()), key=_version_order)
+        if parent.is_dir()
+        else []
+    )
     if not versions:
         raise SystemExit(
             f"plugin not installed locally: {parent}\n"
