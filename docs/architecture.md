@@ -87,7 +87,7 @@ Hooks use string-based matchers (e.g. `"Bash"`, `"Write|Edit"`, `"*"`). See the 
 
 <!-- prettier-ignore-start -->
 
-Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 21 bindings across 14 events:
+Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 20 bindings across 13 events:
 
 - **SessionStart** → `scripts/hooks/settings-drift-check.sh`: Warn when ~/.claude/settings.json has drifted from the repo's settings.json. _Why:_ settings.json is mirrored — not symlinked — into ~/.claude/settings.json (ADR-0002), so a repo edit stays inert until a sync runs, and a runtime write can flip a managed key. This check surfaces pending drift at session start. Warn-only by design: it never applies changes itself, because silent mutation of the user's settings was deliberately rejected.
 - **SessionStart** → `scripts/hooks/iterm2-status.sh`: Forward session events to iTerm2's Claude Code status integration. _Why:_ iTerm2 ships a `cc-status` helper that renders live session state in the terminal's status bar, and its installer registers that helper directly in ~/.claude/settings.json. Because `hooks` is a managed key (ADR-0002), every sync then reported drift and setup-global.sh would have wiped all ten registrations. Wiring it through the repo's own hook definitions (ADR-0001) makes the integration survive a sync instead of fighting it.
@@ -99,7 +99,6 @@ Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 21 bindings across 14 eve
 - **PreToolUse** → `scripts/hooks/iterm2-status.sh`: Forward session events to iTerm2's Claude Code status integration. _Why:_ iTerm2 ships a `cc-status` helper that renders live session state in the terminal's status bar, and its installer registers that helper directly in ~/.claude/settings.json. Because `hooks` is a managed key (ADR-0002), every sync then reported drift and setup-global.sh would have wiped all ten registrations. Wiring it through the repo's own hook definitions (ADR-0001) makes the integration survive a sync instead of fighting it.
 - **PreCompact** → `scripts/hooks/pre-compact-state.sh`: Preserve working state before context compaction. _Why:_ a hook's plain stdout is NOT injected for PreCompact (only UserPromptSubmit / UserPromptExpansion / SessionStart inject stdout), so the snapshot goes to a session-keyed file that post-compact-restore.sh re-injects via hookSpecificOutput.additionalContext once compaction completes.
 - **PostCompact** → `scripts/hooks/post-compact-restore.sh`: Re-inject the pre-compaction state snapshot after context compaction completes. _Why:_ this is the half of the compaction loop that actually restores state — it reads the session-keyed snapshot pre-compact-state.sh wrote, emits it via hookSpecificOutput.additionalContext, and deletes the one-shot file.
-- **TaskCompleted** → `scripts/hooks/task-completed-chime.sh`: Emit a terminal bell when an autonomous task completes. _Why:_ surfaces completion of long autonomous runs without polling. The bell is non-intrusive (terminals can mute it) and needs no platform-specific notification daemon.
 - **Notification** → `scripts/hooks/notify-attention.sh`: Desktop notification when Claude is blocked on you (permission request or idle wait). _Why:_ the Notification event fires exactly when Claude needs you, and you should not have to watch the terminal to notice. macOS uses osascript (with sound), Linux notify-send, with a terminal bell fallback everywhere; always exits 0.
 - **Notification** → `scripts/hooks/iterm2-status.sh`: Forward session events to iTerm2's Claude Code status integration. _Why:_ iTerm2 ships a `cc-status` helper that renders live session state in the terminal's status bar, and its installer registers that helper directly in ~/.claude/settings.json. Because `hooks` is a managed key (ADR-0002), every sync then reported drift and setup-global.sh would have wiped all ten registrations. Wiring it through the repo's own hook definitions (ADR-0001) makes the integration survive a sync instead of fighting it.
 - **SessionEnd** → `scripts/hooks/session-end.sh`: Record each session end — always a CSV row, plus a git summary in ./standups/. _Why:_ the CSV row (~/.claude/debug/session-log.csv) is unconditional; the ./standups/YYYY-MM-DD-log.md append that /standup later reads is opt-in on that directory already existing, so ending a session in an unrelated repo does not scatter standups/ dirs across the filesystem.
@@ -141,7 +140,7 @@ Prompt-type hooks invoke a fast model on every fire and incur token cost. Becaus
 
 <!-- prettier-ignore-start -->
 
-Claude Code documents **33** hook events; this repo wires 14 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-09-09:
+Claude Code documents **33** hook events; this repo wires 13 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-09-09:
 
 | Event                 | Fires when                                                      | Matcher field                                       |
 | --------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
@@ -152,6 +151,7 @@ Claude Code documents **33** hook events; this repo wires 14 of them above. Docu
 | `MessageDisplay`      | assistant message text is displayed                             | none (no-matcher)                                   |
 | `SubagentStart`       | a subagent is spawned                                           | agent type                                          |
 | `TaskCreated`         | a task is created via `TaskCreate`                              | none (no-matcher)                                   |
+| `TaskCompleted`       | a task is marked completed                                      | none (no-matcher)                                   |
 | `TeammateIdle`        | an agent-team teammate is about to go idle                      | none (no-matcher)                                   |
 | `InstructionsLoaded`  | a `CLAUDE.md` / `.claude/rules/*.md` loads into context         | load reason (`session_start`, `path_glob_match`, …) |
 | `ConfigChange`        | a configuration file changes during a session                   | configuration source                                |

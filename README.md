@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `19 skills` · `14 permission templates` · `7 MCP templates` · `21 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
+`8 specialist agents` · `19 skills` · `14 permission templates` · `7 MCP templates` · `20 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -264,7 +264,7 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>21 configured hooks</strong> + opt-in — click to expand</summary>
+<summary><strong>20 configured hooks</strong> + opt-in — click to expand</summary>
 
 **Configured:**
 
@@ -280,7 +280,6 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 | `PreToolUse`                | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
 | `PreCompact`                | `pre-compact-state.sh`       | Preserve working state before context compaction                                                                                      |
 | `PostCompact`               | `post-compact-restore.sh`    | Re-inject the pre-compaction state snapshot after context compaction completes                                                        |
-| `TaskCompleted`             | `task-completed-chime.sh`    | Emit a terminal bell when an autonomous task completes                                                                                |
 | `Notification`              | `notify-attention.sh`        | Desktop notification when Claude is blocked on you (permission request or idle wait)                                                  |
 | `Notification`              | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
 | `SessionEnd`                | `session-end.sh`             | Record each session end — always a CSV row, plus a git summary in ./standups/                                                         |
@@ -675,7 +674,6 @@ claude-code-config/
     │   ├── shell-file-access-nudge.sh  # PreToolUse (Bash)
     │   ├── statusline.sh               # settings.json statusLine.command
     │   ├── stop-check.sh               # Stop
-    │   ├── task-completed-chime.sh     # TaskCompleted
     │   └── lib/                        # shared helpers sourced by the hook scripts
     └── cli/                 # Headless CLI automation scripts
         ├── daily-report.sh
