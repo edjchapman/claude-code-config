@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `21 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
+`8 specialist agents` · `19 skills` · `14 permission templates` · `7 MCP templates` · `21 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -183,7 +183,7 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>11 workflow skills</strong> — click to expand</summary>
+<summary><strong>12 workflow skills</strong> — click to expand</summary>
 
 | Skill            | Description                                                                                                                                                                                                                           | Who Can Invoke             |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
@@ -198,6 +198,7 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 | `/refinement`    | Prepare technical analysis for backlog refinement meetings.                                                                                                                                                                           | you only                   |
 | `/standup`       | Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently.                                                                                                               | you, Claude, or a schedule |
 | `/status`        | Capture a quick status update and append it to today's daily log.                                                                                                                                                                     | you only                   |
+| `/usage-review`  | Measure your Claude Code session history for where your config costs output quality or efficiency, and write a local report of ranked proposals.                                                                                      | you only                   |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: workflow-skills -->
@@ -483,6 +484,7 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 | Ship an urgent production fix   | `/hotfix`                         | Minimal-fix branch with targeted tests and PR              |
 | Capture a follow-up for later   | `/later`                          | Files a backlog item under Learn/Do/Research/Read          |
 | Log a quick status update       | `/status`                         | Appends the note to today's daily log                      |
+| Find what my config costs me    | `/usage-review`                   | Measures 30 days of sessions, ranks proposed changes       |
 | Style an MkDocs site            | `/mkdocs-style`                   | Installs the shared Ink & Indigo Material layer            |
 | Install this config in a repo   | `project-setup` (auto)            | Setup scripts, tooling vendoring, new-repo runbook         |
 | Design or review a REST API     | `api-design` (auto)               | Endpoint, serializer, pagination, error-format conventions |
