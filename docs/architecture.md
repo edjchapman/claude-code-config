@@ -141,7 +141,7 @@ Prompt-type hooks invoke a fast model on every fire and incur token cost. Becaus
 
 <!-- prettier-ignore-start -->
 
-Claude Code documents **33** hook events; this repo wires 14 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-09-09:
+Claude Code documents **33** hook events; this repo wires 14 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-11-19:
 
 | Event                 | Fires when                                                      | Matcher field                                       |
 | --------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
