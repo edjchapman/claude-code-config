@@ -34,6 +34,13 @@ SCHEDULED_SKILLS = {
     "eow-review": "the end-of-week review routine (issue #52)",
 }
 
+# Routine-fired skills that live under .claude/skills/ instead: maintainer-only,
+# not shipped, and in no catalog — so nothing would show the flag being added,
+# and the routine would stop running without an error anywhere.
+SCHEDULED_PROJECT_SKILLS = {
+    "upstream-watch": "the weekly upstream-watch routine (issue #187)",
+}
+
 # The other half of the same invariant: skills that must stay user-only.
 # `disable-model-invocation: true` is what keeps them out of every session's
 # always-loaded context and stops Claude firing them unbidden — each one
@@ -41,7 +48,7 @@ SCHEDULED_SKILLS = {
 # user never asked for. Losing the flag would not make any catalog wrong
 # (the column is derived), which is exactly why it needs asserting: the
 # regression would be invisible in the docs.
-USER_ONLY_SKILLS = frozenset({"status", "refinement", "later"})
+USER_ONLY_SKILLS = frozenset({"status", "refinement", "later", "usage-review"})
 
 # Scripts that live in scripts/hooks/ but are deliberately not hooks, with
 # what runs them instead. The wired-coverage invariant (CONTEXT.md): every
@@ -166,7 +173,19 @@ def agents(root: Path) -> list[Agent]:
     return result
 
 
+def _check_scheduled_project_skills(root: Path) -> None:
+    for path in tracked_files(":(glob).claude/skills/*/SKILL.md", root):
+        routine = SCHEDULED_PROJECT_SKILLS.get(path.parent.name)
+        if routine and parse_frontmatter(path).get("disable-model-invocation") == "true":
+            raise GenerationError(
+                f"scheduling invariant: project skill '{path.parent.name}' is fired by {routine} "
+                f"but sets disable-model-invocation: true, which blocks scheduled tasks "
+                f"from running it (v2.1.196+) and orphans the routine"
+            )
+
+
 def skills(root: Path) -> list[Skill]:
+    _check_scheduled_project_skills(root)
     result = []
     for path in tracked_files(":(glob)skills/*/SKILL.md", root):
         meta = _read_meta(path)
