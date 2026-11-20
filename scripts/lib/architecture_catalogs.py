@@ -46,7 +46,7 @@ class PlatformEvent(NamedTuple):
     adopt: str = ""  # why it would be worth wiring here, if it would
 
 
-EVENTS_VERIFIED_ON = "2026-09-09"
+EVENTS_VERIFIED_ON = "2026-11-19"
 
 NO_MATCHER = "none (no-matcher)"
 
@@ -102,8 +102,8 @@ DOCUMENTED_EVENTS = [
     PlatformEvent(
         "StopFailure",
         "the turn ends due to an API error",
-        "error type (`rate_limit`, `overloaded`, …)",
-        "matched on `rate_limit` / `overloaded`, complements the `fallbackModel` chain",
+        "error type (`rate_limit`, `server_error` (includes HTTP 529 overloaded), …)",
+        "matched on `rate_limit` / `server_error`, complements the `fallbackModel` chain",
     ),
     PlatformEvent("TeammateIdle", "an agent-team teammate is about to go idle", NO_MATCHER),
     PlatformEvent(
