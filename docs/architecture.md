@@ -59,6 +59,8 @@ Shared internals (not run directly):
 
 - `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, the checkers, and `generate.py` (Python version gate, template loading, output validation, frontmatter parsing, and `tracked_files` — the one definition of which files count as primitives: git-tracked, so an untracked local-only extra is invisible to generator and checkers alike)
 - `scripts/lib/prose_counts.py` — the no-count rule (CONTEXT.md), asserted by `generate.py --check` over the hand-written spans of this file and the README
+
+- `scripts/lib/retired_terms.py` — the retired-terms tripwire: a term CONTEXT.md records as _formerly "…"_ fails `generate.py --check` when it appears in a living doc (`CLAUDE.md`, the README, `docs/` outside `docs/adr/`, `skills/`, `agents/`, script headers)
 - `scripts/lib/settings_keys.py` — the managed-key sets (`ALLOWED_KEYS`, `RETIRED_KEYS`) shared by `check-settings-keys.py` and `sync-global-settings.py` (ADR-0002)
 - `scripts/hooks/lib/git-context.sh` — git helpers (`in_git_work_tree`, `git_branch`, `git_dirty_count`) sourced by the hook scripts; not a hook itself
 - `scripts/hooks/lib/hook-input.sh` — `hook_field <payload> <dotted.key>` helper for reading a field from the hook's stdin JSON payload; sourced by the hooks that parse stdin (format-on-edit, dangerous-cmd-check, session-end, pre/post-compact); not a hook itself
