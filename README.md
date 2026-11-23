@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `18 skills` · `14 permission templates` · `7 MCP templates` · `21 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
+`8 specialist agents` · `19 skills` · `14 permission templates` · `7 MCP templates` · `21 lifecycle hooks` · `3 style rules` · `1 output style` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -183,7 +183,7 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 
 <!-- prettier-ignore-start -->
 
-<summary><strong>11 workflow skills</strong> — click to expand</summary>
+<summary><strong>12 workflow skills</strong> — click to expand</summary>
 
 | Skill            | Description                                                                                                                                                                                                                           | Who Can Invoke             |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
@@ -198,6 +198,7 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 | `/refinement`    | Prepare technical analysis for backlog refinement meetings.                                                                                                                                                                           | you only                   |
 | `/standup`       | Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently.                                                                                                               | you, Claude, or a schedule |
 | `/status`        | Capture a quick status update and append it to today's daily log.                                                                                                                                                                     | you only                   |
+| `/usage-review`  | Measure your Claude Code session history for where your config costs output quality or efficiency, and write a local report of ranked proposals.                                                                                      | you only                   |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: workflow-skills -->
@@ -420,14 +421,28 @@ prompt; newer models get the shorter prompt, which has no such section, so there
 inert. `force-for-plugin: true` makes plugin installs apply it automatically. Global mode
 delivers it via the `~/.claude/output-styles` symlink.
 
-| Style         | When to use                                                                               |
-| ------------- | ----------------------------------------------------------------------------------------- |
-| `Scannable`   | Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks |
-| `default`     | Standard task-focused responses                                                           |
-| `Proactive`   | Starts work right away, assuming routine decisions instead of asking                      |
-| `Concise`     | Leads with the result; drops preamble, narration and recaps                               |
-| `Explanatory` | Adds learning insights inline (good for unfamiliar codebases)                             |
-| `Learning`    | More guided; leaves small pieces for you to write (good for upskilling)                   |
+Shipped by this repo, from each style's frontmatter:
+
+<!-- BEGIN GENERATED: output-styles -->
+
+<!-- prettier-ignore-start -->
+
+| Style       | Description                                                                                                                                          | Defined in                   |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `Scannable` | Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks. Augments the harness defaults rather than replacing them. | `output-styles/scannable.md` |
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: output-styles -->
+
+Built in to Claude Code:
+
+| Style         | When to use                                                             |
+| ------------- | ----------------------------------------------------------------------- |
+| `default`     | Standard task-focused responses                                         |
+| `Proactive`   | Starts work right away, assuming routine decisions instead of asking    |
+| `Concise`     | Leads with the result; drops preamble, narration and recaps             |
+| `Explanatory` | Adds learning insights inline (good for unfamiliar codebases)           |
+| `Learning`    | More guided; leaves small pieces for you to write (good for upskilling) |
 
 Values are case-sensitive in settings — `explanatory` silently falls back to `default`
 (`/output-style` itself ignores case).
@@ -483,6 +498,7 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 | Ship an urgent production fix   | `/hotfix`                         | Minimal-fix branch with targeted tests and PR              |
 | Capture a follow-up for later   | `/later`                          | Files a backlog item under Learn/Do/Research/Read          |
 | Log a quick status update       | `/status`                         | Appends the note to today's daily log                      |
+| Find what my config costs me    | `/usage-review`                   | Measures 30 days of sessions, ranks proposed changes       |
 | Style an MkDocs site            | `/mkdocs-style`                   | Installs the shared Ink & Indigo Material layer            |
 | Install this config in a repo   | `project-setup` (auto)            | Setup scripts, tooling vendoring, new-repo runbook         |
 | Design or review a REST API     | `api-design` (auto)               | Endpoint, serializer, pagination, error-format conventions |
@@ -640,6 +656,7 @@ claude-code-config/
 ├── agents/                  # Agent definitions (markdown)
 ├── skills/                  # Domain + workflow skills (skills/<name>/SKILL.md)
 ├── rules/                   # Path-scoped code style rules (markdown)
+├── output-styles/           # Output styles (markdown)
 ├── settings-templates/      # Permission templates (JSON)
 ├── mcp-templates/           # MCP server templates (JSON)
 ├── hooks/
@@ -658,6 +675,8 @@ claude-code-config/
     ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
+    ├── check-plugin-drift.py  # pre-commit, local only: marketplace clone at the locked commit
+    ├── check-attribution.py  # CI: no Claude attribution in a PR's commits or body
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
     │   ├── check-duplicates.sh         # pre-commit + CI (not a runtime hook)
