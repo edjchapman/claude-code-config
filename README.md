@@ -660,6 +660,7 @@ claude-code-config/
     ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
+    ├── check-plugin-drift.py  # pre-commit, local only: marketplace clone at the locked commit
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
     │   ├── check-duplicates.sh         # pre-commit + CI (not a runtime hook)

@@ -47,11 +47,15 @@ python3 <repo>/scripts/sync-global-settings.py [--check]
 # Regenerate the vendored-plugin lockfile from the local plugin cache (ADR-0003).
 # Local-only: reads ~/.claude/plugins, which does not exist in CI.
 python3 <repo>/scripts/update-plugin-lock.py [--ref REF]
+
+# Fail when the local marketplace clone has moved off the lockfile's commit.
+# Local-only (a pre-commit hook, no CI job): skips where there is no clone.
+python3 <repo>/scripts/check-plugin-drift.py
 ```
 
 Shared internals (not run directly):
 
-- `scripts/lib/vendored_plugins.py` — the pinned third-party plugin: pin/lockfile agreement (enforced by `generate.py --check`) and the always-loaded cost of its model-invocable skills (counted by `check-context-budget.py`). See [ADR-0003](adr/0003-pin-and-lock-vendored-plugins.md)
+- `scripts/lib/vendored_plugins.py` — the pinned third-party plugin: pin/lockfile agreement and the lockfile's recorded commit (enforced by `generate.py --check`), the marketplace-clone lookup behind `check-plugin-drift.py`, and the always-loaded cost of its model-invocable skills (counted by `check-context-budget.py`). See [ADR-0003](adr/0003-pin-and-lock-vendored-plugins.md)
 
 - `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, the checkers, and `generate.py` (Python version gate, template loading, output validation, frontmatter parsing, and `tracked_files` — the one definition of which files count as primitives: git-tracked, so an untracked local-only extra is invisible to generator and checkers alike)
 - `scripts/lib/prose_counts.py` — the no-count rule (CONTEXT.md), asserted by `generate.py --check` over the hand-written spans of this file and the README

@@ -99,7 +99,7 @@ repos:
         name: always-loaded context within byte budget
         entry: python3 scripts/check-context-budget.py
         language: system
-        files: ^(agents/.*\.md|skills/.*/SKILL\.md|home/CLAUDE\.md|scripts/check-context-budget\.py)$
+        files: ^(agents/.*\.md|skills/.*/SKILL\.md|home/CLAUDE\.md|scripts/check-context-budget\.py|plugins/.*\.lock\.json|settings\.json)$
         pass_filenames: false
 
       - id: check-agent-frontmatter
@@ -107,6 +107,16 @@ repos:
         entry: python3 scripts/check-agent-frontmatter.py
         language: system
         files: ^(agents/.*\.md|scripts/check-agent-frontmatter\.py)$
+        pass_filenames: false
+
+      # Local-only, with no CI job: it reads this machine's marketplace
+      # clone and skips where there is none. always_run because drift comes
+      # from outside the repo, so no changed file could trigger it.
+      - id: check-plugin-drift
+        name: marketplace clone still at the locked commit
+        entry: python3 scripts/check-plugin-drift.py
+        language: system
+        always_run: true
         pass_filenames: false
 
   # ---- Prettier (Markdown, JSON, YAML) -------------------------------
