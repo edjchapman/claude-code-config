@@ -188,7 +188,9 @@ SETTINGS_KEY_GLOSSES = {
 
 # Documented top-level settings keys, with a gloss where the name alone is
 # not self-explanatory (verified against the settings docs, 2026-07-29; skill-listing, cache-TTL
-# and compaction keys added 2026-11-16). The
+# and compaction keys added 2026-11-16; plugin-sync, prose-width, Bash-diff, advisor,
+# ultracode and Remote Control keys added 2026-11-23 from
+# https://code.claude.com/docs/en/settings-reference.md). The
 # rendered list is this catalog minus whatever settings.json actually sets.
 DOCUMENTED_SETTINGS_KEYS = {
     "env": "",
@@ -211,6 +213,12 @@ DOCUMENTED_SETTINGS_KEYS = {
     "effortLevel": "legacy default reasoning effort, ignored on Opus 5.5+",
     "modelSettings": "",
     "syncClaudeAiSkills": "",
+    "syncClaudeAiPlugins": "`false` stops loading and downloading plugins enabled on claude.ai",
+    "maxProseWidth": "cap on response prose width in wide terminals",
+    "bashEditDiffEnabled": "record files a Bash command changed, in every permission mode",
+    "advisorModel": "model that answers the advisor tool",
+    "ultracode": "plan a workflow for each substantive task unasked",
+    "disableRemoteControl": "turn off Remote Control everywhere",
     "skillListingBudgetFraction": "share of the context window for the skill listing, default 1%",
     "skillListingMaxDescChars": "per-skill description cap in the listing, default 1536",
     "promptCacheTtl": "main-conversation prompt cache TTL, `5m` or `1h`",
