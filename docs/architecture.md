@@ -198,7 +198,7 @@ Beyond plugins and hooks, `settings.json` sets:
 - **`tui`**: TUI rendering mode — `fullscreen` is the flicker-free alt-screen renderer with virtualized scrollback; `default` is the classic one. Matches `/tui`
 - **`autoMemoryEnabled`**: Auto-memory on/off (platform default `true`)
 - **`syncClaudeAiSkills`**: `false` stops skills enabled on claude.ai from syncing into Claude Code and its always-loaded skill listing
-- **`inputNeededNotifEnabled`**: Desktop notification when Claude is blocked waiting for you
+- **`inputNeededNotifEnabled`**: Push notification when Claude is waiting on you
 - **`agentPushNotifEnabled`**: Push notifications for background agent activity
 
 <!-- prettier-ignore-end -->
