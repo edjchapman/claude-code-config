@@ -147,7 +147,7 @@ Prompt-type hooks invoke a fast model on every fire and incur token cost. Becaus
 
 <!-- prettier-ignore-start -->
 
-Claude Code documents **33** hook events; this repo wires 14 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-09-09:
+Claude Code documents **33** hook events; this repo wires 14 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-11-19:
 
 | Event                 | Fires when                                                      | Matcher field                                       |
 | --------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
@@ -198,7 +198,7 @@ Beyond plugins and hooks, `settings.json` sets:
 - **`tui`**: TUI rendering mode — `fullscreen` is the flicker-free alt-screen renderer with virtualized scrollback; `default` is the classic one. Matches `/tui`
 - **`autoMemoryEnabled`**: Auto-memory on/off (platform default `true`)
 - **`syncClaudeAiSkills`**: `false` stops skills enabled on claude.ai from syncing into Claude Code and its always-loaded skill listing
-- **`inputNeededNotifEnabled`**: Desktop notification when Claude is blocked waiting for you
+- **`inputNeededNotifEnabled`**: Push notification when Claude is waiting on you
 - **`agentPushNotifEnabled`**: Push notifications for background agent activity
 
 <!-- prettier-ignore-end -->
@@ -217,7 +217,7 @@ Why some of them are set the way they are:
 
 <!-- prettier-ignore-start -->
 
-Other documented keys this repo does **not** set (available as opt-ins): `alwaysThinkingEnabled`, `autoMemoryDirectory` (custom auto-memory storage dir), `autoMode`, `availableModels` (restrict selectable models), `axScreenReader` (screen-reader-friendly output), `cleanupPeriodDays` (session file retention, default 30), `disableBundledSkills` (hide bundled skills like `/code-review`, `/loop`), `effortLevel` (legacy default reasoning effort, ignored on Opus 5.5+), `enforceAvailableModels` (restrict selectable models), `env`, `fastMode` (faster Opus output, default `false`), `fileSuggestion`, `idleCompaction` (`false` stops compaction of idle long sessions), `language` (response language preference), `model`, `parentSettingsBehavior`, `promptCacheTtl` (main-conversation prompt cache TTL, `5m` or `1h`), `skillListingBudgetFraction` (share of the context window for the skill listing, default 1%), `skillListingMaxDescChars` (per-skill description cap in the listing, default 1536), `skillOverrides`, `spinnerVerbs`, `subagentPromptCacheTtl` (subagent prompt cache TTL, default `5m`).
+Other documented keys this repo does **not** set (available as opt-ins): `advisorModel` (model that answers the advisor tool), `alwaysThinkingEnabled`, `autoMemoryDirectory` (custom auto-memory storage dir), `autoMode`, `availableModels` (restrict selectable models), `axScreenReader` (screen-reader-friendly output), `bashEditDiffEnabled` (record files a Bash command changed, in every permission mode), `cleanupPeriodDays` (session file retention, default 30), `disableBundledSkills` (hide bundled skills like `/code-review`, `/loop`), `disableRemoteControl` (turn off Remote Control everywhere), `effortLevel` (legacy default reasoning effort, ignored on Opus 5.5+), `enforceAvailableModels` (restrict selectable models), `env`, `fastMode` (faster Opus output, default `false`), `fileSuggestion`, `idleCompaction` (`false` stops compaction of idle long sessions), `language` (response language preference), `maxProseWidth` (cap on response prose width in wide terminals), `model`, `parentSettingsBehavior`, `promptCacheTtl` (main-conversation prompt cache TTL, `5m` or `1h`), `skillListingBudgetFraction` (share of the context window for the skill listing, default 1%), `skillListingMaxDescChars` (per-skill description cap in the listing, default 1536), `skillOverrides`, `spinnerVerbs`, `subagentPromptCacheTtl` (subagent prompt cache TTL, default `5m`), `syncClaudeAiPlugins` (`false` stops loading and downloading plugins enabled on claude.ai), `ultracode` (plan a workflow for each substantive task unasked).
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-unset-settings-keys -->

@@ -46,7 +46,7 @@ class PlatformEvent(NamedTuple):
     adopt: str = ""  # why it would be worth wiring here, if it would
 
 
-EVENTS_VERIFIED_ON = "2026-09-09"
+EVENTS_VERIFIED_ON = "2026-11-19"
 
 NO_MATCHER = "none (no-matcher)"
 
@@ -102,8 +102,8 @@ DOCUMENTED_EVENTS = [
     PlatformEvent(
         "StopFailure",
         "the turn ends due to an API error",
-        "error type (`rate_limit`, `overloaded`, …)",
-        "matched on `rate_limit` / `overloaded`, complements the `fallbackModel` chain",
+        "error type (`rate_limit`, `server_error` (includes HTTP 529 overloaded), …)",
+        "matched on `rate_limit` / `server_error`, complements the `fallbackModel` chain",
     ),
     PlatformEvent("TeammateIdle", "an agent-team teammate is about to go idle", NO_MATCHER),
     PlatformEvent(
@@ -173,7 +173,7 @@ SETTINGS_KEY_GLOSSES = {
         "with virtualized scrollback; `default` is the classic one. Matches `/tui`"
     ),
     "autoMemoryEnabled": "Auto-memory on/off (platform default `true`)",
-    "inputNeededNotifEnabled": "Desktop notification when Claude is blocked waiting for you",
+    "inputNeededNotifEnabled": "Push notification when Claude is waiting on you",
     "agentPushNotifEnabled": "Push notifications for background agent activity",
     "modelSettings": (
         "Per-model config keyed by model ID (`effortLevel`, `maxEffortLevel`, "
@@ -188,7 +188,9 @@ SETTINGS_KEY_GLOSSES = {
 
 # Documented top-level settings keys, with a gloss where the name alone is
 # not self-explanatory (verified against the settings docs, 2026-07-29; skill-listing, cache-TTL
-# and compaction keys added 2026-11-16). The
+# and compaction keys added 2026-11-16; plugin-sync, prose-width, Bash-diff, advisor,
+# ultracode and Remote Control keys added 2026-11-23 from
+# https://code.claude.com/docs/en/settings-reference.md). The
 # rendered list is this catalog minus whatever settings.json actually sets.
 DOCUMENTED_SETTINGS_KEYS = {
     "env": "",
@@ -211,6 +213,12 @@ DOCUMENTED_SETTINGS_KEYS = {
     "effortLevel": "legacy default reasoning effort, ignored on Opus 5.5+",
     "modelSettings": "",
     "syncClaudeAiSkills": "",
+    "syncClaudeAiPlugins": "`false` stops loading and downloading plugins enabled on claude.ai",
+    "maxProseWidth": "cap on response prose width in wide terminals",
+    "bashEditDiffEnabled": "record files a Bash command changed, in every permission mode",
+    "advisorModel": "model that answers the advisor tool",
+    "ultracode": "plan a workflow for each substantive task unasked",
+    "disableRemoteControl": "turn off Remote Control everywhere",
     "skillListingBudgetFraction": "share of the context window for the skill listing, default 1%",
     "skillListingMaxDescChars": "per-skill description cap in the listing, default 1536",
     "promptCacheTtl": "main-conversation prompt cache TTL, `5m` or `1h`",
