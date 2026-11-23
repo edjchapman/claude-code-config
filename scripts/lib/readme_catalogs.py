@@ -43,6 +43,7 @@ claude-code-config/
 ├── agents/                  # Agent definitions (markdown)
 ├── skills/                  # Domain + workflow skills (skills/<name>/SKILL.md)
 ├── rules/                   # Path-scoped code style rules (markdown)
+├── output-styles/           # Output styles (markdown)
 ├── settings-templates/      # Permission templates (JSON)
 ├── mcp-templates/           # MCP server templates (JSON)
 ├── hooks/
@@ -61,6 +62,7 @@ claude-code-config/
     ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
+    ├── check-plugin-drift.py  # pre-commit, local only: marketplace clone at the locked commit
     ├── check-attribution.py  # CI: no Claude attribution in a PR's commits or body
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
@@ -144,7 +146,7 @@ def _catalog_tables(root: Path, skills: list[Skill]) -> dict[str, Catalog]:
     }
 
 
-def _counts_line(tables: dict[str, Catalog], hook_count: int) -> str:
+def _counts_line(tables: dict[str, Catalog], hook_count: int, style_count: int) -> str:
     n = {name: len(catalog.rows) for name, catalog in tables.items()}
     parts = [
         f"{n['agents']} specialist agents",
@@ -153,6 +155,8 @@ def _counts_line(tables: dict[str, Catalog], hook_count: int) -> str:
         f"{n['mcp-templates']} MCP templates",
         f"{hook_count} lifecycle hooks",
         f"{n['rules']} style rules",
+        # The one catalog small enough to hold a single entry.
+        f"{style_count} output style{'' if style_count == 1 else 's'}",
         f"{n['cli-scripts']} CLI scripts",
     ]
     return " · ".join(f"`{part}`" for part in parts)
@@ -181,7 +185,14 @@ def build_regions(root: Path) -> tuple[dict[str, str], list[str]]:
         f"<strong>{len(hook_rows)} configured hooks</strong> + opt-in",
         "**Configured:**\n\n" + table(["Hook", "Script", "What It Does"], hook_rows),
     )
-    regions["counts"] = _counts_line(tables, len(hook_rows))
+    # A bare table, not a <details> body: it sits inside the hand-written
+    # output-styles section, beside the built-in styles this repo does not own.
+    styles = primitives.output_styles(root)
+    regions["output-styles"] = table(
+        ["Style", "Description", "Defined in"],
+        [[f"`{s.name}`", s.description, f"`output-styles/{s.file}`"] for s in styles],
+    )
+    regions["counts"] = _counts_line(tables, len(hook_rows), len(styles))
     regions["repo-tree"] = "```\n" + _tree(root, bindings) + "\n```"
     regions = {name: fence(content) for name, content in regions.items()}
     readme = root / "README.md"
