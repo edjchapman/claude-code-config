@@ -9,6 +9,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from fixtures import git, make_marketplace_clone
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = REPO_ROOT / "scripts" / "update-plugin-lock.py"
 
@@ -43,6 +45,7 @@ class TempDirs(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         self.cache = Path(tmp.name) / "cache"
+        self.clones = Path(tmp.name) / "marketplaces"
         self.root = Path(tmp.name) / "repo"
         self.cache.mkdir()
         self.root.mkdir()
@@ -69,11 +72,20 @@ class CacheVersionOrdering(TempDirs):
         self.assertEqual(plugin_cache_root(PLUGIN_UNDER_TEST, self.cache).name, "main")
 
 
-class RefMustNameTheCachedVersion(TempDirs):
+class GeneratorCase(TempDirs):
     def run_script(self, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run(
-            [sys.executable, str(SCRIPT), "--root", str(self.root), "--cache", str(self.cache)]
-            + list(args),
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--root",
+                str(self.root),
+                "--cache",
+                str(self.cache),
+                "--marketplaces",
+                str(self.clones),
+                *args,
+            ],
             capture_output=True,
             text=True,
         )
@@ -81,6 +93,12 @@ class RefMustNameTheCachedVersion(TempDirs):
     @property
     def lockfile(self) -> Path:
         return self.root / LOCKFILE
+
+
+class RefMustNameTheCachedVersion(GeneratorCase):
+    def setUp(self) -> None:
+        super().setUp()
+        make_marketplace_clone(self.clones, MARKETPLACE, tags=("v1.10.0", "1.10.0"))
 
     def test_mismatch_fails_names_both_and_leaves_the_lockfile_alone(self) -> None:
         add_cached_version(self.cache, "1.2.3")
@@ -129,6 +147,68 @@ class RefMustNameTheCachedVersion(TempDirs):
         self.assertEqual(result.returncode, 0, output)
         self.assertIn("version not verified", output)
         self.assertEqual(json.loads(self.lockfile.read_text())["ref"], "main")
+
+
+class CommitIsRecorded(GeneratorCase):
+    """The lockfile names the commit the pinned ref resolved to (issue #156)."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        add_cached_version(self.cache, "1.2.3")
+        self.head = make_marketplace_clone(self.clones, MARKETPLACE, tags=("v1.2.3",))
+
+    def test_commit_is_the_clones_head_written_beside_ref(self) -> None:
+        result = self.run_script("--ref", "v1.2.3")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        lock = json.loads(self.lockfile.read_text())
+        self.assertEqual(lock["commit"], self.head)
+        self.assertEqual(len(lock["commit"]), 40)
+        keys = list(lock)
+        self.assertEqual(keys.index("commit"), keys.index("ref") + 1)
+
+    def test_a_branch_ref_records_the_commit_too(self) -> None:
+        result = self.run_script("--ref", "main")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(json.loads(self.lockfile.read_text())["commit"], self.head)
+
+    def test_clone_off_the_ref_is_refused_and_nothing_is_written(self) -> None:
+        git(self.clones / MARKETPLACE, "commit", "-q", "--allow-empty", "-m", "moved on")
+        moved = git(self.clones / MARKETPLACE, "rev-parse", "HEAD")
+        self.lockfile.parent.mkdir(parents=True)
+        self.lockfile.write_text("EXISTING LOCKFILE\n")
+        result = self.run_script("--ref", "v1.2.3")
+        output = result.stdout + result.stderr
+        self.assertNotEqual(result.returncode, 0, output)
+        self.assertIn(self.head, output)
+        self.assertIn(moved, output)
+        self.assertEqual(self.lockfile.read_text(), "EXISTING LOCKFILE\n")
+
+    def test_a_ref_the_clone_does_not_know_is_refused(self) -> None:
+        git(self.clones / MARKETPLACE, "tag", "-d", "v1.2.3")
+        result = self.run_script("--ref", "v1.2.3")
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(self.lockfile.exists())
+
+    def test_no_clone_is_refused(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--root",
+                str(self.root),
+                "--cache",
+                str(self.cache),
+                "--marketplaces",
+                str(self.clones / "absent"),
+                "--ref",
+                "v1.2.3",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("marketplace clone", result.stdout + result.stderr)
+        self.assertFalse(self.lockfile.exists())
 
 
 if __name__ == "__main__":

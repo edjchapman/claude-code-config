@@ -30,6 +30,7 @@ ARCHITECTURE_REGIONS = [
     "arch-unset-settings-keys",
     "arch-skills",
     "arch-rules",
+    "arch-output-styles",
     "arch-settings-templates",
     "arch-mcp-templates",
     "arch-cli-scripts",
@@ -41,6 +42,7 @@ README_REGIONS = [
     "workflow-skills",
     "domain-skills",
     "rules",
+    "output-styles",
     "hooks",
     "settings-templates",
     "mcp-templates",
@@ -58,6 +60,44 @@ def stage(root: Path) -> None:
     if not (root / ".git").is_dir():
         subprocess.run(["git", "init", "-q"], cwd=root, check=True)
     subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+
+
+def git(repo: Path, *args: str) -> str:
+    """Run git in a fixture repo, isolated from the machine's identity and hooks."""
+    return subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            "-c",
+            "tag.gpgsign=false",
+            "-c",
+            "core.hooksPath=/dev/null",
+            *args,
+        ],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+
+def make_marketplace_clone(clones: Path, marketplace: str, tags: tuple[str, ...] = ()) -> str:
+    """Stand in for a Claude Code marketplace clone: one commit, optionally tagged.
+
+    Returns the full SHA of its HEAD.
+    """
+    clone = clones / marketplace
+    clone.mkdir(parents=True)
+    git(clone, "init", "-q", "-b", "main")
+    git(clone, "commit", "-q", "--allow-empty", "-m", "initial")
+    for tag in tags:
+        git(clone, "tag", tag)
+    return git(clone, "rev-parse", "HEAD")
 
 
 def canonical(obj: dict) -> str:
@@ -126,6 +166,16 @@ def _write_rules(root: Path) -> None:
     (root / "rules").mkdir()
     (root / "rules" / "demo-style.md").write_text(
         '---\npaths:\n  - "**/*.demo"\n---\n\n# Demo Rules\n\n## Naming\n\n## Errors\n'
+    )
+
+
+def _write_output_styles(root: Path) -> None:
+    (root / "output-styles").mkdir()
+    # The `_` and `*` are deliberate, as in dom-skill: the description must
+    # reach both docs escaped, not parsed as emphasis.
+    (root / "output-styles" / "tidy.md").write_text(
+        "---\nname: Tidy\ndescription: Tidy output, in short_lines — never *walls*.\n"
+        "keep-coding-instructions: true\n---\n\n# Tidy\n"
     )
 
 
@@ -206,6 +256,7 @@ def make_readme_fixture(root: Path) -> None:
     _write_agents(root)
     _write_skills(root)
     _write_rules(root)
+    _write_output_styles(root)
     _write_templates(root)
     _write_scripts(root)
     _write_readme(root)
