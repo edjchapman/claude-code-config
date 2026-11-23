@@ -46,7 +46,7 @@ class PlatformEvent(NamedTuple):
     adopt: str = ""  # why it would be worth wiring here, if it would
 
 
-EVENTS_VERIFIED_ON = "2026-09-09"
+EVENTS_VERIFIED_ON = "2026-11-19"
 
 NO_MATCHER = "none (no-matcher)"
 
@@ -102,8 +102,8 @@ DOCUMENTED_EVENTS = [
     PlatformEvent(
         "StopFailure",
         "the turn ends due to an API error",
-        "error type (`rate_limit`, `overloaded`, …)",
-        "matched on `rate_limit` / `overloaded`, complements the `fallbackModel` chain",
+        "error type (`rate_limit`, `server_error` (includes HTTP 529 overloaded), …)",
+        "matched on `rate_limit` / `server_error`, complements the `fallbackModel` chain",
     ),
     PlatformEvent("TeammateIdle", "an agent-team teammate is about to go idle", NO_MATCHER),
     PlatformEvent(
@@ -163,9 +163,9 @@ SETTINGS_KEY_GLOSSES = {
     "enabledPlugins": "Plugin enablement map — universal plugins only, some deliberately `false`",
     "extraKnownMarketplaces": "Extra plugin marketplaces this config expects to be available",
     "outputStyle": (
-        "Output style for assistant responses — `Scannable`, this repo's augmenting "
-        "custom style in `output-styles/` (built-ins: `default`, `Proactive`, `Concise`, "
-        "`Explanatory`, `Learning`; values are case-sensitive)"
+        "Output style for assistant responses — must name a style this repo ships in "
+        "`output-styles/` (listed under Output Styles below; built-ins: `default`, "
+        "`Proactive`, `Concise`, `Explanatory`, `Learning`; values are case-sensitive)"
     ),
     "sandbox": "Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)",
     "tui": (
@@ -173,7 +173,7 @@ SETTINGS_KEY_GLOSSES = {
         "with virtualized scrollback; `default` is the classic one. Matches `/tui`"
     ),
     "autoMemoryEnabled": "Auto-memory on/off (platform default `true`)",
-    "inputNeededNotifEnabled": "Desktop notification when Claude is blocked waiting for you",
+    "inputNeededNotifEnabled": "Push notification when Claude is waiting on you",
     "agentPushNotifEnabled": "Push notifications for background agent activity",
     "modelSettings": (
         "Per-model config keyed by model ID (`effortLevel`, `maxEffortLevel`, "
@@ -376,6 +376,15 @@ def _rules(root: Path) -> str:
     )
 
 
+def _output_styles(root: Path) -> str:
+    return bullets(
+        [
+            (f"`{style.name}` (`output-styles/{style.file}`): ", Verbatim(style.description))
+            for style in primitives.output_styles(root)
+        ]
+    )
+
+
 def _settings_templates(root: Path) -> str:
     templates = primitives.settings_templates(root)
     lead = f"Available templates ({len(templates)}):"
@@ -410,6 +419,7 @@ def build_regions(root: Path) -> tuple[dict[str, str], list[str]]:
         "arch-unset-settings-keys": _unset_settings_keys(root),
         "arch-skills": _skills(root),
         "arch-rules": _rules(root),
+        "arch-output-styles": _output_styles(root),
         "arch-settings-templates": _settings_templates(root),
         "arch-mcp-templates": _mcp_templates(root),
         "arch-cli-scripts": _cli_scripts(root),
