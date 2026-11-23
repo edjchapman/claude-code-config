@@ -63,6 +63,7 @@ claude-code-config/
     ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
     ├── check-plugin-drift.py  # pre-commit, local only: marketplace clone at the locked commit
+    ├── check-attribution.py  # CI: no Claude attribution in a PR's commits or body
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
 {hook_lines}
