@@ -39,6 +39,9 @@ named error rather than a stale doc:
   retired terms   a term the glossary records as _formerly "…"_ appears in
                   no living doc (lib/retired_terms.py); docs/adr/ and the
                   glossary itself are exempt.
+  style name      settings.json's outputStyle equals the name of a tracked
+                  output style (lib/primitives.py); an unmatched value would
+                  silently run the default style.
 
 Primitives are enumerated from git-tracked files, so an untracked local-only
 extra is never written into a catalog and staged by pre-commit.

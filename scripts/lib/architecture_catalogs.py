@@ -163,9 +163,9 @@ SETTINGS_KEY_GLOSSES = {
     "enabledPlugins": "Plugin enablement map — universal plugins only, some deliberately `false`",
     "extraKnownMarketplaces": "Extra plugin marketplaces this config expects to be available",
     "outputStyle": (
-        "Output style for assistant responses — `Scannable`, this repo's augmenting "
-        "custom style in `output-styles/` (built-ins: `default`, `Proactive`, `Concise`, "
-        "`Explanatory`, `Learning`; values are case-sensitive)"
+        "Output style for assistant responses — must name a style this repo ships in "
+        "`output-styles/` (listed under Output Styles below; built-ins: `default`, "
+        "`Proactive`, `Concise`, `Explanatory`, `Learning`; values are case-sensitive)"
     ),
     "sandbox": "Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)",
     "tui": (
@@ -368,6 +368,15 @@ def _rules(root: Path) -> str:
     )
 
 
+def _output_styles(root: Path) -> str:
+    return bullets(
+        [
+            (f"`{style.name}` (`output-styles/{style.file}`): ", Verbatim(style.description))
+            for style in primitives.output_styles(root)
+        ]
+    )
+
+
 def _settings_templates(root: Path) -> str:
     templates = primitives.settings_templates(root)
     lead = f"Available templates ({len(templates)}):"
@@ -402,6 +411,7 @@ def build_regions(root: Path) -> tuple[dict[str, str], list[str]]:
         "arch-unset-settings-keys": _unset_settings_keys(root),
         "arch-skills": _skills(root),
         "arch-rules": _rules(root),
+        "arch-output-styles": _output_styles(root),
         "arch-settings-templates": _settings_templates(root),
         "arch-mcp-templates": _mcp_templates(root),
         "arch-cli-scripts": _cli_scripts(root),
