@@ -62,6 +62,44 @@ def stage(root: Path) -> None:
     subprocess.run(["git", "add", "-A"], cwd=root, check=True)
 
 
+def git(repo: Path, *args: str) -> str:
+    """Run git in a fixture repo, isolated from the machine's identity and hooks."""
+    return subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            "-c",
+            "tag.gpgsign=false",
+            "-c",
+            "core.hooksPath=/dev/null",
+            *args,
+        ],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+
+def make_marketplace_clone(clones: Path, marketplace: str, tags: tuple[str, ...] = ()) -> str:
+    """Stand in for a Claude Code marketplace clone: one commit, optionally tagged.
+
+    Returns the full SHA of its HEAD.
+    """
+    clone = clones / marketplace
+    clone.mkdir(parents=True)
+    git(clone, "init", "-q", "-b", "main")
+    git(clone, "commit", "-q", "--allow-empty", "-m", "initial")
+    for tag in tags:
+        git(clone, "tag", tag)
+    return git(clone, "rev-parse", "HEAD")
+
+
 def canonical(obj: dict) -> str:
     return json.dumps(obj, indent=2, ensure_ascii=False) + "\n"
 

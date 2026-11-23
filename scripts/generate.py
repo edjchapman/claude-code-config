@@ -36,6 +36,9 @@ named error rather than a stale doc:
   plugin pin      settings.json's pin matches the committed lockfile
                   (lib/vendored_plugins.py), so a third-party primitive can
                   never change what it ships without a reviewed diff.
+  retired terms   a term the glossary records as _formerly "…"_ appears in
+                  no living doc (lib/retired_terms.py); docs/adr/ and the
+                  glossary itself are exempt.
   style name      settings.json's outputStyle equals the name of a tracked
                   output style (lib/primitives.py); an unmatched value would
                   silently run the default style.
@@ -65,7 +68,13 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from lib import architecture_catalogs, prose_counts, readme_catalogs, vendored_plugins
+from lib import (
+    architecture_catalogs,
+    prose_counts,
+    readme_catalogs,
+    retired_terms,
+    vendored_plugins,
+)
 from lib.config_common import GenerationError, check_python_version, load_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -157,6 +166,7 @@ def _sync_path(name: str, path: Path, content: str, check: bool) -> bool:
 def run(root: Path, check: bool, only: str | None) -> int:
     """Generate (or verify) every selected target; return the exit code."""
     vendored_plugins.verify_pin(root)
+    retired_terms.check_no_retired_terms(root)
     names = [only] if only else list(TARGETS)
     stale = False
     for name in names:
