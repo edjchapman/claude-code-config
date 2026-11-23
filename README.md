@@ -12,7 +12,7 @@
 
 <!-- prettier-ignore-start -->
 
-`8 specialist agents` · `19 skills` · `14 permission templates` · `7 MCP templates` · `20 lifecycle hooks` · `3 style rules` · `4 CLI scripts`
+`8 specialist agents` · `19 skills` · `14 permission templates` · `7 MCP templates` · `20 lifecycle hooks` · `3 style rules` · `1 output style` · `4 CLI scripts`
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: counts -->
@@ -420,14 +420,28 @@ prompt; newer models get the shorter prompt, which has no such section, so there
 inert. `force-for-plugin: true` makes plugin installs apply it automatically. Global mode
 delivers it via the `~/.claude/output-styles` symlink.
 
-| Style         | When to use                                                                               |
-| ------------- | ----------------------------------------------------------------------------------------- |
-| `Scannable`   | Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks |
-| `default`     | Standard task-focused responses                                                           |
-| `Proactive`   | Starts work right away, assuming routine decisions instead of asking                      |
-| `Concise`     | Leads with the result; drops preamble, narration and recaps                               |
-| `Explanatory` | Adds learning insights inline (good for unfamiliar codebases)                             |
-| `Learning`    | More guided; leaves small pieces for you to write (good for upskilling)                   |
+Shipped by this repo, from each style's frontmatter:
+
+<!-- BEGIN GENERATED: output-styles -->
+
+<!-- prettier-ignore-start -->
+
+| Style       | Description                                                                                                                                          | Defined in                   |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `Scannable` | Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks. Augments the harness defaults rather than replacing them. | `output-styles/scannable.md` |
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: output-styles -->
+
+Built in to Claude Code:
+
+| Style         | When to use                                                             |
+| ------------- | ----------------------------------------------------------------------- |
+| `default`     | Standard task-focused responses                                         |
+| `Proactive`   | Starts work right away, assuming routine decisions instead of asking    |
+| `Concise`     | Leads with the result; drops preamble, narration and recaps             |
+| `Explanatory` | Adds learning insights inline (good for unfamiliar codebases)           |
+| `Learning`    | More guided; leaves small pieces for you to write (good for upskilling) |
 
 Values are case-sensitive in settings — `explanatory` silently falls back to `default`
 (`/output-style` itself ignores case).
@@ -641,6 +655,7 @@ claude-code-config/
 ├── agents/                  # Agent definitions (markdown)
 ├── skills/                  # Domain + workflow skills (skills/<name>/SKILL.md)
 ├── rules/                   # Path-scoped code style rules (markdown)
+├── output-styles/           # Output styles (markdown)
 ├── settings-templates/      # Permission templates (JSON)
 ├── mcp-templates/           # MCP server templates (JSON)
 ├── hooks/
@@ -659,6 +674,8 @@ claude-code-config/
     ├── check-context-budget.py  # pre-commit+CI: always-loaded context ≤ byte budget
     ├── check-agent-frontmatter.py  # pre-commit+CI: agent frontmatter contract
     ├── check-settings-keys.py  # pre-commit+CI: settings.json keys allowlisted
+    ├── check-plugin-drift.py  # pre-commit, local only: marketplace clone at the locked commit
+    ├── check-attribution.py  # CI: no Claude attribution in a PR's commits or body
     ├── lib/                 # Shared Python helpers (primitives, catalog renderers)
     ├── hooks/               # Hook scripts (annotated with their trigger)
     │   ├── check-duplicates.sh         # pre-commit + CI (not a runtime hook)

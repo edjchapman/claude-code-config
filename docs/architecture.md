@@ -2,7 +2,7 @@
 
 Full Claude-facing reference for this repo's moving parts — scripts, hooks, settings keys, templates, and automation. Behavioural rules and the easy-to-get-wrong gotchas live in [`CLAUDE.md`](../CLAUDE.md); user-facing catalogs live in [`README.md`](../README.md); extension recipes live in [`extending.md`](extending.md).
 
-**Every catalog below is a generated region** (`<!-- BEGIN GENERATED: … -->`), rendered from the primitives on disk by `scripts/generate.py` (ADR-0001). Hand edits inside one are reverted on the next run — change the source instead: a hook's summary and `Why:` note live in its script header, a skill's or agent's in its frontmatter, a template's in its `_description`, and the platform-reference data in `scripts/lib/architecture_catalogs.py`. Prose outside the markers is hand-written rationale and is yours to edit.
+**Every catalog below is a generated region** (`<!-- BEGIN GENERATED: … -->`), rendered from the primitives on disk by `scripts/generate.py` (ADR-0001). Hand edits inside one are reverted on the next run — change the source instead: a hook's summary and `Why:` note live in its script header, a skill's, agent's or output style's in its frontmatter, a template's in its `_description`, and the platform-reference data in `scripts/lib/architecture_catalogs.py`. Prose outside the markers is hand-written rationale and is yours to edit.
 
 ## Key Scripts
 
@@ -47,14 +47,20 @@ python3 <repo>/scripts/sync-global-settings.py [--check]
 # Regenerate the vendored-plugin lockfile from the local plugin cache (ADR-0003).
 # Local-only: reads ~/.claude/plugins, which does not exist in CI.
 python3 <repo>/scripts/update-plugin-lock.py [--ref REF]
+
+# Fail when the local marketplace clone has moved off the lockfile's commit.
+# Local-only (a pre-commit hook, no CI job): skips where there is no clone.
+python3 <repo>/scripts/check-plugin-drift.py
 ```
 
 Shared internals (not run directly):
 
-- `scripts/lib/vendored_plugins.py` — the pinned third-party plugin: pin/lockfile agreement (enforced by `generate.py --check`) and the always-loaded cost of its model-invocable skills (counted by `check-context-budget.py`). See [ADR-0003](adr/0003-pin-and-lock-vendored-plugins.md)
+- `scripts/lib/vendored_plugins.py` — the pinned third-party plugin: pin/lockfile agreement and the lockfile's recorded commit (enforced by `generate.py --check`), the marketplace-clone lookup behind `check-plugin-drift.py`, and the always-loaded cost of its model-invocable skills (counted by `check-context-budget.py`). See [ADR-0003](adr/0003-pin-and-lock-vendored-plugins.md)
 
 - `scripts/lib/config_common.py` — helpers used by `merge-settings.py`, `merge-mcp.py`, the checkers, and `generate.py` (Python version gate, template loading, output validation, frontmatter parsing, and `tracked_files` — the one definition of which files count as primitives: git-tracked, so an untracked local-only extra is invisible to generator and checkers alike)
 - `scripts/lib/prose_counts.py` — the no-count rule (CONTEXT.md), asserted by `generate.py --check` over the hand-written spans of this file and the README
+
+- `scripts/lib/retired_terms.py` — the retired-terms tripwire: a term CONTEXT.md records as _formerly "…"_ fails `generate.py --check` when it appears in a living doc (`CLAUDE.md`, the README, `docs/` outside `docs/adr/`, `skills/`, `agents/`, script headers)
 - `scripts/lib/settings_keys.py` — the managed-key sets (`ALLOWED_KEYS`, `RETIRED_KEYS`) shared by `check-settings-keys.py` and `sync-global-settings.py` (ADR-0002)
 - `scripts/hooks/lib/git-context.sh` — git helpers (`in_git_work_tree`, `git_branch`, `git_dirty_count`) sourced by the hook scripts; not a hook itself
 - `scripts/hooks/lib/hook-input.sh` — `hook_field <payload> <dotted.key>` helper for reading a field from the hook's stdin JSON payload; sourced by the hooks that parse stdin (format-on-edit, dangerous-cmd-check, session-end, pre/post-compact); not a hook itself
@@ -140,7 +146,7 @@ Prompt-type hooks invoke a fast model on every fire and incur token cost. Becaus
 
 <!-- prettier-ignore-start -->
 
-Claude Code documents **33** hook events; this repo wires 13 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-09-09:
+Claude Code documents **33** hook events; this repo wires 13 of them above. Documented events it does not wire, with their matcher field as confirmed against the docs on 2026-11-19:
 
 | Event                 | Fires when                                                      | Matcher field                                       |
 | --------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
@@ -187,12 +193,12 @@ Beyond plugins and hooks, `settings.json` sets:
 - **`statusLine`**: Command-based status line: git branch, dirty count and open PR, then model, context use and effort — all but the dirty count read from the stdin payload
 - **`enabledPlugins`**: Plugin enablement map — universal plugins only, some deliberately `false`
 - **`extraKnownMarketplaces`**: Extra plugin marketplaces this config expects to be available
-- **`outputStyle`**: Output style for assistant responses — `Scannable`, this repo's augmenting custom style in `output-styles/` (built-ins: `default`, `Proactive`, `Concise`, `Explanatory`, `Learning`; values are case-sensitive)
+- **`outputStyle`**: Output style for assistant responses — must name a style this repo ships in `output-styles/` (listed under Output Styles below; built-ins: `default`, `Proactive`, `Concise`, `Explanatory`, `Learning`; values are case-sensitive)
 - **`sandbox`**: Sandbox configuration (`enabled`, `autoAllowBashIfSandboxed`)
 - **`tui`**: TUI rendering mode — `fullscreen` is the flicker-free alt-screen renderer with virtualized scrollback; `default` is the classic one. Matches `/tui`
 - **`autoMemoryEnabled`**: Auto-memory on/off (platform default `true`)
 - **`syncClaudeAiSkills`**: `false` stops skills enabled on claude.ai from syncing into Claude Code and its always-loaded skill listing
-- **`inputNeededNotifEnabled`**: Desktop notification when Claude is blocked waiting for you
+- **`inputNeededNotifEnabled`**: Push notification when Claude is waiting on you
 - **`agentPushNotifEnabled`**: Push notifications for background agent activity
 
 <!-- prettier-ignore-end -->
@@ -211,7 +217,7 @@ Why some of them are set the way they are:
 
 <!-- prettier-ignore-start -->
 
-Other documented keys this repo does **not** set (available as opt-ins): `alwaysThinkingEnabled`, `autoMemoryDirectory` (custom auto-memory storage dir), `autoMode`, `availableModels` (restrict selectable models), `axScreenReader` (screen-reader-friendly output), `cleanupPeriodDays` (session file retention, default 30), `disableBundledSkills` (hide bundled skills like `/code-review`, `/loop`), `effortLevel` (legacy default reasoning effort, ignored on Opus 5.5+), `enforceAvailableModels` (restrict selectable models), `env`, `fastMode` (faster Opus output, default `false`), `fileSuggestion`, `idleCompaction` (`false` stops compaction of idle long sessions), `language` (response language preference), `model`, `parentSettingsBehavior`, `promptCacheTtl` (main-conversation prompt cache TTL, `5m` or `1h`), `skillListingBudgetFraction` (share of the context window for the skill listing, default 1%), `skillListingMaxDescChars` (per-skill description cap in the listing, default 1536), `skillOverrides`, `spinnerVerbs`, `subagentPromptCacheTtl` (subagent prompt cache TTL, default `5m`).
+Other documented keys this repo does **not** set (available as opt-ins): `advisorModel` (model that answers the advisor tool), `alwaysThinkingEnabled`, `autoMemoryDirectory` (custom auto-memory storage dir), `autoMode`, `availableModels` (restrict selectable models), `axScreenReader` (screen-reader-friendly output), `bashEditDiffEnabled` (record files a Bash command changed, in every permission mode), `cleanupPeriodDays` (session file retention, default 30), `disableBundledSkills` (hide bundled skills like `/code-review`, `/loop`), `disableRemoteControl` (turn off Remote Control everywhere), `effortLevel` (legacy default reasoning effort, ignored on Opus 5.5+), `enforceAvailableModels` (restrict selectable models), `env`, `fastMode` (faster Opus output, default `false`), `fileSuggestion`, `idleCompaction` (`false` stops compaction of idle long sessions), `language` (response language preference), `maxProseWidth` (cap on response prose width in wide terminals), `model`, `parentSettingsBehavior`, `promptCacheTtl` (main-conversation prompt cache TTL, `5m` or `1h`), `skillListingBudgetFraction` (share of the context window for the skill listing, default 1%), `skillListingMaxDescChars` (per-skill description cap in the listing, default 1536), `skillOverrides`, `spinnerVerbs`, `subagentPromptCacheTtl` (subagent prompt cache TTL, default `5m`), `syncClaudeAiPlugins` (`false` stops loading and downloading plugins enabled on claude.ai), `ultracode` (plan a workflow for each substantive task unasked).
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-unset-settings-keys -->
@@ -272,6 +278,21 @@ Available rules:
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-rules -->
+
+### Output Styles
+
+Output styles are markdown files in `output-styles/` that own Claude's response format. The managed `outputStyle` key selects one by its frontmatter `name` (the file name when it sets none), and `generate.py --check` fails when that value names no shipped style: the platform reports no error for an unmatched value and falls back to the default style.
+
+Shipped styles:
+
+<!-- BEGIN GENERATED: arch-output-styles -->
+
+<!-- prettier-ignore-start -->
+
+- `Scannable` (`output-styles/scannable.md`): Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks. Augments the harness defaults rather than replacing them.
+
+<!-- prettier-ignore-end -->
+<!-- END GENERATED: arch-output-styles -->
 
 ### Settings Files: Two Purposes
 
