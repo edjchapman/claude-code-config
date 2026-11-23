@@ -109,6 +109,16 @@ repos:
         files: ^(agents/.*\.md|scripts/check-agent-frontmatter\.py)$
         pass_filenames: false
 
+      # Local-only, with no CI job: it reads this machine's marketplace
+      # clone and skips where there is none. always_run because drift comes
+      # from outside the repo, so no changed file could trigger it.
+      - id: check-plugin-drift
+        name: marketplace clone still at the locked commit
+        entry: python3 scripts/check-plugin-drift.py
+        language: system
+        always_run: true
+        pass_filenames: false
+
   # ---- Prettier (Markdown, JSON, YAML) -------------------------------
   # rbubley/mirrors-prettier is the actively-maintained mirror after
   # pre-commit/mirrors-prettier went unmaintained.
