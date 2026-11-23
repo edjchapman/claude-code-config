@@ -173,7 +173,7 @@ SETTINGS_KEY_GLOSSES = {
         "with virtualized scrollback; `default` is the classic one. Matches `/tui`"
     ),
     "autoMemoryEnabled": "Auto-memory on/off (platform default `true`)",
-    "inputNeededNotifEnabled": "Desktop notification when Claude is blocked waiting for you",
+    "inputNeededNotifEnabled": "Push notification when Claude is waiting on you",
     "agentPushNotifEnabled": "Push notifications for background agent activity",
     "modelSettings": (
         "Per-model config keyed by model ID (`effortLevel`, `maxEffortLevel`, "
