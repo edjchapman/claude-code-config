@@ -78,7 +78,7 @@ class ReadmeCatalogs(unittest.TestCase):
         workflow = extract_region(self.readme(), "workflow-skills")
         flow_row = next(line for line in workflow.splitlines() if "`/flow-skill`" in line)
         solo_row = next(line for line in workflow.splitlines() if "`/solo-skill`" in line)
-        standup_row = next(line for line in workflow.splitlines() if "`/standup`" in line)
+        standup_row = next(line for line in workflow.splitlines() if "`/ccc-standup`" in line)
         self.assertIn("you or Claude", flow_row)
         self.assertIn("you only", solo_row)
         self.assertIn("you, Claude, or a schedule", standup_row)
@@ -121,14 +121,14 @@ class ReadmeCatalogs(unittest.TestCase):
         self.assertIn("agents", result.stderr)
 
     def test_scheduled_skill_disabling_model_invocation_is_an_error(self) -> None:
-        (self.root / "skills" / "standup" / "SKILL.md").write_text(
-            "---\nname: standup\ndescription: Prepare a standup summary.\n"
+        (self.root / "skills" / "ccc-standup" / "SKILL.md").write_text(
+            "---\nname: ccc-standup\ndescription: Prepare a standup summary.\n"
             "disable-model-invocation: true\n---\nbody\n"
         )
         result = run_generate(self.root, "--check", "--only", "readme")
         self.assertEqual(result.returncode, 1)
         self.assertIn("scheduling invariant", result.stderr)
-        self.assertIn("standup", result.stderr)
+        self.assertIn("ccc-standup", result.stderr)
 
     def write_project_skill(self, name: str, extra_frontmatter: str = "") -> None:
         skill = self.root / ".claude" / "skills" / name / "SKILL.md"
@@ -140,29 +140,29 @@ class ReadmeCatalogs(unittest.TestCase):
 
     def test_scheduled_project_skill_disabling_model_invocation_is_an_error(self) -> None:
         """A routine-fired skill under .claude/skills/ is held to the same invariant (#182)."""
-        self.write_project_skill("upstream-watch", "disable-model-invocation: true\n")
+        self.write_project_skill("ccc-upstream-watch", "disable-model-invocation: true\n")
         result = run_generate(self.root, "--check", "--only", "readme")
         self.assertEqual(result.returncode, 1)
         self.assertIn("scheduling invariant", result.stderr)
-        self.assertIn("upstream-watch", result.stderr)
+        self.assertIn("ccc-upstream-watch", result.stderr)
 
     def test_scheduled_project_skill_is_checked_but_never_catalogued(self) -> None:
-        self.write_project_skill("upstream-watch")
+        self.write_project_skill("ccc-upstream-watch")
         result = run_generate(self.root, "--only", "readme")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertNotIn("upstream-watch", self.readme())
+        self.assertNotIn("ccc-upstream-watch", self.readme())
 
     def test_user_only_skill_losing_its_flag_is_an_error(self) -> None:
         """The other half of the scheduling invariant (issue #115)."""
-        (self.root / "skills" / "status").mkdir(parents=True)
-        (self.root / "skills" / "status" / "SKILL.md").write_text(
-            "---\nname: status\ndescription: Log a status line.\n---\nbody\n"
+        (self.root / "skills" / "ccc-status").mkdir(parents=True)
+        (self.root / "skills" / "ccc-status" / "SKILL.md").write_text(
+            "---\nname: ccc-status\ndescription: Log a status line.\n---\nbody\n"
         )
         stage(self.root)
         result = run_generate(self.root, "--check", "--only", "readme")
         self.assertEqual(result.returncode, 1)
         self.assertIn("scheduling invariant", result.stderr)
-        self.assertIn("status", result.stderr)
+        self.assertIn("ccc-status", result.stderr)
 
     def test_unrecognised_invocation_flag_is_an_error(self) -> None:
         (self.root / "skills" / "solo-skill" / "SKILL.md").write_text(
@@ -355,7 +355,7 @@ class ArchitectureReference(unittest.TestCase):
         run_generate(self.root, "--only", "architecture")
         skills = extract_region(self.architecture(), "arch-skills")
         solo = next(line for line in skills.splitlines() if "`/solo-skill`" in line)
-        standup = next(line for line in skills.splitlines() if "`/standup`" in line)
+        standup = next(line for line in skills.splitlines() if "`/ccc-standup`" in line)
         self.assertIn("**User-only.**", solo)
         self.assertIn("**Schedulable**", standup)
         self.assertIn("issue #51", standup)

@@ -26,7 +26,7 @@
 #   --dry-run, -n    print what would happen; change nothing
 #   -h, --help       show this help
 #
-# The /mkdocs-style Claude skill wraps this script and also removes the
+# The /ccc-mkdocs-style Claude skill wraps this script and also removes the
 # now-redundant keys from the project's mkdocs.yml.
 
 set -euo pipefail
@@ -162,7 +162,7 @@ if [ "${#warnings[@]}" -gt 0 ]; then
   for w in "${warnings[@]}"; do
     echo "  - $w"
   done
-  echo "Remove them (or run the /mkdocs-style skill, which does this for you)."
+  echo "Remove them (or run the /ccc-mkdocs-style skill, which does this for you)."
 fi
 
 echo ""

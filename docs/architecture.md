@@ -31,7 +31,7 @@ symlinks `~/.claude/` at the clone that runs it, so a second clone (e.g. an old
 # payload in tooling/mkdocs/) into an MkDocs project. Unlike install-tooling.sh,
 # the two style-owned files (mkdocs.style.yml + custom.css) are ALWAYS
 # OVERWRITTEN — re-running is the update mechanism. Wired via MkDocs `INHERIT:`
-# config inheritance; the /mkdocs-style skill wraps this and cleans up the
+# config inheritance; the /ccc-mkdocs-style skill wraps this and cleans up the
 # project's mkdocs.yml afterwards.
 <repo>/scripts/install-mkdocs-style.sh [--target DIR] [--css-dest REL] [--dry-run]
 
@@ -107,7 +107,7 @@ Wired in [`hooks/hooks.json`](../hooks/hooks.json) — 20 bindings across 13 eve
 - **PostCompact** → `scripts/hooks/post-compact-restore.sh`: Re-inject the pre-compaction state snapshot after context compaction completes. _Why:_ this is the half of the compaction loop that actually restores state — it reads the session-keyed snapshot pre-compact-state.sh wrote, emits it via hookSpecificOutput.additionalContext, and deletes the one-shot file.
 - **Notification** → `scripts/hooks/notify-attention.sh`: Desktop notification when Claude is blocked on you (permission request or idle wait). _Why:_ the Notification event fires exactly when Claude needs you, and you should not have to watch the terminal to notice. macOS uses osascript (with sound), Linux notify-send, with a terminal bell fallback everywhere; always exits 0.
 - **Notification** → `scripts/hooks/iterm2-status.sh`: Forward session events to iTerm2's Claude Code status integration. _Why:_ iTerm2 ships a `cc-status` helper that renders live session state in the terminal's status bar, and its installer registers that helper directly in ~/.claude/settings.json. Because `hooks` is a managed key (ADR-0002), every sync then reported drift and setup-global.sh would have wiped all ten registrations. Wiring it through the repo's own hook definitions (ADR-0001) makes the integration survive a sync instead of fighting it.
-- **SessionEnd** → `scripts/hooks/session-end.sh`: Record each session end — always a CSV row, plus a git summary in ./standups/. _Why:_ the CSV row (~/.claude/debug/session-log.csv) is unconditional; the ./standups/YYYY-MM-DD-log.md append that /standup later reads is opt-in on that directory already existing, so ending a session in an unrelated repo does not scatter standups/ dirs across the filesystem.
+- **SessionEnd** → `scripts/hooks/session-end.sh`: Record each session end — always a CSV row, plus a git summary in ./standups/. _Why:_ the CSV row (~/.claude/debug/session-log.csv) is unconditional; the ./standups/YYYY-MM-DD-log.md append that /ccc-standup later reads is opt-in on that directory already existing, so ending a session in an unrelated repo does not scatter standups/ dirs across the filesystem.
 - **SessionEnd** → `scripts/hooks/iterm2-status.sh`: Forward session events to iTerm2's Claude Code status integration. _Why:_ iTerm2 ships a `cc-status` helper that renders live session state in the terminal's status bar, and its installer registers that helper directly in ~/.claude/settings.json. Because `hooks` is a managed key (ADR-0002), every sync then reported drift and setup-global.sh would have wiped all ten registrations. Wiring it through the repo's own hook definitions (ADR-0001) makes the integration survive a sync instead of fighting it.
 - **UserPromptSubmit** → `scripts/hooks/iterm2-status.sh`: Forward session events to iTerm2's Claude Code status integration. _Why:_ iTerm2 ships a `cc-status` helper that renders live session state in the terminal's status bar, and its installer registers that helper directly in ~/.claude/settings.json. Because `hooks` is a managed key (ADR-0002), every sync then reported drift and setup-global.sh would have wiped all ten registrations. Wiring it through the repo's own hook definitions (ADR-0001) makes the integration survive a sync instead of fighting it.
 - **PermissionRequest** → `scripts/hooks/iterm2-status.sh`: Forward session events to iTerm2's Claude Code status integration. _Why:_ iTerm2 ships a `cc-status` helper that renders live session state in the terminal's status bar, and its installer registers that helper directly in ~/.claude/settings.json. Because `hooks` is a managed key (ADR-0002), every sync then reported drift and setup-global.sh would have wiped all ten registrations. Wiring it through the repo's own hook definitions (ADR-0001) makes the integration survive a sync instead of fighting it.
@@ -232,33 +232,33 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 
 **Domain-knowledge skills** — Claude loads these automatically when the conversation matches their `description:`:
 
-- `api-design`: REST API conventions — resources, status codes, pagination, error shapes. Use when designing or reviewing routes, controllers, endpoints, serializers, or schemas.
-- `django-patterns`: Django app-layer and ORM conventions. Use when editing models, views, serializers, admin, managers, signals, migrations, or querysets.
-- `docker-patterns`: Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.
-- `git-workflow`: Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, cherry-picking, bisecting, reflog recovery. To resolve an in-progress merge or rebase conflict, use the resolving-merge-conflicts skill.
-- `infrastructure`: Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.
-- `security-patterns`: Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.
-- `testing-patterns`: Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.
+- `ccc-api-design`: REST API conventions — resources, status codes, pagination, error shapes. Use when designing or reviewing routes, controllers, endpoints, serializers, or schemas.
+- `ccc-django-patterns`: Django app-layer and ORM conventions. Use when editing models, views, serializers, admin, managers, signals, migrations, or querysets.
+- `ccc-docker-patterns`: Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.
+- `ccc-git-workflow`: Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, cherry-picking, bisecting, reflog recovery. To resolve an in-progress merge or rebase conflict, use the resolving-merge-conflicts skill.
+- `ccc-infrastructure`: Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.
+- `ccc-security-patterns`: Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.
+- `ccc-testing-patterns`: Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.
 
 **Workflow skills** — invoked as `/<name>`; those without `disable-model-invocation` can also be auto-invoked by Claude:
 
-- `/adr`: Record a technical decision as an Architecture Decision Record. Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.
-- `/commit`: Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.
-- `/eow-review`: Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week.
-- `/hotfix`: Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.
-- `/later`: Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template. **User-only.**
-- `/mkdocs-style`: Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.
-- `/pr`: Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.
-- `/project-setup`: Bootstrap a new repository end-to-end, or install this config's tooling into an existing one. Use when starting a new repo, or when applying the quality gate, git hooks, CI, and branch protection to a project that already exists.
-- `/refinement`: Prepare technical analysis for backlog refinement meetings. **User-only.**
-- `/standup`: Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently. **Schedulable** — fired by the daily standup routine (issue #51).
-- `/status`: Capture a quick status update and append it to today's daily log. **User-only.**
-- `/usage-review`: Measure your Claude Code session history for where your config costs output quality or efficiency, and write a local report of ranked proposals. **User-only.**
+- `/ccc-adr`: Record a technical decision as an Architecture Decision Record. Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.
+- `/ccc-commit`: Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.
+- `/ccc-eow-review`: Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week.
+- `/ccc-hotfix`: Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.
+- `/ccc-later`: Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template. **User-only.**
+- `/ccc-mkdocs-style`: Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.
+- `/ccc-pr`: Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.
+- `/ccc-project-setup`: Bootstrap a new repository end-to-end, or install this config's tooling into an existing one. Use when starting a new repo, or when applying the quality gate, git hooks, CI, and branch protection to a project that already exists.
+- `/ccc-refinement`: Prepare technical analysis for backlog refinement meetings. **User-only.**
+- `/ccc-standup`: Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently. **Schedulable** — fired by the daily standup routine (issue #51).
+- `/ccc-status`: Capture a quick status update and append it to today's daily log. **User-only.**
+- `/ccc-usage-review`: Measure your Claude Code session history for where your config costs output quality or efficiency, and write a local report of ranked proposals. **User-only.**
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-skills -->
 
-The user-only skills above set `disable-model-invocation: true`. **Scheduling constraint**: that flag also prevents a skill from running when a scheduled task fires with the skill as its prompt (v2.1.196+) — `/standup` deliberately omits it so its scheduled routine can run it.
+The user-only skills above set `disable-model-invocation: true`. **Scheduling constraint**: that flag also prevents a skill from running when a scheduled task fires with the skill as its prompt (v2.1.196+) — `/ccc-standup` deliberately omits it so its scheduled routine can run it.
 
 ### Rules
 
@@ -424,12 +424,12 @@ The repo's philosophy is **automatic over explicit** — prefer a mechanism that
 
 Live routines — this section is the canonical home for their schedules and delivery targets; README links here rather than restating them (manage at <https://claude.ai/code/routines>):
 
-- **Daily standup prep** — weekdays 07:30 UTC (~08:30 London in summer), runs the `/standup` workflow against GitHub, delivers a comment on the pinned tracking issue [#51](https://github.com/edjchapman/claude-code-config/issues/51). Cloud sessions can't read local `./standups/` logs, so the routine prompt is self-contained.
-- **Upstream watch** — Mondays 07:00 UTC, runs the maintainer-only `upstream-watch` skill (`.claude/skills/`, not shipped): reads the Claude Code changelog since the last run, opens up to three pull requests labelled `proposal` and `upstream-watch`, and never merges. Each run comments the version it reviewed up to on the pinned issue [#187](https://github.com/edjchapman/claude-code-config/issues/187); a cloud run keeps nothing else, so the next run starts from that comment.
+- **Daily standup prep** — weekdays 07:30 UTC (~08:30 London in summer), runs the `/ccc-standup` workflow against GitHub, delivers a comment on the pinned tracking issue [#51](https://github.com/edjchapman/claude-code-config/issues/51). Cloud sessions can't read local `./standups/` logs, so the routine prompt is self-contained.
+- **Upstream watch** — Mondays 07:00 UTC, runs the maintainer-only `ccc-upstream-watch` skill (`.claude/skills/`, not shipped): reads the Claude Code changelog since the last run, opens up to three pull requests labelled `proposal` and `upstream-watch`, and never merges. Each run comments the version it reviewed up to on the pinned issue [#187](https://github.com/edjchapman/claude-code-config/issues/187); a cloud run keeps nothing else, so the next run starts from that comment.
 
 Delivery is a GitHub issue comment because GitHub is the one dependency the cloud sandbox already needs for activity gathering — no separate connector auth to go stale. Keep #51/#187 open — a closed issue orphans the routine behind it: its delivery target or, for #187, its state.
 
-Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum routine interval is 1 hour; and a skill with `disable-model-invocation: true` **cannot** be fired by a scheduled task — which is why `standup`/`upstream-watch` omit that flag, and why `generate.py --check` fails if one gains it. In a cloud session `gh pr` and `gh issue` return 403; `gh api` against the REST endpoints works.
+Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum routine interval is 1 hour; and a skill with `disable-model-invocation: true` **cannot** be fired by a scheduled task — which is why `ccc-standup`/`ccc-upstream-watch` omit that flag, and why `generate.py --check` fails if one gains it. In a cloud session `gh pr` and `gh issue` return 403; `gh api` against the REST endpoints works.
 
 ### Agent Definitions
 

@@ -10,7 +10,7 @@ belong here. Naming conventions were removed as derivable from the
 language. These rules are user-level — they load in every TypeScript repo
 on the machine, so nothing here may assume a framework. React guidance was
 removed on that basis; if it returns it belongs in a skill, alongside
-django-patterns, not in a language rule.
+ccc-django-patterns, not in a language rule.
 -->
 
 # TypeScript Style
