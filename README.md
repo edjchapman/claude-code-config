@@ -426,9 +426,9 @@ Shipped by this repo, from each style's frontmatter:
 
 <!-- prettier-ignore-start -->
 
-| Style       | Description                                                                                                                                          | Defined in                   |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| `Scannable` | Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks. Augments the harness defaults rather than replacing them. | `output-styles/scannable.md` |
+| Style       | Description                                                                                                                                                                                                                                                | Defined in                   |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `Scannable` | Full detail, displayed scannably and worded plainly — outcome first, bullets for parallel items, short paragraphs for reasoning, a turn report after a working turn, numbered options at a fork. Augments the harness defaults rather than replacing them. | `output-styles/scannable.md` |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: output-styles -->

@@ -289,7 +289,7 @@ Shipped styles:
 
 <!-- prettier-ignore-start -->
 
-- `Scannable` (`output-styles/scannable.md`): Full detail, displayed scannably — TLDR-first, anchored bullets, tables, delimited blocks. Augments the harness defaults rather than replacing them.
+- `Scannable` (`output-styles/scannable.md`): Full detail, displayed scannably and worded plainly — outcome first, bullets for parallel items, short paragraphs for reasoning, a turn report after a working turn, numbered options at a fork. Augments the harness defaults rather than replacing them.
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-output-styles -->

@@ -15,12 +15,27 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   augmenting — replacing would freeze out upstream output improvements. The mode is
   `keep-coding-instructions`, which only bites on the _full_ system prompt; newer
   models get the shorter prompt, which has no coding section to keep or discard.
-- **Scannable** — this repo's output style: full detail, never prose walls. Substantial
-  answers lead with the outcome, then anchored bullets, tables for enumerable facts,
-  and visually delimited blocks; brief educational insights stay inside their own box.
-  **Threshold-based** — one-fact answers stay a plain sentence; the structure is
-  mandatory only once an answer carries more than a couple of sentences or facts.
-  Over-formatting a trivial reply is the mirror-image failure of a prose wall.
+- **Scannable** — this repo's output style: full detail, never prose walls, plainly
+  worded. Substantial answers lead with the outcome, then anchored bullets for parallel
+  items, a short paragraph for a chain of reasoning, tables for enumerable facts;
+  brief educational insights stay inside their own box. A **working turn** is answered
+  with a **turn report**, and whatever waits on the reader — a **fork**'s options, a
+  clarifying question — comes last. **Threshold-based** — one-fact answers stay a plain
+  sentence; the structure is mandatory only once an answer carries more than a couple
+  of sentences or facts. Over-formatting a trivial reply is the mirror-image failure
+  of a prose wall.
+- **Working turn** — a turn in which Claude used tools for more than a single lookup,
+  whether or not anything was changed. An investigation that edits nothing is a working
+  turn; answering from one file read is not.
+- **Turn report** — the form a working turn's reply takes: what was found, what changed,
+  what was verified, what is unresolved. It _is_ the reply's body, not a recap appended
+  to it. _Verified_ and _unresolved_ are always stated, even when the answer is
+  "nothing", so silence never has to be interpreted. Scoped to that turn alone. Not a
+  **session recap** (a cumulative account of the whole conversation), which Scannable
+  does not produce.
+- **Fork** — a point where the next move is a decision that belongs to the user, not to
+  Claude. The only occasion on which a reply offers **next-step options**; work already
+  inside what was asked is never a fork and is never offered as an option.
 - **Rule** — the primitive that carries _judgement a linter cannot express_, loaded
   as **context** when Claude reads a file matching its `paths` frontmatter. Rules
   **inform; they never enforce** — enforcement is a hook or a linter, and content a
