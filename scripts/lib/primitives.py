@@ -24,14 +24,13 @@ from typing import NamedTuple
 
 from lib.config_common import GenerationError, load_json, parse_frontmatter, tracked_files
 
-# Skills fired by the scheduled cloud routines — daily standup (issue #51)
-# and end-of-week review (issue #52). No frontmatter key records scheduling,
+# Skills fired by the scheduled cloud routines — today only the daily standup
+# (issue #51). No frontmatter key records scheduling,
 # so the routine->skill mapping is declared here. It feeds the
 # who-can-invoke column, and `skills()` enforces the scheduling invariant
 # (CONTEXT.md): a scheduled skill must stay model-invocable.
 SCHEDULED_SKILLS = {
     "standup": "the daily standup routine (issue #51)",
-    "eow-review": "the end-of-week review routine (issue #52)",
 }
 
 # Routine-fired skills that live under .claude/skills/ instead: maintainer-only,

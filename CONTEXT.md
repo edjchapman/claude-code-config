@@ -77,7 +77,7 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   editing theirs; an over-guideline description is accepted at a recorded size. Its version is a **pin**; its shipped
   set is captured in a committed **lockfile** so upstream change surfaces as a diff.
 - **Scheduling invariant** — the rule that skills invoked by the cloud routines
-  (daily standup #51, end-of-week review #52) must remain model-invocable, while
+  (daily standup #51, upstream watch #187) must remain model-invocable, while
   user-only skills must carry `disable-model-invocation`. Enforced by the
   generator's `--check`.
 - **Wired-coverage invariant** — the rule that every tracked script under
