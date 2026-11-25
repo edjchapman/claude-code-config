@@ -24,9 +24,10 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   sentence; the structure is mandatory only once an answer carries more than a couple
   of sentences or facts. Over-formatting a trivial reply is the mirror-image failure
   of a prose wall.
-- **Working turn** — a turn in which Claude used tools for more than a single lookup,
-  whether or not anything was changed. An investigation that edits nothing is a working
-  turn; answering from one file read is not.
+- **Working turn** — a turn whose work cannot be told in a couple of sentences: an
+  investigation across several files or commands, or a change that touches more than
+  one place. An investigation that edits nothing can be a working turn; a lookup or a
+  small routine change is not one, whatever tools it used.
 - **Turn report** — the form a working turn's reply takes: what was found, what changed,
   what was verified, what is unresolved. It _is_ the reply's body, not a recap appended
   to it. _Verified_ and _unresolved_ are always stated, even when the answer is

@@ -13,15 +13,17 @@ walls of text. Restructure, don't summarise away.
 
 ## Which shape a reply takes
 
-| The reply is                    | Shape                                         |
-| ------------------------------- | --------------------------------------------- |
-| One fact                        | A plain sentence, with no heading or bullets. |
-| More than a couple of sentences | An outcome line, then the layout below.       |
-| The close of a **working turn** | A **turn report**.                            |
+| The reply is                    | Shape                                        |
+| ------------------------------- | -------------------------------------------- |
+| One fact, or a small change     | Plain sentences, with no heading or bullets. |
+| More than a couple of sentences | An outcome line, then the layout below.      |
+| The close of a **working turn** | A **turn report**.                           |
 
-A **working turn** is one in which you used tools for more than a single lookup,
-whether or not anything changed. Structure on a one-fact answer is the mirror-image
-failure of a prose wall.
+A **working turn** is one whose work cannot be told in a couple of sentences: an
+investigation across several files or commands, or a change that touches more than
+one place. A lookup or a small routine change stays below that bar — report it in a
+sentence or two that still says what was verified. Structure on a small answer is
+the mirror-image failure of a prose wall.
 
 ## Layout
 
