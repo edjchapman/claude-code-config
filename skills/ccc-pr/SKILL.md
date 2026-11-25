@@ -1,0 +1,123 @@
+---
+name: ccc-pr
+description: Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.
+argument-hint: "[--draft] [--base <branch>]"
+---
+
+Help me create a pull request with a well-crafted description.
+
+## Arguments
+
+`$ARGUMENTS`
+
+- `--draft` or `-d`: Create as draft PR
+- `--base <branch>`: Specify base branch (default: main)
+- Examples: `/ccc-pr --draft`, `/ccc-pr --base develop`
+
+## Jira Configuration
+
+Read Jira config from the project's `CLAUDE.md` if present (look for a
+`## Jira` section with `Base URL` and `Ticket Pattern`). If absent, ask the
+user. Do not assume any specific organisation's URL.
+
+- **Common ticket patterns**: `[A-Z]+-\d+` (e.g. `ABC-123`, `PROJ-456`), `#123`, `GH-123`
+
+## Steps
+
+### Step 1: Understand current state
+
+```bash
+git branch --show-current
+git log origin/main..HEAD --oneline
+git diff origin/main..HEAD --stat
+```
+
+### Step 2: Analyze all commits being included
+
+- Read each commit message
+- Look at the actual changes with `git diff origin/main..HEAD`
+- Identify the main themes and purpose
+
+### Step 3: Check for related context
+
+- Look for ticket/issue numbers in branch name or commits
+- Check if there are related specs in `specs/` directory
+- Note any breaking changes or migrations
+
+### Step 4: Extract Jira context from branch name
+
+Extract ticket ID from branch name patterns:
+
+- `feature/BIL-123-description` → `BIL-123`
+- `fix/BIL-456-bug-fix` → `BIL-456`
+- `BIL-789/some-feature` → `BIL-789`
+
+**If a ticket ID is found:**
+
+- Add a Jira link to the PR body using the project CLAUDE.md base URL:
+  `Related: [TICKET-ID](<base_url>/TICKET-ID)`
+- If no base URL is configured, include the ticket ID as plain text and note:
+  "Jira base URL not configured in project CLAUDE.md - add manually if needed"
+
+### Step 5: Check for PR template
+
+Search for PR templates in order:
+
+1. `.github/PULL_REQUEST_TEMPLATE.md`
+2. `.github/PULL_REQUEST_TEMPLATE/default.md`
+3. `.github/pull_request_template.md`
+4. `docs/pull_request_template.md`
+
+**If template found:**
+
+- Use template as base structure for PR body
+- Merge Jira context and commit analysis into template sections
+- Fill in template placeholders where possible
+
+**If no template found:**
+
+- Use default structure (see Step 6)
+
+### Step 6: Generate PR description
+
+**Default structure (if no template):**
+
+```markdown
+## Summary
+
+<1-3 bullet points explaining what this PR does and why>
+
+## Changes
+
+<Grouped list of significant changes>
+
+## Testing
+
+<How this was tested or how reviewers should test>
+
+## Notes for Reviewers
+
+<Any context that helps review: focus areas, known issues, follow-ups>
+
+## Related Issues
+
+- [TICKET-ID](<base_url>/TICKET-ID) - {summary from Jira if available}
+```
+
+### Step 7: Ask for confirmation before creating
+
+- Show the proposed title and description
+- Confirm the base branch (usually main)
+- If Jira ticket found, confirm linking is correct
+- Ask if ready to create
+
+### Step 8: Create the PR (only when confirmed)
+
+```bash
+gh pr create --title "<title>" --body "<body>"
+```
+
+## Output
+
+Present the PR title and description for review, then create when approved.
+Return the PR URL when complete.

@@ -28,7 +28,7 @@ Ubiquitous language for this repo. Skills and agents should use these terms exac
   (`~/.claude/rules/`, global mode only), so a rule applies to _every_ repo of that
   language on the machine: nothing in one may assume a particular linter config,
   framework, or language version. Framework guidance is a **skill** instead
-  (`django-patterns`, `docker-patterns`) — language → rule, framework → skill.
+  (`ccc-django-patterns`, `ccc-docker-patterns`) — language → rule, framework → skill.
   _Formerly described as "style enforcement", which invited linter content into
   rules and is why the retired bullets sat unexamined._
 - **Catalog** — any human-facing enumeration of primitives (the README tables,

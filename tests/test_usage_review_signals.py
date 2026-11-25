@@ -1,4 +1,4 @@
-"""Behavioural tests for skills/usage-review/signals.py, run against fixture transcripts.
+"""Behavioural tests for skills/ccc-usage-review/signals.py, run against fixture transcripts.
 
 The seam is the script's command line: every test lays down a throwaway
 `projects/` tree, runs the script as a subprocess and asserts on what it
@@ -14,7 +14,7 @@ import unittest
 from datetime import datetime, timezone
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCRIPT = REPO_ROOT / "skills" / "usage-review" / "signals.py"
+SCRIPT = REPO_ROOT / "skills" / "ccc-usage-review" / "signals.py"
 
 UNTIL = "2026-11-19"
 IN_WINDOW = "2026-11-10T12:00:00.000Z"

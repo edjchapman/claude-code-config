@@ -2,7 +2,7 @@
 
 The house format and the bar for writing one. This file lives **beside the ADRs
 rather than inside the skill that writes them** on purpose: more than one
-primitive can create a file here — this repo's `/adr` skill, `@documentation-writer`,
+primitive can create a file here — this repo's `/ccc-adr` skill, `@documentation-writer`,
 and the vendored `mattpocock-skills:domain-modeling` — and only some of them are
 ours to edit. A convention enforced in each producer is unenforceable once a
 producer is vendored; a convention published at the destination is read by

@@ -30,14 +30,14 @@ from lib.config_common import GenerationError, load_json, parse_frontmatter, tra
 # who-can-invoke column, and `skills()` enforces the scheduling invariant
 # (CONTEXT.md): a scheduled skill must stay model-invocable.
 SCHEDULED_SKILLS = {
-    "standup": "the daily standup routine (issue #51)",
+    "ccc-standup": "the daily standup routine (issue #51)",
 }
 
 # Routine-fired skills that live under .claude/skills/ instead: maintainer-only,
 # not shipped, and in no catalog — so nothing would show the flag being added,
 # and the routine would stop running without an error anywhere.
 SCHEDULED_PROJECT_SKILLS = {
-    "upstream-watch": "the weekly upstream-watch routine (issue #187)",
+    "ccc-upstream-watch": "the weekly upstream-watch routine (issue #187)",
 }
 
 # The other half of the same invariant: skills that must stay user-only.
@@ -47,7 +47,7 @@ SCHEDULED_PROJECT_SKILLS = {
 # user never asked for. Losing the flag would not make any catalog wrong
 # (the column is derived), which is exactly why it needs asserting: the
 # regression would be invisible in the docs.
-USER_ONLY_SKILLS = frozenset({"status", "refinement", "later", "usage-review"})
+USER_ONLY_SKILLS = frozenset({"ccc-status", "ccc-refinement", "ccc-later", "ccc-usage-review"})
 
 # Scripts that live in scripts/hooks/ but are deliberately not hooks, with
 # what runs them instead. The wired-coverage invariant (CONTEXT.md): every

@@ -152,8 +152,8 @@ def _write_skills(root: Path) -> None:
             '---\nname: solo-skill\ndescription: Solo only.\nargument-hint: "<msg>"\n'
             "disable-model-invocation: true\n---\n"
         ),
-        "standup": (
-            "---\nname: standup\ndescription: Prepare a standup summary.\n"
+        "ccc-standup": (
+            "---\nname: ccc-standup\ndescription: Prepare a standup summary.\n"
             'argument-hint: "[p]"\n---\n'
         ),
     }

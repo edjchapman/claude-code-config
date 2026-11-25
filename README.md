@@ -137,11 +137,11 @@ git fetch upstream && git merge upstream/main
 
 Everything falls into two modes — tools you **invoke** and tools that **auto-activate**:
 
-|             | Active (you invoke)                             | Passive (auto-activates)                                                     |
-| ----------- | ----------------------------------------------- | ---------------------------------------------------------------------------- |
-| **What**    | Specialist agents, workflow skills, CLI scripts | Domain skills, rules, hooks                                                  |
-| **How**     | `@name`, `/name`, or shell command              | Skills load by description; rules/hooks by file patterns or lifecycle events |
-| **Example** | `@bug-resolver`, `/commit`, `daily-report.sh`   | `testing-patterns` loads when you write tests                                |
+|             | Active (you invoke)                               | Passive (auto-activates)                                                     |
+| ----------- | ------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **What**    | Specialist agents, workflow skills, CLI scripts   | Domain skills, rules, hooks                                                  |
+| **How**     | `@name`, `/name`, or shell command                | Skills load by description; rules/hooks by file patterns or lifecycle events |
+| **Example** | `@bug-resolver`, `/ccc-commit`, `daily-report.sh` | `ccc-testing-patterns` loads when you write tests                            |
 
 > Some capabilities are now handled by **bundled plugins** rather than custom artifacts: `/review` + `pr-review-toolkit:review-pr` (code review), `feature-dev:code-architect` (implementation blueprints), `/security-review` (security audits).
 
@@ -170,13 +170,13 @@ Invoke with `@agent-name`. **inherit** = follows your session model (deep-reason
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: agents -->
 
-> **Provided by enabled plugins or bundled commands instead:** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture (`feature-dev:code-architect`), simplification (`code-simplifier`), PR review bundling (`pr-review-toolkit:review-pr`), security audits (bundled `/security-review`), complex git operations (`git-workflow` skill). Custom versions were retired in favour of these — see [docs/extending.md](docs/extending.md) for the full retirement table.
+> **Provided by enabled plugins or bundled commands instead:** general code review (`pr-review-toolkit:code-reviewer`, `feature-dev:code-reviewer`), spec/architecture (`feature-dev:code-architect`), simplification (`code-simplifier`), PR review bundling (`pr-review-toolkit:review-pr`), security audits (bundled `/security-review`), complex git operations (`ccc-git-workflow` skill). Custom versions were retired in favour of these — see [docs/extending.md](docs/extending.md) for the full retirement table.
 
 </details>
 
 ### Workflow Skills
 
-Invoke with `/<name>`. Custom commands were merged into skills upstream, so these live in `skills/<name>/SKILL.md` alongside the domain skills (this repo's former `commands/` directory was migrated accordingly). Skills with a "Use when…" clause can also be auto-invoked by Claude from plain English (e.g. "commit my staged work" → `/commit`); user-only ones set `disable-model-invocation: true`. `/standup` and `/eow-review` can additionally be fired by a scheduled routine.
+Invoke with `/<name>`. Custom commands were merged into skills upstream, so these live in `skills/<name>/SKILL.md` alongside the domain skills (this repo's former `commands/` directory was migrated accordingly). Skills with a "Use when…" clause can also be auto-invoked by Claude from plain English (e.g. "commit my staged work" → `/ccc-commit`); user-only ones set `disable-model-invocation: true`. `/ccc-standup` and `/ccc-eow-review` can additionally be fired by a scheduled routine.
 
 <details>
 <!-- BEGIN GENERATED: workflow-skills -->
@@ -185,20 +185,20 @@ Invoke with `/<name>`. Custom commands were merged into skills upstream, so thes
 
 <summary><strong>12 workflow skills</strong> — click to expand</summary>
 
-| Skill            | Description                                                                                                                                                                                                                           | Who Can Invoke             |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `/adr`           | Record a technical decision as an Architecture Decision Record. Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.                                                            | you or Claude              |
-| `/commit`        | Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.                                                                                               | you or Claude              |
-| `/eow-review`    | Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week.                                                                                                             | you or Claude              |
-| `/hotfix`        | Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.                                                                                    | you or Claude              |
-| `/later`         | Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template.                                                                                                                                            | you only                   |
-| `/mkdocs-style`  | Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.                                                                                              | you or Claude              |
-| `/pr`            | Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.                                                                                                                           | you or Claude              |
-| `/project-setup` | Bootstrap a new repository end-to-end, or install this config's tooling into an existing one. Use when starting a new repo, or when applying the quality gate, git hooks, CI, and branch protection to a project that already exists. | you or Claude              |
-| `/refinement`    | Prepare technical analysis for backlog refinement meetings.                                                                                                                                                                           | you only                   |
-| `/standup`       | Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently.                                                                                                               | you, Claude, or a schedule |
-| `/status`        | Capture a quick status update and append it to today's daily log.                                                                                                                                                                     | you only                   |
-| `/usage-review`  | Measure your Claude Code session history for where your config costs output quality or efficiency, and write a local report of ranked proposals.                                                                                      | you only                   |
+| Skill                | Description                                                                                                                                                                                                                           | Who Can Invoke             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `/ccc-adr`           | Record a technical decision as an Architecture Decision Record. Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.                                                            | you or Claude              |
+| `/ccc-commit`        | Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.                                                                                               | you or Claude              |
+| `/ccc-eow-review`    | Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week.                                                                                                             | you or Claude              |
+| `/ccc-hotfix`        | Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.                                                                                    | you or Claude              |
+| `/ccc-later`         | Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template.                                                                                                                                            | you only                   |
+| `/ccc-mkdocs-style`  | Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.                                                                                              | you or Claude              |
+| `/ccc-pr`            | Open a pull request with a well-crafted description. Use when branch work is finished and ready for review.                                                                                                                           | you or Claude              |
+| `/ccc-project-setup` | Bootstrap a new repository end-to-end, or install this config's tooling into an existing one. Use when starting a new repo, or when applying the quality gate, git hooks, CI, and branch protection to a project that already exists. | you or Claude              |
+| `/ccc-refinement`    | Prepare technical analysis for backlog refinement meetings.                                                                                                                                                                           | you only                   |
+| `/ccc-standup`       | Summarize recent work across Git, GitHub, and Jira into a standup document. Use when asked what you worked on recently.                                                                                                               | you, Claude, or a schedule |
+| `/ccc-status`        | Capture a quick status update and append it to today's daily log.                                                                                                                                                                     | you only                   |
+| `/ccc-usage-review`  | Measure your Claude Code session history for where your config costs output quality or efficiency, and write a local report of ranked proposals.                                                                                      | you only                   |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: workflow-skills -->
@@ -218,15 +218,15 @@ Domain knowledge Claude loads automatically based on the conversation — matche
 
 <summary><strong>7 domain skills</strong> — click to expand</summary>
 
-| Skill               | Description                                                                                                                                                                                                                                                               |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api-design`        | REST API conventions — resources, status codes, pagination, error shapes. Use when designing or reviewing routes, controllers, endpoints, serializers, or schemas.                                                                                                        |
-| `django-patterns`   | Django app-layer and ORM conventions. Use when editing models, views, serializers, admin, managers, signals, migrations, or querysets.                                                                                                                                    |
-| `docker-patterns`   | Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.                                                                                                                                        |
-| `git-workflow`      | Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, cherry-picking, bisecting, reflog recovery. To resolve an in-progress merge or rebase conflict, use the resolving-merge-conflicts skill. |
-| `infrastructure`    | Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.                                                                                                                                            |
-| `security-patterns` | Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.                                                      |
-| `testing-patterns`  | Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.                                                                                                          |
+| Skill                   | Description                                                                                                                                                                                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ccc-api-design`        | REST API conventions — resources, status codes, pagination, error shapes. Use when designing or reviewing routes, controllers, endpoints, serializers, or schemas.                                                                                                        |
+| `ccc-django-patterns`   | Django app-layer and ORM conventions. Use when editing models, views, serializers, admin, managers, signals, migrations, or querysets.                                                                                                                                    |
+| `ccc-docker-patterns`   | Container build, security, and caching conventions. Use when editing Dockerfiles, Compose files, build contexts, or .dockerignore.                                                                                                                                        |
+| `ccc-git-workflow`      | Git branching, commits, PRs, and release workflows. Use for anything under .git, and for tricky operations — interactive rebase, cherry-picking, bisecting, reflog recovery. To resolve an in-progress merge or rebase conflict, use the resolving-merge-conflicts skill. |
+| `ccc-infrastructure`    | Terraform, Kubernetes, and Helm conventions. Use when editing infrastructure modules, manifests, charts, or deployment config.                                                                                                                                            |
+| `ccc-security-patterns` | Auth, input-validation, and secrets conventions. Use when writing or reviewing authentication, authorization, middleware, routes, JWT, CSRF, or CORS code; for a full audit of pending changes use /security-review.                                                      |
+| `ccc-testing-patterns`  | Test structure, fixtures, factories, and mocking conventions. Use when writing or reviewing tests, or files named test\_\*, \*\_test, \*.test.\*, or \*.spec.\*.                                                                                                          |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: domain-skills -->
@@ -482,31 +482,31 @@ Opt in via local/per-project settings once you've confirmed the boundary is acce
 | Run a security audit            | `/security-review` (bundled)      | Security review of pending changes                         |
 | Plan a feature before coding    | `feature-dev:code-architect`      | Implementation blueprint via plugin                        |
 | Analyze test coverage gaps      | `@test-engineer`                  | Auto-detects Django/Jest/Vitest, finds coverage gaps       |
-| Create a good commit message    | `/commit`                         | Analyzes staged changes, follows conventions               |
-| Create a pull request           | `/pr`                             | Auto-generates PR description from commits                 |
-| Check what I've been doing      | `/standup`                        | Summarizes last 24h across Git, GitHub, and Jira           |
-| Weekly summary for manager      | `/eow-review`                     | Full week review across all sources                        |
-| Prepare for backlog refinement  | `/refinement`                     | Technical analysis of tickets with code context            |
+| Create a good commit message    | `/ccc-commit`                     | Analyzes staged changes, follows conventions               |
+| Create a pull request           | `/ccc-pr`                         | Auto-generates PR description from commits                 |
+| Check what I've been doing      | `/ccc-standup`                    | Summarizes last 24h across Git, GitHub, and Jira           |
+| Weekly summary for manager      | `/ccc-eow-review`                 | Full week review across all sources                        |
+| Prepare for backlog refinement  | `/ccc-refinement`                 | Technical analysis of tickets with code context            |
 | Debug CI/CD failures            | `@ci-debugger`                    | Investigates pipeline failures, flaky tests                |
 | Optimize slow queries/endpoints | `@performance-engineer`           | Profiling, bottleneck analysis, optimization               |
 | Plan a database migration       | `@database-architect`             | Zero-downtime and expand-contract migration strategies     |
 | Review dependencies             | `@dependency-manager`             | Auto-detects npm/pip/uv/poetry/go/cargo; audits & upgrades |
 | Write documentation             | `@documentation-writer`           | README, API docs, ADRs, onboarding guides                  |
 | Headless review (no session)    | `review-changes.sh`               | Runs in CI or as a shell alias                             |
-| Record an architecture decision | `/adr`                            | Nygard-format ADR capturing context and consequences       |
-| Ship an urgent production fix   | `/hotfix`                         | Minimal-fix branch with targeted tests and PR              |
-| Capture a follow-up for later   | `/later`                          | Files a backlog item under Learn/Do/Research/Read          |
-| Log a quick status update       | `/status`                         | Appends the note to today's daily log                      |
-| Find what my config costs me    | `/usage-review`                   | Measures 30 days of sessions, ranks proposed changes       |
-| Style an MkDocs site            | `/mkdocs-style`                   | Installs the shared Ink & Indigo Material layer            |
-| Install this config in a repo   | `project-setup` (auto)            | Setup scripts, tooling vendoring, new-repo runbook         |
-| Design or review a REST API     | `api-design` (auto)               | Endpoint, serializer, pagination, error-format conventions |
-| Work on Django code             | `django-patterns` (auto)          | Model, view, migration, and queryset conventions           |
-| Write Dockerfiles or compose    | `docker-patterns` (auto)          | Build-context, caching, and container security patterns    |
-| Untangle a git mess             | `git-workflow` (auto)             | Rebase, cherry-pick, bisect, and reflog recovery           |
-| Edit Terraform, K8s, or Helm    | `infrastructure` (auto)           | IaC modules, manifests, deployment configuration           |
-| Write security-sensitive code   | `security-patterns` (auto)        | Auth, validation, secrets, JWT/CSRF/CORS patterns          |
-| Follow the repo's test idioms   | `testing-patterns` (auto)         | Fixtures, factories, mocks, and coverage conventions       |
+| Record an architecture decision | `/ccc-adr`                        | Nygard-format ADR capturing context and consequences       |
+| Ship an urgent production fix   | `/ccc-hotfix`                     | Minimal-fix branch with targeted tests and PR              |
+| Capture a follow-up for later   | `/ccc-later`                      | Files a backlog item under Learn/Do/Research/Read          |
+| Log a quick status update       | `/ccc-status`                     | Appends the note to today's daily log                      |
+| Find what my config costs me    | `/ccc-usage-review`               | Measures 30 days of sessions, ranks proposed changes       |
+| Style an MkDocs site            | `/ccc-mkdocs-style`               | Installs the shared Ink & Indigo Material layer            |
+| Install this config in a repo   | `ccc-project-setup` (auto)        | Setup scripts, tooling vendoring, new-repo runbook         |
+| Design or review a REST API     | `ccc-api-design` (auto)           | Endpoint, serializer, pagination, error-format conventions |
+| Work on Django code             | `ccc-django-patterns` (auto)      | Model, view, migration, and queryset conventions           |
+| Write Dockerfiles or compose    | `ccc-docker-patterns` (auto)      | Build-context, caching, and container security patterns    |
+| Untangle a git mess             | `ccc-git-workflow` (auto)         | Rebase, cherry-pick, bisect, and reflog recovery           |
+| Edit Terraform, K8s, or Helm    | `ccc-infrastructure` (auto)       | IaC modules, manifests, deployment configuration           |
+| Write security-sensitive code   | `ccc-security-patterns` (auto)    | Auth, validation, secrets, JWT/CSRF/CORS patterns          |
+| Follow the repo's test idioms   | `ccc-testing-patterns` (auto)     | Fixtures, factories, mocks, and coverage conventions       |
 
 </details>
 
@@ -518,8 +518,8 @@ Some tools overlap intentionally at different depths:
 Code review:     /review  →  feature-dev:code-reviewer  →  pr-review-toolkit:code-reviewer  →  /ultrareview
                  (uncommitted)  (inline, filtered)         (pre-merge audit)                   (multi-agent cloud)
 
-Reporting:       daily-report.sh  →  /standup  →  /eow-review
-                 (headless)          (24h)        (full week)
+Reporting:       daily-report.sh  →  /ccc-standup  →  /ccc-eow-review
+                 (headless)          (24h)            (full week)
 ```
 
 ### Common workflows
@@ -532,7 +532,7 @@ feature-dev:code-architect    # 1. Implementation blueprint (plugin)
   (you write the code)         # 2. Implement
 @test-engineer                 # 3. Write tests
 /review                        # 4. Quick diff check
-/commit → /pr                  # 5. Ship it
+/ccc-commit → /ccc-pr          # 5. Ship it
 ```
 
 </details>
@@ -543,7 +543,7 @@ feature-dev:code-architect    # 1. Implementation blueprint (plugin)
 ```
 @bug-resolver                  # Investigate root cause
   (you fix the code)           # Apply the fix
-/review → /commit              # Quick check and commit
+/review → /ccc-commit          # Quick check and commit
 ```
 
 </details>
@@ -552,10 +552,10 @@ feature-dev:code-architect    # 1. Implementation blueprint (plugin)
 <summary><strong>Daily development cycle</strong></summary>
 
 ```
-/standup                       # Generate standup notes
+/ccc-standup                   # Generate standup notes
   (you work)                   # Write code
 /review                        # Quick diff check before committing
-/commit → /pr                  # Commit and open PR
+/ccc-commit → /ccc-pr          # Commit and open PR
 ```
 
 </details>
@@ -575,8 +575,8 @@ review-pr.sh 142               # ...or headless: no interactive session
 <summary><strong>End-of-week reporting</strong></summary>
 
 ```
-/standup                       # Daily: last 24h activity
-/eow-review                    # Weekly: full week across Git, GitHub, and Jira
+/ccc-standup                   # Daily: last 24h activity
+/ccc-eow-review                # Weekly: full week across Git, GitHub, and Jira
 daily-report.sh                # Headless: auto-generate daily summary
 ```
 
