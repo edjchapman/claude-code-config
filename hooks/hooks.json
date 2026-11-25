@@ -96,16 +96,6 @@
         ]
       }
     ],
-    "TaskCompleted": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT:-$(readlink ~/.claude/agents | xargs dirname)}/scripts/hooks/task-completed-chime.sh"
-          }
-        ]
-      }
-    ],
     "Notification": [
       {
         "hooks": [

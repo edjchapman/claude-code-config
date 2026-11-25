@@ -186,10 +186,7 @@ cmd_hooks() {
   [ -f "$state" ] && bad "state file should be consumed+deleted" \
                   || ok "state file consumed and removed"
 
-  head_ "TaskCompleted / SessionEnd"
-  fire task-completed-chime.sh '{"hook_event_name":"TaskCompleted"}'
-  expect_rc "task-completed-chime.sh" 0
-
+  head_ "SessionEnd"
   fire session-end.sh "$(printf '{"session_id":"%s","reason":"clear"}' "$sid")"
   expect_rc "session-end.sh" 0
   [ -s "$SANDBOX/.claude/debug/session-log.csv" ] \
