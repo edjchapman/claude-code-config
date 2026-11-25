@@ -8,6 +8,11 @@
 #
 # Advisory only: it never blocks, because a shell rewrite is sometimes the right
 # tool. Scratch paths are exempt since no project rule or formatter applies.
+#
+# Bound with a `Bash|Monitor` matcher, not `Bash`: since 2.1.314 a `Bash` matcher
+# also fires on Monitor commands but presents them as Bash calls, so a
+# `cd logs && tail -f app.log` watch would be told to use Read, which cannot
+# stream. A matcher naming Monitor delivers its real tool_name, skipped below.
 
 set -u
 
@@ -16,6 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$SCRIPT_DIR/lib/hook-input.sh"
 
 PAYLOAD=$(cat 2> /dev/null || true)
+[ "$(hook_field "$PAYLOAD" tool_name)" = "Monitor" ] && exit 0
 CMD=$(hook_field "$PAYLOAD" tool_input.command)
 [ -n "$CMD" ] || exit 0
 
