@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/edjchapman/claude-code-config/compare/1.27.0...2.0.0) (2026-11-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* **skills:** prefix every skill with ccc- ([#213](https://github.com/edjchapman/claude-code-config/issues/213))
+
+### Features
+
+* **skills:** prefix every skill with ccc- ([#213](https://github.com/edjchapman/claude-code-config/issues/213)) ([b0379dd](https://github.com/edjchapman/claude-code-config/commit/b0379dd30c3bbb4ffb31e67ca10503c813d43edb))
+
 ## [1.27.0](https://github.com/edjchapman/claude-code-config/compare/1.26.0...1.27.0) (2026-11-25)
 
 
