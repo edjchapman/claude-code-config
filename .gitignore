@@ -34,3 +34,7 @@ uv.lock
 /AGENTS.md
 /.agents/
 /skills/synced/
+
+# ggshield's scan cache. ggshield appends this entry itself when it is
+# missing, which leaves a stray .gitignore diff in every worktree it scans.
+.cache_ggshield
