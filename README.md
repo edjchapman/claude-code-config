@@ -268,28 +268,28 @@ Run automatically at lifecycle events. Defined in `hooks/hooks.json` — the sou
 
 **Configured:**
 
-| Hook                        | Script                       | What It Does                                                                                                                          |
-| --------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `SessionStart`              | `settings-drift-check.sh`    | Warn when ~/.claude/settings.json has drifted from the repo's settings.json                                                           |
-| `SessionStart`              | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `PostToolUse (Write\|Edit)` | `format-on-edit.sh`          | Auto-format files after Claude edits them (unified Python + JS/TS formatter)                                                          |
-| `PostToolUse`               | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `PostToolUseFailure`        | `log-tool-failure.sh`        | Append failed tool calls to ~/.claude/logs/tool-failures.jsonl for pattern analysis                                                   |
-| `PreToolUse (Bash)`         | `dangerous-cmd-check.sh`     | Defense-in-depth: block obviously catastrophic command patterns before they run.                                                      |
-| `PreToolUse (Bash)`         | `shell-file-access-nudge.sh` | Nudge Claude back to Read/Edit/Write when a shell command reads or writes files in a way that skips path-scoped rules and edit hooks. |
-| `PreToolUse`                | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `PreCompact`                | `pre-compact-state.sh`       | Preserve working state before context compaction                                                                                      |
-| `PostCompact`               | `post-compact-restore.sh`    | Re-inject the pre-compaction state snapshot after context compaction completes                                                        |
-| `Notification`              | `notify-attention.sh`        | Desktop notification when Claude is blocked on you (permission request or idle wait)                                                  |
-| `Notification`              | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `SessionEnd`                | `session-end.sh`             | Record each session end — always a CSV row, plus a git summary in ./standups/                                                         |
-| `SessionEnd`                | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `UserPromptSubmit`          | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `PermissionRequest`         | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `Stop`                      | `stop-check.sh`              | Run the project's check command before Claude finishes, and send failures back as a blocked stop.                                     |
-| `Stop`                      | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `StopFailure`               | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
-| `SubagentStop`              | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| Hook                         | Script                       | What It Does                                                                                                                          |
+| ---------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `SessionStart`               | `settings-drift-check.sh`    | Warn when ~/.claude/settings.json has drifted from the repo's settings.json                                                           |
+| `SessionStart`               | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `PostToolUse (Write\|Edit)`  | `format-on-edit.sh`          | Auto-format files after Claude edits them (unified Python + JS/TS formatter)                                                          |
+| `PostToolUse`                | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `PostToolUseFailure`         | `log-tool-failure.sh`        | Append failed tool calls to ~/.claude/logs/tool-failures.jsonl for pattern analysis                                                   |
+| `PreToolUse (Bash)`          | `dangerous-cmd-check.sh`     | Defense-in-depth: block obviously catastrophic command patterns before they run.                                                      |
+| `PreToolUse (Bash\|Monitor)` | `shell-file-access-nudge.sh` | Nudge Claude back to Read/Edit/Write when a shell command reads or writes files in a way that skips path-scoped rules and edit hooks. |
+| `PreToolUse`                 | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `PreCompact`                 | `pre-compact-state.sh`       | Preserve working state before context compaction                                                                                      |
+| `PostCompact`                | `post-compact-restore.sh`    | Re-inject the pre-compaction state snapshot after context compaction completes                                                        |
+| `Notification`               | `notify-attention.sh`        | Desktop notification when Claude is blocked on you (permission request or idle wait)                                                  |
+| `Notification`               | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `SessionEnd`                 | `session-end.sh`             | Record each session end — always a CSV row, plus a git summary in ./standups/                                                         |
+| `SessionEnd`                 | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `UserPromptSubmit`           | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `PermissionRequest`          | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `Stop`                       | `stop-check.sh`              | Run the project's check command before Claude finishes, and send failures back as a blocked stop.                                     |
+| `Stop`                       | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `StopFailure`                | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
+| `SubagentStop`               | `iterm2-status.sh`           | Forward session events to iTerm2's Claude Code status integration.                                                                    |
 
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: hooks -->
@@ -688,7 +688,7 @@ claude-code-config/
     │   ├── pre-compact-state.sh        # PreCompact
     │   ├── session-end.sh              # SessionEnd
     │   ├── settings-drift-check.sh     # SessionStart
-    │   ├── shell-file-access-nudge.sh  # PreToolUse (Bash)
+    │   ├── shell-file-access-nudge.sh  # PreToolUse (Bash|Monitor)
     │   ├── statusline.sh               # settings.json statusLine.command
     │   ├── stop-check.sh               # Stop
     │   └── lib/                        # shared helpers sourced by the hook scripts

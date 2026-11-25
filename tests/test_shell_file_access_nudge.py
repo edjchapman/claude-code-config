@@ -9,10 +9,13 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 HOOK = REPO_ROOT / "scripts" / "hooks" / "shell-file-access-nudge.sh"
 
 
-def run_hook(command):
+def run_hook(command, tool_name=None):
+    payload = {"tool_input": {"command": command}}
+    if tool_name:
+        payload["tool_name"] = tool_name
     proc = subprocess.run(
         [str(HOOK)],
-        input=json.dumps({"tool_input": {"command": command}}),
+        input=json.dumps(payload),
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
@@ -49,10 +52,18 @@ class TestNudges(unittest.TestCase):
 
 
 class TestStaysQuiet(unittest.TestCase):
-    def assert_quiet(self, command):
-        code, out = run_hook(command)
+    def assert_quiet(self, command, tool_name=None):
+        code, out = run_hook(command, tool_name)
         self.assertEqual(code, 0, command)
         self.assertEqual(out, "", f"unexpected nudge for: {command!r}")
+
+    def test_monitor_watch(self):
+        # Read cannot stream, so a Monitor watch gets no "Use Read" nudge.
+        self.assert_quiet("cd logs && tail -f app.log", tool_name="Monitor")
+
+    def test_bash_compound_tail_still_nudged(self):
+        code, out = run_hook("cd logs && tail -5 app.log", tool_name="Bash")
+        self.assertIn("Use Read", out)
 
     def test_simple_reads_load_rules(self):
         for command in ("cat a.txt", "head -2 a.txt", "sed -n 1,2p a.txt", "grep x a.txt"):
