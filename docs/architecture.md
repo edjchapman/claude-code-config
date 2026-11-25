@@ -244,7 +244,7 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 
 - `/adr`: Record a technical decision as an Architecture Decision Record. Use when weighing a framework, library, database, or schema-migration trade-off, or when asked for an ADR.
 - `/commit`: Analyze staged changes and write a conventional commit message. Use when staged changes are ready to commit or a message needs wording.
-- `/eow-review`: Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week. **Schedulable** — fired by the end-of-week review routine (issue #52).
+- `/eow-review`: Summarize the full week's work across Git, GitHub, and Jira into end-of-week review notes. Use when wrapping up the week.
 - `/hotfix`: Ship an urgent production fix — minimal change, targeted tests, PR. Use when the user says "hotfix" or describes a bug that has to reach main now.
 - `/later`: Create a "Later" backlog item (Learn / Research / Do / Read) from a configurable template. **User-only.**
 - `/mkdocs-style`: Install or refresh the shared MkDocs Material style layer (Ink & Indigo on warm paper). Use when setting up or restyling a docs project.
@@ -258,7 +258,7 @@ Skills use the official nested layout: `skills/<name>/SKILL.md`. Custom commands
 <!-- prettier-ignore-end -->
 <!-- END GENERATED: arch-skills -->
 
-The user-only skills above set `disable-model-invocation: true`. **Scheduling constraint**: that flag also prevents a skill from running when a scheduled task fires with the skill as its prompt (v2.1.196+) — `/standup` and `/eow-review` deliberately omit it so scheduled routines can run them.
+The user-only skills above set `disable-model-invocation: true`. **Scheduling constraint**: that flag also prevents a skill from running when a scheduled task fires with the skill as its prompt (v2.1.196+) — `/standup` deliberately omits it so its scheduled routine can run it.
 
 ### Rules
 
@@ -425,12 +425,11 @@ The repo's philosophy is **automatic over explicit** — prefer a mechanism that
 Live routines — this section is the canonical home for their schedules and delivery targets; README links here rather than restating them (manage at <https://claude.ai/code/routines>):
 
 - **Daily standup prep** — weekdays 07:30 UTC (~08:30 London in summer), runs the `/standup` workflow against GitHub, delivers a comment on the pinned tracking issue [#51](https://github.com/edjchapman/claude-code-config/issues/51). Cloud sessions can't read local `./standups/` logs, so the routine prompt is self-contained.
-- **End-of-week review** — Fridays 15:00 UTC (~16:00 London in summer), same pattern via the `/eow-review` workflow, delivering to issue [#52](https://github.com/edjchapman/claude-code-config/issues/52).
 - **Upstream watch** — Mondays 07:00 UTC, runs the maintainer-only `upstream-watch` skill (`.claude/skills/`, not shipped): reads the Claude Code changelog since the last run, opens up to three pull requests labelled `proposal` and `upstream-watch`, and never merges. Each run comments the version it reviewed up to on the pinned issue [#187](https://github.com/edjchapman/claude-code-config/issues/187); a cloud run keeps nothing else, so the next run starts from that comment.
 
-Delivery is a GitHub issue comment because GitHub is the one dependency the cloud sandbox already needs for activity gathering — no separate connector auth to go stale. Keep #51/#52/#187 open — a closed issue orphans the routine behind it: its delivery target or, for #187, its state.
+Delivery is a GitHub issue comment because GitHub is the one dependency the cloud sandbox already needs for activity gathering — no separate connector auth to go stale. Keep #51/#187 open — a closed issue orphans the routine behind it: its delivery target or, for #187, its state.
 
-Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum routine interval is 1 hour; and a skill with `disable-model-invocation: true` **cannot** be fired by a scheduled task — which is why `standup`/`eow-review`/`upstream-watch` omit that flag, and why `generate.py --check` fails if one gains it. In a cloud session `gh pr` and `gh issue` return 403; `gh api` against the REST endpoints works.
+Gotchas: cron expressions are UTC (runs shift an hour in UK winter); minimum routine interval is 1 hour; and a skill with `disable-model-invocation: true` **cannot** be fired by a scheduled task — which is why `standup`/`upstream-watch` omit that flag, and why `generate.py --check` fails if one gains it. In a cloud session `gh pr` and `gh issue` return 403; `gh api` against the REST endpoints works.
 
 ### Agent Definitions
 
