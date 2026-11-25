@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/edjchapman/claude-code-config/compare/2.0.0...2.1.0) (2026-11-25)
+
+
+### Features
+
+* **output-styles:** add wording rules, a turn report and fork options to Scannable ([#215](https://github.com/edjchapman/claude-code-config/issues/215)) ([d5e7708](https://github.com/edjchapman/claude-code-config/commit/d5e7708ffde64fedc22c0434bd60d427e378bf3e))
+
+
+### Bug Fixes
+
+* **output-styles:** raise Scannable's working-turn threshold ([#217](https://github.com/edjchapman/claude-code-config/issues/217)) ([3267d7c](https://github.com/edjchapman/claude-code-config/commit/3267d7cd6215508eabe76ecfa38fda9bb9fb3b9e))
+
 ## [2.0.0](https://github.com/edjchapman/claude-code-config/compare/1.27.0...2.0.0) (2026-11-25)
 
 
