@@ -28,4 +28,8 @@ jobs:
           # repo (Workflows R/W is optional, only for workflow edits).
           # Falls back to GITHUB_TOKEN if the secret isn't set, so the
           # workflow keeps working during initial setup.
+          # The current PAT expires 2027-02-11: rotate it before then and
+          # update this date. An expired PAT still counts as set, so there
+          # is no fallback and this job fails on every push to main (as it
+          # did for two months from 2026-09-28).
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
